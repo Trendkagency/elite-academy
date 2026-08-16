@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite Academy — Digital Learning Platform</title>
+  <meta name="description" content="Elite Academy is a premier educational platform offering world-class courses in Programming, AI, Mathematics, Science, Languages, and Design.">
+  <link rel="alternate" hreflang="en" href="https://elite-academy.com/en/">
+  <link rel="alternate" hreflang="ar" href="https://elite-academy.com/ar/">
+  <link rel="stylesheet" href="dist/output.css">
+</head>
+<body class="bg-[#FAFAF9] text-slate-900 font-sans antialiased selection:bg-teal-100 selection:text-teal-900 overflow-x-hidden">
+
+  <!-- BACKGROUND DEPTH: FLOATING AMBIENT MESH BLOBS & GEOMETRIC ACCENTS (Req #4) -->
+  <div class="fixed top-8 -left-24 w-[34rem] h-[34rem] bg-teal-400/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow -z-10"></div>
+  <div class="fixed top-1/3 -right-24 w-[34rem] h-[34rem] bg-orange-400/15 rounded-full blur-3xl pointer-events-none animate-float -z-10"></div>
+  <div class="fixed bottom-20 left-1/3 w-[28rem] h-[28rem] bg-purple-400/15 rounded-full blur-3xl pointer-events-none animate-float-reverse -z-10"></div>
+  
+  <!-- Subtle Floating Decorative Ambient Shapes (Req #4 & #7) -->
+  <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
+  <div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float pointer-events-none -z-10"></div>
+
+  <!-- ========================================== -->
+  <!-- HEADER / NAVBAR WITH ENLARGED LOGO (Req #1)-->
+  <!-- ========================================== -->
+  <header class="anim-nav sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] lg:h-[80px] flex items-center justify-between gap-4">
+      
+      <!-- Brand Standalone Logo -->
+      <a href="index.html" class="flex items-center group focus-visible:outline-teal-600 rounded-xl py-1 transition-all duration-300">
+        <img src="images/logo.png" alt="Elite Academy Logo" class="h-[42px] md:h-[50px] lg:h-[60px] w-auto object-contain transition-transform duration-250 ease-out group-hover:scale-[1.03]">
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-7 font-medium text-sm text-slate-600">
+        <a href="index.html" data-i18n="navbar.home" class="text-teal-600 font-bold py-1 border-b-2 border-teal-600">Home</a>
+        <a href="subjects.html" data-i18n="navbar.subjects" class="link-underline hover:text-teal-600 transition-colors py-1">Subjects</a>
+        <a href="teachers.html" data-i18n="navbar.instructors" class="link-underline hover:text-teal-600 transition-colors py-1">Instructors</a>
+        <a href="blog.html" data-i18n="navbar.blog" class="link-underline hover:text-teal-600 transition-colors py-1">Blog</a>
+        <a href="about.html" data-i18n="navbar.about" class="link-underline hover:text-teal-600 transition-colors py-1">About</a>
+        <a href="contact.html" data-i18n="navbar.contact" class="link-underline hover:text-teal-600 transition-colors py-1">Contact</a>
+      </nav>
+
+      <!-- Desktop Action CTAs -->
+      <div class="hidden md:flex items-center gap-4">
+        <button id="lang-toggle-btn" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 hover:text-teal-600 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white/80 hover:bg-white shadow-2xs transition-all cursor-pointer min-h-[44px]">
+          <span>🌐</span>
+          <span id="lang-label">العربية</span>
+        </button>
+        <a href="login.html" data-i18n="navbar.login" class="text-sm font-semibold text-slate-700 hover:text-teal-600 transition-colors px-3.5 py-2 min-h-[44px] inline-flex items-center">Log in</a>
+        <a href="register.html" data-i18n="navbar.portal" class="btn-lift text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-5 py-2.5 rounded-xl shadow-md shadow-teal-600/20 min-h-[44px] inline-flex items-center">Student Portal</a>
+      </div>
+
+      <!-- Mobile Drawer Toggle (Minimum 48px x 48px touch target) -->
+      <label for="nav-toggle" class="md:hidden touch-target p-2.5 text-slate-700 hover:text-teal-600 bg-slate-100/80 hover:bg-slate-200/80 rounded-2xl cursor-pointer focus-within:ring-2 focus-within:ring-teal-600 touch-press" aria-label="Toggle Navigation Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </label>
+    </div>
+  </header>
+
+  <!-- Premium Mobile Fullscreen Glassmorphism Drawer -->
+  <input type="checkbox" id="nav-toggle" class="peer hidden">
+  <div class="fixed inset-0 z-50 drawer-backdrop opacity-0 pointer-events-none peer-checked:opacity-100 peer-checked:pointer-events-auto transition-opacity duration-300 md:hidden drawer-overlay">
+    <div class="fixed inset-y-0 drawer-content w-[88vw] max-w-md bg-white/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between rounded-t-[2.5rem] md:rounded-none z-50">
+      <div>
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+          <a href="index.html" class="flex items-center">
+            <img src="images/logo.png" alt="Elite Academy Logo" class="h-16 sm:h-20 w-auto object-contain">
+          </a>
+          <label for="nav-toggle" class="touch-target p-2.5 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 cursor-pointer touch-press" aria-label="Close Menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </label>
+        </div>
+
+        <!-- Drawer Navigation Items -->
+        <nav class="flex flex-col gap-2 py-6 font-semibold text-slate-800">
+          <a href="index.html" data-i18n="navbar.home" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl bg-teal-50/80 text-teal-700 font-bold flex items-center justify-between border border-teal-100/50 touch-press">
+            <span>Home</span>
+            <span class="text-teal-500 text-sm">→</span>
+          </a>
+          <a href="subjects.html" data-i18n="navbar.subjects" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Subjects</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="teachers.html" data-i18n="navbar.instructors" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Instructors</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="events.html" data-i18n="navbar.events" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Events</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="blog.html" data-i18n="navbar.blog" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Blog</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="about.html" data-i18n="navbar.about" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>About</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="contact.html" data-i18n="navbar.contact" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Contact</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Drawer Bottom Actions -->
+      <div class="flex flex-col gap-3 pt-6 border-t border-slate-100">
+        <button id="mobile-lang-toggle-btn" class="btn-mobile-lg text-sm font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 cursor-pointer touch-press">
+          <span class="mr-2">🌐</span>
+          <span id="mobile-lang-label">العربية</span>
+        </button>
+        <a href="login.html" data-i18n="navbar.login" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press">Log in</a>
+        <a href="register.html" data-i18n="navbar.portal" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press">Student Portal</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 01: HERO SLIDER (4 Fullscreen Slides) -->
+  <!-- ========================================== -->
+  <section class="w-full min-h-[75vh] lg:min-h-[95vh] relative overflow-hidden bg-slate-950 text-white flex flex-col justify-between hero-section">
+    
+    <!-- Hidden Pure CSS Radio Triggers for 4 Slides -->
+    <input type="radio" name="hero-slide" id="slide-1" class="peer/s1 hidden" checked>
+    <input type="radio" name="hero-slide" id="slide-2" class="peer/s2 hidden">
+    <input type="radio" name="hero-slide" id="slide-3" class="peer/s3 hidden">
+    <input type="radio" name="hero-slide" id="slide-4" class="peer/s4 hidden">
+
+    <!-- Ambient Mesh Radial Glows Behind Photography -->
+    <div class="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-teal-500/20 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-glow"></div>
+    <div class="absolute bottom-0 right-0 w-[45rem] h-[45rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none z-0 animate-float"></div>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 01: PROGRAMMING & TECHNOLOGY        -->
+    <!-- ========================================== -->
+    <div class="absolute inset-0 z-10 hidden peer-checked/s1:flex flex-col justify-between transition-all duration-700">
+      <img src="images/hero_student.png" alt="Programming & Tech Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+        <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+            <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+            <span>💻 Programming & Tech Track</span>
+          </div>
+
+          <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+            Build Your Future Through <span class="text-teal-300 underline decoration-orange-500 underline-offset-8">Technology.</span>
+          </h1>
+
+          <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+            Master programming with industry experts through hands-on projects and interactive cohorts.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+            <a href="subjects.html" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+              <span>Explore Programming</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+            <a href="register.html" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+              <span>Book Free Trial</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Floating Stat Cards on Mobile -->
+        <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              120+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_accredited">ACCREDITED</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_courses">Courses</p>
+            </div>
+          </div>
+
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              25K+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_global">GLOBAL</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_students">Students</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 02: ARTIFICIAL INTELLIGENCE         -->
+    <!-- ========================================== -->
+    <div class="absolute inset-0 z-10 hidden peer-checked/s2:flex flex-col justify-between transition-all duration-700">
+      <img src="images/course_ai.png" alt="AI Neural Networks Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+        <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
+            <span>🧠 Artificial Intelligence Track</span>
+          </div>
+
+          <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+            Learn Artificial Intelligence. <span class="text-purple-300 underline decoration-teal-400 underline-offset-8">Shape Tomorrow.</span>
+          </h1>
+
+          <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+            Explore Machine Learning, Deep Neural Networks, and modern computer vision.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+            <a href="subject-details.html" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 shadow-lg shadow-purple-600/25">
+              <span>Explore AI</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+            <a href="courses.html" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+              <span>View Curriculum</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              120+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_accredited">ACCREDITED</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_courses">Courses</p>
+            </div>
+          </div>
+
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              25K+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_global">GLOBAL</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_students">Students</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 03: ROBOTICS & ENGINEERING          -->
+    <!-- ========================================== -->
+    <div class="absolute inset-0 z-10 hidden peer-checked/s3:flex flex-col justify-between transition-all duration-700">
+      <img src="images/instructor_male.png" alt="Robotics Engineering Lab" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+        <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+            <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse"></span>
+            <span>🤖 Robotics Track</span>
+          </div>
+
+          <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+            Build. Create. <span class="text-orange-300 underline decoration-purple-400 underline-offset-8">Innovate.</span>
+          </h1>
+
+          <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+            Design real robots and autonomous engineering hardware inside state-of-the-art labs.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+            <a href="subjects.html" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 shadow-lg shadow-orange-500/25">
+              <span>Explore Robotics</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+            <a href="event-details.html" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+              <span>Join Workshop</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+          <div class="glass-card bg-white/15 backdrop-blur-lg p-3.5 sm:p-4 rounded-3xl border border-white/25 shadow-xl flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-orange-500/30 text-orange-300 flex items-center justify-center font-extrabold text-base border border-orange-400/40 shrink-0">50+</div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-xs font-mono uppercase text-slate-300 font-bold">Autonomous</p>
+              <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">Robotics Projects</p>
+            </div>
+          </div>
+
+          <div class="glass-card bg-white/15 backdrop-blur-lg p-3.5 sm:p-4 rounded-3xl border border-white/25 shadow-xl flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-teal-500/30 text-teal-300 flex items-center justify-center font-extrabold text-base border border-teal-400/40 shrink-0">Live</div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-xs font-mono uppercase text-slate-300 font-bold">Hands-On</p>
+              <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">Workshops</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 04: SCIENCE & MATHEMATICS           -->
+    <!-- ========================================== -->
+    <div class="absolute inset-0 z-10 hidden peer-checked/s4:flex flex-col justify-between transition-all duration-700">
+      <img src="images/academy_campus.png" alt="Science Laboratory" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+        <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+            <span>🔬 Science & Math Track</span>
+          </div>
+
+          <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+            Curiosity Creates <span class="text-teal-300 underline decoration-orange-500 underline-offset-8">Excellence.</span>
+          </h1>
+
+          <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+            Interactive science and mathematics education designed to build problem-solving mindsets.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+            <a href="subjects.html" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 shadow-lg shadow-teal-500/25">
+              <span>Explore Science</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+            <a href="register.html" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+              <span>Book Trial</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              120+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_accredited">ACCREDITED</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_courses">Courses</p>
+            </div>
+          </div>
+
+          <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
+              25K+
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400" data-i18n="home.stat_global">GLOBAL</p>
+              <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight" data-i18n="home.stat_students">Students</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+              <span>Explore Subjects</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+            <a href="register.html" class="btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-extrabold text-white bg-white/12 hover:bg-white/20 border border-white/30 px-8 py-4 rounded-2xl backdrop-blur-md shadow-md shadow-white/10">
+              <span>Apply Now</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 relative flex flex-col gap-4">
+          <div class="glass-card bg-white/15 backdrop-blur-lg p-5 rounded-2xl border border-white/25 shadow-2xl shadow-slate-950/40 flex items-center gap-4 animate-float">
+            <div class="w-12 h-12 rounded-xl bg-teal-500/30 text-teal-300 flex items-center justify-center font-extrabold text-lg icon-rotate border border-teal-400/40 shadow-sm">100%</div>
+            <div>
+              <p class="text-xs font-mono uppercase text-slate-300 font-bold">Cohort</p>
+              <p class="text-sm font-extrabold text-white">Interactive Labs</p>
+            </div>
+          </div>
+
+          <div class="glass-card bg-white/15 backdrop-blur-lg p-5 rounded-2xl border border-white/25 shadow-2xl shadow-slate-950/40 flex items-center gap-4 animate-float-reverse">
+            <div class="w-12 h-12 rounded-xl bg-rose-500/30 text-rose-300 flex items-center justify-center font-extrabold text-lg icon-rotate border border-rose-400/40 shadow-sm">Cert</div>
+            <div>
+              <p class="text-xs font-mono uppercase text-slate-300 font-bold" data-i18n="home.stat_global">GLOBAL</p>
+              <p class="text-sm font-extrabold text-white">Certified Teachers</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- EDITORIAL PROGRESS BAR SLIDE COUNTER      -->
+    <!-- Format: 01 ━━━━━━━━━━ 04                 -->
+    <!-- ========================================== -->
+    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8 flex items-center justify-between border-t border-white/15 pt-6">
+      
+      <!-- Editorial Slide Counter with Active Segment Line -->
+      <div class="font-mono text-sm font-bold text-slate-200 flex items-center gap-4">
+        <span class="text-teal-400 text-xl font-extrabold tracking-wider">
+          <span class="hidden peer-checked/s1:inline">01</span>
+          <span class="hidden peer-checked/s2:inline">02</span>
+          <span class="hidden peer-checked/s3:inline">03</span>
+          <span class="hidden peer-checked/s4:inline">04</span>
+        </span>
+
+        <!-- Segmented Progress Indicator Bar -->
+        <div class="w-32 sm:w-48 h-1.5 bg-white/20 rounded-full relative overflow-hidden">
+          <div class="absolute top-0 bottom-0 left-0 bg-teal-400 rounded-full transition-all duration-500 peer-checked/s1:w-1/4 peer-checked/s2:w-2/4 peer-checked/s3:w-3/4 peer-checked/s4:w-full"></div>
+        </div>
+
+        <span class="text-slate-400 text-sm">04</span>
+      </div>
+
+      <!-- Interactive Slide Selectors & Arrow Controls -->
+      <div class="flex items-center gap-4">
+        <!-- Direct Jump Slide Dots -->
+        <div class="hidden sm:flex items-center gap-2.5">
+          <label for="slide-1" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s1:bg-teal-400 peer-checked/s1:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 01"></label>
+          <label for="slide-2" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s2:bg-purple-400 peer-checked/s2:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 02"></label>
+          <label for="slide-3" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s3:bg-orange-400 peer-checked/s3:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 03"></label>
+          <label for="slide-4" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s4:bg-teal-400 peer-checked/s4:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 04"></label>
+        </div>
+
+        <!-- Arrow Triggers -->
+        <div class="flex items-center gap-2.5">
+          <label for="slide-1" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md">
+            &larr;
+          </label>
+          <label for="slide-2" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md">
+            &rarr;
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 1: OVERLAPPING GLASS STATISTICS    -->
+  <!-- @laravel_crud: SettingsModel               -->
+  <!-- ========================================== -->
+  <section class="relative z-30 -mt-10 md:-mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white/92 backdrop-blur-md border border-white/80 rounded-3xl shadow-2xl shadow-slate-900/10 p-6 md:p-8">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center divide-x-0 md:divide-x divide-slate-200/60">
+        
+        <div class="anim-hero delay-1 space-y-1 p-2 group sr-stat">
+          <p class="font-mono font-extrabold text-3xl sm:text-4xl text-teal-600 group-hover:scale-105 transition-transform duration-300"><span data-count="25000+">25,000+</span></p>
+          <p class="text-xs font-semibold text-slate-600" data-i18n="home.stat_students">Active Students</p>
+        </div>
+
+        <div class="anim-hero delay-2 space-y-1 p-2 group sr-stat">
+          <p class="font-mono font-extrabold text-3xl sm:text-4xl text-teal-600 group-hover:scale-105 transition-transform duration-300"><span data-count="120+">120+</span></p>
+          <p class="text-xs font-semibold text-slate-600">Accredited Courses</p>
+        </div>
+
+        <div class="anim-hero delay-3 space-y-1 p-2 group sr-stat">
+          <p class="font-mono font-extrabold text-3xl sm:text-4xl text-teal-600 group-hover:scale-105 transition-transform duration-300"><span data-count="45+">45+</span></p>
+          <p class="text-xs font-semibold text-slate-600">PhD Faculty Mentors</p>
+        </div>
+
+        <div class="anim-hero delay-4 space-y-1 p-2 group sr-stat">
+          <p class="font-mono font-extrabold text-3xl sm:text-4xl text-orange-500 group-hover:scale-105 transition-transform duration-300"><span data-count="98.5%">98.5%</span></p>
+          <p class="text-xs font-semibold text-slate-600">Parent Satisfaction</p>
+        </div>
+
+        <div class="anim-hero delay-5 col-span-2 md:col-span-1 space-y-1 p-2 group sr-stat">
+          <p class="font-mono font-extrabold text-3xl sm:text-4xl text-teal-600 group-hover:scale-105 transition-transform duration-300"><span data-count="100%">100%</span></p>
+          <p class="text-xs font-semibold text-slate-600">Global Certifications</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 01.5: WHY CHOOSE ELITE SECTION     -->
+  <!-- Unified Editorial Side-by-Side Composition -->
+  <!-- @laravel_crud: WhyChooseModel              -->
+  <!-- ========================================== -->
+  <section class="py-12 sm:py-20 lg:py-28 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/70">
+    <!-- Ambient Backdrop Blurs -->
+    <div class="absolute top-1/3 -left-20 w-72 h-72 sm:w-[30rem] sm:h-[30rem] bg-teal-400/15 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
+    <div class="absolute bottom-10 right-0 w-64 h-64 sm:w-[28rem] sm:h-[28rem] bg-orange-400/12 rounded-full blur-3xl pointer-events-none -z-10 animate-float"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Unified Side-by-Side Horizontal Composition (Preserved on ALL viewports) -->
+      <div class="flex flex-row items-center gap-4 sm:gap-8 lg:gap-14">
+        
+        <!-- LEFT SIDE: 38-40% Mentor Photo Frame with Floating Glow -->
+        <div class="w-[38%] sm:w-[40%] lg:w-[42%] flex-shrink-0 relative group sr-img">
+          <!-- Background Decorative Glow Shapes -->
+          <div class="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-24 h-24 sm:w-48 sm:h-48 bg-teal-400/25 rounded-full blur-2xl pointer-events-none -z-10 animate-pulse-glow"></div>
+          <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/20 rounded-full blur-2xl pointer-events-none -z-10 animate-float"></div>
+
+          <!-- Main Mentor Photo Frame (Aspect 4:5, 32px Radius) -->
+          <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white animate-float">
+            <img src="images/hero_student.png" alt="Why Students Choose Elite Academy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE: 60% Editorial Content Stack -->
+        <div class="flex-1 space-y-3 sm:space-y-6">
+          
+          <!-- Eyebrow Badge + Editorial Heading + 2-Line Subtitle -->
+          <div class="space-y-1.5 sm:space-y-3">
+            <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse" data-i18n="home.why_badge">
+              WHY ELITE
+            </span>
+
+            <h2 class="font-heading font-black text-base sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 tracking-tight leading-tight" data-i18n="home.why_title">
+              Why Students Choose <span class="text-teal-600 underline decoration-orange-500 underline-offset-4 sm:underline-offset-8">Elite Academy</span>
+            </h2>
+
+            <p class="text-slate-600 text-xs sm:text-base font-medium leading-relaxed line-clamp-2" data-i18n="home.why_subtitle">
+              Discover how our accredited programs and experienced faculty prepare you for global career success.
+            </p>
+          </div>
+
+          <!-- Compact Editorial Feature Rows (Zero Boxes, Zero Dividers) -->
+          <div class="space-y-2 sm:space-y-4 pt-1 sm:pt-2" data-stagger>
+            
+            <!-- Feature Row 01: 250+ Courses -->
+            <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
+              <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
+                🎓
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 group-hover:text-teal-600 transition-colors leading-tight truncate">
+                  250+ Courses
+                </h3>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">
+                  Industry-recognized curriculum.
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature Row 02: Expert Teachers -->
+            <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
+              <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
+                👨‍🏫
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 group-hover:text-teal-600 transition-colors leading-tight truncate">
+                  Expert Teachers
+                </h3>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">
+                  Learn from experienced educators.
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature Row 03: International Certificates -->
+            <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
+              <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
+                🌍
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 group-hover:text-teal-600 transition-colors leading-tight truncate">
+                  International Certificates
+                </h3>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">
+                  Recognized academic credentials.
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature Row 04: Practical Learning -->
+            <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
+              <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
+                🛠
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 group-hover:text-teal-600 transition-colors leading-tight truncate">
+                  Practical Learning
+                </h3>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">
+                  Hands-on projects and labs.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- ========================================== -->
+  <!-- SECTION 02: ABOUT ELITE ACADEMY            -->
+  <!-- @laravel_crud: AboutModel                  -->
+  <!-- ========================================== -->
+  <!-- ========================================== -->
+  <!-- SECTION 02: ABOUT ELITE ACADEMY           -->
+  <section class="py-16 md:py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden">
+    <!-- Ambient Background Glows & Texture -->
+    <div class="absolute top-1/2 -left-24 w-[36rem] h-[36rem] bg-teal-400/12 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
+    <div class="absolute bottom-10 right-0 w-[32rem] h-[32rem] bg-orange-400/10 rounded-full blur-3xl pointer-events-none -z-10 animate-float"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- MOBILE-ONLY ABOUT LAYOUT (<768px) -->
+      <div class="block md:hidden space-y-6 anim-about delay-1">
+        
+        <!-- 1. Title & Short Description (Max 2 lines) -->
+        <div class="space-y-2">
+          <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
+            ABOUT ELITE
+          </span>
+          <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+            Redefining Education For <span class="text-teal-600 underline decoration-orange-500 underline-offset-4">Future Innovators</span>
+          </h2>
+          <p class="text-slate-600 text-sm font-medium leading-relaxed line-clamp-2">
+            Empowering future leaders through hands-on learning, PhD mentorship, and accredited certifications.
+          </p>
+        </div>
+
+        <!-- 2. SIDE-BY-SIDE: Image on LEFT (40%), Features on RIGHT (60%) -->
+        <div class="flex flex-row items-center gap-4">
+          
+          <!-- LEFT (40%): Image -->
+          <div class="w-[40%] shrink-0">
+            <div class="relative rounded-2xl overflow-hidden aspect-[4/5] border border-slate-200 shadow-md">
+              <img src="images/academy_campus.png" alt="Elite Academy Campus" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+              <span class="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-xs">
+                Campus
+              </span>
+            </div>
+          </div>
+
+          <!-- RIGHT (60%): 4 Features (Icon + Bold Title + Short Line) -->
+          <div class="w-[60%] space-y-3.5">
+            
+            <div class="flex items-start gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base font-bold shrink-0">
+                🎓
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs text-slate-900 leading-tight">Expert Mentors</h3>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight truncate">PhD faculty guidance.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base font-bold shrink-0">
+                💻
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs text-slate-900 leading-tight">Practical Learning</h3>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight truncate">Hands-on lab projects.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base font-bold shrink-0">
+                🌍
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs text-slate-900 leading-tight">Global Certificates</h3>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight truncate">Accredited diplomas.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base font-bold shrink-0">
+                🚀
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-heading font-extrabold text-xs text-slate-900 leading-tight">Career Support</h3>
+                <p class="text-[10px] text-slate-500 font-medium leading-tight truncate">Job readiness tracks.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- 3. Full-width Mobile CTA -->
+        <div>
+          <a href="about.html" class="btn-lift w-full inline-flex items-center justify-center gap-2 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 min-h-[52px] rounded-2xl shadow-md touch-press">
+            <span>Learn More About Elite</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+
+      </div>
+
+
+      <!-- DESKTOP / TABLET ABOUT LAYOUT (>=768px - UNCHANGED) -->
+      <div class="hidden md:grid md:grid-cols-12 md:gap-10 lg:gap-16 md:items-center">
+        
+        <!-- LEFT COLUMN: Content (Desktop 50%) -->
+        <div class="md:col-span-6 flex flex-col space-y-6 lg:space-y-8">
+          
+          <div class="space-y-3 sm:space-y-4">
+            <span class="anim-about delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+              ABOUT ELITE
+            </span>
+            
+            <h2 class="anim-about delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
+              Redefining Education For <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Future Innovators.</span>
+            </h2>
+
+            <p class="anim-about delay-3 sr-img text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
+              Building future-ready students through practical learning, world-class mentorship, and industry-accredited certifications.
+            </p>
+          </div>
+
+          <div class="anim-about delay-4 sr grid grid-cols-2 gap-4 border-t border-slate-200/80 pt-6">
+            
+            <div class="flex items-center gap-3 group">
+              <div class="w-10 h-10 rounded-xl bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0">
+                🎓
+              </div>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
+                Expert Mentors
+              </h3>
+            </div>
+
+            <div class="flex items-center gap-3 group">
+              <div class="w-10 h-10 rounded-xl bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0">
+                💻
+              </div>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
+                Practical Learning
+              </h3>
+            </div>
+
+            <div class="flex items-center gap-3 group">
+              <div class="w-10 h-10 rounded-xl bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0">
+                🌍
+              </div>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
+                Global Certificates
+              </h3>
+            </div>
+
+            <div class="flex items-center gap-3 group">
+              <div class="w-10 h-10 rounded-xl bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0">
+                🚀
+              </div>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
+                Career Support
+              </h3>
+            </div>
+
+          </div>
+
+          <div class="anim-about delay-5 pt-1">
+            <a href="about.html" class="btn-lift group inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-extrabold text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-8 py-4 rounded-2xl shadow-lg shadow-teal-600/20 touch-press">
+              <span>Learn More</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Desktop Photo Collage (50%) -->
+        <div class="md:col-span-6 relative anim-about delay-2">
+          
+          <div class="relative max-w-lg lg:max-w-none mx-auto">
+            <div class="relative rounded-[36px] p-3 bg-white border border-slate-200/90 shadow-2xl shadow-slate-900/15 group overflow-hidden card-lift">
+              <div class="relative rounded-[26px] overflow-hidden">
+                <img src="images/academy_campus.png" alt="Elite Academy Campus Photography" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent pointer-events-none"></div>
+                <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold uppercase tracking-wider text-white bg-slate-950/70 px-3 py-1 rounded-full backdrop-blur-xs border border-white/20">
+                  🏫 Campus Life
+                </span>
+              </div>
+            </div>
+            <div class="absolute -bottom-6 -right-4 lg:-bottom-8 lg:-right-6 w-40 sm:w-48 h-28 sm:h-32 rounded-2xl overflow-hidden border-2 border-orange-500 shadow-xl z-20 card-lift group">
+              <img src="images/course_ai.png" alt="AI Neural Research" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-2 left-2.5 text-[9px] font-mono font-bold text-white bg-orange-600/90 px-2 py-0.5 rounded-full backdrop-blur-xs shadow-xs">
+                🧠 AI Research
+              </span>
+            </div>
+
+            <!-- Gallery Image 04: Mentor Consultation -->
+            <div class="hidden lg:block absolute top-1/3 -right-6 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-xl z-30 animate-float group">
+              <img src="images/instructor_portrait.png" alt="Faculty Mentor Session" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            </div>
+
+            <!-- Floating Glass Stat Card -->
+            <div class="absolute bottom-6 left-6 z-30 glass-card bg-white/92 backdrop-blur-md p-4 rounded-2xl border border-white/80 shadow-2xl shadow-slate-950/15 space-y-2 animate-float max-w-xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-teal-100/90 text-teal-700 flex items-center justify-center font-extrabold text-sm icon-rotate flex-shrink-0 shadow-xs">
+                  ⭐
+                </div>
+                <div>
+                  <p class="text-[9px] font-mono uppercase tracking-wider text-slate-500 font-bold">Trusted by</p>
+                  <p class="text-xs font-extrabold text-slate-900">25,000+ Active Students</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-[11px]">
+                <div>
+                  <p class="text-amber-500 font-extrabold">★★★★★ 4.9</p>
+                  <p class="text-[9px] text-slate-500 font-medium">Verified Rating</p>
+                </div>
+                <div>
+                  <p class="text-teal-600 font-extrabold">120+ Courses</p>
+                  <p class="text-[9px] text-slate-500 font-medium">Accredited Tracks</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 03: SUBJECTS SHOWCASE (4-Col Grid) -->
+  <!-- @laravel_crud: SubjectsModel               -->
+  <!-- ========================================== -->
+  <section class="py-20 md:py-28 bg-white border-y border-slate-200/80 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      
+      <!-- 2-Column Editorial Section Header with Thin Vertical Divider -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+        <!-- LEFT: Eyebrow + Large Heading -->
+        <div class="space-y-3 max-w-xl">
+          <span class="anim-subject delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+            OUR SUBJECTS
+          </span>
+          <h2 class="anim-subject delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Explore Our <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Learning Subjects.</span>
+          </h2>
+        </div>
+
+        <!-- THIN VERTICAL DIVIDER -->
+        <div class="hidden md:block w-px h-16 bg-slate-200/80 mx-2 flex-shrink-0"></div>
+
+        <!-- RIGHT: 1 Short Sentence (Max 2 Lines) -->
+        <div class="max-w-md my-auto">
+          <p class="text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
+            Discover industry-focused subjects designed to prepare students for future careers.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2-Column Responsive Grid Layout for Mobile (320px-768px) & 4-Column Layout for Desktop -->
+      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 md:gap-8">
+        
+        <!-- Subject Card 01: Programming (Dark Navy Theme) -->
+        <div class="anim-subject delay-3 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-slate-900 text-white shadow-lg shadow-slate-900/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/hero_student.png" alt="Programming" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-slate-900 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-slate-900 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-teal-400 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">TECHNOLOGY</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Programming</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-300 font-medium">
+              <span>👨‍🏫 14 Teachers • 📚 24 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-teal-400 group-hover:text-teal-300 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 02: Artificial Intelligence (Teal Theme) -->
+        <div class="anim-subject delay-4 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-teal-950 text-white shadow-lg shadow-teal-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/course_ai.png" alt="Artificial Intelligence" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-teal-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-teal-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-teal-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">ENGINEERING</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-teal-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Artificial Intelligence</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-teal-900 text-xs text-teal-100 font-medium">
+              <span>👨‍🏫 10 Teachers • 📚 16 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 03: Science (Blue Theme) -->
+        <div class="anim-subject delay-5 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-blue-950 text-white shadow-lg shadow-blue-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/academy_campus.png" alt="Science" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-blue-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-blue-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-blue-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">SCIENCE</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-blue-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Science</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-blue-900 text-xs text-blue-100 font-medium">
+              <span>👨‍🏫 12 Teachers • 📚 18 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-blue-300 group-hover:text-blue-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 04: Business Administration (Emerald Theme) -->
+        <div class="anim-subject delay-6 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-emerald-950 text-white shadow-lg shadow-emerald-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/instructor_portrait.png" alt="Business Administration" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-emerald-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-emerald-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-emerald-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">BUSINESS</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-emerald-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Business Administration</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-emerald-900 text-xs text-emerald-100 font-medium">
+              <span>👨‍🏫 11 Teachers • 📚 14 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-emerald-300 group-hover:text-emerald-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 05: Creative Design (Orange Theme) -->
+        <div class="anim-subject delay-3 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-amber-950 text-white shadow-lg shadow-amber-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/course_ai.png" alt="Creative Design" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-amber-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-amber-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">DESIGN</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-amber-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Creative Design</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-amber-900 text-xs text-amber-100 font-medium">
+              <span>👨‍🏫 10 Teachers • 📚 15 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-amber-300 group-hover:text-amber-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 06: Mathematics (Purple Theme) -->
+        <div class="anim-subject delay-4 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-purple-950 text-white shadow-lg shadow-purple-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/instructor_female.png" alt="Mathematics" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-purple-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-purple-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-purple-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">SCIENCE</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Mathematics</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-purple-900 text-xs text-purple-100 font-medium">
+              <span>👨‍🏫 9 Teachers • 📚 15 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-purple-300 group-hover:text-purple-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 07: Global Languages (Cyan Theme) -->
+        <div class="anim-subject delay-5 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-cyan-950 text-white shadow-lg shadow-cyan-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/hero_student.png" alt="Global Languages" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-cyan-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-cyan-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-cyan-300 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">LANGUAGE</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Global Languages</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-cyan-900 text-xs text-cyan-100 font-medium">
+              <span>👨‍🏫 8 Teachers • 📚 10 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-cyan-300 group-hover:text-cyan-200 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Card 08: Robotics Engineering (Dark Teal Theme) -->
+        <div class="anim-subject delay-6 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-slate-950 text-white shadow-lg shadow-slate-950/10 hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
+          <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
+            <img src="images/instructor_male.png" alt="Robotics Engineering" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent md:from-slate-950 md:via-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-3.5 sm:p-4 text-white z-10 flex flex-col justify-end space-y-1 md:relative md:p-6 md:flex-1 md:bg-slate-950 md:space-y-3">
+            <div class="space-y-1">
+              <span class="text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-widest text-teal-400 bg-slate-950/70 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none px-2 py-0.5 md:p-0 rounded-full md:rounded-none border border-white/10 md:border-none inline-block w-max">ENGINEERING</span>
+              <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
+                <a href="subject-details.html">Robotics Engineering</a>
+              </h3>
+            </div>
+
+            <div class="hidden md:flex items-center justify-between pt-3 border-t border-slate-900 text-xs text-slate-300 font-medium">
+              <span>👨‍🏫 8 Teachers • 📚 12 Courses</span>
+              <a href="subject-details.html" class="text-xs font-extrabold text-teal-400 group-hover:text-teal-300 flex items-center gap-1">
+                <span>Explore Subject</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- FEATURED MENTORS SHOWCASE                  -->
+  <!-- @laravel_crud: TeachersModel               -->
+  <!-- ========================================== -->
+  <section class="py-16 md:py-24 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      
+      <!-- Featured Mentors Header -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <div class="space-y-3">
+          <span class="anim-projects delay-1 inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+            OUR FACULTY
+          </span>
+          <h2 class="anim-projects delay-2 font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Meet Our <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Featured Mentors.</span>
+          </h2>
+        </div>
+        <span class="text-xs font-mono text-slate-500 font-medium">&larr; Swipe Teachers &rarr;</span>
+      </div>
+
+      <!-- Mentor Slider -->
+      <div class="carousel-container no-scrollbar">
+        
+        <!-- Mentor Card 01: Dr. Ahmed Hassan -->
+        <div class="carousel-card-large-peek anim-projects delay-3 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <!-- Mentor Image -->
+          <img src="images/instructor_portrait.png" alt="Dr. Ahmed Hassan" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <!-- Top Left Department Badge -->
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-teal-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Programming
+          </span>
+
+          <!-- Mentor Information Overlay -->
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-teal-300 transition-colors">
+                Dr. Ahmed Hassan
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Senior AI & Systems Researcher</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">15+ Yrs Exp • 1,400+ Students • PhD - MIT</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentor Card 02: Sarah Mohamed -->
+        <div class="carousel-card-large-peek anim-projects delay-4 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <img src="images/instructor_female.png" alt="Sarah Mohamed" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-purple-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Artificial Intelligence
+          </span>
+
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-purple-300 transition-colors">
+                Sarah Mohamed
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Deep Learning Lead Architect</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">12+ Yrs Exp • 1,100+ Students • MSc - Stanford</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-purple-300 group-hover:text-purple-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentor Card 03: Omar Khaled -->
+        <div class="carousel-card-large-peek anim-projects delay-5 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <img src="images/instructor_male.png" alt="Omar Khaled" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-orange-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Robotics
+          </span>
+
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-orange-300 transition-colors">
+                Omar Khaled
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Robotics & Autonomous Systems Specialist</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">10+ Yrs Exp • 950+ Students • PhD - Cambridge</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-orange-300 group-hover:text-orange-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentor Card 04: Fatma Ali -->
+        <div class="carousel-card-large-peek anim-projects delay-6 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <img src="images/hero_student.png" alt="Fatma Ali" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-emerald-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Business
+          </span>
+
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-emerald-300 transition-colors">
+                Fatma Ali
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Tech Ventures & Product Director</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">14+ Yrs Exp • 1,250+ Students • MBA - Harvard</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-emerald-300 group-hover:text-emerald-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentor Card 05: Mohamed Adel -->
+        <div class="carousel-card-large-peek anim-projects delay-3 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <img src="images/course_ai.png" alt="Mohamed Adel" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-rose-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Cyber Security
+          </span>
+
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-rose-300 transition-colors">
+                Mohamed Adel
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Information Security & Ethics Lead</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">11+ Yrs Exp • 880+ Students • CISSP - Oxford</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-rose-300 group-hover:text-rose-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentor Card 06: Dr. Nour Ibrahim -->
+        <div class="carousel-card-large-peek anim-projects delay-4 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
+          <img src="images/academy_campus.png" alt="Dr. Nour Ibrahim" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+          
+          <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white bg-amber-600 px-3.5 py-1.5 rounded-full shadow-md">
+            Mathematics
+          </span>
+
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-2">
+            <div>
+              <h3 class="font-heading font-extrabold text-2xl text-white group-hover:text-amber-300 transition-colors">
+                Dr. Nour Ibrahim
+              </h3>
+              <p class="text-xs font-mono text-slate-300 font-semibold">Applied Mathematics Chair</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2 border-t border-white/20 text-xs font-medium text-slate-200">
+              <span class="text-[11px] font-mono">16+ Yrs Exp • 1,600+ Students • PhD - ETH Zurich</span>
+              <a href="teacher-profile.html" class="text-xs font-extrabold text-amber-300 group-hover:text-amber-200 flex items-center gap-1">
+                <span>View Profile</span>
+                <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 10: PREMIUM TESTIMONIALS CAROUSEL  -->
+  <!-- @laravel_crud: TestimonialsModel          -->
+  <!-- ========================================== -->
+  <section class="py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/80">
+    <!-- Ambient Depth Glow Background -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[25rem] bg-teal-400/10 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-slate-200/60">
+        <div class="space-y-3 max-w-xl">
+          <span class="anim-testimonials delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-4 py-1.5 rounded-full border border-teal-200/80 shadow-xs">
+            STUDENT REVIEWS
+          </span>
+          <h2 class="anim-testimonials delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            What Our Students & <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Parents Say.</span>
+          </h2>
+        </div>
+
+        <!-- Controls: Helper Text & Navigation Arrows -->
+        <div class="flex items-center gap-4">
+          <span class="text-xs font-mono text-slate-500 font-medium hidden sm:inline">&larr; Swipe Reviews &rarr;</span>
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">
+              &larr;
+            </button>
+            <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">
+              &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Card Visible Horizontal Carousel Slider (32px Gap, 420px Width, 340px Height) -->
+      <div class="carousel-container no-scrollbar flex items-center gap-8 overflow-x-auto py-6 snap-x snap-mandatory scroll-smooth">
+        
+        <!-- Card 01: Mariam Al-Mansoor -->
+        <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center">
+          
+          <!-- TOP: Stars & Quote Icon -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1 text-amber-400 text-sm">
+              ★★★★★
+            </div>
+            <span class="text-4xl font-serif font-black text-slate-300 group-hover:text-teal-600 transition-colors duration-300 select-none leading-none">“</span>
+          </div>
+
+          <!-- BODY: 3 Lines Max Review -->
+          <p class="font-heading font-medium text-slate-700 text-base leading-relaxed italic line-clamp-3 my-3 flex-1">
+            "Elite Academy completely transformed my son's approach to coding and math. Having direct access to PhD mentors made all the difference."
+          </p>
+
+          <!-- BOTTOM: 72px Avatar, Name, Course, Verified Badge -->
+          <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
+            <img src="images/hero_student.png" alt="Mariam Al-Mansoor" class="w-18 h-18 sm:w-18 sm:h-18 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+            
+            <div class="space-y-1 min-w-0 flex-1">
+              <h3 class="font-heading font-extrabold text-base text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                Mariam Al-Mansoor
+              </h3>
+              <p class="text-xs font-mono text-slate-500 font-semibold truncate">Full-Stack Programming</p>
+              <span class="inline-block bg-teal-50 text-teal-700 text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border border-teal-200/80">
+                ✔ Verified Student
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Card 02: Kareem El-Sayed -->
+        <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center scale-[0.98] group-hover:scale-100">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1 text-amber-400 text-sm">
+              ★★★★★
+            </div>
+            <span class="text-4xl font-serif font-black text-slate-300 group-hover:text-purple-600 transition-colors duration-300 select-none leading-none">“</span>
+          </div>
+
+          <p class="font-heading font-medium text-slate-700 text-base leading-relaxed italic line-clamp-3 my-3 flex-1">
+            "The robotics and AI labs gave me real hands-on experience building computer vision models. I secured a software engineering role right after graduation!"
+          </p>
+
+          <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
+            <img src="images/instructor_portrait.png" alt="Kareem El-Sayed" class="w-18 h-18 sm:w-18 sm:h-18 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+            
+            <div class="space-y-1 min-w-0 flex-1">
+              <h3 class="font-heading font-extrabold text-base text-slate-900 truncate group-hover:text-purple-600 transition-colors">
+                Kareem El-Sayed
+              </h3>
+              <p class="text-xs font-mono text-slate-500 font-semibold truncate">AI & Machine Learning</p>
+              <span class="inline-block bg-purple-50 text-purple-700 text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border border-purple-200/80">
+                ✔ Verified Student
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Card 03: Yasmine Tarek -->
+        <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center scale-[0.98] group-hover:scale-100">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1 text-amber-400 text-sm">
+              ★★★★★
+            </div>
+            <span class="text-4xl font-serif font-black text-slate-300 group-hover:text-rose-600 transition-colors duration-300 select-none leading-none">“</span>
+          </div>
+
+          <p class="font-heading font-medium text-slate-700 text-base leading-relaxed italic line-clamp-3 my-3 flex-1">
+            "Building enterprise design systems and UI tokens in Figma under senior faculty guidance was invaluable. My portfolio got me hired immediately."
+          </p>
+
+          <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
+            <img src="images/instructor_female.png" alt="Yasmine Tarek" class="w-18 h-18 sm:w-18 sm:h-18 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+            
+            <div class="space-y-1 min-w-0 flex-1">
+              <h3 class="font-heading font-extrabold text-base text-slate-900 truncate group-hover:text-rose-600 transition-colors">
+                Yasmine Tarek
+              </h3>
+              <p class="text-xs font-mono text-slate-500 font-semibold truncate">UX Architecture</p>
+              <span class="inline-block bg-rose-50 text-rose-700 text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border border-rose-200/80">
+                ✔ Verified Student
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Card 04: Dr. Alex Rivera -->
+        <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center scale-[0.98] group-hover:scale-100">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1 text-amber-400 text-sm">
+              ★★★★★
+            </div>
+            <span class="text-4xl font-serif font-black text-slate-300 group-hover:text-orange-600 transition-colors duration-300 select-none leading-none">“</span>
+          </div>
+
+          <p class="font-heading font-medium text-slate-700 text-base leading-relaxed italic line-clamp-3 my-3 flex-1">
+            "As a parent, seeing the structured guidance, live dashboards, and rigorous academic standards gave us complete confidence in our daughter's tech education."
+          </p>
+
+          <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
+            <img src="images/instructor_male.png" alt="Dr. Alex Rivera" class="w-18 h-18 sm:w-18 sm:h-18 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+            
+            <div class="space-y-1 min-w-0 flex-1">
+              <h3 class="font-heading font-extrabold text-base text-slate-900 truncate group-hover:text-orange-600 transition-colors">
+                Dr. Alex Rivera
+              </h3>
+              <p class="text-xs font-mono text-slate-500 font-semibold truncate">Parent Advocate</p>
+              <span class="inline-block bg-orange-50 text-orange-700 text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border border-orange-200/80">
+                ✔ Verified Parent
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Pagination Dots -->
+      <div class="flex items-center justify-center gap-2 pt-4">
+        <span class="w-8 h-2.5 rounded-full bg-teal-600 transition-all duration-300"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors duration-300 cursor-pointer"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors duration-300 cursor-pointer"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors duration-300 cursor-pointer"></span>
+      </div>
+
+    </div>
+  </section>
+
+
+
+  <!-- ========================================== -->
+  <!-- SECTION 12: CTA & STATS STRIP & FOOTER    -->
+  <!-- ========================================== -->
+  <!-- 1. FINAL CTA SECTION: Ready To Start Learning? -->
+  <section class="py-20 md:py-28 bg-gradient-to-br from-teal-950 via-slate-900 to-teal-900 text-white relative overflow-hidden">
+    <!-- Ambient Blurs -->
+    <div class="absolute -top-12 left-1/4 w-[30rem] h-[30rem] bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+    <div class="absolute -bottom-12 right-1/4 w-[30rem] h-[30rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none animate-float"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8 relative z-10">
+      
+      <span class="anim-cta delay-1 sr-h inline-block text-xs sm:text-sm font-mono font-extrabold uppercase tracking-widest text-teal-300 bg-teal-900/80 px-4 py-2 rounded-full border border-teal-500/30 animate-badge-pulse">
+        🚀 Ready To Start Learning?
+      </span>
+      
+      <h2 class="anim-cta delay-2 sr-h font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
+        Join Egypt's Leading <span class="text-teal-400 underline decoration-orange-500 underline-offset-8">Educational Platform</span>
+      </h2>
+
+      <p class="anim-cta delay-3 sr-sub text-slate-300 text-base sm:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+        Learn from the best instructors, master future-ready skills, and achieve accredited credentials.
+      </p>
+
+      <div class="anim-cta delay-4 sr-btn flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <a href="subjects.html" class="btn-lift btn-mobile-lg sm:w-auto text-base font-extrabold text-white bg-teal-600 hover:bg-teal-500 px-8 py-4 rounded-2xl shadow-xl shadow-teal-600/30 touch-press">
+          Explore Subjects →
+        </a>
+        <a href="student-portal.html" class="btn-lift btn-mobile-lg sm:w-auto text-base font-extrabold text-slate-200 bg-slate-800/80 hover:bg-slate-700 px-8 py-4 rounded-2xl border border-slate-700/80 touch-press">
+          Student Portal
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 2. COMPACT STATS STRIP -->
+  <section class="bg-slate-950 py-8 border-y border-slate-800 text-slate-300">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-3 gap-4 text-center divide-x divide-slate-800/80">
+        
+        <div class="space-y-1">
+          <p class="font-heading font-black text-xl sm:text-3xl text-teal-400" data-count="150+">150+</p>
+          <p class="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-400">Teachers</p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="font-heading font-black text-xl sm:text-3xl text-orange-400" data-count="250+">250+</p>
+          <p class="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-400">Courses</p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="font-heading font-black text-xl sm:text-3xl text-teal-400" data-count="25K+">25K+</p>
+          <p class="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-400">Students</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. MAIN FOOTER -->
+  <footer class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      
+      <!-- Top Grid: Brand Logo + Quick Links + Subjects + Contact -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 text-center sm:text-left">
+        
+        <!-- Col 1 & 2: Brand Info -->
+        <div class="sm:col-span-2 space-y-4 flex flex-col items-center sm:items-start">
+          <a href="index.html" class="inline-block">
+            <img src="images/logo.png" alt="Elite Academy Logo" class="h-16 sm:h-20 w-auto object-contain mx-auto sm:mx-0">
+          </a>
+          <p class="text-sm text-slate-400 leading-relaxed max-w-sm text-center sm:text-left">
+            Egypt's leading educational platform empowering future innovators through practical learning, PhD mentorship, and international certification.
+          </p>
+        </div>
+
+        <!-- Col 3: Quick Links -->
+        <div class="space-y-3">
+          <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Quick Links</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="index.html" class="hover:text-teal-400 transition-colors link-underline">Home</a></li>
+            <li><a href="about.html" class="hover:text-teal-400 transition-colors link-underline">About Us</a></li>
+            <li><a href="teachers.html" class="hover:text-teal-400 transition-colors link-underline">Teachers</a></li>
+            <li><a href="events.html" class="hover:text-teal-400 transition-colors link-underline">Events</a></li>
+            <li><a href="blog.html" class="hover:text-teal-400 transition-colors link-underline">Blog</a></li>
+            <li><a href="student-portal.html" class="hover:text-teal-400 transition-colors link-underline">Student Portal</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Subjects -->
+        <div class="space-y-3">
+          <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Subjects</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Programming</a></li>
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Artificial Intelligence</a></li>
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Science & Physics</a></li>
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Business Administration</a></li>
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Creative Design</a></li>
+            <li><a href="subject-details.html" class="hover:text-teal-400 transition-colors link-underline">Mathematics</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 5: Contact Info -->
+        <div class="space-y-3">
+          <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Contact</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li class="flex items-center justify-center sm:justify-start gap-2">📍 <span>New Cairo, Egypt</span></li>
+            <li class="flex items-center justify-center sm:justify-start gap-2">📞 <span>+20 100 000 0000</span></li>
+            <li class="flex items-center justify-center sm:justify-start gap-2">✉️ <span>info@eliteacademy.edu.eg</span></li>
+            <li class="flex items-center justify-center sm:justify-start gap-2">🕒 <span>Sun - Thu: 9:00 - 18:00</span></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Social Icons & Copyright Row -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
+        
+        <!-- Social Icons -->
+        <div class="flex items-center gap-4">
+          <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">
+            f
+          </a>
+          <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">
+            𝕏
+          </a>
+          <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">
+            ig
+          </a>
+          <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">
+            in
+          </a>
+          <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">
+            yt
+          </a>
+        </div>
+
+        <!-- Copyright -->
+        <p><span data-i18n="footer.rights">© 2026 Elite Academy. All rights reserved.</span></p>
+
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Automatic 6-Second Hero Slider Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slides = ['slide-1', 'slide-2', 'slide-3', 'slide-4'];
+      let currentIndex = 0;
+      let autoplayInterval = null;
+
+      function goToNextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        const targetRadio = document.getElementById(slides[currentIndex]);
+        if (targetRadio) {
+          targetRadio.checked = true;
+        }
+      }
+
+      function startAutoplay() {
+        stopAutoplay();
+        autoplayInterval = setInterval(goToNextSlide, 6000);
+      }
+
+      function stopAutoplay() {
+        if (autoplayInterval) {
+          clearInterval(autoplayInterval);
+          autoplayInterval = null;
+        }
+      }
+
+      // Start 6-second autoplay on load
+      startAutoplay();
+
+      // Restart autoplay on user control interactions
+      const controls = document.querySelectorAll('label[for^="slide-"]');
+      controls.forEach((control, index) => {
+        control.addEventListener('click', () => {
+          currentIndex = index;
+          startAutoplay();
+        });
+      });
+    });
+  </script>
+
+  <!-- Scroll Reveal & Motion System -->
+  <script src="js/scroll-reveal.js"></script>
+
+  <!-- i18n Bilingual Engine -->
+  <script src="js/i18n.js"></script>
+
+</body>
+</html>
+

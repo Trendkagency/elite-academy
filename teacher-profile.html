@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr. Ahmed Hassan — Faculty Profile — Elite Academy</title>
+  <meta name="description" content="Learn with Dr. Ahmed Hassan, senior Mathematics & AI lecturer at Elite Academy.">
+  <link rel="alternate" hreflang="en" href="https://elite-academy.com/en/teacher-profile">
+  <link rel="alternate" hreflang="ar" href="https://elite-academy.com/ar/teacher-profile">
+  <link rel="stylesheet" href="dist/output.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400..900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#FAFAF9] text-slate-800 font-sans antialiased selection:bg-teal-500 selection:text-white flex flex-col min-h-screen">
+
+  <!-- Header / Navbar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] lg:h-[80px] flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center group">
+        <img src="images/logo.png" alt="Elite Academy Logo" class="h-[42px] md:h-[50px] lg:h-[60px] w-auto object-contain transition-transform duration-250 ease-out group-hover:scale-[1.03]">
+      </a>
+      <nav class="hidden md:flex items-center gap-7 font-medium text-sm text-slate-600">
+        <a href="index.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.home">Home</a>
+        <a href="subjects.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.subjects">Subjects</a>
+        <a href="teachers.html" class="text-teal-600 font-bold py-1 border-b-2 border-teal-600" data-i18n="navbar.instructors">Instructors</a>
+        <a href="events.html" class="hover:text-teal-600 transition-colors py-1">Events</a>
+        <a href="about.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.about">About</a>
+        <a href="contact.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.contact">Contact</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-4">
+        <button id="lang-toggle-btn" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 hover:text-teal-600 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white/80 hover:bg-white shadow-2xs transition-all cursor-pointer min-h-[44px]">
+          <span>🌐</span>
+          <span id="lang-label">العربية</span>
+        </button>
+        <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-teal-600 px-3.5 py-2 min-h-[44px] inline-flex items-center" data-i18n="navbar.login">Log in</a>
+        <a href="student-portal.html" class="btn-lift text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 px-5 py-2.5 rounded-xl shadow-md min-h-[44px] inline-flex items-center" data-i18n="navbar.portal">Student Portal</a>
+      </div>
+      <!-- Mobile Menu Toggle (48px x 48px touch target) -->
+      <label for="nav-toggle" class="md:hidden touch-target p-2.5 text-slate-700 hover:text-teal-600 bg-slate-100/80 rounded-2xl cursor-pointer touch-press" aria-label="Toggle Navigation Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </label>
+    </div>
+  </header>
+
+  <!-- Premium Mobile Fullscreen Glassmorphism Drawer -->
+  <input type="checkbox" id="nav-toggle" class="peer hidden">
+  <div class="fixed inset-0 z-50 drawer-backdrop opacity-0 pointer-events-none peer-checked:opacity-100 peer-checked:pointer-events-auto transition-opacity duration-300 md:hidden drawer-overlay">
+    <div class="fixed inset-y-0 drawer-content w-[88vw] max-w-md bg-white/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between rounded-t-[2.5rem] md:rounded-none z-50">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+          <a href="index.html" class="flex items-center">
+            <img src="images/logo.png" alt="Elite Academy Logo" class="h-12 sm:h-14 w-auto object-contain">
+          </a>
+          <label for="nav-toggle" class="touch-target p-2.5 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer touch-press" aria-label="Close Menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </label>
+        </div>
+        <nav class="flex flex-col gap-2 py-6 font-semibold text-slate-800">
+          <a href="index.html" data-i18n="navbar.home" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Home</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="subjects.html" data-i18n="navbar.subjects" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Subjects</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="teachers.html" data-i18n="navbar.instructors" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl bg-teal-50/80 text-teal-700 font-bold flex items-center justify-between border border-teal-100/50 touch-press">
+            <span>Instructors</span>
+            <span class="text-teal-500 text-sm">→</span>
+          </a>
+          <a href="events.html" data-i18n="navbar.events" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Events</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="blog.html" data-i18n="navbar.blog" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Blog</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="about.html" data-i18n="navbar.about" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>About</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="contact.html" data-i18n="navbar.contact" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Contact</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-3 pt-6 border-t border-slate-100">
+        <button id="mobile-lang-toggle-btn" class="btn-mobile-lg text-sm font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 cursor-pointer touch-press">
+          <span class="mr-2">🌐</span>
+          <span id="mobile-lang-label">العربية</span>
+        </button>
+        <a href="login.html" data-i18n="navbar.login" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press">Log in</a>
+        <a href="student-portal.html" data-i18n="navbar.portal" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press">Student Portal</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-grow">
+
+    <!-- ========================================== -->
+    <!-- Hero                                       -->
+    <!-- @laravel_crud: TeacherProfileModel        -->
+    <!-- ========================================== -->
+    <section class="relative py-16 md:py-24 bg-white border-b border-slate-200/80 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-8">
+          <a href="index.html" class="hover:text-teal-600" data-i18n="navbar.home">Home</a>
+          <span>/</span>
+          <a href="teachers.html" class="hover:text-teal-600" data-i18n="navbar.instructors">Instructors</a>
+          <span>/</span>
+          <span class="text-teal-600 font-bold">Dr. Ahmed Hassan</span>
+        </nav>
+
+        <!-- Magazine Hero Card Layout -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-950 to-teal-950 rounded-3xl p-8 lg:p-12 text-white shadow-2xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Left: Massive Portrait Card (5-Cols) -->
+          <div class="lg:col-span-5 relative">
+            <div class="rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl h-[380px] bg-slate-950">
+              <img src="images/instructor_portrait.png" alt="Dr. Ahmed Hassan" class="w-full h-full object-cover">
+            </div>
+            <span class="absolute bottom-4 left-4 bg-teal-500 text-slate-950 font-mono font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg">
+              ✔ Senior Department Chair
+            </span>
+          </div>
+
+          <!-- Hero Content (7-Cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="space-y-2">
+              <span class="text-xs font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3.5 py-1.5 rounded-full border border-teal-800">
+                FACULTY SPOTLIGHT
+              </span>
+              <h1 class="font-heading text-3xl sm:text-5xl font-black text-white tracking-tight">
+                Dr. Ahmed Hassan
+              </h1>
+              <p class="text-slate-300 text-base font-mono">
+                PhD in Applied Mathematics — Massachusetts Institute of Technology (MIT)
+              </p>
+            </div>
+
+            <!-- Highlights Pill Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-mono font-semibold text-slate-200">
+              <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                <span class="text-teal-400 font-bold block text-sm">15+ Years</span>
+                Teaching Experience
+              </div>
+              <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                <span class="text-amber-400 font-bold block text-sm">4.9 ★ Rating</span>
+                Student Evaluation
+              </div>
+              <div class="bg-white/10 p-3 rounded-xl border border-white/10 col-span-2 sm:col-span-1">
+                <span class="text-teal-400 font-bold block text-sm">1,400+</span>
+                Active Students
+              </div>
+            </div>
+
+            <!-- Hero Actions -->
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+              <a href="student-portal.html" class="btn-lift py-3 px-6 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-500 rounded-xl shadow-lg">
+                Join Dr. Ahmed's Cohort &rarr;
+              </a>
+              <a href="subjects.html" class="py-3 px-6 text-sm font-bold text-slate-300 hover:text-white border border-white/20 rounded-xl">
+                View Mathematics Syllabus
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PROFILE DETAILS & LESSON PREVIEWS          -->
+    <!-- ========================================== -->
+    <section class="py-20 md:py-28 bg-[#FAFAF9]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
+        
+        <!-- Main Biography & Courses Taught -->
+        <div class="lg:col-span-2 space-y-12">
+          
+          <!-- Biography Card -->
+          <div class="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl space-y-4">
+            <h2 class="font-heading text-2xl font-black text-slate-900">Biography & Academic Background</h2>
+            <p class="text-slate-600 text-base leading-relaxed">
+              Dr. Ahmed Hassan has over 15 years of experience preparing secondary school students in Egypt and abroad for national and international STEM examinations. He specializes in simplifying complex calculus, linear algebra, and coordinate geometry through visual intuition and practical problem-solving strategies.
+            </p>
+          </div>
+
+          <!-- Subjects & Grades Taught -->
+          <div class="space-y-6">
+            <h2 class="font-heading text-2xl font-black text-slate-900">Subjects & Grades Taught</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              
+              <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-lg space-y-2 card-lift">
+                <span class="text-xs font-mono font-extrabold text-teal-600">SECONDARY 1 (GRADE 10)</span>
+                <h3 class="font-heading font-extrabold text-xl text-slate-900">Algebra & Trigonometry</h3>
+                <p class="text-xs font-mono text-slate-500">48 Lessons • 1,400 Students</p>
+              </div>
+
+              <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-lg space-y-2 card-lift">
+                <span class="text-xs font-mono font-extrabold text-purple-600">SECONDARY 3 (GRADE 12)</span>
+                <h3 class="font-heading font-extrabold text-xl text-slate-900">Calculus & Solid Geometry</h3>
+                <p class="text-xs font-mono text-slate-500">64 Lessons • 1,800 Students</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Sidebar Stats & CTA -->
+        <div class="space-y-8">
+          <div class="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-2xl space-y-6 sticky top-28">
+            <h3 class="font-heading font-black text-xl text-slate-900">Join Dr. Ahmed's Cohort</h3>
+            <p class="text-xs font-mono text-slate-500">Get direct access to weekly live Q&A webinars and revision worksheets.</p>
+
+            <a href="student-portal.html" class="btn-lift block w-full text-center py-3.5 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-lg shadow-teal-600/20">
+              Enroll with Teacher &rarr;
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <p><span data-i18n="footer.rights">© 2026 Elite Academy. All rights reserved.</span></p>
+      <div class="flex gap-6">
+        <a href="index.html" class="hover:text-white" data-i18n="navbar.home">Home</a>
+        <a href="subjects.html" class="hover:text-white" data-i18n="navbar.subjects">Subjects</a>
+        <a href="teachers.html" class="hover:text-white" data-i18n="navbar.instructors">Instructors</a>
+        <a href="events.html" class="hover:text-white">Events</a>
+        <a href="about.html" class="hover:text-white" data-i18n="navbar.about">About</a>
+        <a href="contact.html" class="hover:text-white" data-i18n="navbar.contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- i18n Bilingual Engine -->
+  <script src="js/i18n.js"></script>
+
+</body>
+</html>

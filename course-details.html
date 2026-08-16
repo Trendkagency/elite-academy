@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full-Stack Systems & AI Course Details — Elite Academy</title>
+  <meta name="description" content="Master Python systems, microservices, and deep neural network deployment in Elite Academy's 16-week masterclass. Free Demo Lesson Available.">
+  <link rel="alternate" hreflang="en" href="https://elite-academy.com/en/course-details">
+  <link rel="alternate" hreflang="ar" href="https://elite-academy.com/ar/course-details">
+  <link rel="stylesheet" href="dist/output.css">
+</head>
+<body class="bg-[#FAFAF9] text-slate-900 font-sans antialiased selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- HEADER -->
+  <header class="anim-nav sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] lg:h-[80px] flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center group">
+        <img src="images/logo.png" alt="Elite Academy Logo" class="h-[42px] md:h-[50px] lg:h-[60px] w-auto object-contain transition-transform duration-250 ease-out group-hover:scale-[1.03]">
+      </a>
+      <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-slate-600">
+        <a href="index.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.home">Home</a>
+        <a href="subjects.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.subjects">Subjects</a>
+        <a href="teachers.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.instructors">Instructors</a>
+        <a href="events.html" class="hover:text-teal-600 transition-colors py-1">Events</a>
+        <a href="about.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.about">About</a>
+        <a href="contact.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.contact">Contact</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-4">
+        <button id="lang-toggle-btn" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 hover:text-teal-600 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white/80 hover:bg-white shadow-2xs transition-all cursor-pointer min-h-[44px]">
+          <span>🌐</span>
+          <span id="lang-label">العربية</span>
+        </button>
+        <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-teal-600 px-3.5 py-2 min-h-[44px] inline-flex items-center" data-i18n="navbar.login">Log in</a>
+        <a href="student-portal.html" class="btn-lift text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 px-5 py-2.5 rounded-xl shadow-md min-h-[44px] inline-flex items-center" data-i18n="navbar.portal">Student Portal</a>
+      </div>
+      <!-- Mobile Menu Toggle (48px x 48px touch target) -->
+      <label for="nav-toggle" class="md:hidden touch-target p-2.5 text-slate-700 hover:text-teal-600 bg-slate-100/80 rounded-2xl cursor-pointer touch-press" aria-label="Toggle Navigation Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </label>
+    </div>
+  </header>
+
+  <!-- Premium Mobile Fullscreen Glassmorphism Drawer -->
+  <input type="checkbox" id="nav-toggle" class="peer hidden">
+  <div class="fixed inset-0 z-50 drawer-backdrop opacity-0 pointer-events-none peer-checked:opacity-100 peer-checked:pointer-events-auto transition-opacity duration-300 md:hidden drawer-overlay">
+    <div class="fixed inset-y-0 drawer-content w-[88vw] max-w-md bg-white/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between rounded-t-[2.5rem] md:rounded-none z-50">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+          <a href="index.html" class="flex items-center">
+            <img src="images/logo.png" alt="Elite Academy Logo" class="h-12 sm:h-14 w-auto object-contain">
+          </a>
+          <label for="nav-toggle" class="touch-target p-2.5 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer touch-press" aria-label="Close Menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </label>
+        </div>
+        <nav class="flex flex-col gap-2 py-6 font-semibold text-slate-800">
+          <a href="index.html" data-i18n="navbar.home" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Home</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="subjects.html" data-i18n="navbar.subjects" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Subjects</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="teachers.html" data-i18n="navbar.instructors" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Instructors</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="events.html" data-i18n="navbar.events" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Events</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="blog.html" data-i18n="navbar.blog" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Blog</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="about.html" data-i18n="navbar.about" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>About</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="contact.html" data-i18n="navbar.contact" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Contact</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-3 pt-6 border-t border-slate-100">
+        <button id="mobile-lang-toggle-btn" class="btn-mobile-lg text-sm font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 cursor-pointer touch-press">
+          <span class="mr-2">🌐</span>
+          <span id="mobile-lang-label">العربية</span>
+        </button>
+        <a href="login.html" data-i18n="navbar.login" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press">Log in</a>
+        <a href="student-portal.html" data-i18n="navbar.portal" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press">Student Portal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE HERO BREADCRUMB -->
+  <section class="py-12 bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      <div class="flex items-center gap-2 text-xs text-slate-400 font-mono">
+        <a href="index.html" class="hover:text-teal-400" data-i18n="navbar.home">Home</a>
+        <span>/</span>
+        <a href="subjects.html" class="hover:text-teal-400" data-i18n="navbar.subjects">Subjects</a>
+        <span>/</span>
+        <a href="subject-details.html" class="hover:text-teal-400">Programming</a>
+        <span>/</span>
+        <span class="text-teal-400">Full-Stack Systems</span>
+      </div>
+
+      <div class="space-y-3 max-w-3xl">
+        <div class="flex items-center gap-3">
+          <span class="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">Programming & AI</span>
+          <span class="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">▶ Free Demo Available</span>
+        </div>
+
+        <h1 class="font-heading text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          Full-Stack Systems & Deep Learning Architecture
+        </h1>
+
+        <p class="text-slate-300 text-base leading-relaxed">
+          Master end-to-end Python microservices, distributed database indexing, computer vision algorithms, and neural network tuning.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-6 pt-4 text-xs font-medium text-slate-300">
+          <span>⏱️ Duration: 16 Weeks</span>
+          <span>👥 Enrolled: 420 Students</span>
+          <span>⭐ Rating: 4.9/5 (180 Reviews)</span>
+          <span>🏆 Accredited Certification</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSE CONTENT BODY GRID -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      
+      <!-- Left Column: Free Demo & Syllabus -->
+      <div class="lg:col-span-8 space-y-12">
+        
+        <!-- PROMINENT FREE DEMO SECTION -->
+        <div id="demo" class="bg-gradient-to-br from-teal-900 via-slate-900 to-teal-950 text-white rounded-3xl p-8 border border-teal-500/40 shadow-xl space-y-6">
+          <div class="flex items-center justify-between border-b border-teal-500/30 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></span>
+              <span class="font-mono text-xs font-bold uppercase tracking-widest text-orange-400">Interactive Preview</span>
+            </div>
+            <span class="text-xs font-mono bg-teal-800/80 text-teal-200 px-3 py-1 rounded-full border border-teal-500/30">Free Demo Lesson</span>
+          </div>
+
+          <div class="space-y-3">
+            <h2 class="font-heading font-extrabold text-2xl text-white">
+              Watch Sample Lesson 1.1: Building Async Microservices with Python
+            </h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Experience Dr. Elena Rostova's teaching methodology. This 12-minute preview lesson introduces asynchronous event loops and REST API endpoints.
+            </p>
+          </div>
+
+          <!-- Video Player Placeholder Card -->
+          <div class="relative rounded-2xl overflow-hidden border border-teal-500/30 group cursor-pointer bg-slate-950">
+            <img src="images/course_ai.png" alt="Sample Demo Video" class="w-full h-64 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+            <div class="absolute inset-0 flex items-center justify-center bg-slate-900/40 group-hover:bg-slate-900/20 transition-colors">
+              <div class="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-orange-500/40 group-hover:scale-110 transition-transform">
+                ▶
+              </div>
+            </div>
+            <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-xs text-white text-xs font-mono px-3 py-1 rounded-md border border-slate-700">
+              Duration: 12:45 • Free Sample
+            </span>
+          </div>
+        </div>
+
+        <!-- Overview -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-2xs space-y-4">
+          <h2 class="font-heading font-bold text-2xl text-slate-900">Course Overview</h2>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            This comprehensive masterclass is designed for ambitious students and professionals looking to build high-scale web systems and deploy production machine learning models. You will work on real code repositories, build database schemas, and deploy transformer pipelines.
+          </p>
+        </div>
+
+        <!-- 8-Module Syllabus -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-2xs space-y-6">
+          <h2 class="font-heading font-bold text-2xl text-slate-900">Curriculum Syllabus (8 Modules)</h2>
+          
+          <div class="space-y-3">
+            <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80">
+              <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
+                <span>Module 1: Advanced Python & Async Algorithms (Includes Free Demo)</span>
+                <span class="text-teal-600 font-mono font-bold">+</span>
+              </summary>
+              <p class="mt-3 text-xs text-slate-600">Deep dive into Python 3.12 memory management, asyncio, generators, and data structures.</p>
+            </details>
+
+            <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80">
+              <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
+                <span>Module 2: Relational Databases & PostgreSQL Indexing</span>
+                <span class="text-teal-600 font-mono font-bold">+</span>
+              </summary>
+              <p class="mt-3 text-xs text-slate-600">Schema design, query optimization, ACID transactions, and Redis caching layers.</p>
+            </details>
+
+            <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80">
+              <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
+                <span>Module 3: Microservice Architecture & REST APIs</span>
+                <span class="text-teal-600 font-mono font-bold">+</span>
+              </summary>
+              <p class="mt-3 text-xs text-slate-600">Building scalable API gateways, message queues with RabbitMQ, and Docker containers.</p>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Enrollment Card Sidebar -->
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-lg sticky top-24 space-y-6">
+          <div class="space-y-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Enrollment Fee</span>
+            <p class="font-mono text-3xl font-extrabold text-slate-900">$290 <span class="text-xs text-slate-400 font-normal">/ term</span></p>
+          </div>
+
+          <a href="login.html" class="w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md transition-all">
+            Enroll in Fall 2026 Cohort
+          </a>
+
+          <div class="pt-4 border-t border-slate-100 space-y-3">
+            <p class="text-xs font-bold text-slate-900 uppercase tracking-wider">Course Instructors</p>
+            <div class="flex items-center gap-3">
+              <img src="images/instructor_portrait.png" alt="Dr. Elena Rostova" class="w-10 h-10 rounded-xl object-cover border border-teal-500">
+              <div>
+                <a href="teacher-profile.html" class="text-xs font-bold text-slate-900 hover:text-teal-600">Dr. Elena Rostova</a>
+                <p class="text-[11px] text-slate-500">Programming Chair</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <img src="images/instructor_male.png" alt="Marcus Vance" class="w-10 h-10 rounded-xl object-cover border border-purple-500">
+              <div>
+                <a href="teacher-profile.html" class="text-xs font-bold text-slate-900 hover:text-teal-600">Marcus Vance</a>
+                <p class="text-[11px] text-slate-500">AI Research Lead</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <p><span data-i18n="footer.rights">© 2026 Elite Academy. All rights reserved.</span></p>
+      <div class="flex gap-6">
+        <a href="index.html" class="hover:text-white" data-i18n="navbar.home">Home</a>
+        <a href="courses.html" class="hover:text-white">Courses</a>
+        <a href="teachers.html" class="hover:text-white">Teachers</a>
+        <a href="contact.html" class="hover:text-white" data-i18n="navbar.contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- i18n Bilingual Engine -->
+  <script src="js/i18n.js"></script>
+
+</body>
+</html>

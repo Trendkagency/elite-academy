@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Directory — Expert Teachers — Elite Academy</title>
+  <meta name="description" content="Discover Egypt's top school subject specialists, senior authors, and university lecturers at Elite Academy.">
+  <link rel="alternate" hreflang="en" href="https://elite-academy.com/en/teachers">
+  <link rel="alternate" hreflang="ar" href="https://elite-academy.com/ar/teachers">
+  <link rel="stylesheet" href="dist/output.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400..900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#FAFAF9] text-slate-800 font-sans antialiased selection:bg-teal-500 selection:text-white flex flex-col min-h-screen">
+
+  <!-- ========================================== -->
+  <!-- GLOBAL HEADER / NAVBAR                    -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] lg:h-[80px] flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center group mr-4">
+        <img src="images/logo.png" alt="Elite Academy Logo" class="h-[42px] md:h-[50px] lg:h-[60px] w-auto object-contain transition-transform duration-250 ease-out group-hover:scale-[1.03]">
+      </a>
+      <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-slate-600">
+        <a href="index.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.home">Home</a>
+        <a href="subjects.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.subjects">Subjects</a>
+        <a href="teachers.html" class="text-teal-600 font-bold py-1 border-b-2 border-teal-600" data-i18n="navbar.instructors">Instructors</a>
+        <a href="blog.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.blog">Blog</a>
+        <a href="about.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.about">About</a>
+        <a href="contact.html" class="hover:text-teal-600 transition-colors py-1" data-i18n="navbar.contact">Contact</a>
+      </nav>
+      <div class="hidden md:flex items-center gap-4">
+        <button id="lang-toggle-btn" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 hover:text-teal-600 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white/80 hover:bg-white shadow-2xs transition-all cursor-pointer min-h-[44px]">
+          <span>🌐</span>
+          <span id="lang-label">العربية</span>
+        </button>
+        <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-teal-600 px-3.5 py-2 min-h-[44px] inline-flex items-center" data-i18n="navbar.login">Log in</a>
+        <a href="student-portal.html" class="btn-lift text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 px-5 py-2.5 rounded-xl shadow-md min-h-[44px] inline-flex items-center" data-i18n="navbar.portal">Student Portal</a>
+      </div>
+      <!-- Mobile Menu Toggle (48px x 48px touch target) -->
+      <label for="nav-toggle" class="md:hidden touch-target p-2.5 text-slate-700 hover:text-teal-600 bg-slate-100/80 rounded-2xl cursor-pointer touch-press" aria-label="Toggle Navigation Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </label>
+    </div>
+  </header>
+
+  <!-- Premium Mobile Fullscreen Glassmorphism Drawer -->
+  <input type="checkbox" id="nav-toggle" class="peer hidden">
+  <div class="fixed inset-0 z-50 drawer-backdrop opacity-0 pointer-events-none peer-checked:opacity-100 peer-checked:pointer-events-auto transition-opacity duration-300 md:hidden drawer-overlay">
+    <div class="fixed inset-y-0 drawer-content w-[88vw] max-w-md bg-white/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between rounded-t-[2.5rem] md:rounded-none z-50">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+          <a href="index.html" class="flex items-center">
+            <img src="images/logo.png" alt="Elite Academy Logo" class="h-16 sm:h-20 w-auto object-contain">
+          </a>
+          <label for="nav-toggle" class="touch-target p-2.5 rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer touch-press" aria-label="Close Menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </label>
+        </div>
+        <nav class="flex flex-col gap-2 py-6 font-semibold text-slate-800">
+          <a href="index.html" data-i18n="navbar.home" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Home</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="subjects.html" data-i18n="navbar.subjects" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Subjects</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="teachers.html" data-i18n="navbar.instructors" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl bg-teal-50/80 text-teal-700 font-bold flex items-center justify-between border border-teal-100/50 touch-press">
+            <span>Instructors</span>
+            <span class="text-teal-500 text-sm">→</span>
+          </a>
+          <a href="events.html" data-i18n="navbar.events" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Events</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="blog.html" data-i18n="navbar.blog" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Blog</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="about.html" data-i18n="navbar.about" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>About</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+          <a href="contact.html" data-i18n="navbar.contact" class="min-h-[48px] text-[18px] py-3 px-4 rounded-2xl hover:bg-slate-50 text-slate-700 flex items-center justify-between touch-press">
+            <span>Contact</span>
+            <span class="text-slate-400 text-sm">→</span>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-3 pt-6 border-t border-slate-100">
+        <button id="mobile-lang-toggle-btn" class="btn-mobile-lg text-sm font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 cursor-pointer touch-press">
+          <span class="mr-2">🌐</span>
+          <span id="mobile-lang-label">العربية</span>
+        </button>
+        <a href="login.html" data-i18n="navbar.login" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press">Log in</a>
+        <a href="student-portal.html" data-i18n="navbar.portal" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press">Student Portal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- @laravel_crud: TeachersModel (Cursor Paginated: Teacher::cursorPaginate(12)) -->
+  <main class="flex-grow pt-12 md:pt-16 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+      <!-- ========================================== -->
+      <!-- PAGE HEADER                                -->
+      <!-- ========================================== -->
+      <!-- Teacher Directory Header -->
+      <div class="space-y-2 border-b border-slate-200/80 pb-6">
+        <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+          Meet Our <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Expert Teachers</span>
+        </h1>
+        <p class="text-slate-600 text-base font-medium">
+          Browse experienced teachers by subject and grade level.
+        </p>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- FILTER TOOLBAR BAR                        -->
+      <!-- ========================================== -->
+      <!-- Teacher Filters -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-lg space-y-6">
+        
+        <!-- Filter Controls Row (Order: Teacher -> Grade -> Sort By) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Teacher Filter Dropdown -->
+          <!-- Teacher Filter -->
+          <div class="lg:col-span-2 space-y-1">
+            <label class="block text-xs font-mono font-extrabold text-slate-500 uppercase tracking-wider">Teacher</label>
+            <select class="w-full h-11 bg-[#FAFAF9] border border-slate-200 rounded-xl px-4 text-sm font-semibold text-slate-800 focus:outline-teal-600 cursor-pointer">
+              <option value="">Select a teacher...</option>
+              <option value="ahmed-hassan">Dr. Ahmed Hassan</option>
+              <option value="sarah-mohamed">Sarah Mohamed</option>
+              <option value="omar-khaled">Omar Khaled</option>
+              <option value="fatma-ali">Fatma Ali</option>
+              <option value="mohamed-adel">Mohamed Adel</option>
+              <option value="nour-ibrahim">Dr. Nour Ibrahim</option>
+              <option value="kareem-zaki">Eng. Kareem Zaki</option>
+              <option value="mona-sayed">Dr. Mona El-Sayed</option>
+              <option value="tarek-fouad">Dr. Tarek Fouad</option>
+              <option value="hoda-mahmoud">Hoda Mahmoud</option>
+              <option value="sherif-youssef">Dr. Sherif Youssef</option>
+              <option value="nouran-samy">Nouran Samy</option>
+            </select>
+          </div>
+
+          <!-- Grade Filter Dropdown -->
+          <!-- Grade Filter -->
+          <div class="space-y-1">
+            <label class="block text-xs font-mono font-extrabold text-slate-500 uppercase tracking-wider">Grade</label>
+            <select class="w-full h-11 bg-[#FAFAF9] border border-slate-200 rounded-xl px-3.5 text-sm font-semibold text-slate-800 focus:outline-teal-600 cursor-pointer">
+              <option value="">All Grades</option>
+              <option value="10">Grade 10</option>
+              <option value="11">Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
+          </div>
+
+          <!-- Sort Filter Dropdown -->
+          <!-- Sort Filter -->
+          <div class="space-y-1">
+            <label class="block text-xs font-mono font-extrabold text-slate-500 uppercase tracking-wider">Sort By</label>
+            <select class="w-full h-11 bg-[#FAFAF9] border border-slate-200 rounded-xl px-3.5 text-sm font-semibold text-slate-800 focus:outline-teal-600 cursor-pointer">
+              <option value="popular">Most Popular</option>
+              <option value="rating">Highest Rated</option>
+              <option value="newest">Newest</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Quick Subject Chips (Only Subject Filter) -->
+        <!-- Subject Chips -->
+        <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold pt-4 border-t border-slate-100">
+          <span class="text-slate-400 mr-2 uppercase">Subject Filters:</span>
+          <button class="px-3.5 py-1.5 rounded-full bg-teal-600 text-white shadow-xs cursor-pointer">All</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Mathematics</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Physics</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Chemistry</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Biology</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Arabic</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">English</button>
+          <button class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer">Programming</button>
+        </div>
+
+      </div>
+
+      <!-- Simple Inline Results Info Row -->
+      <div class="flex items-center justify-between text-xs font-mono font-bold text-slate-500 px-2 py-1">
+        <span id="faculty-counter">Showing 12 Faculty Members</span>
+        <span>150 Teachers • 18 Subjects • 12,000 Students</span>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- MAIN TEACHERS GRID                         -->
+      <!-- ========================================== -->
+      <!-- Teachers Grid (2 Cards Per Row on Mobile) -->
+      <div id="teachers-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+        
+        <!-- Teacher Card 01 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_portrait.png" loading="lazy" alt="Dr. Ahmed Hassan" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-teal-600 px-3 py-1 rounded-full shadow-md">
+              Mathematics
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-teal-600 transition-colors">
+                Dr. Ahmed Hassan
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Algebra & Calculus</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>15+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 02 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_female.png" loading="lazy" alt="Sarah Mohamed" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-purple-600 px-3 py-1 rounded-full shadow-md">
+              Physics
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-purple-600 transition-colors">
+                Sarah Mohamed
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Optics & Electromagnetism</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>12+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.8</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 03 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_male.png" loading="lazy" alt="Omar Khaled" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-blue-600 px-3 py-1 rounded-full shadow-md">
+              Chemistry
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">
+                Omar Khaled
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Organic Chemistry</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>10+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 04 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/hero_student.png" loading="lazy" alt="Fatma Ali" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-emerald-600 px-3 py-1 rounded-full shadow-md">
+              Biology
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-emerald-600 transition-colors">
+                Fatma Ali
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Genetics & Anatomy</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>14+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 05 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/course_ai.png" loading="lazy" alt="Mohamed Adel" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-rose-600 px-3 py-1 rounded-full shadow-md">
+              English
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-rose-600 transition-colors">
+                Mohamed Adel
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Literature & Composition</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>11+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.8</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 06 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/academy_campus.png" loading="lazy" alt="Dr. Nour Ibrahim" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-orange-600 px-3 py-1 rounded-full shadow-md">
+              Arabic
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-orange-600 transition-colors">
+                Dr. Nour Ibrahim
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Arabic Rhetoric & Grammar</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>16+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 5.0</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 07 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_portrait.png" loading="lazy" alt="Eng. Kareem Zaki" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-cyan-600 px-3 py-1 rounded-full shadow-md">
+              Programming
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-cyan-600 transition-colors">
+                Eng. Kareem Zaki
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Robotics & Python Coding</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>8+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-cyan-50 hover:bg-cyan-600 text-cyan-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 08 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_female.png" loading="lazy" alt="Dr. Mona El-Sayed" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-teal-600 px-3 py-1 rounded-full shadow-md">
+              Mathematics
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-teal-600 transition-colors">
+                Dr. Mona El-Sayed
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Calculus & Geometry</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>13+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 09 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/instructor_male.png" loading="lazy" alt="Dr. Tarek Fouad" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-blue-600 px-3 py-1 rounded-full shadow-md">
+              Chemistry
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">
+                Dr. Tarek Fouad
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Organic Chemistry</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>17+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 5.0</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 10 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/hero_student.png" loading="lazy" alt="Hoda Mahmoud" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-rose-600 px-3 py-1 rounded-full shadow-md">
+              English
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-rose-600 transition-colors">
+                Hoda Mahmoud
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Global Languages & IELTS</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>9+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.8</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 11 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/course_ai.png" loading="lazy" alt="Dr. Sherif Youssef" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-purple-600 px-3 py-1 rounded-full shadow-md">
+              Physics
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-purple-600 transition-colors">
+                Dr. Sherif Youssef
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Applied Quantum Physics</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>14+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 12 -->
+        <!-- Teacher Card -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[400px] sm:h-[460px]">
+          <div class="relative h-40 sm:h-60 overflow-hidden bg-slate-950">
+            <img src="images/academy_campus.png" loading="lazy" alt="Nouran Samy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white bg-emerald-600 px-3 py-1 rounded-full shadow-md">
+              Biology
+            </span>
+          </div>
+
+          <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+            <div class="space-y-1">
+              <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-emerald-600 transition-colors">
+                Nouran Samy
+              </h3>
+              <p class="text-xs font-mono text-slate-500">Biochemistry & Ecosystems</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center justify-between">
+                <span>11+ Yrs Exp</span>
+                <span class="text-amber-500 font-bold">★★★★★ 4.9</span>
+              </div>
+              <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-extrabold rounded-xl transition-all">
+                View Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- LOADING SKELETON (HIDDEN BY DEFAULT)      -->
+      <!-- ========================================== -->
+      <!-- Loading Skeleton -->
+      <div id="skeleton-loader" class="hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-8">
+        <div class="animate-pulse bg-slate-200/80 rounded-3xl h-[460px] border border-slate-300/50"></div>
+        <div class="animate-pulse bg-slate-200/80 rounded-3xl h-[460px] border border-slate-300/50"></div>
+        <div class="animate-pulse bg-slate-200/80 rounded-3xl h-[460px] border border-slate-300/50"></div>
+        <div class="animate-pulse bg-slate-200/80 rounded-3xl h-[460px] border border-slate-300/50"></div>
+      </div>
+
+      <!-- INFINITE SCROLL INDICATOR & SENTINEL -->
+      <!-- Infinite Scroll Sentinel -->
+      <div id="infinite-scroll-sentinel" class="py-8 flex flex-col items-center justify-center space-y-3">
+        <div id="spinner" class="hidden items-center gap-3 text-teal-600 font-mono text-xs font-bold">
+          <svg class="animate-spin h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Loading more faculty members...</span>
+        </div>
+
+        <!-- End of Directory Message -->
+        <p id="end-message" class="hidden text-xs font-mono font-extrabold text-slate-500 bg-slate-100 px-5 py-2.5 rounded-full border border-slate-200">
+          🎉 You've reached the end of our faculty directory.
+        </p>
+
+        <!-- Fallback Load More Button (for No-JS or Manual Trigger) -->
+        <!-- Fallback Load More Button -->
+        <noscript>
+          <button id="load-more-fallback" class="btn-lift px-6 py-3 bg-teal-600 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
+            Load More Teachers
+          </button>
+        </noscript>
+        <button id="manual-load-more-btn" class="hidden btn-lift px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
+          Load More Teachers
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <p><span data-i18n="footer.rights">© 2026 Elite Academy. All rights reserved.</span></p>
+      <div class="flex gap-6">
+        <a href="index.html" class="hover:text-white" data-i18n="navbar.home">Home</a>
+        <a href="subjects.html" class="hover:text-white" data-i18n="navbar.subjects">Subjects</a>
+        <a href="teachers.html" class="hover:text-white" data-i18n="navbar.instructors">Instructors</a>
+        <a href="events.html" class="hover:text-white">Events</a>
+        <a href="about.html" class="hover:text-white" data-i18n="navbar.about">About</a>
+        <a href="contact.html" class="hover:text-white" data-i18n="navbar.contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- INFINITE SCROLL INTERSECTION OBSERVER      -->
+  <!-- ========================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('teachers-grid');
+      const sentinel = document.getElementById('infinite-scroll-sentinel');
+      const spinner = document.getElementById('spinner');
+      const skeleton = document.getElementById('skeleton-loader');
+      const endMessage = document.getElementById('end-message');
+      const counter = document.getElementById('faculty-counter');
+
+      let currentBatch = 1;
+      const maxBatches = 3; // Simulating 3 batches (36 teachers total)
+      let isFetching = false;
+
+      const extraTeachersBatch2 = [
+        { name: "Dr. Khaled Al-Mansoor", dept: "Mathematics", topic: "Higher Algebra", exp: "18+ Yrs Exp", rating: "5.0", badge: "bg-teal-600", img: "images/instructor_portrait.png" },
+        { name: "Mariam Fathy", dept: "Physics", topic: "Thermodynamics & Waves", exp: "10+ Yrs Exp", rating: "4.8", badge: "bg-purple-600", img: "images/instructor_female.png" },
+        { name: "Youssef Nabil", dept: "Chemistry", topic: "Physical Chemistry", exp: "12+ Yrs Exp", rating: "4.9", badge: "bg-blue-600", img: "images/instructor_male.png" },
+        { name: "Amina Reda", dept: "Biology", topic: "Molecular Biology", exp: "15+ Yrs Exp", rating: "4.9", badge: "bg-emerald-600", img: "images/hero_student.png" }
+      ];
+
+      function createTeacherCardHTML(t) {
+        return `
+          <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[460px]">
+            <div class="relative h-60 overflow-hidden bg-slate-950">
+              <img src="${t.img}" loading="lazy" alt="${t.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+              <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white ${t.badge} px-3 py-1 rounded-full shadow-md">
+                ${t.dept}
+              </span>
+            </div>
+
+            <div class="p-5 flex flex-col justify-between flex-1 space-y-3">
+              <div class="space-y-1">
+                <h3 class="font-heading font-extrabold text-xl text-slate-900 group-hover:text-teal-600 transition-colors">
+                  ${t.name}
+                </h3>
+                <p class="text-xs font-mono text-slate-500">${t.topic}</p>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100 space-y-3 text-xs font-semibold text-slate-600">
+                <div class="flex items-center justify-between">
+                  <span>${t.exp}</span>
+                  <span class="text-amber-500 font-bold">★★★★★ ${t.rating}</span>
+                </div>
+                <a href="teacher-profile.html" class="btn-lift block w-full text-center py-2 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white font-extrabold rounded-xl transition-all">
+                  View Profile &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function fetchMoreTeachers() {
+        if (isFetching || currentBatch >= maxBatches) return;
+        isFetching = true;
+
+        // Show spinner & skeletons
+        spinner.classList.remove('hidden');
+        spinner.classList.add('flex');
+        skeleton.classList.remove('hidden');
+        skeleton.classList.add('grid');
+
+        // Simulate cursor-based AJAX delay (1.2s)
+        setTimeout(() => {
+          currentBatch++;
+          
+          extraTeachersBatch2.forEach(t => {
+            grid.insertAdjacentHTML('beforeend', createTeacherCardHTML(t));
+          });
+
+          // Hide spinner & skeletons
+          spinner.classList.remove('flex');
+          spinner.classList.add('hidden');
+          skeleton.classList.remove('grid');
+          skeleton.classList.add('hidden');
+
+          const loadedCount = grid.children.length;
+          if (counter) counter.textContent = `Showing ${loadedCount} Faculty Members`;
+
+          isFetching = false;
+
+          if (currentBatch >= maxBatches) {
+            endMessage.classList.remove('hidden');
+            observer.disconnect();
+          }
+        }, 1200);
+      }
+
+      // Intersection Observer Setup
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !isFetching && currentBatch < maxBatches) {
+            fetchMoreTeachers();
+          }
+        });
+      }, {
+        rootMargin: '200px'
+      });
+
+      if (sentinel) {
+        observer.observe(sentinel);
+      }
+    });
+  </script>
+
+  <!-- i18n Bilingual Engine -->
+  <script src="js/i18n.js"></script>
+
+</body>
+</html>
