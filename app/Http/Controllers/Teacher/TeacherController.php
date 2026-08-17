@@ -51,15 +51,18 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(?string $slug = null): View
     {
         $teacher = TeacherProfile::with(['user', 'courses.subject', 'subjects', 'gradeLevels'])
-            ->where('slug', $slug)
-            ->orWhere('id', $slug)
-            ->firstOrFail();
+            ->when($slug, fn ($query) => $query->where('slug', $slug)->orWhere('id', $slug))
+            ->first();
+
+        if (! $teacher) {
+            $teacher = TeacherProfile::with(['user', 'courses.subject', 'subjects', 'gradeLevels'])->first();
+        }
 
         return view('pages.teacher-profile', [
-            'pageTitle' => ($teacher->user->name ?? 'Teacher Profile').' — Elite Academy',
+            'pageTitle' => $teacher ? "{$teacher->user?->name} — Teacher Profile" : 'Teacher Profile — Elite Academy',
             'activeNav' => 'teachers',
             'teacher' => $teacher,
         ]);

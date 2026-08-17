@@ -44,7 +44,7 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::get('/contact', [\App\Http\Controllers\Cms\ContactController::class, 'show'])->name('contact');
     Route::post('/ajax/contact/submit', [\App\Http\Controllers\Cms\ContactController::class, 'submitAjax'])->name('ajax.contact.submit');
     Route::get('/faq', [PageController::class, 'show'])->defaults('page', 'faq')->name('faq');
-    Route::get('/student-portal', [PageController::class, 'show'])->defaults('page', 'student-portal')->name('student-portal');
+    Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
 
     // 2. Authentication Domain Routes
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

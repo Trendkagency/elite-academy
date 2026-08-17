@@ -49,23 +49,22 @@ class SessionController extends Controller
     {
         $user = auth()->user();
         $validated = $request->validated();
-        $liveSession = LiveSession::find($validated['live_session_id']);
-
-        if (! $liveSession) {
-            return response()->json(['success' => false, 'message' => 'Live session not found'], 404);
-        }
+        $liveSession = ! empty($validated['live_session_id']) ? LiveSession::find($validated['live_session_id']) : null;
 
         try {
             $exceptionRequest = $action->execute(
                 $user,
                 $liveSession,
                 $validated['reason'],
-                $validated['attachment_path'] ?? null
+                $validated['attachment_path'] ?? null,
+                $validated['course_id'] ?? null,
+                $validated['is_global'] ?? false,
+                $validated['scope'] ?? 'course'
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Absence excuse request submitted successfully!',
+                'message' => 'Absence excuse / exception request submitted successfully!',
                 'request_id' => $exceptionRequest->id,
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {

@@ -17,7 +17,7 @@ class ParentProfile extends Model
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'parent_student', 'parent_user_id', 'student_user_id')
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_user_id', 'student_user_id', 'user_id', 'id')
             ->withPivot('relationship')
             ->withTimestamps();
     }

@@ -30,7 +30,12 @@ class SubjectController extends Controller
     public function show(?string $slug = null): View
     {
         $subject = Subject::where('is_active', true)
-            ->when($slug, fn ($query) => $query->where('slug', $slug))
+            ->when($slug, function ($query) use ($slug) {
+                $query->where(function ($q) use ($slug) {
+                    $q->where('slug', strtolower($slug))
+                      ->orWhere('name', 'like', "%{$slug}%");
+                });
+            })
             ->with(['category', 'courses.teacher.user', 'courses.gradeLevel'])
             ->first();
 

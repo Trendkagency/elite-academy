@@ -38,13 +38,14 @@
 
 {{-- Courses Grid --}}
 <section class="py-12 md:py-16 bg-[#FAFAF9]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @if(isset($courses) && count($courses) > 0)
                 @foreach ($courses as $c)
                     @php
                         $isModel = $c instanceof \App\Models\Course;
                         $slug = $isModel ? $c->slug : 'course-details';
+                        $courseId = $isModel ? $c->id : null;
                         $cardData = [
                             'image' => $isModel ? ($c->image ?: 'images/course_ai.png') : ($c['image'] ?? 'images/course_ai.png'),
                             'category' => $isModel ? ($c->subject?->name ?: 'Science') : ($c['category'] ?? 'Science'),
@@ -56,7 +57,8 @@
                             'description' => $isModel ? ($c->description ?: 'Interactive curriculum with hands-on labs.') : ($c['description'] ?? 'Course description'),
                             'price' => '$290',
                             'route' => route('course-details', ['slug' => $slug]),
-                            'course_id' => $isModel ? $c->id : null,
+                            'course_id' => $courseId,
+                            'isEnrolled' => $courseId ? in_array($courseId, $enrolledCourseIds ?? []) : false,
                         ];
                     @endphp
                     @include('components.course-card', $cardData)
@@ -72,6 +74,13 @@
                 </div>
             @endif
         </div>
+
+        {{-- Pagination Controls --}}
+        @if(method_exists($courses, 'links') && $courses->hasPages())
+            <div class="pt-6 flex justify-center border-t border-slate-200/80">
+                {{ $courses->links() }}
+            </div>
+        @endif
     </div>
 </section>
 @endsection

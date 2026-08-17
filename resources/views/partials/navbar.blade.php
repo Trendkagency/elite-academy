@@ -8,6 +8,7 @@
     $navItems = [
         $navLink('home', 'home', __('navbar.home') !== 'navbar.home' ? __('navbar.home') : 'Home'),
         $navLink('subjects', 'subjects', __('navbar.subjects') !== 'navbar.subjects' ? __('navbar.subjects') : 'Subjects'),
+        $navLink('courses', 'courses', __('navbar.courses') !== 'navbar.courses' ? __('navbar.courses') : (app()->getLocale() === 'ar' ? 'المقررات' : 'Courses')),
         $navLink('teachers', 'teachers', __('navbar.teachers') !== 'navbar.teachers' ? __('navbar.teachers') : (app()->getLocale() === 'ar' ? 'المعلمون' : 'Teachers')),
         $navLink('blog', 'blog', __('navbar.blog') !== 'navbar.blog' ? __('navbar.blog') : 'Blog'),
         $navLink('about', 'about', __('navbar.about') !== 'navbar.about' ? __('navbar.about') : 'About'),

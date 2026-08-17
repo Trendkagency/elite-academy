@@ -3,12 +3,12 @@
 namespace App\Policies;
 
 use App\Enums\SessionProgressStatus;
-use App\Enums\SubmissionStatus;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
+use App\Models\ExceptionRequest;
 use App\Models\TeacherProfile;
 use App\Models\User;
 
@@ -36,36 +36,42 @@ class CourseSessionPolicy
             return false;
         }
 
-        // Mandatory Rule: Check if previous session homework is completed before starting current session
-        $previousSession = CourseSession::where('course_id', $session->course_id)
+        // Check if student has an APPROVED Exception Request (Global OR specific to this course)
+        $hasApprovedException = ExceptionRequest::where('student_user_id', $user->id)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($session) {
+                $q->where('is_global', true)
+                  ->orWhere('scope', 'global')
+                  ->orWhere('course_id', $session->course_id);
+            })
+            ->exists();
+
+        if ($hasApprovedException) {
+            return true; // Exemption granted by Admin/Teacher for this course or globally
+        }
+
+        // Mandatory Rule: Check if ALL previous session assignments are submitted before starting current session
+        $previousSessions = CourseSession::where('course_id', $session->course_id)
             ->where('sort_order', '<', $session->sort_order)
-            ->orderBy('sort_order', 'desc')
-            ->first();
+            ->orderBy('sort_order', 'asc')
+            ->get();
 
-        if ($previousSession) {
-            $previousAssignments = Assignment::where('course_session_id', $previousSession->id)->get();
+        foreach ($previousSessions as $prev) {
+            $assignments = Assignment::where('course_session_id', $prev->id)
+                ->where('status', '!=', 'draft')
+                ->get();
 
-            foreach ($previousAssignments as $assignment) {
-                $completedSubmission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            foreach ($assignments as $assignment) {
+                $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
                     ->where('student_user_id', $user->id)
-                    ->where('status', SubmissionStatus::COMPLETED->value)
-                    ->exists();
+                    ->first();
 
-                if (! $completedSubmission) {
-                    return false; // Cannot start session without completing previous assignment
+                if (! $submission) {
+                    return false; // Cannot start session without submitting previous assignment
                 }
             }
         }
 
-        // Verify session progress status
-        $progress = CourseSessionProgress::where('course_enrollment_id', $enrollment->id)
-            ->where('course_session_id', $session->id)
-            ->first();
-
-        return $progress && in_array($progress->status, [
-            SessionProgressStatus::UNLOCKED,
-            SessionProgressStatus::IN_PROGRESS,
-            SessionProgressStatus::COMPLETED,
-        ]);
+        return true;
     }
 }

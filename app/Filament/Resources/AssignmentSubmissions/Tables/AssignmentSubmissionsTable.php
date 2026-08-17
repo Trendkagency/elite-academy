@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\AssignmentSubmissions\Tables;
 
+use App\Enums\SubmissionStatus;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,39 +19,56 @@ class AssignmentSubmissionsTable
         return $table
             ->columns([
                 TextColumn::make('assignment.title')
-                    ->searchable(),
-                TextColumn::make('studentUser.name')
-                    ->searchable(),
-                TextColumn::make('course_enrollment_id')
-                    ->numeric()
+                    ->label('Assignment Title')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('submitted_at')
-                    ->dateTime()
+                TextColumn::make('studentUser.name')
+                    ->label('Student Name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('grade')
+                    ->label('Score / Grade (%)')
+                    ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('grade')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('reviewed_at')
+                    ->badge()
+                    ->color(fn ($state): string => match (is_object($state) ? $state->value : $state) {
+                        'completed' => 'success',
+                        'late' => 'warning',
+                        default => 'info',
+                    }),
+                TextColumn::make('submitted_at')
+                    ->label('Submitted At')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('reviewed_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
+                Action::make('gradeSubmission')
+                    ->label('Grade & Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->form([
+                        TextInput::make('grade')
+                            ->label('Grade Percentage (%)')
+                            ->numeric()
+                            ->default(100)
+                            ->required(),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'grade' => $data['grade'],
+                            'status' => SubmissionStatus::COMPLETED->value,
+                            'reviewed_at' => now(),
+                            'reviewed_by' => auth()->id(),
+                        ]);
+                        Notification::make()
+                            ->title('Homework Submission Graded & Approved')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
             ])
             ->toolbarActions([

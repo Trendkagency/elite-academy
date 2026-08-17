@@ -28,13 +28,19 @@ class CourseController extends Controller
                 });
             })
             ->with(['subject.category', 'teacher.user', 'gradeLevel'])
-            ->get();
+            ->paginate(6)
+            ->withQueryString();
+
+        $enrolledCourseIds = auth()->check()
+            ? CourseEnrollment::where('student_user_id', auth()->id())->pluck('course_id')->toArray()
+            : [];
 
         return view('pages.courses', [
             'pageTitle' => 'Courses — Elite Academy',
             'activeNav' => 'courses',
             'courses' => $courses,
             'selectedCategory' => $selectedCategory,
+            'enrolledCourseIds' => $enrolledCourseIds,
         ]);
     }
 
@@ -45,10 +51,15 @@ class CourseController extends Controller
             ->with(['subject', 'teacher.user', 'sessions.assignments'])
             ->first();
 
+        $isEnrolled = ($course && auth()->check())
+            ? CourseEnrollment::where('student_user_id', auth()->id())->where('course_id', $course->id)->exists()
+            : false;
+
         return view('pages.course-details', [
             'pageTitle' => $course ? $course->title : 'Course Details — Elite Academy',
             'activeNav' => 'courses',
             'course' => $course,
+            'isEnrolled' => $isEnrolled,
         ]);
     }
 
@@ -64,10 +75,21 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Course not found'], 404);
         }
 
-        $enrollment = CourseEnrollment::firstOrCreate([
+        $existing = CourseEnrollment::where('student_user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'already_enrolled' => true,
+                'message' => 'You are already enrolled in this course! Access your lessons from your Student Portal.',
+            ], 422);
+        }
+
+        $enrollment = CourseEnrollment::create([
             'student_user_id' => $user->id,
             'course_id' => $course->id,
-        ], [
             'status' => 'active',
             'enrolled_at' => now(),
         ]);

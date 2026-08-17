@@ -23,7 +23,11 @@
         <div class="space-y-3 max-w-3xl">
             <div class="flex items-center gap-3">
                 <span class="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">{{ $cSubject }}</span>
-                <span class="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">▶ Free Demo Available</span>
+                @if($isEnrolled ?? false)
+                    <span class="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">✓ Enrolled Course</span>
+                @else
+                    <span class="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">▶ Free Demo Available</span>
+                @endif
             </div>
 
             <h1 class="font-heading text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
@@ -78,54 +82,41 @@
                     </div>
                 </div>
 
-                {{-- Course Modules & Sessions --}}
-                <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-2xs space-y-6">
-                    <h2 class="font-heading font-bold text-2xl text-slate-900">Curriculum Sessions & Homework</h2>
-                    <div class="space-y-3">
-                        @if($course && $course->sessions->count() > 0)
-                            @foreach($course->sessions as $idx => $s)
-                                <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80" @if($idx === 0) open @endif>
-                                    <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
-                                        <span>Session {{ $s->sort_order }}: {{ $s->title }}</span>
-                                        <span class="text-teal-600 font-mono font-bold">+</span>
-                                    </summary>
-                                    <p class="mt-3 text-xs text-slate-600">{{ $s->description ?: 'Interactive lecture, hands-on coding exercises, and graded homework.' }}</p>
-                                </details>
-                            @endforeach
-                        @else
-                            <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80" open>
-                                <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
-                                    <span>Module 1: Advanced Async Python & FastAPI Microservices</span>
-                                    <span class="text-teal-600 font-mono font-bold">+</span>
-                                </summary>
-                                <p class="mt-3 text-xs text-slate-600">Asynchronous I/O, Pydantic schemas, dependency injection, and PyTest integration.</p>
-                            </details>
-                            <details class="group bg-[#FAFAF9] rounded-xl p-4 border border-slate-200/80">
-                                <summary class="flex justify-between items-center font-bold text-sm text-slate-900 cursor-pointer">
-                                    <span>Module 2: Relational Databases & PostgreSQL Indexing</span>
-                                    <span class="text-teal-600 font-mono font-bold">+</span>
-                                </summary>
-                                <p class="mt-3 text-xs text-slate-600">Schema design, query optimization, ACID transactions, and Redis caching layers.</p>
-                            </details>
-                        @endif
-                    </div>
-                </div>
+                {{-- Interactive Curriculum Lifetime Timeline Component --}}
+                @include('components.curriculum-timeline', [
+                    'sessions' => $course?->sessions,
+                    'title' => 'Course Curriculum & Module Lifetime Roadmap',
+                    'subtitle' => 'Structured timeline of lectures, live coding labs, and homework assignments'
+                ])
             </div>
 
-            {{-- Right Column: Enrollment Card Sidebar --}}
+            {{-- Sidebar --}}
             <div class="lg:col-span-4 space-y-6">
-                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-lg sticky top-24 space-y-6">
-                    <div class="space-y-2">
-                        <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Enrollment Fee</span>
+                {{-- Live Countdown Timer Widget Component --}}
+                @include('components.course-countdown-timer', [
+                    'targetDate' => '2026-09-01T10:00:00',
+                    'title' => 'Live Cohort Start Timer',
+                    'subtitle' => 'Countdown to live stream lecture & interactive Q&A'
+                ])
+
+                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
+                    <div class="space-y-2 border-b border-slate-100 pb-4">
+                        <span class="text-xs font-mono font-extrabold text-slate-400 uppercase">Tuition Fee</span>
                         <p class="font-mono text-3xl font-extrabold text-slate-900">$290 <span class="text-xs text-slate-400 font-normal">/ term</span></p>
                     </div>
 
                     <div id="enrollAlert" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
 
                     @auth
-                        <button id="btnEnroll" class="w-full text-center py-3.5 px-6 font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md transition-all cursor-pointer">
-                            Enroll in Fall Cohort
-                        </button>
+                        @if($isEnrolled ?? false)
+                            <a href="{{ route('student-portal') }}" class="btn-lift w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">
+                                Already Enrolled ✓ — Go to Student Portal &rarr;
+                            </a>
+                        @else
+                            <button id="btnEnroll" class="w-full text-center py-3.5 px-6 font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md transition-all cursor-pointer">
+                                Enroll in Fall Cohort
+                            </button>
+                        @endif
                     @else
                         <a href="{{ route('login') }}" class="w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">
                             Log In to Enroll
@@ -137,7 +128,7 @@
                         <div class="flex items-center gap-3">
                             <img src="{{ asset('images/instructor_portrait.png') }}" alt="{{ $cTeacher }}" class="w-10 h-10 rounded-xl object-cover border border-teal-500">
                             <div>
-                                <a href="{{ route('teacher-profile') }}" class="text-xs font-bold text-slate-900 hover:text-teal-600">{{ $cTeacher }}</a>
+                                <a href="{{ route('teachers') }}" class="text-xs font-bold text-slate-900 hover:text-teal-600">{{ $cTeacher }}</a>
                                 <p class="text-[11px] text-slate-500">Senior Academic Lead</p>
                             </div>
                         </div>
@@ -149,6 +140,7 @@
 </section>
 
 @auth
+@if(! ($isEnrolled ?? false))
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const btn = document.getElementById('btnEnroll');
@@ -158,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', async function () {
         btn.disabled = true;
         btn.textContent = 'Enrolling...';
-        
+
         try {
             const res = await fetch("{{ route('ajax.course.enroll', $cId) }}", {
                 method: 'POST',
@@ -190,5 +182,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endif
 @endauth
 @endsection

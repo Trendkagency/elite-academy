@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] text-slate-900 antialiased">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0F172A">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle ?? config('app.name') }}</title>
     @isset($pageDescription)
         <meta name="description" content="{{ $pageDescription }}">
     @endisset
+    <style>
+        /* Critical styles to eliminate white flash during back/forward navigation and hydration */
+        html, body {
+            background-color: #FAFAF9 !important;
+            color: #0F172A;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+    </style>
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
     @stack('head')
 </head>
@@ -23,7 +34,7 @@
         @include('partials.navbar')
     @endunless
 
-    <main class="flex-grow w-full">
+    <main class="flex-grow w-full bg-[#FAFAF9] min-h-[60vh]">
         @yield('content')
     </main>
 
