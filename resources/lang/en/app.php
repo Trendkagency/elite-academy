@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'welcome' => 'Welcome to Elite Academy',
+    'admin_portal' => 'Admin Panel (Filament)',
+    'teacher_portal' => 'Teacher Dashboard',
+    'student_portal' => 'Student Academic Dashboard',
+    'parent_portal' => 'Parent Portal',
+    'auth' => [
+        'login_success' => 'Logged in successfully',
+        'invalid_credentials' => 'Invalid email or password',
+        'registered_success' => 'Registered successfully',
+        'unauthorized' => 'You are not authorized to perform this action',
+    ],
+    'courses' => [
+        'title' => 'Featured Courses',
+        'enrolled_success' => 'Enrolled in course successfully!',
+        'already_enrolled' => 'You are already enrolled in this course',
+        'not_found' => 'Course not found',
+        'already_enrolled_btn' => 'Already Enrolled ✓ — Go to Student Portal →',
+        'enroll_btn' => 'Enroll in Fall Cohort',
+        'free_demo' => 'Free Sample Demo Included',
+    ],
+    'portal' => [
+        'welcome_back' => 'Welcome Back',
+        'grade_level' => 'Grade Level',
+        'school' => 'School',
+        'upcoming_sessions' => 'Upcoming Live Sessions',
+        'remaining_sessions' => 'Remaining Sessions',
+        'current_package' => 'Current Subscription Package',
+        'attendance_rate' => 'Attendance Rate',
+        'homework_rate' => 'Homework Score Average',
+        'submit_excuse' => '+ Submit Absence Excuse',
+        'submit_exception' => '+ Submit Homework Exception',
+        'notifications' => 'Notifications Center',
+        'exceptions_history' => 'Exception Requests History',
+        'join_live' => 'Join Live Session Now ▶',
+    ],
+    'sessions' => [
+        'excuse_2h_rule' => 'Requests for absence excuses must be submitted at least 2 hours prior to the live session scheduled time.',
+        'excuse_success' => 'Absence excuse request submitted successfully!',
+        'previous_assignment_required' => 'Access denied: You cannot start this session until you complete and pass the assignment for the previous session.',
+    ],
+    'submissions' => [
+        'submitted_success' => 'Assignment submitted successfully!',
+        'graded_success' => 'Submission graded successfully! Next session unlocked if passed.',
+        'completed_badge' => 'Completed & Passed ✓',
+        'pending_badge' => 'Pending Review',
+    ],
+];

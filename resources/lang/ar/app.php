@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'welcome' => 'مرحباً بك في أكاديمية إيليت',
+    'admin_portal' => 'لوحة الإدارة (Filament)',
+    'teacher_portal' => 'بوابة المعلم',
+    'student_portal' => 'بوابة الطالب الأكاديمية',
+    'parent_portal' => 'بوابة ولي الأمر',
+    'auth' => [
+        'login_success' => 'تم تسجيل الدخول بنجاح',
+        'invalid_credentials' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+        'registered_success' => 'تم إنشاء الحساب بنجاح',
+        'unauthorized' => 'غير مصرح لك بإجراء هذه العملية',
+    ],
+    'courses' => [
+        'title' => 'المقررات والكورسات المتميزة',
+        'enrolled_success' => 'تم الاشتراك في الكورس بنجاح!',
+        'already_enrolled' => 'أنت مشترك بالفعل في هذا الكورس',
+        'not_found' => 'الكورس غير موجود',
+        'already_enrolled_btn' => 'مشترك بالفعل ✓ — الانتقال لبوابة الطالب ←',
+        'enroll_btn' => 'التحق بالدفعة الحالية',
+        'free_demo' => 'عرض حصة تجريبية مجانية',
+    ],
+    'portal' => [
+        'welcome_back' => 'أهلاً بك',
+        'grade_level' => 'الصف الدراسي',
+        'school' => 'المدرسة',
+        'upcoming_sessions' => 'الحصص القادمة',
+        'remaining_sessions' => 'الحصص المتبقية',
+        'current_package' => 'الباقة الحالية',
+        'attendance_rate' => 'نسبة الحضور',
+        'homework_rate' => 'معدل درجات الواجبات',
+        'submit_excuse' => '+ تقديم عذر غياب عن حصة',
+        'submit_exception' => '+ طلب استثناء واجب',
+        'notifications' => 'مركز الإشعارات والتنبيهات',
+        'exceptions_history' => 'طلبات الاستثناء والأعذار',
+        'join_live' => 'الانضمام للحصة الآن ▶',
+    ],
+    'sessions' => [
+        'excuse_2h_rule' => 'يجب تقديم طلبات الاعتذار عن عدم الحضور قبل موعد الجلسة بـ 2 ساعة على الأقل.',
+        'excuse_success' => 'تم تقديم طلب العذر بنجاح!',
+        'previous_assignment_required' => 'عفواً: لا يمكنك بدء هذه الحصة حتى تقوم بتسليم واجتياز واجب الجلسة السابقة بنجاح.',
+    ],
+    'submissions' => [
+        'submitted_success' => 'تم تسليم الواجب بنجاح!',
+        'graded_success' => 'تم تقييم الواجب بنجاح! تم فتح الجلسة التالية عند النجاح.',
+        'completed_badge' => 'تم الاعتماد (ناجح) ✓',
+        'pending_badge' => 'قيد التقييم',
+    ],
+];

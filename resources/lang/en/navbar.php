@@ -1,21 +1,20 @@
-﻿<?php
-/**
- * Elite Academy — Navbar Translations
- * resources/lang/en/navbar.php
- *
- * Usage in Blade: {{ __('navbar.home') }}
- */
+<?php
+
 return [
-    'home'        => 'Home',
-    'subjects'    => 'Subjects',
-    'instructors' => 'Instructors',
-    'blog'        => 'Blog',
-    'events'      => 'Events',
-    'about'       => 'About',
-    'contact'     => 'Contact',
-    'login'       => 'Log in',
-    'portal'      => 'Student Portal',
-    'menu'        => 'Menu',
-    'close'       => 'Close',
-    'lang_switch' => 'العربية',
+    'home' => 'Home',
+    'subjects' => 'Subjects',
+    'courses' => 'Courses',
+    'teachers' => 'Teachers',
+    'instructors' => 'Teachers',
+    'blog' => 'Blog',
+    'about' => 'About',
+    'contact' => 'Contact',
+    'login' => 'Log in',
+    'join' => 'Join Us',
+    'portal' => 'Student Portal',
+    'parent_portal' => 'Parent Portal',
+    'admin_panel' => 'Admin Panel (Filament)',
+    'logout' => 'Log Out',
+    'menu' => 'Menu',
+    'close' => 'Close',
 ];

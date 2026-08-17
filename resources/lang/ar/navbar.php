@@ -1,20 +1,20 @@
-﻿<?php
-/**
- * Elite Academy — Arabic Navbar Translations
- * resources/lang/ar/navbar.php
- * Translated by: [Translator Name] — [Date]
- */
+<?php
+
 return [
-    'home'        => 'الرئيسية',
-    'subjects'    => 'المواد الدراسية',
-    'instructors' => 'المدرّسون',
-    'blog'        => 'المدوّنة',
-    'events'      => 'الفعاليات',
-    'about'       => 'من نحن',
-    'contact'     => 'تواصل معنا',
-    'login'       => 'تسجيل الدخول',
-    'portal'      => 'بوابة الطالب',
-    'menu'        => 'القائمة',
-    'close'       => 'إغلاق',
-    'lang_switch' => 'English',
+    'home' => 'الرئيسية',
+    'subjects' => 'المواد الدراسية',
+    'courses' => 'المقررات والكورسات',
+    'teachers' => 'المعلمون',
+    'instructors' => 'المعلمون',
+    'blog' => 'المدونة',
+    'about' => 'من نحن',
+    'contact' => 'اتصل بنا',
+    'login' => 'تسجيل الدخول',
+    'join' => 'انضم إلينا',
+    'portal' => 'بوابة الطالب',
+    'parent_portal' => 'بوابة ولي الأمر',
+    'admin_panel' => 'لوحة الإدارة',
+    'logout' => 'تسجيل الخروج',
+    'menu' => 'القائمة',
+    'close' => 'إغلاق',
 ];
