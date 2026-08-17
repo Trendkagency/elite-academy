@@ -28,19 +28,6 @@ COPY . .
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
 
-# ---------- Stage 2: Frontend build (Vite) ----------
-FROM node:22-alpine AS node_build
-WORKDIR /app
-
-COPY package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
-COPY . .
-COPY --from=composer_build /app/vendor ./vendor
-
-RUN npm run build && rm -rf node_modules
-
-
 # ---------- Stage 3: Production image ----------
 FROM php:8.3-fpm-alpine AS production
 
@@ -77,10 +64,9 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# انسخ الكود + الـ vendor + الـ build assets من المراحل السابقة فقط
+# انسخ الكود + الـ vendor من المراحل السابقة فقط
 COPY --chown=www-data:www-data . .
 COPY --from=composer_build --chown=www-data:www-data /app/vendor ./vendor
-COPY --from=node_build --chown=www-data:www-data /app/public/build ./public/build
 
 # تنظيف ملفات مش محتاجينها في production
 RUN rm -rf \
