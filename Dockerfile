@@ -14,7 +14,6 @@ ENV COMPOSER_PROCESS_TIMEOUT=600
 
 # نسخ ملفات composer بس الأول عشان الـ layer caching
 COPY composer.json composer.lock ./
-COPY Modules/ Modules/
 
 RUN composer config process-timeout 600 \
     && composer install \
