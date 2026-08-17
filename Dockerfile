@@ -20,7 +20,7 @@ RUN composer config process-timeout 600 \
         --no-dev \
         --no-scripts \
         --no-autoloader \
-        --prefer-dist \
+        --prefer-source \
         --ignore-platform-reqs \
         --no-interaction
 
