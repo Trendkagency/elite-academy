@@ -29,7 +29,7 @@ RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
 
 # ---------- Stage 3: Production image ----------
-FROM php:8.3-fpm-alpine AS production
+FROM php:8.4-fpm-alpine AS production
 
 # حزم النظام: nginx + supervisor + مكتبات الـ PHP extensions
 RUN apk add --no-cache \
