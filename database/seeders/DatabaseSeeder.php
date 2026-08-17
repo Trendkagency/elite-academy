@@ -3,14 +3,14 @@
 namespace Database\Seeders;
 
 use App\Enums\AccountStatus;
-use App\Enums\CourseStatus;
-use App\Enums\SessionProgressStatus;
+
 use App\Models\AdminProfile;
 use App\Models\Assignment;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
+
 use App\Models\GradeLevel;
 use App\Models\ParentProfile;
 use App\Models\StudentProfile;
@@ -157,8 +157,14 @@ class DatabaseSeeder extends Seeder
         CourseSessionProgress::create([
             'course_enrollment_id' => $enrollment->id,
             'course_session_id' => $session1->id,
-            'status' => SessionProgressStatus::UNLOCKED,
+            'status' => \App\Enums\SessionProgressStatus::UNLOCKED,
             'unlocked_at' => now(),
+        ]);
+
+        // 6. Seed Additional Teachers & Articles
+        $this->call([
+            TeacherSeeder::class,
+            ArticleSeeder::class,
         ]);
     }
 }

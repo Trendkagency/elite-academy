@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -40,16 +41,6 @@ class PageController extends Controller
             'title' => 'Instructor Profile — Elite Academy',
             'active' => 'teachers',
         ],
-        'courses' => [
-            'view' => 'pages.courses',
-            'title' => 'Courses — Elite Academy',
-            'active' => 'courses',
-        ],
-        'course-details' => [
-            'view' => 'pages.course-details',
-            'title' => 'Course Details — Elite Academy',
-            'active' => 'courses',
-        ],
         'events' => [
             'view' => 'pages.events',
             'title' => 'Events — Elite Academy',
@@ -75,16 +66,6 @@ class PageController extends Controller
             'title' => 'FAQ — Elite Academy',
             'active' => 'faq',
         ],
-        'login' => [
-            'view' => 'pages.login',
-            'title' => 'Log In — Elite Academy',
-            'active' => 'login',
-        ],
-        'register' => [
-            'view' => 'pages.register',
-            'title' => 'Register — Elite Academy',
-            'active' => 'register',
-        ],
         'student-portal' => [
             'view' => 'pages.student-portal',
             'title' => 'Student Portal — Elite Academy',
@@ -92,7 +73,7 @@ class PageController extends Controller
         ],
     ];
 
-    public function show(\Illuminate\Http\Request $request): View
+    public function show(Request $request): View
     {
         $page = $request->route()->defaults['page'] ?? 'home';
 

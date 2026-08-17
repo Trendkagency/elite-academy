@@ -39,6 +39,11 @@ class CourseEnrollment extends Model
         return $this->hasMany(CourseSessionProgress::class, 'course_enrollment_id');
     }
 
+    public function progress(): HasMany
+    {
+        return $this->hasMany(CourseSessionProgress::class, 'course_enrollment_id');
+    }
+
     public function submissions(): HasMany
     {
         return $this->hasMany(AssignmentSubmission::class, 'course_enrollment_id');

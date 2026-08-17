@@ -5,12 +5,10 @@ namespace App\Actions\Submission;
 use App\Actions\Course\UnlockNextSessionAction;
 use App\Enums\SubmissionStatus;
 use App\Models\AssignmentSubmission;
-use App\Repositories\Contracts\SubmissionRepositoryInterface;
 
 class GradeSubmissionAction
 {
     public function __construct(
-        protected SubmissionRepositoryInterface $submissionRepository,
         protected UnlockNextSessionAction $unlockNextSessionAction
     ) {}
 
@@ -21,7 +19,12 @@ class GradeSubmissionAction
         $passed = $grade >= $passingGrade;
         $status = $passed ? SubmissionStatus::COMPLETED->value : SubmissionStatus::PENDING->value;
 
-        $updatedSubmission = $this->submissionRepository->grade($submission, $grade, $status, $feedback);
+        $submission->update([
+            'grade' => $grade,
+            'status' => $status,
+            'teacher_notes' => $feedback,
+            'reviewed_at' => now(),
+        ]);
 
         if ($passed && $submission->enrollment && $assignment->session) {
             $this->unlockNextSessionAction->execute(
@@ -30,6 +33,6 @@ class GradeSubmissionAction
             );
         }
 
-        return $updatedSubmission;
+        return $submission;
     }
 }

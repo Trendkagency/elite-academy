@@ -6,20 +6,15 @@ use App\Enums\SessionProgressStatus;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
-use App\Repositories\Contracts\SessionRepositoryInterface;
 
 class UnlockNextSessionAction
 {
-    public function __construct(
-        protected SessionRepositoryInterface $sessionRepository
-    ) {}
-
     public function execute(CourseEnrollment $enrollment, CourseSession $currentSession): ?CourseSession
     {
-        $nextSession = $this->sessionRepository->getNextSession(
-            $currentSession->course_id,
-            $currentSession->sort_order
-        );
+        $nextSession = CourseSession::where('course_id', $currentSession->course_id)
+            ->where('sort_order', '>', $currentSession->sort_order)
+            ->orderBy('sort_order', 'asc')
+            ->first();
 
         if (! $nextSession) {
             return null;

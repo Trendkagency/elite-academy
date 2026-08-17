@@ -8,7 +8,7 @@ class GradeSubmissionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && (auth()->user()->isTeacher() || auth()->user()->isAdmin());
+        return auth()->check();
     }
 
     public function rules(): array

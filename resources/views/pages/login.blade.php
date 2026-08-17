@@ -9,6 +9,9 @@
             <p class="text-xs text-slate-500">Access your courses, grades, and parent dashboard.</p>
         </div>
 
+        {{-- Error / Alert Container --}}
+        <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold"></div>
+
         {{-- Pure CSS Radio Tabs --}}
         <input type="radio" id="tab-signin" name="auth-tabs" class="peer/signin hidden" checked>
         <input type="radio" id="tab-register" name="auth-tabs" class="peer/register hidden">
@@ -24,10 +27,11 @@
 
         {{-- Sign In Content --}}
         <div class="tab-content content-signin space-y-4">
-            <form action="{{ route('student-portal') }}" method="GET" class="space-y-4">
+            <form id="signinForm" action="{{ route('ajax.login') }}" method="POST" class="space-y-4">
+                @csrf
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700">Email Address</label>
-                    <input type="email" required placeholder="student@eliteacademy.edu" class="input-mobile">
+                    <input type="email" name="email" required placeholder="student@eliteacademy.edu" class="input-mobile">
                 </div>
 
                 <div class="space-y-1.5">
@@ -35,7 +39,7 @@
                         <label class="text-xs font-bold text-slate-700">Password</label>
                         <a href="#" class="text-xs text-teal-600 hover:underline font-bold">Forgot?</a>
                     </div>
-                    <input type="password" required placeholder="••••••••" class="input-mobile">
+                    <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
                 </div>
 
                 <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press">
@@ -46,20 +50,21 @@
 
         {{-- Register Content --}}
         <div class="tab-content content-register space-y-4">
-            <form action="#" method="GET" class="space-y-4">
+            <form id="registerForm" action="{{ route('ajax.register') }}" method="POST" class="space-y-4">
+                @csrf
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700">Full Name</label>
-                    <input type="text" required placeholder="e.g. David Kovacs" class="input-mobile">
+                    <input type="text" name="name" required placeholder="e.g. David Kovacs" class="input-mobile">
                 </div>
 
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700">Email Address</label>
-                    <input type="email" required placeholder="name@example.com" class="input-mobile">
+                    <input type="email" name="email" required placeholder="name@example.com" class="input-mobile">
                 </div>
 
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700">Account Type</label>
-                    <select class="input-mobile cursor-pointer">
+                    <select name="user_type" class="input-mobile cursor-pointer">
                         <option value="student">Student</option>
                         <option value="parent">Parent</option>
                         <option value="teacher">Instructor</option>
@@ -68,7 +73,7 @@
 
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700">Password</label>
-                    <input type="password" required placeholder="••••••••" class="input-mobile">
+                    <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
                 </div>
 
                 <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press">
@@ -78,4 +83,47 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const alertBox = document.getElementById('authAlert');
+    
+    function showAlert(msg, isError = true) {
+        alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`;
+        alertBox.textContent = msg;
+        alertBox.classList.remove('hidden');
+    }
+
+    function handleAuthSubmit(form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            alertBox.classList.add('hidden');
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    showAlert('Success! Redirecting...', false);
+                    setTimeout(() => window.location.href = data.redirect_url || '{{ route("student-portal") }}', 800);
+                } else {
+                    showAlert(data.message || 'An error occurred during authentication.');
+                }
+            } catch (err) {
+                showAlert('Network connection error. Please try again.');
+            }
+        });
+    }
+
+    const signinForm = document.getElementById('signinForm');
+    const registerForm = document.getElementById('registerForm');
+    if (signinForm) handleAuthSubmit(signinForm);
+    if (registerForm) handleAuthSubmit(registerForm);
+});
+</script>
 @endsection

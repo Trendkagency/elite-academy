@@ -52,6 +52,6 @@ class Course extends Model
 
     public function sessions(): HasMany
     {
-        return $this->hasMany(CourseSession::class)->orderBy('order');
+        return $this->hasMany(CourseSession::class)->orderBy('sort_order');
     }
 }

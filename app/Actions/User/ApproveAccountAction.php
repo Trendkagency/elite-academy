@@ -5,31 +5,25 @@ namespace App\Actions\User;
 use App\Enums\AccountStatus;
 use App\Models\AccountStatusLog;
 use App\Models\User;
-use App\Repositories\Contracts\UserRepositoryInterface;
 
 class ApproveAccountAction
 {
-    public function __construct(
-        protected UserRepositoryInterface $userRepository
-    ) {}
-
-    public function execute(User $targetUser, User $adminUser, ?string $reason = 'Approved by administrator'): User
+    public function execute(User $user, User $actor, ?string $reason = null): User
     {
-        $previousStatus = $targetUser->status;
+        $oldStatus = $user->status;
 
-        $updatedUser = $this->userRepository->update($targetUser, [
-            'status' => AccountStatus::APPROVED->value,
-            'email_verified_at' => $targetUser->email_verified_at ?? now(),
+        $user->update([
+            'status' => AccountStatus::APPROVED,
         ]);
 
         AccountStatusLog::create([
-            'user_id' => $targetUser->id,
-            'changed_by_user_id' => $adminUser->id,
-            'previous_status' => $previousStatus,
+            'user_id' => $user->id,
+            'actor_user_id' => $actor->id,
+            'old_status' => $oldStatus?->value ?? (string) $oldStatus,
             'new_status' => AccountStatus::APPROVED->value,
-            'reason' => $reason,
+            'reason' => $reason ?? 'Account approved by administrator.',
         ]);
 
-        return $updatedUser;
+        return $user;
     }
 }

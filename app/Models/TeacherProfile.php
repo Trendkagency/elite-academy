@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class TeacherProfile extends Model
+class TeacherProfile extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use InteractsWithMedia, SoftDeletes;
+
+    protected $table = 'teacher_profiles';
 
     protected $fillable = [
         'user_id',
@@ -30,10 +34,25 @@ class TeacherProfile extends Model
     protected $casts = [
         'is_featured' => 'boolean',
         'is_public' => 'boolean',
-        'rating' => 'float',
-        'experience_years' => 'integer',
-        'student_count' => 'integer',
+        'rating_avg' => 'float',
+        'years_experience' => 'integer',
+        'students_count' => 'integer',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('photo')
+            ->singleFile();
+    }
+
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->hasMedia('photo')) {
+            return $this->getFirstMediaUrl('photo');
+        }
+
+        return $this->photo ?: 'images/hero_student.png';
+    }
 
     public function user(): BelongsTo
     {
