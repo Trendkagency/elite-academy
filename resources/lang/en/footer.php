@@ -1,15 +1,25 @@
 ﻿<?php
-/**
- * Elite Academy — Footer Translations
- * resources/lang/en/footer.php
- */
 return [
-    'rights'          => '© 2026 Elite Academy. All rights reserved.',
-    'tagline'         => 'Empowering the next generation of innovators.',
-    'nav_home'        => 'Home',
-    'nav_subjects'    => 'Subjects',
-    'nav_instructors' => 'Instructors',
-    'nav_blog'        => 'Blog',
-    'nav_about'       => 'About',
-    'nav_contact'     => 'Contact',
+    'rights'              => '© 2026 Elite Academy. All rights reserved.',
+    'tagline'             => "Egypt's leading educational platform empowering future innovators through practical learning, PhD mentorship, and international certification.",
+    'quick_links'         => 'Quick Links',
+    'subjects'            => 'Subjects',
+    'contact'             => 'Contact',
+    'nav_home'            => 'Home',
+    'nav_about'           => 'About Us',
+    'nav_instructors'     => 'Teachers',
+    'nav_events'          => 'Events',
+    'nav_blog'            => 'Blog',
+    'nav_subjects'        => 'Subjects',
+    'nav_contact'         => 'Contact',
+    'subject_programming' => 'Programming',
+    'subject_ai'          => 'Artificial Intelligence',
+    'subject_science'     => 'Science & Physics',
+    'subject_business'    => 'Business Administration',
+    'subject_design'      => 'Creative Design',
+    'subject_math'        => 'Mathematics',
+    'address'             => 'New Cairo, Egypt',
+    'phone'               => '+20 100 000 0000',
+    'email'               => 'info@eliteacademy.edu.eg',
+    'hours'               => 'Sun - Thu: 9:00 - 18:00',
 ];

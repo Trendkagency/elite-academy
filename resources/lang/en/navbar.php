@@ -10,6 +10,7 @@ return [
     'subjects'    => 'Subjects',
     'instructors' => 'Instructors',
     'blog'        => 'Blog',
+    'events'      => 'Events',
     'about'       => 'About',
     'contact'     => 'Contact',
     'login'       => 'Log in',
