@@ -1,85 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="py-12 md:py-16 px-4">
-    <div class="max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200/80 shadow-lg space-y-6">
+<section class="py-12 md:py-20 px-4 bg-[#FAFAF9]">
+    <div class="max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
         <div class="text-center space-y-2">
-            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl font-bold mx-auto">🔑</div>
-            <h1 class="font-heading font-extrabold text-2xl text-slate-900">Elite Academy Portal</h1>
-            <p class="text-xs text-slate-500">Access your courses, grades, and parent dashboard.</p>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100">🔑</div>
+            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
+                {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Sign In to Portal' }}
+            </h1>
+            <p class="text-xs text-slate-500 font-mono">
+                {{ app()->getLocale() === 'ar' ? 'أدخل معلومات حسابك للوصول لبوابة المقررات والأداء الأكاديمي.' : 'Access your courses, grades, and academic dashboard.' }}
+            </p>
         </div>
 
-        {{-- Error / Alert Container --}}
+        {{-- Error / Success Alert Container --}}
         <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold"></div>
 
-        {{-- Pure CSS Radio Tabs --}}
-        <input type="radio" id="tab-signin" name="auth-tabs" class="peer/signin hidden" checked>
-        <input type="radio" id="tab-register" name="auth-tabs" class="peer/register hidden">
+        {{-- Dedicated Sign In Form --}}
+        <form id="signinForm" action="{{ route('ajax.login') }}" method="POST" class="space-y-4">
+            @csrf
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }}</label>
+                <input type="email" name="email" required placeholder="student@eliteacademy.edu.eg" class="input-mobile">
+            </div>
 
-        <div class="flex border-b border-slate-200 text-xs font-bold text-slate-500">
-            <label for="tab-signin" class="w-1/2 text-center py-3 cursor-pointer peer-checked/signin:border-b-2 peer-checked/signin:border-teal-600 peer-checked/signin:text-teal-600">
-                Sign In
-            </label>
-            <label for="tab-register" class="w-1/2 text-center py-3 cursor-pointer peer-checked/register:border-b-2 peer-checked/register:border-teal-600 peer-checked/register:text-teal-600">
-                Create Account
-            </label>
-        </div>
-
-        {{-- Sign In Content --}}
-        <div class="tab-content content-signin space-y-4">
-            <form id="signinForm" action="{{ route('ajax.login') }}" method="POST" class="space-y-4">
-                @csrf
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Email Address</label>
-                    <input type="email" name="email" required placeholder="student@eliteacademy.edu" class="input-mobile">
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
+                    <a href="#" class="text-xs text-teal-600 hover:underline font-bold">{{ app()->getLocale() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?' }}</a>
                 </div>
+                <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
+            </div>
 
-                <div class="space-y-1.5">
-                    <div class="flex justify-between items-center">
-                        <label class="text-xs font-bold text-slate-700">Password</label>
-                        <a href="#" class="text-xs text-teal-600 hover:underline font-bold">Forgot?</a>
-                    </div>
-                    <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
-                </div>
+            <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2">
+                {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In to Portal' }} &rarr;
+            </button>
+        </form>
 
-                <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press">
-                    Sign In to Portal
-                </button>
-            </form>
-        </div>
-
-        {{-- Register Content --}}
-        <div class="tab-content content-register space-y-4">
-            <form id="registerForm" action="{{ route('ajax.register') }}" method="POST" class="space-y-4">
-                @csrf
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Full Name</label>
-                    <input type="text" name="name" required placeholder="e.g. David Kovacs" class="input-mobile">
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Email Address</label>
-                    <input type="email" name="email" required placeholder="name@example.com" class="input-mobile">
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Account Type</label>
-                    <select name="user_type" class="input-mobile cursor-pointer">
-                        <option value="student">Student</option>
-                        <option value="parent">Parent</option>
-                        <option value="teacher">Instructor</option>
-                    </select>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Password</label>
-                    <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
-                </div>
-
-                <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press">
-                    Create Account &rarr;
-                </button>
-            </form>
+        {{-- Register Redirection Link --}}
+        <div class="pt-6 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500 font-mono">
+                {{ app()->getLocale() === 'ar' ? 'ليس لديك حساب حتى الآن؟' : "Don't have an account yet?" }}
+                <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ml-1">
+                    {{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد ←' : 'Create an Account &rarr;' }}
+                </a>
+            </p>
         </div>
     </div>
 </section>
@@ -87,20 +52,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const alertBox = document.getElementById('authAlert');
+    const form = document.getElementById('signinForm');
     
     function showAlert(msg, isError = true) {
-        alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`;
+        alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
         alertBox.textContent = msg;
         alertBox.classList.remove('hidden');
     }
 
-    function handleAuthSubmit(form) {
+    if (form) {
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
             alertBox.classList.add('hidden');
-            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75');
 
             try {
+                const formData = new FormData(form);
                 const res = await fetch(form.action, {
                     method: 'POST',
                     body: formData,
@@ -108,22 +77,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 const data = await res.json();
 
-                if (res.ok && data.success) {
-                    showAlert('Success! Redirecting...', false);
-                    setTimeout(() => window.location.href = data.redirect_url || '{{ route("student-portal") }}', 800);
-                } else {
-                    showAlert(data.message || 'An error occurred during authentication.');
+                if (!res.ok || !data.success) {
+                    showAlert(data.message || 'Login failed. Please check your credentials.', true);
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-75');
+                    return;
                 }
+
+                showAlert(data.message || 'Login successful! Redirecting...', false);
+                setTimeout(() => window.location.href = data.redirect_url || '/student-portal', 800);
             } catch (err) {
-                showAlert('Network connection error. Please try again.');
+                showAlert('Network error. Please try again.', true);
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75');
             }
         });
     }
-
-    const signinForm = document.getElementById('signinForm');
-    const registerForm = document.getElementById('registerForm');
-    if (signinForm) handleAuthSubmit(signinForm);
-    if (registerForm) handleAuthSubmit(registerForm);
 });
 </script>
 @endsection

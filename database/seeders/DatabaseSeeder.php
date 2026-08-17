@@ -13,8 +13,13 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
+use App\Models\ExceptionRequest;
 use App\Models\GradeLevel;
+use App\Models\LiveSession;
+use App\Models\PackageTemplate;
+use App\Models\PackageTransaction;
 use App\Models\ParentProfile;
+use App\Models\StudentPackage;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\TeacherProfile;
@@ -25,10 +30,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Grade Levels (الصفوف الدراسية)
+        // 1. Grade Levels (الصفوف الدراسية المصرية)
         $g12 = GradeLevel::updateOrCreate(
             ['slug' => 'grade-12'],
-            ['name' => 'الصف الثالث الثانوي', 'sort_order' => 1]
+            ['name' => 'الصف الثالث الثانوي (الثانوية العامة & STEM)', 'sort_order' => 1]
         );
         $g11 = GradeLevel::updateOrCreate(
             ['slug' => 'grade-11'],
@@ -78,7 +83,7 @@ class DatabaseSeeder extends Seeder
         );
         $ahmedProfile = StudentProfile::updateOrCreate(
             ['user_id' => $ahmed->id],
-            ['grade_level_id' => $g12->id, 'school_name' => 'مدرسة المتفوقين للعلوم والتكنولوجيا (STEM)', 'has_used_free_session' => true]
+            ['grade_level_id' => $g12->id, 'school_name' => 'مدرسة المتفوقين للعلوم والتكنولوجيا (STEM Cairo)', 'has_used_free_session' => true]
         );
 
         $mariam = User::updateOrCreate(
@@ -93,7 +98,7 @@ class DatabaseSeeder extends Seeder
         );
         $mariamProfile = StudentProfile::updateOrCreate(
             ['user_id' => $mariam->id],
-            ['grade_level_id' => $g11->id, 'school_name' => 'مدرسة النيل الدولية (Nile International)', 'has_used_free_session' => true]
+            ['grade_level_id' => $g11->id, 'school_name' => 'مدرسة النيل الدولية (Nile International School)', 'has_used_free_session' => true]
         );
 
         $omar = User::updateOrCreate(
@@ -108,7 +113,7 @@ class DatabaseSeeder extends Seeder
         );
         $omarProfile = StudentProfile::updateOrCreate(
             ['user_id' => $omar->id],
-            ['grade_level_id' => $g10->id, 'school_name' => 'مدرسة الأورمان النموذجية', 'has_used_free_session' => false]
+            ['grade_level_id' => $g10->id, 'school_name' => 'مدرسة الأورمان النموذجية لغات', 'has_used_free_session' => false]
         );
 
         // Attach Children to Parent Profile
@@ -169,14 +174,78 @@ class DatabaseSeeder extends Seeder
         $teacherDrOmar = TeacherProfile::where('slug', 'dr-omar-khaled')->first();
         $teacherKareem = TeacherProfile::where('slug', 'eng-kareem-zaki')->first();
 
-        // 6. Seed Courses (المقررات)
+        // 6. Seed Package Templates (قوالب الباقات والأشراك)
+        $pkgPro12 = PackageTemplate::updateOrCreate(
+            ['name' => 'باقة التميز الشهري (12 حصة / شهرياً)'],
+            ['sessions_count' => 12, 'price' => 450.00, 'description' => 'باقة متكاملة تغطي 12 حصة تفاعلية في الشهر مع متابعة الواجبات واختبارات التقييم.', 'is_active' => true]
+        );
+        $pkgFull24 = PackageTemplate::updateOrCreate(
+            ['name' => 'باقة الثانوية العامة الفائقة (24 حصة + المراجعات النهائية)'],
+            ['sessions_count' => 24, 'price' => 800.00, 'description' => 'باقة شاملة لجميع المواد الدراسية مع نماذج امتحانات الثانوية ومتابعة ولي الأمر.', 'is_active' => true]
+        );
+        $pkgSingle4 = PackageTemplate::updateOrCreate(
+            ['name' => 'باقة المادة المنفردة (4 حصص)'],
+            ['sessions_count' => 4, 'price' => 200.00, 'description' => 'باقة مخصصة لكورس مادة واحدة لتغطية وحدة دراسية معينة.', 'is_active' => true]
+        );
+
+        // 7. Seed Student Packages & Credit Transactions (رصيد محفظة الطلاب)
+        $pkgAhmed = StudentPackage::updateOrCreate(
+            ['student_user_id' => $ahmed->id],
+            [
+                'package_template_id' => $pkgPro12->id,
+                'total_sessions' => 12,
+                'used_sessions' => 4,
+                'remaining_sessions' => 8,
+                'status' => 'active',
+                'activated_at' => now()->subDays(10),
+                'expires_at' => now()->addDays(20),
+            ]
+        );
+        PackageTransaction::firstOrCreate([
+            'student_package_id' => $pkgAhmed->id,
+            'type' => 'payment_activation',
+        ], [
+            'sessions_delta' => 12,
+            'balance_before' => 0,
+            'balance_after' => 12,
+            'reason' => 'Payment confirmation & package activation',
+            'created_at' => now()->subDays(10),
+        ]);
+
+        $pkgMariam = StudentPackage::updateOrCreate(
+            ['student_user_id' => $mariam->id],
+            [
+                'package_template_id' => $pkgPro12->id,
+                'total_sessions' => 12,
+                'used_sessions' => 2,
+                'remaining_sessions' => 10,
+                'status' => 'active',
+                'activated_at' => now()->subDays(5),
+                'expires_at' => now()->addDays(25),
+            ]
+        );
+
+        $pkgOmar = StudentPackage::updateOrCreate(
+            ['student_user_id' => $omar->id],
+            [
+                'package_template_id' => $pkgSingle4->id,
+                'total_sessions' => 4,
+                'used_sessions' => 1,
+                'remaining_sessions' => 3,
+                'status' => 'active',
+                'activated_at' => now()->subDays(2),
+                'expires_at' => now()->addDays(28),
+            ]
+        );
+
+        // 8. Seed Courses (المقررات الكبرى)
         $cPhysics = Course::updateOrCreate(
             ['slug' => 'comprehensive-physics-course'],
             [
                 'subject_id' => $subPhysics->id,
                 'teacher_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
                 'grade_level_id' => $g12->id,
-                'title' => 'كورس الفيزياء الكهربية والمغناطيسية الشامل',
+                'title' => 'كورس الفيزياء الكهربية والمغناطيسية والفيزياء الحديثة',
                 'description' => 'كورس تفاعلي يعالج جميع أفكار الفيزياء الكهربية وقوانين كيرشوف والفيزياء الحديثة بأسلوب مبسط.',
                 'is_active' => true,
             ]
@@ -188,7 +257,7 @@ class DatabaseSeeder extends Seeder
                 'subject_id' => $subChem->id,
                 'teacher_id' => $teacherSarah ? $teacherSarah->id : 1,
                 'grade_level_id' => $g12->id,
-                'title' => 'كورس الكيمياء العضوية والتحليل الكهربي',
+                'title' => 'كورس الكيمياء العضوية والتحليل الكيميائي للثانوية',
                 'description' => 'تغطي الدورة مفاهيم الهيدروكربونات والمشتقات وتطبيقات التحليل الكيميائي التفاعلي.',
                 'is_active' => true,
             ]
@@ -200,7 +269,7 @@ class DatabaseSeeder extends Seeder
                 'subject_id' => $subMath->id,
                 'teacher_id' => $teacherDrOmar ? $teacherDrOmar->id : 1,
                 'grade_level_id' => $g11->id,
-                'title' => 'كورس التفاضل والتكامل والجبر للثانوية',
+                'title' => 'كورس التفاضل والتكامل والجبر والهندسة الفراغية',
                 'description' => 'شرح مكثف لتفاضل الدوال المثلثية، النهايات، وحساب المساحات والحجوم.',
                 'is_active' => true,
             ]
@@ -218,7 +287,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 7. Sessions & Assignments (الجلسات والتكليفات)
+        // 9. Sessions & Assignments (الجلسات والتكليفات)
         $s1 = CourseSession::updateOrCreate(
             ['course_id' => $cPhysics->id, 'sort_order' => 1],
             [
@@ -250,13 +319,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 8. Enrollments & Submissions (الاشتراكات والواجبات المنجزة)
+        // 10. Enrollments & Progress (الاشتراكات والتقدم الأكاديمي)
         $enrollmentAhmed = CourseEnrollment::updateOrCreate(
             ['student_user_id' => $ahmed->id, 'course_id' => $cPhysics->id],
             ['status' => 'active', 'enrolled_at' => now()]
         );
         $enrollmentMariam = CourseEnrollment::updateOrCreate(
-            ['student_user_id' => $mariam->id, 'course_id' => $cMath->id],
+            ['student_user_id' => $mariam->id, 'course_id' => $cChem->id],
             ['status' => 'active', 'enrolled_at' => now()]
         );
         $enrollmentOmar = CourseEnrollment::updateOrCreate(
@@ -286,7 +355,40 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 9. Call ArticleSeeder for Blog Posts
+        // 11. Live Sessions (الحصص المباشرة والروابط)
+        LiveSession::updateOrCreate(
+            ['student_user_id' => $ahmed->id, 'subject_id' => $subPhysics->id],
+            [
+                'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+                'course_id' => $cPhysics->id,
+                'scheduled_at' => now()->addHours(5),
+                'meeting_link' => 'https://meet.google.com/abc-defg-hij',
+            ]
+        );
+
+        LiveSession::updateOrCreate(
+            ['student_user_id' => $mariam->id, 'subject_id' => $subChem->id],
+            [
+                'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
+                'course_id' => $cChem->id,
+                'scheduled_at' => now()->addDays(1)->addHours(2),
+                'meeting_link' => 'https://meet.google.com/xyz-uvwx-rst',
+            ]
+        );
+
+        // 12. Exception Requests (طلبات الاستثناء للأعذار)
+        ExceptionRequest::updateOrCreate(
+            ['student_user_id' => $ahmed->id, 'reason' => 'ظرف صحي طارئ ومستند طبي مرفق للتأكيد'],
+            [
+                'course_id' => $cPhysics->id,
+                'scope' => 'course',
+                'is_global' => false,
+                'status' => 'approved',
+                'reviewed_at' => now(),
+            ]
+        );
+
+        // 13. Call ArticleSeeder for Blog Posts
         $this->call(ArticleSeeder::class);
     }
 }
