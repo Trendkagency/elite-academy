@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\AccountStatus;
 use App\Models\Category;
+use App\Models\ExceptionRequest;
 use App\Models\GradeLevel;
 use App\Models\LiveSession;
 use App\Models\StudentProfile;
@@ -33,8 +34,24 @@ class StudentPortalFullFeaturesTest extends TestCase
             'student_user_id' => $student->id,
             'teacher_profile_id' => $teacher->id,
             'subject_id' => $subject->id,
-            'scheduled_at' => now()->addHours(5),
+            'scheduled_at' => now()->addMinutes(10),
             'meeting_link' => 'https://meet.google.com/abc-defg-hij',
+        ]);
+
+        $liveSessionFuture = LiveSession::create([
+            'student_user_id' => $student->id,
+            'teacher_profile_id' => $teacher->id,
+            'subject_id' => $subject->id,
+            'scheduled_at' => now()->addHours(5),
+            'meeting_link' => 'https://meet.google.com/xyz-uvwx-rst',
+        ]);
+
+        ExceptionRequest::create([
+            'student_user_id' => $student->id,
+            'scope' => 'global',
+            'is_global' => true,
+            'reason' => 'Global exception',
+            'status' => 'approved',
         ]);
 
         $this->actingAs($student);
@@ -49,9 +66,9 @@ class StudentPortalFullFeaturesTest extends TestCase
             ->assertSee(__('app.portal.submit_excuse'))
             ->assertSee(__('app.portal.submit_exception'));
 
-        // Submit Absence Excuse Action
+        // Submit Absence Excuse Action for future session (5h > 2h rule)
         $excuseRes = $this->postJson('/ajax/exceptions/submit', [
-            'live_session_id' => $liveSession->id,
+            'live_session_id' => $liveSessionFuture->id,
             'reason' => 'ظرف صحي طارئ ومستند طبي مرفق للتأكيد',
         ]);
 

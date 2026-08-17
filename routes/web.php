@@ -37,14 +37,11 @@ Route::middleware(SetLocale::class)->group(function () {
 
     Route::get('/events', [PageController::class, 'show'])->defaults('page', 'events')->name('events');
     Route::get('/event-details/{slug?}', [PageController::class, 'show'])->defaults('page', 'event-details')->name('event-details');
-    // 5. Blog Domain Routes
     Route::get('/blog', [\App\Http\Controllers\Blog\BlogController::class, 'index'])->name('blog');
     Route::get('/blog-details/{slug?}', [\App\Http\Controllers\Blog\BlogController::class, 'show'])->name('blog-details');
-    // 6. Contact Domain Routes
     Route::get('/contact', [\App\Http\Controllers\Cms\ContactController::class, 'show'])->name('contact');
     Route::post('/ajax/contact/submit', [\App\Http\Controllers\Cms\ContactController::class, 'submitAjax'])->name('ajax.contact.submit');
     Route::get('/faq', [PageController::class, 'show'])->defaults('page', 'faq')->name('faq');
-    Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
 
     // 2. Authentication Domain Routes
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -54,12 +51,15 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/ajax/register', [RegisterController::class, 'register'])->name('ajax.register');
 
-    // 3. Course Domain Routes
+    // 3. Course Catalog Domain Routes
     Route::get('/courses', [CourseController::class, 'index'])->name('courses');
     Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
 
-    // 4. Protected Student & Teacher Actions
+    // 4. Protected Student, Parent & Teacher Portals
     Route::middleware('auth')->group(function () {
+        // Student Portal Dashboard
+        Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
+
         // Course Enrollment
         Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('ajax.course.enroll');
 

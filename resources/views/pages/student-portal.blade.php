@@ -96,10 +96,10 @@
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-2xl text-slate-900">{{ __('app.portal.upcoming_sessions') }}</h2>
-                            <p class="text-xs font-mono text-slate-500">{{ app()->getLocale() === 'ar' ? 'رابط الحصة التفاعلية يفتح مباشرة وقت موعد البث.' : 'Interactive stream link opens automatically at session start time.' }}</p>
+                            <p class="text-xs font-mono text-slate-500">{{ app()->getLocale() === 'ar' ? 'رابط الحصة التفاعلية يتفعل قبل موعد البث بـ 30 دقيقة بشرط تسليم الواجب أو طلب استثناء.' : 'Stream link activates 30 mins before start time provided homework or exception request is fulfilled.' }}</p>
                         </div>
                         <span class="text-xs font-mono font-bold bg-teal-50 text-teal-700 px-3 py-1 rounded-full border border-teal-200">
-                            2-Hour Excuse Rule Active
+                            30-Min & Prerequisite Rules Active
                         </span>
                     </div>
 
@@ -120,13 +120,17 @@
                                     <span>👨‍🏫 {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}: <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong></span>
                                     <span>📚 {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}: <strong>{{ $s->subject?->name ?: 'Physics' }}</strong></span>
                                     
-                                    @if($s->meeting_link)
+                                    @php
+                                        $access = $s->canStudentAccessStream(auth()->user());
+                                    @endphp
+
+                                    @if($access['can_access'] && $s->meeting_link)
                                         <a href="{{ $s->meeting_link }}" target="_blank" class="btn-lift px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs">
                                             {{ __('app.portal.join_live') }}
                                         </a>
                                     @else
-                                        <span class="text-xs text-slate-400 font-bold bg-slate-200 px-3 py-1 rounded-xl">
-                                            {{ app()->getLocale() === 'ar' ? 'رابط الحصة يتفعل قبل البث بـ 15 دقيقة' : 'Meeting link activates 15 mins before start' }}
+                                        <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                                            <span>🔒</span> {{ $access['message'] ?? (app()->getLocale() === 'ar' ? 'رابط الحصة يتفعل قبل البث بـ 30 دقيقة' : 'Meeting link activates 30 mins before start') }}
                                         </span>
                                     @endif
                                 </div>
@@ -145,9 +149,9 @@
                                 <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-200/60 text-xs font-mono text-slate-600">
                                     <span>👨‍🏫 {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}: <strong>Dr. Ahmed Mahmoud</strong></span>
                                     <span>📚 {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}: <strong>Physics</strong></span>
-                                    <a href="https://meet.google.com" target="_blank" class="btn-lift px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs">
-                                        {{ __('app.portal.join_live') }}
-                                    </a>
+                                    <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                                        <span>🔒</span> {{ app()->getLocale() === 'ar' ? 'رابط الحصة يتفعل قبل البث بـ 30 دقيقة' : 'Meeting link activates 30 mins before start' }}
+                                    </span>
                                 </div>
                             </div>
                         @endforelse
