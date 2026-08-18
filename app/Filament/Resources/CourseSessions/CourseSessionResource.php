@@ -18,7 +18,11 @@ class CourseSessionResource extends Resource
 {
     protected static ?string $model = CourseSession::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedVideoCamera;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Academic Management';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

@@ -18,7 +18,11 @@ class AssignmentResource extends Resource
 {
     protected static ?string $model = Assignment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Student & Teaching Ops';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

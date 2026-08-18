@@ -50,6 +50,7 @@ class MultiRoleFullCycleTest extends TestCase
             'grade_level_id' => $gradeLevel->id,
         ]);
         $this->assertTrue($studentUser->isStudent());
+        \App\Models\StudentPackage::create(['student_user_id' => $studentUser->id, 'total_sessions' => 12, 'used_sessions' => 0, 'remaining_sessions' => 12, 'status' => 'active', 'activated_at' => now()]);
 
         DB::table('parent_student')->insert([
             'parent_user_id' => $parentUser->id,

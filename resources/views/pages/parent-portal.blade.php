@@ -120,7 +120,8 @@ async function loadStudentProgress(studentId) {
     content.innerHTML = '<div class="p-8 text-center text-xs font-mono text-slate-500 font-bold">Loading student progress metrics...</div>';
 
     try {
-        const res = await fetch(`/ajax/parent/student/${studentId}/progress`, {
+        const baseUrl = "{{ url('/ajax/parent/student') }}";
+        const res = await fetch(`${baseUrl}/${studentId}/progress`, {
             headers: { 'Accept': 'application/json' }
         });
         const data = await res.json();

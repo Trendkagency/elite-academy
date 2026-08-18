@@ -18,6 +18,7 @@ class ExceptionRequestForm
                     ->relationship('studentUser', 'name')
                     ->label('Student')
                     ->searchable()
+                    ->preload()
                     ->required(),
                 Select::make('scope')
                     ->options([
@@ -31,14 +32,21 @@ class ExceptionRequestForm
                     ->relationship('course', 'title')
                     ->label('Specific Target Course')
                     ->searchable()
+                    ->preload()
                     ->nullable(),
                 Toggle::make('is_global')
                     ->label('Apply Globally across all courses for this student')
                     ->default(false),
                 Select::make('live_session_id')
-                    ->relationship('liveSession', 'id')
+                    ->relationship(
+                        name: 'liveSession',
+                        titleAttribute: 'id',
+                        modifyQueryUsing: fn ($query) => $query->with(['course', 'subject'])
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "Session #{$record->id} — " . ($record->course?->title ?? $record->subject?->name ?? 'Live Session') . " (" . ($record->scheduled_at?->format('Y-m-d H:i') ?? 'Unscheduled') . ")")
                     ->label('Live Session (Optional)')
                     ->searchable()
+                    ->preload()
                     ->nullable(),
                 Textarea::make('reason')
                     ->label('Excuse / Reason for Exception')

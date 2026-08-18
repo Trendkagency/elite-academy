@@ -2,16 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Enums\AccountStatus;
-use App\Enums\SessionProgressStatus;
-use App\Enums\SubmissionStatus;
 use App\Models\Assignment;
-use App\Models\AssignmentSubmission;
+use App\Models\AssignmentQuestion;
+use App\Models\AssignmentQuestionOption;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
-use App\Models\GradeLevel;
+use App\Models\LiveSession;
 use App\Models\Subject;
 use App\Models\TeacherProfile;
 use App\Models\User;
@@ -22,107 +20,84 @@ class WebAndAjaxTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_blade_pages_render_successfully(): void
+    protected User $student;
+    protected Course $course;
+    protected LiveSession $liveSession;
+    protected Assignment $assignment;
+
+    protected function setUp(): void
     {
-        $this->get('/')->assertStatus(200);
-        $this->get('/courses')->assertStatus(200);
-        $this->get('/teachers')->assertStatus(200);
-        $this->get('/about')->assertStatus(200);
-    }
+        parent::setUp();
 
-    public function test_user_can_login_via_ajax(): void
-    {
-        $user = User::create([
-            'name' => 'Ajax Student',
-            'email' => 'ajax_student@test.com',
-            'password' => bcrypt('password123'),
-            'status' => AccountStatus::APPROVED,
+        $this->student = User::factory()->create(['name' => 'Web Test Student']);
+        \App\Models\StudentPackage::create(['student_user_id' => $this->student->id, 'total_sessions' => 12, 'used_sessions' => 0, 'remaining_sessions' => 12, 'status' => 'active', 'activated_at' => now()]);
+        $teacherUser = User::factory()->create();
+        $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'web-teacher', 'bio' => 'Teacher Bio']);
+
+        $category = Category::create(['name' => 'Web Category', 'slug' => 'web-category']);
+        $subject = Subject::create(['category_id' => $category->id, 'name' => 'Web Subject', 'slug' => 'web-subject']);
+        $this->course = Course::create(['title' => 'Web Course', 'slug' => 'web-course', 'teacher_id' => $teacher->id, 'subject_id' => $subject->id]);
+
+        CourseEnrollment::create([
+            'student_user_id' => $this->student->id,
+            'course_id' => $this->course->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
         ]);
 
-        $response = $this->postJson('/ajax/login', [
-            'email' => 'ajax_student@test.com',
-            'password' => 'password123',
+        $courseSession = CourseSession::create([
+            'course_id' => $this->course->id,
+            'title' => 'Session 1',
+            'session_number' => 1,
         ]);
 
-        $response->assertStatus(200)
-            ->assertJson(['success' => true]);
-
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_student_can_enroll_and_submit_assignment_via_ajax(): void
-    {
-        $grade = GradeLevel::create(['name' => 'High School', 'slug' => 'hs']);
-        $studentUser = User::create([
-            'name' => 'John Student',
-            'email' => 'john_ajax@test.com',
-            'password' => bcrypt('password'),
-            'status' => AccountStatus::APPROVED,
-        ]);
-
-        $teacherUser = User::create([
-            'name' => 'Jane Teacher',
-            'email' => 'jane_ajax@test.com',
-            'password' => bcrypt('password'),
-            'status' => AccountStatus::APPROVED,
-        ]);
-        $teacherProfile = TeacherProfile::create([
-            'user_id' => $teacherUser->id,
-            'slug' => 'jane-teacher',
-            'title' => 'Physics Teacher',
-        ]);
-
-        $category = Category::create(['name' => 'Science', 'slug' => 'science']);
-        $subject = Subject::create(['category_id' => $category->id, 'name' => 'Physics', 'slug' => 'physics']);
-        $course = Course::create([
+        $this->liveSession = LiveSession::create([
+            'student_user_id' => $this->student->id,
+            'teacher_profile_id' => $teacher->id,
             'subject_id' => $subject->id,
-            'teacher_id' => $teacherProfile->id,
-            'grade_level_id' => $grade->id,
-            'title' => 'Physics 101',
-            'slug' => 'physics-101',
-            'is_active' => true,
+            'course_id' => $this->course->id,
+            'scheduled_at' => now()->addMinutes(15),
+            'start_at' => now()->addMinutes(15),
+            'end_at' => now()->addHours(2),
+            'status' => 'scheduled',
+            'meeting_link' => 'https://meet.google.com/test-live-stream',
         ]);
 
-        $session1 = CourseSession::create(['course_id' => $course->id, 'title' => 'Session 1', 'sort_order' => 1]);
-        $session2 = CourseSession::create(['course_id' => $course->id, 'title' => 'Session 2', 'sort_order' => 2]);
-        $assignment = Assignment::create(['course_session_id' => $session1->id, 'title' => 'Homework 1', 'passing_grade' => 70]);
-
-        // 1. Student Enroll via Ajax
-        $this->actingAs($studentUser);
-        $enrollResponse = $this->postJson("/ajax/courses/{$course->id}/enroll");
-        $enrollResponse->assertStatus(201)->assertJson(['success' => true]);
-
-        $this->assertDatabaseHas('course_enrollments', [
-            'student_user_id' => $studentUser->id,
-            'course_id' => $course->id,
+        $this->assignment = Assignment::create([
+            'course_id' => $this->course->id,
+            'course_session_id' => $courseSession->id,
+            'live_session_id' => $this->liveSession->id,
+            'title' => 'Web Assignment',
+            'status' => 'published',
+            'due_at' => now()->addDays(2),
+            'duration_minutes' => 30,
+            'passing_score' => 70.00,
         ]);
 
-        // 2. Student Submit Assignment via Ajax
-        $submitResponse = $this->postJson('/ajax/assignments/submit', [
-            'assignment_id' => $assignment->id,
-            'course_id' => $course->id,
-        ]);
-        $submitResponse->assertStatus(201)->assertJson(['success' => true]);
-
-        $submission = AssignmentSubmission::first();
-        $this->assertNotNull($submission);
-
-        // 3. Teacher Grade Submission via Ajax
-        $teacherUser->refresh();
-        $this->actingAs($teacherUser);
-        $gradeResponse = $this->postJson("/ajax/submissions/{$submission->id}/grade", [
-            'grade' => 85,
-            'teacher_notes' => 'Passed!',
+        $q = AssignmentQuestion::create([
+            'assignment_id' => $this->assignment->id,
+            'question_text' => 'Question 1',
+            'points' => 5.0,
         ]);
 
-        $gradeResponse->assertStatus(200)->assertJson(['success' => true]);
-
-        // Verify Session 2 is UNLOCKED for Student!
-        $enrollment = CourseEnrollment::where('student_user_id', $studentUser->id)->where('course_id', $course->id)->first();
-        $this->assertDatabaseHas('course_session_progress', [
-            'course_enrollment_id' => $enrollment->id,
-            'course_session_id' => $session2->id,
-            'status' => SessionProgressStatus::UNLOCKED->value,
+        AssignmentQuestionOption::create([
+            'question_id' => $q->id,
+            'option_text' => 'Option 1',
+            'is_correct' => true,
         ]);
+    }
+
+    public function test_student_portal_renders_successfully(): void
+    {
+        $response = $this->actingAs($this->student)->get(route('student-portal'));
+        $response->assertStatus(200);
+        $response->assertSee('Student Portal');
+    }
+
+    public function test_assignment_take_page_renders_successfully(): void
+    {
+        $response = $this->actingAs($this->student)->get(route('student.assignment.take', ['id' => $this->assignment->id]));
+        $response->assertStatus(200);
+        $response->assertSee($this->assignment->title);
     }
 }

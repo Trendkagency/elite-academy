@@ -9,8 +9,11 @@ return [
     'auth' => [
         'login_success' => 'Logged in successfully',
         'invalid_credentials' => 'Invalid email or password',
-        'registered_success' => 'Registered successfully',
+        'registered_success' => 'Account created successfully',
         'unauthorized' => 'You are not authorized to perform this action',
+        'account_suspended' => 'Your account has been suspended. Please contact support.',
+        'account_pending' => 'Your account registration is pending administration approval.',
+        'account_rejected' => 'Your account registration request has been rejected.',
     ],
     'courses' => [
         'title' => 'Featured Courses',

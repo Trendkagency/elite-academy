@@ -312,12 +312,41 @@ class DatabaseSeeder extends Seeder
         $a1 = Assignment::updateOrCreate(
             ['course_session_id' => $s1->id],
             [
+                'course_id' => $cPhysics->id,
                 'title' => 'واجب الجلسة الأولى — تطبيقات قانون أوم وتوصيل المقاومات',
                 'description' => 'حل مسائل توصيل التوالي والتوازي وإرسال الإجابات.',
                 'passing_grade' => 70,
+                'passing_score' => 70,
+                'duration_minutes' => 30,
                 'status' => 'published',
             ]
         );
+
+        $qA1_1 = \App\Models\AssignmentQuestion::updateOrCreate(
+            ['assignment_id' => $a1->id, 'sort_order' => 1],
+            [
+                'question_text' => 'عند توصيل 3 مقاومات متماثلة قيمة كل منها 6 أوم على التوازي، فإن المقاومة المكافئة تكون:',
+                'question_type' => 'text',
+                'points' => 3.00,
+                'is_multiple_choice' => false,
+            ]
+        );
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_1->id, 'option_text' => '2 أوم (2 Ω)'], ['sort_order' => 1, 'is_correct' => true]);
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_1->id, 'option_text' => '18 أوم (18 Ω)'], ['sort_order' => 2, 'is_correct' => false]);
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_1->id, 'option_text' => '6 أوم (6 Ω)'], ['sort_order' => 3, 'is_correct' => false]);
+
+        $qA1_2 = \App\Models\AssignmentQuestion::updateOrCreate(
+            ['assignment_id' => $a1->id, 'sort_order' => 2],
+            [
+                'question_text' => 'وفقاً لقانون أوم، ما العلاقة بين شدة التيار (I) وفرق الجهد (V) عند ثبوت درجة الحرارة؟',
+                'question_type' => 'text',
+                'points' => 3.00,
+                'is_multiple_choice' => false,
+            ]
+        );
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_2->id, 'option_text' => 'علاقة طردية خطية'], ['sort_order' => 1, 'is_correct' => true]);
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_2->id, 'option_text' => 'علاقة عكسية'], ['sort_order' => 2, 'is_correct' => false]);
+        \App\Models\AssignmentQuestionOption::updateOrCreate(['question_id' => $qA1_2->id, 'option_text' => 'لا توجد علاقة بينهما'], ['sort_order' => 3, 'is_correct' => false]);
 
         // 10. Enrollments & Progress (الاشتراكات والتقدم الأكاديمي)
         $enrollmentAhmed = CourseEnrollment::updateOrCreate(
@@ -355,26 +384,66 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 11. Live Sessions (الحصص المباشرة والروابط)
-        LiveSession::updateOrCreate(
-            ['student_user_id' => $ahmed->id, 'subject_id' => $subPhysics->id],
-            [
-                'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
-                'course_id' => $cPhysics->id,
-                'scheduled_at' => now()->addHours(5),
-                'meeting_link' => 'https://meet.google.com/abc-defg-hij',
-            ]
-        );
+        // 11. Live Sessions (الحصص المباشرة والروابط - تغطي سيناريوهات منتصف وقت الحصة)
+        LiveSession::query()->delete();
 
-        LiveSession::updateOrCreate(
-            ['student_user_id' => $mariam->id, 'subject_id' => $subChem->id],
-            [
-                'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
-                'course_id' => $cChem->id,
-                'scheduled_at' => now()->addDays(1)->addHours(2),
-                'meeting_link' => 'https://meet.google.com/xyz-uvwx-rst',
-            ]
-        );
+        // Session 1: BEFORE Half-Time (Started 15m ago, 60m duration -> Joinable NOW)
+        // Scheduled: 15 mins ago, Halfway: in +15 mins -> OPEN & JOINABLE NOW
+        LiveSession::create([
+            'student_user_id' => $ahmed->id,
+            'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+            'subject_id' => $subPhysics->id,
+            'course_id' => $cPhysics->id,
+            'scheduled_at' => now()->subMinutes(15),
+            'start_at' => now()->subMinutes(15),
+            'end_at' => now()->addMinutes(45),
+            'duration_minutes' => 60,
+            'meeting_link' => 'https://meet.google.com/active-before-half',
+            'status' => 'scheduled',
+        ]);
+
+        // Session 2: AFTER Half-Time (Started 45m ago, 60m duration -> Cutoff Passed, Entry CLOSED)
+        // Scheduled: 45 mins ago, Halfway: was 15 mins ago -> OUT OF TIME / CLOSED NOW
+        LiveSession::create([
+            'student_user_id' => $ahmed->id,
+            'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+            'subject_id' => $subPhysics->id,
+            'course_id' => $cPhysics->id,
+            'scheduled_at' => now()->subMinutes(45),
+            'start_at' => now()->subMinutes(45),
+            'end_at' => now()->addMinutes(15),
+            'duration_minutes' => 60,
+            'meeting_link' => 'https://meet.google.com/expired-after-half',
+            'status' => 'scheduled',
+        ]);
+
+        // Session 3: Completed Session (Started 2h ago)
+        LiveSession::create([
+            'student_user_id' => $mariam->id,
+            'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
+            'subject_id' => $subChem->id,
+            'course_id' => $cChem->id,
+            'scheduled_at' => now()->subHours(2),
+            'start_at' => now()->subHours(2),
+            'end_at' => now()->subHour(),
+            'duration_minutes' => 60,
+            'meeting_link' => 'https://meet.google.com/completed-session',
+            'status' => 'completed',
+        ]);
+
+        // Session 4: Future Scheduled Session (In 5 hours)
+        LiveSession::create([
+            'student_user_id' => $mariam->id,
+            'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
+            'subject_id' => $subChem->id,
+            'course_id' => $cChem->id,
+            'scheduled_at' => now()->addHours(5),
+            'start_at' => now()->addHours(5),
+            'end_at' => now()->addHours(6),
+            'duration_minutes' => 60,
+            'meeting_link' => 'https://meet.google.com/future-session',
+            'status' => 'scheduled',
+        ]);
 
         // 12. Exception Requests (طلبات الاستثناء للأعذار)
         ExceptionRequest::updateOrCreate(
@@ -388,7 +457,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 13. Call ArticleSeeder for Blog Posts
+        // 13. Call ArticleSeeder & MSQAssignmentSeeder
         $this->call(ArticleSeeder::class);
+        $this->call(MSQAssignmentSeeder::class);
     }
 }

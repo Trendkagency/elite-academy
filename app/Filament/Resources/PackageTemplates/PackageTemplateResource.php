@@ -19,9 +19,11 @@ class PackageTemplateResource extends Resource
 {
     protected static ?string $model = PackageTemplate::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Packages & Wallet';
+    protected static UnitEnum|string|null $navigationGroup = 'Academic Management';
+
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Package Plan Templates';
 

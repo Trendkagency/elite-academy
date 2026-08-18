@@ -25,6 +25,22 @@ class ExceptionRequest extends Model
         'is_global' => 'boolean',
     ];
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updated(function (ExceptionRequest $request) {
+            if ($request->wasChanged('status') && $request->status === 'approved') {
+                $student = $request->studentUser ?: User::find($request->student_user_id);
+                if ($student) {
+                    $service = app(\App\Services\Notification\FcmNotificationService::class);
+                    $scopeName = $request->is_global || $request->scope === 'global' ? 'Global Exception' : 'Course Exception';
+                    $service->notifyAdminApproval($student, $scopeName, $request->reason ?: 'Request approved');
+                }
+            }
+        });
+    }
+
     public function studentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_user_id');

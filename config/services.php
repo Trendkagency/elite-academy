@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Firebase Cloud Messaging (FCM) — Push Notifications
+    |--------------------------------------------------------------------------
+    |
+    | Add FCM_SERVER_KEY to your .env file (Legacy Server Key from Firebase
+    | Console → Project Settings → Cloud Messaging).
+    |
+    | If FCM_SERVER_KEY is not set, notifications are logged locally only.
+    |
+    */
+    'fcm' => [
+        'key' => env('FCM_SERVER_KEY'),
+    ],
+
 ];

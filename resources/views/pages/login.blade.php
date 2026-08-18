@@ -4,7 +4,7 @@
 <section class="py-12 md:py-20 px-4 bg-[#FAFAF9]">
     <div class="max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100">🔑</div>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">🔑</div>
             <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
                 {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Sign In to Portal' }}
             </h1>
@@ -13,7 +13,7 @@
             </p>
         </div>
 
-        {{-- Error / Success Alert Container --}}
+        {{-- Fallback Error / Success Alert Container --}}
         <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold"></div>
 
         {{-- Dedicated Sign In Form --}}
@@ -32,12 +32,20 @@
                 <input type="password" name="password" required placeholder="••••••••" class="input-mobile">
             </div>
 
-            <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2">
-                {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In to Portal' }} &rarr;
+            <div class="flex items-center justify-between text-xs pt-1">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 font-medium">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                    <span>{{ app()->getLocale() === 'ar' ? 'تذكرني على هذا الجهاز' : 'Remember me' }}</span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2 flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl">
+                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In to Portal' }}</span>
+                <span class="arrow-icon">&rarr;</span>
             </button>
         </form>
 
-        {{-- Register Redirection Link --}}
+        {{-- Separate Register Link --}}
         <div class="pt-6 border-t border-slate-100 text-center">
             <p class="text-xs text-slate-500 font-mono">
                 {{ app()->getLocale() === 'ar' ? 'ليس لديك حساب حتى الآن؟' : "Don't have an account yet?" }}
@@ -53,20 +61,29 @@
 document.addEventListener('DOMContentLoaded', function () {
     const alertBox = document.getElementById('authAlert');
     const form = document.getElementById('signinForm');
+    const submitBtn = document.getElementById('submitBtn');
     
-    function showAlert(msg, isError = true) {
-        alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
-        alertBox.textContent = msg;
-        alertBox.classList.remove('hidden');
+    function showNotification(msg, isError = true, title = null) {
+        if (window.Toast) {
+            if (isError) {
+                window.Toast.error(msg, title || (document.documentElement.lang === 'ar' ? 'فشل تسجيل الدخول' : 'Login Failed'));
+            } else {
+                window.Toast.success(msg, title || (document.documentElement.lang === 'ar' ? 'تم تسجيل الدخول' : 'Login Successful'));
+            }
+        } else if (alertBox) {
+            alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            alertBox.textContent = msg;
+            alertBox.classList.remove('hidden');
+        }
     }
 
     if (form) {
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            alertBox.classList.add('hidden');
-            const submitBtn = form.querySelector('button[type="submit"]');
+            if (alertBox) alertBox.classList.add('hidden');
+            
             submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-75');
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             try {
                 const formData = new FormData(form);
@@ -78,18 +95,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    showAlert(data.message || 'Login failed. Please check your credentials.', true);
+                    let errMsg = data.message || (document.documentElement.lang === 'ar' ? 'البيانات المدخلة غير صحيحة.' : 'Login failed. Please check your credentials.');
+                    if (data.errors) {
+                        const errs = Object.values(data.errors).flat();
+                        if (errs.length > 0) errMsg = errs;
+                    }
+                    showNotification(errMsg, true);
                     submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-75');
+                    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                     return;
                 }
 
-                showAlert(data.message || 'Login successful! Redirecting...', false);
-                setTimeout(() => window.location.href = data.redirect_url || '/student-portal', 800);
+                showNotification(data.message || (document.documentElement.lang === 'ar' ? 'تم تسجيل الدخول بنجاح! جاري التوجيه...' : 'Login successful! Redirecting...'), false);
+                
+                // Smooth role-based redirection delay
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || '/student-portal';
+                }, 900);
             } catch (err) {
-                showAlert('Network error. Please try again.', true);
+                showNotification(document.documentElement.lang === 'ar' ? 'حدث خطأ في الاتصال بالشبكة. يرجى المحاولة لاحقاً.' : 'Network connection error. Please try again.', true);
                 submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-75');
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
             }
         });
     }

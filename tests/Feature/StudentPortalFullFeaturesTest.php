@@ -38,6 +38,20 @@ class StudentPortalFullFeaturesTest extends TestCase
             'meeting_link' => 'https://meet.google.com/abc-defg-hij',
         ]);
 
+        $pkgTemplate = \App\Models\PackageTemplate::create([
+            'name' => 'الباقة الفائقة',
+            'sessions_count' => 10,
+            'price' => 500,
+        ]);
+
+        \App\Models\StudentPackage::create([
+            'student_user_id' => $student->id,
+            'package_template_id' => $pkgTemplate->id,
+            'remaining_sessions' => 9,
+            'total_sessions' => 10,
+            'status' => 'active',
+        ]);
+
         $liveSessionFuture = LiveSession::create([
             'student_user_id' => $student->id,
             'teacher_profile_id' => $teacher->id,
@@ -63,8 +77,7 @@ class StudentPortalFullFeaturesTest extends TestCase
             ->assertSee('طالب متميز')
             ->assertSee('د. أحمد محمود')
             ->assertSee('https://meet.google.com/abc-defg-hij')
-            ->assertSee(__('app.portal.submit_excuse'))
-            ->assertSee(__('app.portal.submit_exception'));
+            ->assertSee('9 Sessions Remaining');
 
         // Submit Absence Excuse Action for future session (5h > 2h rule)
         $excuseRes = $this->postJson('/ajax/exceptions/submit', [

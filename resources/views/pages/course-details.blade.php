@@ -110,16 +110,16 @@
                     @auth
                         @if($isEnrolled ?? false)
                             <a href="{{ route('student-portal') }}" class="btn-lift w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">
-                                Already Enrolled ✓ — Go to Student Portal &rarr;
+                                {{ app()->getLocale() === 'ar' ? 'مشترك في هذا الكورس ✓ — الذهاب لبوابة الطالب ←' : 'Enrolled Course ✓ — Go to Student Portal &rarr;' }}
                             </a>
                         @else
                             <button id="btnEnroll" class="w-full text-center py-3.5 px-6 font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md transition-all cursor-pointer">
-                                Enroll in Fall Cohort
+                                {{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}
                             </button>
                         @endif
                     @else
                         <a href="{{ route('login') }}" class="w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">
-                            Log In to Enroll
+                            {{ app()->getLocale() === 'ar' ? 'سجل الدخول للتسجيل في الكورس' : 'Log In to Enroll' }}
                         </a>
                     @endauth
 
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.addEventListener('click', async function () {
         btn.disabled = true;
-        btn.textContent = 'Enrolling...';
+        btn.textContent = "{{ app()->getLocale() === 'ar' ? 'جاري التسجيل...' : 'Enrolling...' }}";
 
         try {
             const res = await fetch("{{ route('ajax.course.enroll', $cId) }}", {
@@ -161,20 +161,29 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             const data = await res.json();
 
+            if (window.Toast) {
+                if (data.success) {
+                    window.Toast.success(data.message || 'Enrolled in course successfully!');
+                } else {
+                    window.Toast.error(data.message || 'Enrollment failed.');
+                }
+            }
+
             alertBox.className = `p-3 rounded-xl text-xs font-semibold ${data.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
             alertBox.textContent = data.message;
             alertBox.classList.remove('hidden');
 
             if (data.success) {
-                btn.textContent = 'Already Enrolled ✓';
-                btn.className = 'w-full text-center py-3.5 px-6 font-semibold text-slate-700 bg-slate-100 rounded-xl border border-slate-200';
+                const portalUrl = "{{ route('student-portal') }}";
+                const linkText = "{{ app()->getLocale() === 'ar' ? 'تم التسجيل بنجاح ✓ — الذهاب لبوابة الطالب ←' : 'Enrolled Successfully ✓ — Go to Student Portal &rarr;' }}";
+                btn.outerHTML = `<a href="${portalUrl}" class="btn-lift w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">${linkText}</a>`;
             } else {
                 btn.disabled = false;
-                btn.textContent = 'Enroll in Fall Cohort';
+                btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}";
             }
         } catch (e) {
             btn.disabled = false;
-            btn.textContent = 'Enroll in Fall Cohort';
+            btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}";
             alertBox.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
             alertBox.textContent = 'Network error. Please try again.';
             alertBox.classList.remove('hidden');

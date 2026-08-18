@@ -20,7 +20,11 @@ class SubjectResource extends Resource
 {
     protected static ?string $model = Subject::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Academic Management';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

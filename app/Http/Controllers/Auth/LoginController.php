@@ -6,16 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class LoginController extends Controller
 {
-    public function showLoginForm(): View
+    public function showLoginForm(): View|RedirectResponse
     {
         if (auth()->check()) {
             $user = auth()->user();
             if ($user->isAdmin()) {
                 return redirect('/admin');
+            }
+            if ($user->isTeacher()) {
+                return redirect()->route('teachers');
             }
             if ($user->isParent()) {
                 return redirect()->route('parent-portal');
@@ -34,15 +38,45 @@ class LoginController extends Controller
     {
         $credentials = $request->validated();
 
-        if (! auth()->attempt($credentials)) {
-            return response()->json(['success' => false, 'message' => __('app.auth.invalid_credentials')], 401);
+        if (! auth()->attempt($credentials, $request->boolean('remember'))) {
+            return response()->json([
+                'success' => false,
+                'message' => __('app.auth.invalid_credentials')
+            ], 401);
         }
 
         $user = auth()->user();
 
+        // Account status validation
+        if ($user->status === \App\Enums\AccountStatus::SUSPENDED) {
+            auth()->logout();
+            return response()->json([
+                'success' => false,
+                'message' => __('app.auth.account_suspended')
+            ], 403);
+        }
+
+        if ($user->status === \App\Enums\AccountStatus::PENDING) {
+            auth()->logout();
+            return response()->json([
+                'success' => false,
+                'message' => __('app.auth.account_pending')
+            ], 403);
+        }
+
+        if ($user->status === \App\Enums\AccountStatus::REJECTED) {
+            auth()->logout();
+            return response()->json([
+                'success' => false,
+                'message' => __('app.auth.account_rejected')
+            ], 403);
+        }
+
         $redirectUrl = match (true) {
             $user->isAdmin() => url('/admin'),
+            $user->isTeacher() => route('teachers'),
             $user->isParent() => route('parent-portal'),
+            $user->isStudent() => route('student-portal'),
             default => route('student-portal'),
         };
 
@@ -50,6 +84,16 @@ class LoginController extends Controller
             'success' => true,
             'message' => __('app.auth.login_success'),
             'redirect_url' => $redirectUrl,
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => match (true) {
+                    $user->isAdmin() => 'admin',
+                    $user->isTeacher() => 'teacher',
+                    $user->isParent() => 'parent',
+                    default => 'student',
+                }
+            ]
         ]);
     }
 

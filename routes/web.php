@@ -57,22 +57,92 @@ Route::middleware(SetLocale::class)->group(function () {
 
     // 4. Protected Student, Parent & Teacher Portals
     Route::middleware('auth')->group(function () {
-        // Student Portal Dashboard
+        // Student Portal Dashboard & Profile Management
         Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
+        Route::get('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'show'])->name('student.profile');
+        Route::post('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'update'])->name('student.profile.update');
+        Route::post('/student/profile/password', [\App\Http\Controllers\Student\StudentProfileController::class, 'updatePassword'])->name('student.profile.password');
 
         // Course Enrollment
         Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('ajax.course.enroll');
 
         // Sessions & Stream Access
         Route::get('/ajax/sessions/{id}/access', [SessionController::class, 'show'])->name('ajax.session.access');
+        Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
         Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->name('ajax.exception.submit');
 
-        // Submissions & Grading
+        // Submissions & Interactive Assignment Solver Page
+        Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
+        Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
+        Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->name('ajax.assignment.save-answer');
+        Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->name('ajax.assignment.update-step');
         Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->name('ajax.assignment.submit');
+        Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->name('ajax.assignment.security-audit');
         Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
 
         // Parent Portal Domain Routes
         Route::get('/parent-portal', [\App\Http\Controllers\Parent\ParentPortalController::class, 'index'])->name('parent-portal');
         Route::get('/ajax/parent/student/{studentId}/progress', [\App\Http\Controllers\Parent\ParentPortalController::class, 'studentProgress'])->name('ajax.parent.student.progress');
+
+        // FCM Notifications, Deadline Reminders & 30s Test Push
+        Route::get('/ajax/notifications', [\App\Http\Controllers\Notification\NotificationController::class, 'feed'])->name('ajax.notifications.feed');
+        Route::post('/ajax/notifications/fcm-token', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken'])->name('ajax.notifications.token');
+        Route::post('/api/notifications/fcm-token', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken']);
+        Route::post('/api/device-tokens', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken']);
+        Route::post('/ajax/notifications/test-push', [\App\Http\Controllers\Notification\NotificationController::class, 'triggerTestPush'])->name('ajax.notifications.test-push');
+        Route::post('/ajax/notifications/send-custom', [\App\Http\Controllers\Notification\NotificationController::class, 'sendCustomNotification'])->name('ajax.notifications.send-custom');
     });
+
+// Firebase Web Messaging Service Worker Route
+Route::get('/firebase-messaging-sw.js', function () {
+    $webConfig = config('fcm.web_config');
+    $projectId = config('fcm.v1.project_id', 'elite-academy-67a15');
+
+    $authDomain = $webConfig['auth_domain'] ?? 'elite-academy-67a15.firebaseapp.com';
+    $storageBucket = $webConfig['storage_bucket'] ?? 'elite-academy-67a15.firebasestorage.app';
+    $senderId = $webConfig['messaging_sender_id'] ?? '116144754233756448435';
+
+    $configPairs = [
+        'messagingSenderId: "' . $senderId . '"',
+        'projectId: "' . $projectId . '"',
+        'authDomain: "' . $authDomain . '"',
+        'storageBucket: "' . $storageBucket . '"',
+    ];
+
+    if (! empty($webConfig['api_key'])) {
+        $configPairs[] = 'apiKey: "' . addslashes($webConfig['api_key']) . '"';
+    }
+    if (! empty($webConfig['app_id'])) {
+        $configPairs[] = 'appId: "' . addslashes($webConfig['app_id']) . '"';
+    }
+
+    $configObject = "{\n  " . implode(",\n  ", $configPairs) . "\n}";
+
+    $swContent = <<<JS
+// Firebase Messaging Service Worker for Elite Academy LMS
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({$configObject});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage(function(payload) {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'Elite Academy Notification');
+  const notificationOptions = {
+    body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : ''),
+    icon: payload.notification ? payload.notification.image : '/images/logo.png',
+    data: payload.data || {}
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+JS;
+
+    return response($swContent, 200, [
+        'Content-Type' => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+});
 });

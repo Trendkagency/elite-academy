@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Login — Elite Academy</title>
+  <meta name="description" content="Access the Elite Academy Student Learning Portal and Parent Dashboard.">
+  <link rel="alternate" hreflang="en" href="https://elite-academy.com/en/login">
+  <link rel="alternate" hreflang="ar" href="https://elite-academy.com/ar/login">
+  <link rel="stylesheet" href="dist/output.css">
+</head>
+<body class="bg-[#FAFAF9] text-slate-900 font-sans antialiased selection:bg-teal-100 selection:text-teal-900 min-h-screen flex flex-col justify-between">
+
+  <!-- HEADER -->
+  <header class="anim-nav sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] lg:h-[80px] flex items-center justify-between">
+      <a href="index.html" class="flex items-center group">
+        <img src="images/logo.png" alt="Elite Academy Logo" class="h-[42px] md:h-[50px] lg:h-[60px] w-auto object-contain transition-transform duration-250 ease-out group-hover:scale-[1.03]">
+      </a>
+      <div class="flex items-center gap-3">
+        <button id="lang-toggle-btn" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 hover:text-teal-600 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white/80 hover:bg-white shadow-2xs transition-all cursor-pointer">
+          <span>🌐</span>
+          <span id="lang-label">العربية</span>
+        </button>
+        <a href="index.html" class="text-xs font-semibold text-slate-600 hover:text-teal-600">&larr; Back to Main Site</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- AUTH PORTAL CARD CONTAINER -->
+  <main class="my-12 px-4">
+    <div class="max-w-md mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-xl space-y-6">
+      
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">🔑</div>
+        <h1 class="font-heading font-black text-2xl text-slate-900">Sign In to Portal</h1>
+        <p class="text-xs text-slate-500 font-mono">Access your courses, grades, and academic dashboard.</p>
+      </div>
+
+      <!-- Dedicated Sign In Content -->
+      <form id="staticLoginForm" action="student-portal.html" method="GET" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-700">Email Address</label>
+          <input type="email" required placeholder="student@eliteacademy.edu.eg" class="input-mobile">
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-bold text-slate-700">Password</label>
+            <a href="#" class="text-xs text-teal-600 hover:underline font-bold">Forgot Password?</a>
+          </div>
+          <input type="password" required placeholder="••••••••" class="input-mobile">
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 font-medium">
+            <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+            <span>Remember me</span>
+          </label>
+        </div>
+
+        <button type="submit" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl">
+          <span>Sign In to Portal</span> &rarr;
+        </button>
+      </form>
+
+      <!-- Separate Register Link -->
+      <div class="pt-6 border-t border-slate-100 text-center">
+        <p class="text-xs text-slate-500 font-mono">
+          Don't have an account yet?
+          <a href="register.html" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ml-1">
+            Create an Account &rarr;
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white py-6 border-t border-slate-200 text-center text-xs text-slate-400">
+    <span data-i18n="footer.rights">© 2026 Elite Academy. All rights reserved.</span>
+  </footer>
+
+  <script src="js/toast.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    document.getElementById('staticLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (window.Toast) {
+        window.Toast.success('Logged in successfully! Redirecting to portal...', 'Authentication');
+      }
+      setTimeout(() => {
+        window.location.href = 'student-portal.html';
+      }, 900);
+    });
+  </script>
+
+</body>
+</html>

@@ -70,6 +70,24 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
+        $activePackage = \App\Models\StudentPackage::where('student_user_id', $user->id)
+            ->where('status', 'active')
+            ->where('remaining_sessions', '>', 0)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->first();
+
+        if (! $activePackage) {
+            return response()->json([
+                'success' => false,
+                'package_required' => true,
+                'message' => app()->getLocale() === 'ar'
+                    ? 'عذراً! يلزم الاشتراك في باقة حصص نشطة وتحتوي على رصيد للتسجيل والدخول للكورسات.'
+                    : 'An active package subscription with available session credits is required to enroll in courses. Please subscribe to a package first.',
+            ], 403);
+        }
+
         $course = Course::find($id);
         if (! $course) {
             return response()->json(['success' => false, 'message' => 'Course not found'], 404);
@@ -107,8 +125,9 @@ class CourseController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Enrolled in course successfully!',
+            'message' => app()->getLocale() === 'ar' ? 'تم التسجيل في الكورس بنجاح!' : 'Enrolled in course successfully!',
             'enrollment_id' => $enrollment->id,
+            'redirect_url' => route('student-portal'),
         ], 201);
     }
 }

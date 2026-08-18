@@ -18,7 +18,11 @@ class ParentProfileResource extends Resource
 {
     protected static ?string $model = ParentProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHeart;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'User Management';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

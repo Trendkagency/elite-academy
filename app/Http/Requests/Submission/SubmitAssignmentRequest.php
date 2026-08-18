@@ -15,9 +15,9 @@ class SubmitAssignmentRequest extends FormRequest
     {
         return [
             'assignment_id' => ['required', 'integer', 'exists:assignments,id'],
-            'course_id' => ['required', 'integer', 'exists:courses,id'],
-            'content' => ['nullable', 'string'],
-            'file_path' => ['nullable', 'string', 'max:500'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'answers' => ['sometimes', 'nullable', 'array'],
+            'answers.*' => ['nullable'],
         ];
     }
 }

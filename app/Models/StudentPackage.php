@@ -96,13 +96,55 @@ class StudentPackage extends Model
 
         PackageTransaction::create([
             'student_package_id' => $this->id,
-            'live_session_id' => $liveSessionId,
-            'type' => 'session_refund',
-            'sessions_delta' => 1,
-            'balance_before' => $balanceBefore,
-            'balance_after' => $this->remaining_sessions,
-            'reason' => $reason,
-            'performed_by' => auth()->id(),
+            'live_session_id'    => $liveSessionId,
+            'type'               => 'session_refund',
+            'sessions_delta'     => 1,
+            'balance_before'     => $balanceBefore,
+            'balance_after'      => $this->remaining_sessions,
+            'reason'             => $reason,
+            'performed_by'       => auth()->id(),
+            'created_at'         => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Renew the package: reset session credits, re-activate status, and optionally extend expiry.
+     */
+    public function renewPackage(
+        int $newTotalSessions,
+        ?int $packageTemplateId = null,
+        ?\Carbon\Carbon $newExpiresAt = null,
+        string $reason = 'Package Renewal'
+    ): bool {
+        $balanceBefore = $this->remaining_sessions;
+
+        $this->total_sessions      = $newTotalSessions;
+        $this->remaining_sessions  = $newTotalSessions;
+        $this->used_sessions       = 0;
+        $this->status              = 'active';
+        $this->activated_at        = now();
+
+        if ($packageTemplateId) {
+            $this->package_template_id = $packageTemplateId;
+        }
+        if ($newExpiresAt !== null) {
+            $this->expires_at = $newExpiresAt;
+        }
+
+        $this->save();
+
+        PackageTransaction::create([
+            'student_package_id' => $this->id,
+            'live_session_id'    => null,
+            'type'               => 'renewal',
+            'sessions_delta'     => $newTotalSessions,
+            'balance_before'     => $balanceBefore,
+            'balance_after'      => $newTotalSessions,
+            'reason'             => $reason,
+            'performed_by'       => auth()->id(),
+            'created_at'         => now(),
         ]);
 
         return true;

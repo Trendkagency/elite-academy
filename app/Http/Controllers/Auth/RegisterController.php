@@ -12,16 +12,20 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    public function showRegistrationForm(): View
+    public function showRegistrationForm(): View|RedirectResponse
     {
         if (auth()->check()) {
             $user = auth()->user();
             if ($user->isAdmin()) {
                 return redirect('/admin');
+            }
+            if ($user->isTeacher()) {
+                return redirect()->route('teachers');
             }
             if ($user->isParent()) {
                 return redirect()->route('parent-portal');
@@ -61,7 +65,9 @@ class RegisterController extends Controller
 
         $redirectUrl = match (true) {
             $user->isAdmin() => url('/admin'),
+            $user->isTeacher() => route('teachers'),
             $user->isParent() => route('parent-portal'),
+            $user->isStudent() => route('student-portal'),
             default => route('student-portal'),
         };
 

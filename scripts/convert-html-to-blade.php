@@ -128,7 +128,10 @@ function convertHtml(string $html, array $routeMap): string
 }
 
 foreach ($pages as $htmlFile => $bladeName) {
-    $sourcePath = $baseDir . '/' . $htmlFile;
+    $sourcePath = file_exists($baseDir . '/' . $htmlFile)
+        ? $baseDir . '/' . $htmlFile
+        : $baseDir . '/legacy_html/' . $htmlFile;
+
     if (! file_exists($sourcePath)) {
         echo "SKIP (missing): {$htmlFile}\n";
         continue;

@@ -18,7 +18,11 @@ class ExceptionRequestResource extends Resource
 {
     protected static ?string $model = ExceptionRequest::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Student & Teaching Ops';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

@@ -18,16 +18,24 @@ class AssignmentSubmissionForm
                     ->relationship('assignment', 'title')
                     ->label('Assignment / Exam Title')
                     ->searchable()
+                    ->preload()
                     ->required(),
                 Select::make('student_user_id')
                     ->relationship('studentUser', 'name')
                     ->label('Student Name')
                     ->searchable()
+                    ->preload()
                     ->required(),
                 Select::make('course_enrollment_id')
-                    ->relationship('enrollment', 'id')
-                    ->label('Course Enrollment ID')
+                    ->relationship(
+                        name: 'enrollment',
+                        titleAttribute: 'id',
+                        modifyQueryUsing: fn ($query) => $query->with(['studentUser', 'course'])
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "Enrollment #{$record->id} — " . ($record->studentUser?->name ?? 'Student') . " (" . ($record->course?->title ?? 'Course') . ")")
+                    ->label('Course Enrollment')
                     ->searchable()
+                    ->preload()
                     ->required(),
                 DateTimePicker::make('submitted_at')
                     ->label('Submission Date & Time'),

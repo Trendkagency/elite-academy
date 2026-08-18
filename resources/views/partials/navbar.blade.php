@@ -61,6 +61,9 @@
                     if ($user->isAdmin()) {
                         $portalUrl = url('/admin');
                         $portalLabel = __('navbar.admin_panel');
+                    } elseif ($user->isTeacher()) {
+                        $portalUrl = route('teachers');
+                        $portalLabel = app()->getLocale() === 'ar' ? 'بوابة المعلم' : 'Teacher Portal';
                     } elseif ($user->isParent()) {
                         $portalUrl = route('parent-portal');
                         $portalLabel = __('navbar.parent_portal');
@@ -68,8 +71,13 @@
                 @endphp
 
                 <a href="{{ $portalUrl }}" class="btn-lift px-3.5 py-2 rounded-xl bg-teal-600 text-white shadow-md font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
-                    <span>👤</span> {{ $user->name }}
+                    <span>📊</span> {{ $portalLabel }}
                 </a>
+                @if(! $user->isAdmin() && ! $user->isTeacher() && ! $user->isParent())
+                    <a href="{{ route('student.profile') }}" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
+                        <span>👤</span> {{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}
+                    </a>
+                @endif
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-red-600 transition-colors font-sans text-xs">

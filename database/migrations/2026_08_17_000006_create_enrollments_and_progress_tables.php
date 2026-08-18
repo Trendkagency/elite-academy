@@ -42,7 +42,7 @@ return new class extends Migration
             $table->foreignId('student_user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('course_enrollment_id')->constrained()->cascadeOnDelete();
             $table->timestamp('submitted_at')->nullable();
-            $table->enum('status', ['pending', 'submitted', 'completed', 'late'])->default('pending');
+            $table->string('status', 50)->default('pending');
             $table->decimal('grade', 5, 2)->nullable();
             $table->text('teacher_notes')->nullable();
             $table->timestamp('reviewed_at')->nullable();
