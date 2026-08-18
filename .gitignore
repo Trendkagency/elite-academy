@@ -17,7 +17,9 @@ yarn-error.log
 /.idea
 /.nova
 /.vscode
-/.vercel
+/.zed
+.vercel
 elite-academy-laravel-tmp
 /config/*.json
-/config/elite-academy-*.json
+/scratch/
+
