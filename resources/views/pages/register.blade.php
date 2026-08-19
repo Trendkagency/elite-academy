@@ -34,18 +34,71 @@
                 <input type="tel" name="phone" placeholder="{{ app()->getLocale() === 'ar' ? '01000000000' : '+1234567890' }}" class="input-mobile">
             </div>
 
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'نوع الحساب' : 'Account Type' }}</label>
-                <select name="user_type" class="input-mobile cursor-pointer" onchange="document.getElementById('studentGradeGroup').style.display = this.value === 'student' ? 'block' : 'none'">
-                    <option value="student">{{ app()->getLocale() === 'ar' ? 'طالب' : 'Student' }}</option>
-                    <option value="parent">{{ app()->getLocale() === 'ar' ? 'ولي أمر' : 'Parent' }}</option>
-                    <option value="teacher">{{ app()->getLocale() === 'ar' ? 'معلم / محاضر' : 'Instructor' }}</option>
-                </select>
+            <div class="space-y-4 pt-1">
+                <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <span>{{ app()->getLocale() === 'ar' ? 'نوع الحساب' : 'Account Type' }}</span>
+                    <span class="text-[10px] font-semibold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-100/80">
+                        {{ app()->getLocale() === 'ar' ? 'حدد دورك' : 'Select Role' }}
+                    </span>
+                </label>
+
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-3 py-1">
+                    <!-- Student Card (Default Checked) -->
+                    <label class="relative group cursor-pointer select-none block">
+                        <input type="radio" name="user_type" value="student" checked class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">🎓</div>
+                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                                {{ app()->getLocale() === 'ar' ? 'طالب' : 'Student' }}
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- Parent Card -->
+                    <label class="relative group cursor-pointer select-none block">
+                        <input type="radio" name="user_type" value="parent" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">👨‍👩‍👧</div>
+                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                                {{ app()->getLocale() === 'ar' ? 'ولي أمر' : 'Parent' }}
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- Teacher Card -->
+                    <label class="relative group cursor-pointer select-none block">
+                        <input type="radio" name="user_type" value="teacher" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">👨‍🏫</div>
+                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                                {{ app()->getLocale() === 'ar' ? 'معلم' : 'Teacher' }}
+                            </span>
+                        </div>
+                    </label>
+                </div>
             </div>
 
-            <div id="studentGradeGroup" class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'المدرسة' : 'School Name' }}</label>
-                <input type="text" name="school_name" placeholder="{{ app()->getLocale() === 'ar' ? 'اسم المدرسة (اختياري)' : 'School Name (Optional)' }}" class="input-mobile">
+            {{-- Student-Specific Fields: Grade Level & School Name --}}
+            <div id="studentFieldsGroup" class="space-y-4 pt-2">
+                {{-- Grade Level Select --}}
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                        <span>{{ app()->getLocale() === 'ar' ? 'الصف الدراسي' : 'Grade Level' }}</span>
+                        <span class="text-[10px] font-mono text-teal-600 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب للطالب' : 'Required for Student' }}</span>
+                    </label>
+                    <select name="grade_level_id" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 shadow-xs">
+                        <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الصف الدراسي...' : 'Select Grade Level...' }}</option>
+                        @foreach($gradeLevels ?? [] as $g)
+                            <option value="{{ $g->id }}">{{ $g->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- School Name --}}
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'اسم المدرسة (اختياري)' : 'School Name (Optional)' }}</label>
+                    <input type="text" name="school_name" placeholder="{{ app()->getLocale() === 'ar' ? 'مثل: مدرسة المتفوقين STEM' : 'e.g. Cairo International School' }}" class="input-mobile">
+                </div>
             </div>
 
             <div class="space-y-1.5">
@@ -72,6 +125,13 @@
 </section>
 
 <script>
+function toggleStudentGrade(val) {
+    const studentGroup = document.getElementById('studentFieldsGroup');
+    if (studentGroup) {
+        studentGroup.style.display = (val === 'student') ? 'block' : 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const alertBox = document.getElementById('authAlert');
     const form = document.getElementById('registerForm');

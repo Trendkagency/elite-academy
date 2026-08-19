@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Assignment extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'course_session_id',
         'live_session_id',
@@ -80,6 +82,18 @@ class Assignment extends Model
                 if ($liveSession && $liveSession->effective_start_at) {
                     $assignment->due_at = $liveSession->effective_start_at->copy()->subDay();
                 }
+            }
+        });
+
+        static::created(function (Assignment $assignment) {
+            if ($assignment->status === 'published' || ! $assignment->status) {
+                app(\App\Services\Notification\FcmNotificationService::class)->notifyAssignmentAdded($assignment);
+            }
+        });
+
+        static::updated(function (Assignment $assignment) {
+            if ($assignment->wasChanged('status') && $assignment->status === 'published') {
+                app(\App\Services\Notification\FcmNotificationService::class)->notifyAssignmentAdded($assignment);
             }
         });
     }

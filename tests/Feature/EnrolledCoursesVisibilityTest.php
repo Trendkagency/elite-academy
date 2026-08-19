@@ -20,7 +20,7 @@ class EnrolledCoursesVisibilityTest extends TestCase
     {
         $grade = GradeLevel::create(['name' => 'Grade 11', 'slug' => 'g11']);
         $cat = Category::create(['name' => 'Tech', 'slug' => 'tech']);
-        $subject = Subject::create(['category_id' => $cat->id, 'name' => 'Coding', 'slug' => 'coding']);
+        $subject = Subject::create(['category_id' => $cat->id, 'name' => 'Programming', 'slug' => 'programming']);
 
         $teacherUser = User::create(['name' => 'Teacher', 'email' => 't.reenroll@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'treenroll']);
@@ -50,13 +50,19 @@ class EnrolledCoursesVisibilityTest extends TestCase
             ->assertJsonPath('already_enrolled', true);
 
         // Catalog UI should indicate already enrolled
-        $coursesPage = $this->get('/courses');
-        $coursesPage->assertStatus(200)
-            ->assertSee('Go to Portal');
+        $coursesPage = $this->actingAs($student)->get('/courses');
+        $coursesPage->assertStatus(200);
+        $this->assertTrue(
+            str_contains($coursesPage->getContent(), 'Go to Portal') || str_contains($coursesPage->getContent(), 'الانتقال للبوابة'),
+            'Catalog UI did not display enrolled portal button.'
+        );
 
         // Course details UI should show Already Enrolled button
-        $detailsPage = $this->get('/course-details/'.$course->slug);
-        $detailsPage->assertStatus(200)
-            ->assertSee('Enrolled Course');
+        $detailsPage = $this->actingAs($student)->get('/course-details/'.$course->slug);
+        $detailsPage->assertStatus(200);
+        $this->assertTrue(
+            str_contains($detailsPage->getContent(), 'Enrolled Course') || str_contains($detailsPage->getContent(), 'مشترك'),
+            'Course details UI did not display enrolled badge.'
+        );
     }
 }

@@ -17,7 +17,32 @@
     $otherLocale = app()->getLocale() === 'ar' ? 'en' : 'ar';
     $joinText = app()->getLocale() === 'ar' ? 'انضم إلينا' : 'Join Us';
     $loginText = app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Log in';
+
+    $authUser = auth()->user();
+    $portalUrl = route('student-portal');
+    $portalLabel = __('navbar.portal');
+    if ($authUser) {
+        if ($authUser->isAdmin()) {
+            $portalUrl = url('/admin');
+            $portalLabel = __('navbar.admin_panel');
+        } elseif ($authUser->isTeacher()) {
+            $portalUrl = route('teachers');
+            $portalLabel = app()->getLocale() === 'ar' ? 'بوابة المعلم' : 'Teacher Portal';
+        } elseif ($authUser->isParent()) {
+            $portalUrl = route('parent-portal');
+            $portalLabel = __('navbar.parent_portal');
+        }
+    }
 @endphp
+
+@if(\App\Models\SiteSetting::get('announcement_enabled') === '1')
+    <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white text-xs font-semibold py-2 px-4 text-center border-b border-teal-500/30 flex items-center justify-center gap-2">
+        <span>{{ \App\Models\SiteSetting::get('announcement_text', '🎉 Fall Cohort 2026 Registration is Now Open!') }}</span>
+        <a href="{{ \App\Models\SiteSetting::get('announcement_link', '/courses') }}" class="underline font-bold hover:text-teal-300">
+            {{ app()->getLocale() === 'ar' ? 'التفاصيل والاشتراك ←' : 'Learn More →' }}
+        </a>
+    </div>
+@endif
 
 <header class="anim-nav sticky z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 h-[64px] flex items-center justify-between gap-4">
@@ -54,26 +79,10 @@
             @endguest
 
             @auth
-                @php
-                    $user = auth()->user();
-                    $portalUrl = route('student-portal');
-                    $portalLabel = __('navbar.portal');
-                    if ($user->isAdmin()) {
-                        $portalUrl = url('/admin');
-                        $portalLabel = __('navbar.admin_panel');
-                    } elseif ($user->isTeacher()) {
-                        $portalUrl = route('teachers');
-                        $portalLabel = app()->getLocale() === 'ar' ? 'بوابة المعلم' : 'Teacher Portal';
-                    } elseif ($user->isParent()) {
-                        $portalUrl = route('parent-portal');
-                        $portalLabel = __('navbar.parent_portal');
-                    }
-                @endphp
-
                 <a href="{{ $portalUrl }}" class="btn-lift px-3.5 py-2 rounded-xl bg-teal-600 text-white shadow-md font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
                     <span>📊</span> {{ $portalLabel }}
                 </a>
-                @if(! $user->isAdmin() && ! $user->isTeacher() && ! $user->isParent())
+                @if(! $authUser->isAdmin() && ! $authUser->isTeacher() && ! $authUser->isParent())
                     <a href="{{ route('student.profile') }}" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
                         <span>👤</span> {{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}
                     </a>

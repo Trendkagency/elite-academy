@@ -21,6 +21,8 @@ class RegisterRequest extends FormRequest
             'user_type' => ['nullable', 'string', 'in:student,teacher,parent'],
             'grade_level_id' => ['nullable', 'integer', 'exists:grade_levels,id'],
             'school_name' => ['nullable', 'string', 'max:255'],
+            'subject_ids' => ['nullable', 'array'],
+            'subject_ids.*' => ['integer', 'exists:subjects,id'],
         ];
     }
 }

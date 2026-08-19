@@ -4,14 +4,20 @@ namespace App\Filament\Resources\StudentPackages\Tables;
 
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class StudentPackagesTable
@@ -93,6 +99,7 @@ class StudentPackagesTable
                         'exhausted' => '❌ Exhausted',
                         'suspended' => '🚫 Suspended',
                     ]),
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 // ── Renew Package ────────────────────────────────────────────
@@ -241,10 +248,15 @@ class StudentPackagesTable
                     }),
 
                 EditAction::make()->label('Edit'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc')

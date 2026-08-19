@@ -52,6 +52,7 @@ class LiveSessionTest extends TestCase
             'title' => 'Physics 101',
             'slug' => 'physics-101',
             'is_active' => true,
+            'has_free_demo' => true,
         ]);
 
         // Create a live session: start_at = 08:38 AM, duration = 60 mins -> end_at = 09:38 AM
@@ -68,6 +69,7 @@ class LiveSessionTest extends TestCase
             'duration_minutes' => 60,
             'meeting_link' => 'https://meet.google.com/test-live-stream',
             'status' => 'scheduled',
+            'is_free_demo' => true,
         ]);
     }
 

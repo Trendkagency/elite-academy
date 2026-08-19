@@ -33,12 +33,12 @@ class PageController extends Controller
         ],
         'teachers' => [
             'view' => 'pages.teachers',
-            'title' => 'Instructors — Elite Academy',
+            'title' => 'Teachers — Elite Academy',
             'active' => 'teachers',
         ],
         'teacher-profile' => [
             'view' => 'pages.teacher-profile',
-            'title' => 'Instructor Profile — Elite Academy',
+            'title' => 'Teacher Profile — Elite Academy',
             'active' => 'teachers',
         ],
         'events' => [

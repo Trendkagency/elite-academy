@@ -22,9 +22,27 @@ class SubjectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Academic Management';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'المواد الدراسية' : 'Subjects';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مادة دراسية' : 'Subject';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'المواد الدراسية' : 'Subjects';
+    }
 
     public static function form(Schema $schema): Schema
     {

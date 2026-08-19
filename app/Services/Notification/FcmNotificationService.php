@@ -4,6 +4,7 @@ namespace App\Services\Notification;
 
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\ExceptionRequest;
 use App\Models\FcmToken;
 use App\Models\LiveSession;
 use App\Models\User;
@@ -91,6 +92,422 @@ class FcmNotificationService
     }
 
     /**
+     * 1. قبول الحساب
+     */
+    public function notifyAccountApproved(User $user): UserNotification
+    {
+        $title = app()->getLocale() === 'ar'
+            ? '🎉 تم قبول تفعيل حسابك'
+            : '🎉 Account Approved';
+
+        $body = app()->getLocale() === 'ar'
+            ? "مرحباً بك {$user->name}! تم قبول وتفعيل حسابك بنجاح في المنصة، يمكنك الآن الوصول إلى كورساتك وحصصك."
+            : "Welcome {$user->name}! Your account has been approved and activated successfully. You can now access your courses and sessions.";
+
+        return $this->sendNotification($user, 'ACCOUNT_APPROVED', $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 2. قرب موعد الحصة - scan sessions starting in 15-45 minutes
+     */
+    public function sendUpcomingSessionReminders(): int
+    {
+        $windowStart = now();
+        $windowEnd   = now()->addMinutes(45);
+
+        $sessions = LiveSession::whereIn('status', ['scheduled', 'link_visible'])
+            ->whereNull('reminder_sent_at')
+            ->where(function ($query) use ($windowStart, $windowEnd) {
+                $query->whereBetween('start_at', [$windowStart, $windowEnd])
+                      ->orWhereBetween('scheduled_at', [$windowStart, $windowEnd]);
+            })
+            ->with(['student', 'subject'])
+            ->get();
+
+        $count = 0;
+        foreach ($sessions as $session) {
+            if ($session->student || $session->teacherProfile) {
+                $this->notifyUpcomingSession($session);
+                $this->notifyTeacherUpcomingSession($session);
+                $session->update(['reminder_sent_at' => now()]);
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Teacher Notification Methods
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * 1a. إشعار المعلم بتكليف/جدولة حصة جديدة
+     */
+    public function notifyTeacherSessionAssigned(LiveSession $session): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $timeStr     = $session->effective_start_at ? $session->effective_start_at->format('Y-m-d H:i') : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📅 جدولة حصة جديدة'
+            : '📅 New Session Scheduled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم جدولة حصة جديدة لك لمادة ({$subjectName}) بتاريخ {$timeStr}."
+            : "A new session ({$subjectName}) has been scheduled for you at {$timeStr}.";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_SESSION_ASSIGNED', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 1b. إشعار المعلم بقرب موعد الحصة
+     */
+    public function notifyTeacherUpcomingSession(LiveSession $session): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $timeStr     = $session->effective_start_at ? $session->effective_start_at->format('H:i') : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '⏰ قرب موعد حصتك'
+            : '⏰ Upcoming Teaching Session';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تذكير: حصتك القادمة ({$subjectName}) ستبدأ قريباً في تمام الساعة {$timeStr}."
+            : "Reminder: Your upcoming session ({$subjectName}) is starting soon at {$timeStr}.";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_SESSION_UPCOMING', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 1c. إشعار المعلم بفتح الحصة
+     */
+    public function notifyTeacherSessionOpened(LiveSession $session): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+
+        $title = app()->getLocale() === 'ar'
+            ? '🟢 تم فتح الحصة المباشرة'
+            : '🟢 Live Session Started';
+
+        $body = app()->getLocale() === 'ar'
+            ? "بدأت الآن حصة ({$subjectName}). يمكنك إدارة البث المباشر ومتابعة الطلاب."
+            : "Session ({$subjectName}) is live. You can now manage the stream.";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_SESSION_OPENED', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 2. إشعار المعلم بتسليم واجب من طالب
+     */
+    public function notifyTeacherAssignmentSubmitted(AssignmentSubmission $submission): ?UserNotification
+    {
+        $assignment = $submission->assignment;
+        $teacherUser = $assignment?->teacherProfile?->user ?: $submission->liveSession?->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $studentName     = $submission->studentUser?->name ?: 'طالب';
+        $assignmentTitle = $assignment?->title ?: 'الواجب الأكاديمي';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📝 تسليم واجب جديد'
+            : '📝 Homework Submitted';
+
+        $body = app()->getLocale() === 'ar'
+            ? "قام الطالب ({$studentName}) بتسليم إجابات واجب ({$assignmentTitle})."
+            : "Student ({$studentName}) submitted answers for assignment ({$assignmentTitle}).";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_ASSIGNMENT_SUBMITTED', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 3. إشعار المعلم بتقديم طلب استثناء من طالب
+     */
+    public function notifyTeacherExceptionRequested(ExceptionRequest $request): ?UserNotification
+    {
+        $session = $request->liveSession;
+        $teacherUser = $session?->teacherProfile?->user ?: $request->course?->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $studentName = $request->studentUser?->name ?: 'طالب';
+        $scopeName   = $request->is_global || $request->scope === 'global' ? 'استثناء عام' : 'عذر حصة';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📩 طلب استثناء جديد'
+            : '📩 New Exception Request';
+
+        $body = app()->getLocale() === 'ar'
+            ? "قدّم الطالب ({$studentName}) طلب ({$scopeName}) جديد. السبب: " . ($request->reason ?: 'بدون سبب مذكور')
+            : "Student ({$studentName}) submitted a new ({$scopeName}) request. Reason: " . ($request->reason ?: 'None specified');
+
+        return $this->sendNotification($teacherUser, 'TEACHER_EXCEPTION_REQUESTED', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 4. إشعار المعلم بغياب طالب عن الحصة
+     */
+    public function notifyTeacherStudentAbsent(LiveSession $session, User $student): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+
+        $title = app()->getLocale() === 'ar'
+            ? '⚠️ تسجيل غياب طالب'
+            : '⚠️ Student Absence Alert';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم تسجيل غياب الطالب ({$student->name}) عن حصة ({$subjectName})."
+            : "Student ({$student->name}) was marked absent for session ({$subjectName}).";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_STUDENT_ABSENT', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 5a. إشعار المعلم بتغيير موعد الحصة
+     */
+    public function notifyTeacherSessionRescheduled(LiveSession $session): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $newTimeStr  = $session->effective_start_at ? $session->effective_start_at->format('Y-m-d H:i') : 'الموعد الجديد';
+
+        $title = app()->getLocale() === 'ar'
+            ? '🗓️ تغيير موعد الحصة'
+            : '🗓️ Teaching Session Rescheduled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم تعديل موعد حصة ({$subjectName}) إلى: {$newTimeStr}."
+            : "Session ({$subjectName}) has been rescheduled to: {$newTimeStr}.";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_SESSION_RESCHEDULED', $title, $body, route('teachers'));
+    }
+
+    /**
+     * 5b. إشعار المعلم بإلغاء الحصة
+     */
+    public function notifyTeacherSessionCancelled(LiveSession $session): ?UserNotification
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        if (! $teacherUser) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $reason      = $session->cancellation_reason ? " (السبب: {$session->cancellation_reason})" : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '❌ إلغاء الحصة'
+            : '❌ Teaching Session Cancelled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تنويه: تم إلغاء حصة ({$subjectName}){$reason}."
+            : "Notice: Your session ({$subjectName}) was cancelled{$reason}.";
+
+        return $this->sendNotification($teacherUser, 'TEACHER_SESSION_CANCELLED', $title, $body, route('teachers'));
+    }
+
+    public function notifyUpcomingSession(LiveSession $session): ?UserNotification
+    {
+        $student = $session->studentUser ?: $session->student;
+        if (! $student) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $timeStr = $session->effective_start_at ? $session->effective_start_at->format('H:i') : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '⏰ قرب موعد الحصة'
+            : '⏰ Upcoming Live Session';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تذكير: حصتك ({$subjectName}) ستبدأ قريباً في تمام الساعة {$timeStr}."
+            : "Reminder: Your session ({$subjectName}) is starting soon at {$timeStr}.";
+
+        return $this->sendNotification($student, 'SESSION_UPCOMING', $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 3. فتح الحصة
+     */
+    public function notifySessionOpened(LiveSession $session): ?UserNotification
+    {
+        $student = $session->studentUser ?: $session->student;
+        if (! $student) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+
+        $title = app()->getLocale() === 'ar'
+            ? '🟢 تم فتح الحصة الان'
+            : '🟢 Live Session Started';
+
+        $body = app()->getLocale() === 'ar'
+            ? "بدأت الآن حصة ({$subjectName})! اضغط هنا للانضمام إلى البث المباشر."
+            : "Session ({$subjectName}) has started! Click here to join the live stream.";
+
+        return $this->sendNotification($student, 'SESSION_OPENED', $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 4. إضافة واجب
+     */
+    public function notifyAssignmentAdded(Assignment $assignment): int
+    {
+        $dispatchedCount = 0;
+
+        $session = $assignment->liveSession ?: ($assignment->live_session_id ? LiveSession::find($assignment->live_session_id) : null);
+        if ($session && $session->student) {
+            $students = collect([$session->student]);
+        } elseif ($assignment->course_id) {
+            $students = User::whereHas('studentProfile')->get();
+        } else {
+            $students = collect();
+        }
+
+        $title = app()->getLocale() === 'ar'
+            ? '📝 تم إضافة واجب جديد'
+            : '📝 New Assignment Added';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم إضافة واجب جديد: ({$assignment->title}). يرجى الدخول والمبادرة بالحل."
+            : "A new assignment ({$assignment->title}) has been assigned. Please submit your answers.";
+
+        $actionUrl = route('student.assignment.take', ['id' => $assignment->id]);
+
+        foreach ($students as $student) {
+            $this->sendNotification($student, 'ASSIGNMENT_ADDED', $title, $body, $actionUrl);
+            $dispatchedCount++;
+        }
+
+        return $dispatchedCount;
+    }
+
+    /**
+     * 5. عدم تسليم الواجب
+     */
+    public function notifyAssignmentOverdue(Assignment $assignment, User $student): UserNotification
+    {
+        $title = app()->getLocale() === 'ar'
+            ? '⚠️ تنبيه: عدم تسليم الواجب'
+            : '⚠️ Overdue Assignment Alert';
+
+        $body = app()->getLocale() === 'ar'
+            ? "لم تقم بتسليم واجب ({$assignment->title}). يرجى تسليمه في أقرب وقت لتجنب حظر دخول الحصص القادمة."
+            : "You have not submitted the assignment ({$assignment->title}). Please submit it as soon as possible.";
+
+        return $this->sendNotification(
+            $student,
+            'ASSIGNMENT_DEADLINE_REMINDER',
+            $title,
+            $body,
+            route('student.assignment.take', ['id' => $assignment->id])
+        );
+    }
+
+    /**
+     * 6. قفل الحصة
+     */
+    public function notifySessionClosed(LiveSession $session): ?UserNotification
+    {
+        $student = $session->studentUser ?: $session->student;
+        if (! $student) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+
+        $title = app()->getLocale() === 'ar'
+            ? '⏹️ تم إغلاق الحصة'
+            : '⏹️ Session Ended';
+
+        $body = app()->getLocale() === 'ar'
+            ? "انتهت حصة ({$subjectName}). شكراً لحضورك ويمكنك الاطلاع على تسجيل الحصة إذا كان متاحاً."
+            : "Session ({$subjectName}) has ended. Thank you for participating.";
+
+        return $this->sendNotification($student, 'SESSION_CLOSED', $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 7. قبول أو رفض الاستثناء
+     */
+    public function notifyExceptionStatus(ExceptionRequest $request): ?UserNotification
+    {
+        $student = $request->studentUser ?: User::find($request->student_user_id);
+        if (! $student) return null;
+
+        $isApproved = ($request->status === 'approved');
+        $scopeName = $request->is_global || $request->scope === 'global' ? 'طلب الاستثناء العام' : 'طلب استثناء الحصة';
+
+        $title = $isApproved
+            ? (app()->getLocale() === 'ar' ? '✅ تم قبول طلب الاستثناء' : '✅ Exception Request Approved')
+            : (app()->getLocale() === 'ar' ? '❌ تم رفض طلب الاستثناء' : '❌ Exception Request Rejected');
+
+        $body = $isApproved
+            ? (app()->getLocale() === 'ar'
+                ? "تمت الموافقة على ({$scopeName}) الخاص بك بنجاح. يمكنك الآن الانضمام للبث."
+                : "Your exception request ({$scopeName}) has been approved.")
+            : (app()->getLocale() === 'ar'
+                ? "عذراً، تم رفض ({$scopeName}) الخاص بك. السبب: " . ($request->reason ?: 'عدم استيفاء الشروط')
+                : "Your exception request ({$scopeName}) was rejected. Reason: " . ($request->reason ?: 'Requirements not met'));
+
+        $type = $isApproved ? 'EXCEPTION_APPROVED' : 'EXCEPTION_REJECTED';
+
+        return $this->sendNotification($student, $type, $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 8. إلغاء الحصة
+     */
+    public function notifySessionCancelled(LiveSession $session): ?UserNotification
+    {
+        $student = $session->studentUser ?: $session->student;
+        if (! $student) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+
+        $title = app()->getLocale() === 'ar'
+            ? '❌ تم إلغاء الحصة'
+            : '❌ Session Cancelled';
+
+        $reason = $session->cancellation_reason ? " (السبب: {$session->cancellation_reason})" : '';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تنويه: تم إلغاء حصة ({$subjectName}){$reason}."
+            : "Notice: Your session ({$subjectName}) has been cancelled{$reason}.";
+
+        return $this->sendNotification($student, 'SESSION_CANCELLED', $title, $body, route('student-portal'));
+    }
+
+    /**
+     * 9. تغيير موعد الحصة
+     */
+    public function notifySessionRescheduled(LiveSession $session): ?UserNotification
+    {
+        $student = $session->studentUser ?: $session->student;
+        if (! $student) return null;
+
+        $subjectName = $session->subject?->name ?: ($session->title ?: 'الحصة التفاعلية');
+        $newTimeStr  = $session->effective_start_at ? $session->effective_start_at->format('Y-m-d H:i') : 'الموعد الجديد';
+
+        $title = app()->getLocale() === 'ar'
+            ? '🗓️ تم تغيير موعد الحصة'
+            : '🗓️ Session Rescheduled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم تغيير موعد حصة ({$subjectName}) إلى: {$newTimeStr}."
+            : "Session ({$subjectName}) has been rescheduled to: {$newTimeStr}.";
+
+        return $this->sendNotification($student, 'SESSION_RESCHEDULED', $title, $body, route('student-portal'));
+    }
+
+    /**
      * Scan sessions starting in ~24h and remind students with unsubmitted assignments.
      */
     public function sendAssignmentDeadlineReminders(): int
@@ -118,27 +535,7 @@ class FcmNotificationService
                     ->exists();
 
                 if (! $hasSubmitted) {
-                    $sessionTitle = $session->title ?: 'Interactive Live Lesson';
-                    $deadlineStr  = $assignment->effective_due_at
-                        ? $assignment->effective_due_at->format('Y-m-d H:i')
-                        : '24h Pre-Lesson';
-
-                    $title = app()->getLocale() === 'ar'
-                        ? '⏰ موعد تسليم الواجب (قبل الحصة بـ 24 ساعة)'
-                        : '⏰ Homework Deadline Alert (24h Before Lesson)';
-
-                    $body = app()->getLocale() === 'ar'
-                        ? "تذكرة: يرجى تسليم واجب ({$assignment->title}) قبل موعد الحصة التفاعلية المباشرة ({$sessionTitle}). الموعد النهائي: {$deadlineStr}."
-                        : "Reminder: Please complete your assignment ({$assignment->title}) for live session ({$sessionTitle}). Deadline: {$deadlineStr}.";
-
-                    $this->sendNotification(
-                        $student,
-                        'ASSIGNMENT_DEADLINE_REMINDER',
-                        $title,
-                        $body,
-                        route('student.assignment.take', ['id' => $assignment->id])
-                    );
-
+                    $this->notifyAssignmentOverdue($assignment, $student);
                     $reminderCount++;
                 }
             }

@@ -23,7 +23,7 @@ class SeparateLoginAndRegisterPagesTest extends TestCase
         $registerRes->assertStatus(200)
             ->assertSee(route('login'));
 
-        // 3. Test Registration Action
+        // 3. Test Registration Action (Status starts PENDING)
         $regData = [
             'name' => 'New Learner',
             'email' => 'new.learner@elite.edu',
@@ -34,12 +34,27 @@ class SeparateLoginAndRegisterPagesTest extends TestCase
         $regResponse->assertStatus(201)
             ->assertJsonPath('success', true);
 
-        $this->assertDatabaseHas('users', ['email' => 'new.learner@elite.edu']);
+        $user = User::where('email', 'new.learner@elite.edu')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals(AccountStatus::PENDING, $user->status);
 
-        // Logout
+        // 4. Attempt Login Before Approval -> Must fail with HTTP 403 Forbidden
+        $failedLogin = $this->postJson('/ajax/login', [
+            'email' => 'new.learner@elite.edu',
+            'password' => 'password123',
+        ]);
+        $failedLogin->assertStatus(403);
+
+        // 5. Attempt Dashboard Access Before Approval -> Must redirect to login
+        $this->actingAs($user);
+        $dashboardResponse = $this->get('/student-portal');
+        $dashboardResponse->assertRedirect('/login');
+
+        // 6. Admin Approves Account
+        $user->update(['status' => AccountStatus::APPROVED]);
         $this->post('/logout');
 
-        // 4. Test Login Action
+        // 7. Login After Admin Approval -> Must succeed with HTTP 200
         $loginResponse = $this->postJson('/ajax/login', [
             'email' => 'new.learner@elite.edu',
             'password' => 'password123',

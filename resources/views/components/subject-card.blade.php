@@ -15,7 +15,7 @@
 
 <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg hover:shadow-2xl card-lift group transition-all duration-300 flex flex-col justify-between h-[460px]">
     <div class="relative h-56 overflow-hidden bg-slate-950">
-        <img src="{{ asset($image) }}" loading="lazy" alt="{{ $name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        <img src="{{ media_url($image, 'images/course_ai.png') }}" loading="lazy" alt="{{ $name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
         <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold text-white {{ $badgeColor }} px-3 py-1 rounded-full shadow-md">
             {{ $grade }}

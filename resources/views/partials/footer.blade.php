@@ -37,9 +37,9 @@
             <div class="space-y-3">
                 <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ __('footer.contact') }}</h4>
                 <ul class="space-y-2 text-sm text-slate-400">
-                    <li class="flex items-center justify-center sm:justify-start gap-2">📍 <span>{{ __('footer.address') }}</span></li>
-                    <li class="flex items-center justify-center sm:justify-start gap-2">📞 <span>{{ __('footer.phone') }}</span></li>
-                    <li class="flex items-center justify-center sm:justify-start gap-2">✉️ <span>{{ __('footer.email') }}</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">📍 <span>{{ \App\Models\SiteSetting::get('contact_address', __('footer.address')) }}</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">📞 <span>{{ \App\Models\SiteSetting::get('contact_phone', __('footer.phone')) }}</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">✉️ <span>{{ \App\Models\SiteSetting::get('contact_email', __('footer.email')) }}</span></li>
                     <li class="flex items-center justify-center sm:justify-start gap-2">🕒 <span>{{ __('footer.hours') }}</span></li>
                 </ul>
             </div>
@@ -47,11 +47,11 @@
 
         <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
             <div class="flex items-center gap-4">
-                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">f</a>
-                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">𝕏</a>
-                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">ig</a>
-                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">in</a>
-                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">yt</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_facebook', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">f</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_twitter', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">𝕏</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_instagram', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">ig</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_linkedin', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">in</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_youtube', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">yt</a>
             </div>
             <p>{{ __('footer.rights') }}</p>
         </div>

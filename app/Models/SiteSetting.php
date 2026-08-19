@@ -16,6 +16,10 @@ class SiteSetting extends Model
 
     public static function get(string $key, ?string $default = null): ?string
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('site_settings')) {
+            return $default;
+        }
+
         $setting = static::where('key', $key)->first();
 
         return $setting ? $setting->value : $default;

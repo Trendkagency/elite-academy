@@ -89,7 +89,7 @@
         @endif
 
         {{-- 4 Modern Stat Cards with Accent Borders --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 md:mb-12">
             {{-- Package & Remaining Sessions --}}
             <div class="animate-fade-in-up stagger-1 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 {{ $hasActivePackage ? 'border-t-teal-500' : 'border-t-rose-500' }} shadow-sm hover:shadow-xl transition-all space-y-3.5">
                 <div class="flex items-center justify-between">
@@ -130,14 +130,8 @@
                     <span class="text-[11px] font-mono font-extrabold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 shadow-2xs">{{ __('app.portal.attendance_rate') }}</span>
                     <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-2xs">🎯</div>
                 </div>
-                @php
-                    $attendedSessions = $upcomingSessions->where('status', 'completed')->count();
-                    $totalSessions = $upcomingSessions->count();
-                    $attendanceRate = $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100) : 0;
-                    $approvedExcuses = $exceptions->where('status', 'approved')->count();
-                @endphp
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
-                    @if($totalSessions > 0)
+                    @if($totalSessionCount > 0)
                         {{ $attendanceRate }}% <span class="text-base font-bold text-slate-500">{{ $attendanceRate >= 80 ? (app()->getLocale() === 'ar' ? 'ممتاز' : 'Excellent') : (app()->getLocale() === 'ar' ? 'بحاجة للتحسين' : 'Needs Improvement') }}</span>
                     @else
                         <span class="text-lg text-slate-400 font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد حصص بعد' : 'No sessions yet' }}</span>
@@ -154,10 +148,6 @@
                     <span class="text-[11px] font-mono font-extrabold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs">{{ __('app.portal.homework_rate') }}</span>
                     <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-xl shadow-2xs">📝</div>
                 </div>
-                @php
-                    $gradedSubmissions = $submissions->whereIn('status', ['reviewed', 'submitted', 'completed'])->filter(fn($s) => !is_null($s->score));
-                    $avgScore = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('score')) : null;
-                @endphp
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                     @if(!is_null($avgScore))
                         {{ $avgScore }}% <span class="text-base font-bold text-slate-500">{{ $avgScore >= 80 ? (app()->getLocale() === 'ar' ? 'ممتاز' : 'Excellent') : (app()->getLocale() === 'ar' ? 'مقبول' : 'Fair') }}</span>
@@ -187,7 +177,28 @@
                         </span>
                     </div>
 
-                    <div class="space-y-4">
+                    <div id="upcomingSessionsContainer" class="space-y-4">
+                        @if(! $hasActivePackage)
+                            <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-2xl leading-none">⚠️</span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-amber-900">
+                                            {{ app()->getLocale() === 'ar' ? 'تنبيه الحصص التجريبية والباقات:' : 'Demo & Package Subscription Alert:' }}
+                                        </h4>
+                                        <p class="text-xs font-mono text-amber-800 mt-0.5">
+                                            {{ app()->getLocale() === 'ar' 
+                                                ? 'الكورس لا يتضمن حصة تجريبية مجانية. يلزم الاشتراك في باقة حصص لتفعيل ودخول الحصص المباشرة والمنهجية.' 
+                                                : 'Course does not have a free demo session. An active package subscription is required to unlock live streams and curriculum sessions.' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('courses') }}" class="btn-lift px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold font-mono shadow-sm flex items-center gap-1.5 whitespace-nowrap self-stretch sm:self-auto justify-center">
+                                    <span>🛒</span> {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
+                                </a>
+                            </div>
+                        @endif
+
                         @forelse($upcomingSessions as $s)
                             @php
                                 $state = $s->evaluateState(auth()->user());
@@ -234,6 +245,10 @@
                                         <a href="{{ $s->meeting_link }}" target="_blank" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
                                             <span>🟢</span> {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream' }}
                                         </a>
+                                    @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
+                                        <a href="{{ route('courses') }}" class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
+                                            <span>🔒</span> {{ $state->label() }}
+                                        </a>
                                     @elseif($state === \App\Enums\LiveSessionState::ENDED)
                                         <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300 px-4 py-2 rounded-xl flex items-center gap-1.5">
                                             <span>⏹️</span> {{ $state->label() }}
@@ -250,10 +265,21 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="py-10 text-center text-slate-500 space-y-2">
-                                <div class="text-4xl">📅</div>
-                                <p class="font-bold text-slate-700 text-sm">{{ app()->getLocale() === 'ar' ? 'لا توجد حصص قادمة مجدولة' : 'No Upcoming Sessions Scheduled' }}</p>
-                                <p class="text-xs font-mono text-slate-400">{{ app()->getLocale() === 'ar' ? 'ستظهر حصصك المباشرة هنا بمجرد جدولتها من قِبل المدرس.' : 'Your live sessions will appear here once scheduled by your instructor.' }}</p>
+                            <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
+                                <div class="text-4xl">🎓</div>
+                                <h3 class="font-bold text-slate-800 text-base">
+                                    {{ app()->getLocale() === 'ar' ? 'لا توجد حصص مجانية متوفرة حالياً' : 'No Free Demo Sessions Currently Available' }}
+                                </h3>
+                                <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
+                                    {{ app()->getLocale() === 'ar' 
+                                        ? 'تم إغلاق الحصص التجريبية المجانية لهذه الكورسات. للانضمام للحصص المنهجية المباشرة والمتابعة الأكاديمية، يرجى تفعيل باقة حصص.' 
+                                        : 'Free trial demo sessions for these courses are closed. Please subscribe to an active session package to join live streams.' }}
+                                </p>
+                                <div class="pt-2">
+                                    <a href="{{ route('courses') }}" class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-indigo-600/20">
+                                        <span>🚀</span> {{ app()->getLocale() === 'ar' ? 'استكشاف الكورسات والباقات المتاحة' : 'Explore Available Courses & Packages' }}
+                                    </a>
+                                </div>
                             </div>
                         @endforelse
                     </div>
@@ -316,7 +342,7 @@
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
+                                        <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-black rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
                                             <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
                                         </a>
                                         <button onclick="openMsqAssignmentModal({{ $assign->id }})" class="btn-lift px-4 py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs border border-slate-300 shadow-2xs cursor-pointer">
@@ -333,6 +359,102 @@
                             </div>
                         @endforelse
                     </div>
+                </div>
+
+                {{-- 2.5 Enrolled Courses & Detailed Sessions Roadmap --}}
+                <div class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
+                                <span>📚</span> {{ app()->getLocale() === 'ar' ? 'الكورسات المشترك بها والمنهج التفصيلي' : 'My Enrolled Courses & Detailed Modules' }}
+                            </h2>
+                            <p class="text-xs font-mono text-slate-500 mt-1">
+                                {{ app()->getLocale() === 'ar' 
+                                    ? 'استكشف المقررات الدراسية المشترك بها، وتصفح تفاصيل كل كورس، الجدول الزمني، والحصص المباشرة والمسجلة.' 
+                                    : 'Explore your active enrolled courses, inspect full module roadmaps, live stream schedules, and session materials.' }}
+                            </p>
+                        </div>
+                        <span class="text-xs font-mono font-extrabold bg-teal-100 text-teal-900 px-3.5 py-1.5 rounded-full border border-teal-200 self-start sm:self-auto shadow-2xs">
+                            {{ count($enrollments) }} {{ app()->getLocale() === 'ar' ? 'كورسات مسجلة' : 'Active Courses' }}
+                        </span>
+                    </div>
+
+                    @if(count($enrollmentCards) > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach($enrollmentCards as $card)
+                                <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group space-y-4">
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="bg-teal-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
+                                                {{ $card['subject'] }}
+                                            </span>
+                                            <span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                                ✓ {{ app()->getLocale() === 'ar' ? 'مشترك بنجاح' : 'Enrolled' }}
+                                            </span>
+                                        </div>
+
+                                        <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
+                                            {{ $card['course']->title }}
+                                        </h3>
+
+                                        <p class="text-xs text-slate-600 font-mono leading-relaxed line-clamp-2">
+                                            {{ $card['course']->description ?: (app()->getLocale() === 'ar' ? 'مقرر تعليمي تفاعلي شامل للمرحلة الثانوية مع متابعة واختبارات.' : 'Comprehensive interactive curriculum with practical labs.') }}
+                                        </p>
+
+                                        <div class="flex items-center gap-2 pt-1 text-xs font-mono text-slate-700">
+                                            <img src="{{ asset('images/instructor_portrait.png') }}" alt="{{ $card['teacher'] }}" class="w-6 h-6 rounded-full object-cover border border-teal-500">
+                                            <span>👨‍🏫 <strong>{{ $card['teacher'] }}</strong></span>
+                                        </div>
+
+                                        {{-- Progress Bar --}}
+                                        <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                                            <div class="flex justify-between text-[11px] font-mono font-bold text-slate-600">
+                                                <span>{{ app()->getLocale() === 'ar' ? 'نسبة إنجاز المنهج' : 'Curriculum Progress' }}</span>
+                                                <span class="text-teal-600 font-extrabold">{{ $card['progressPct'] }}%</span>
+                                            </div>
+                                            <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-500" style="width: {{ max(8, $card['progressPct']) }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 text-xs font-mono text-slate-500">
+                                            <span>📹 <strong>{{ $card['recCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'دروس' : 'Lectures' }}</span>
+                                            <span>•</span>
+                                            <span>🟢 <strong>{{ $card['liveCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'بث مباشر' : 'Live Streams' }}</span>
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="openEnrolledCourseModal({{ $card['course']->id }})" class="btn-lift px-4 py-2 bg-slate-900 hover:bg-teal-600 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 cursor-pointer transition-all">
+                                                <span>🔍</span> {{ app()->getLocale() === 'ar' ? 'التفاصيل والحصص' : 'Full Details & Sessions' }}
+                                            </button>
+                                            <a href="{{ route('course-details', ['slug' => $card['course']->slug]) }}" class="btn-lift px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-bold border border-teal-200/80 flex items-center gap-1" title="{{ app()->getLocale() === 'ar' ? 'صفحة الكورس' : 'Course Page' }}">
+                                                <span>▶</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
+                            <div class="text-4xl">📚</div>
+                            <h3 class="font-bold text-slate-800 text-base">
+                                {{ app()->getLocale() === 'ar' ? 'لم تقم بالتسجيل في أي كورس بعد' : 'No Enrolled Courses Yet' }}
+                            </h3>
+                            <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
+                                {{ app()->getLocale() === 'ar' 
+                                    ? 'تصفح قائمة الكورسات والمناهج المتاحة في الأكاديمية وقم بالتسجيل فوراً لبدء رحلة التعلم.' 
+                                    : 'Explore the full course catalog and enroll in accredited STEM programs to unlock your modules.' }}
+                            </p>
+                            <div class="pt-2">
+                                <a href="{{ route('courses') }}" class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-teal-600/20">
+                                    <span>🚀</span> {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات المتاحة الآن' : 'Browse Available Courses' }}
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- 3. Dedicated Assignment Submission History & Graded Evaluation Section --}}
@@ -438,20 +560,14 @@
                         @endforelse
                     </div>
 
-                    {{-- Modern Sleek Real-Time AJAX Pagination Controls --}}
-                    @php
-                        $currentPage = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator ? $userNotifications->currentPage() : 1;
-                        $lastPage = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator ? $userNotifications->lastPage() : 1;
-                        $totalAlertsCount = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator ? $userNotifications->total() : count($userNotifications);
-                    @endphp
 
-                    <div id="notificationsPaginationBar" class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono {{ $lastPage <= 1 ? 'hidden' : '' }}">
+                    <div id="notificationsPaginationBar" class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono {{ $notifLastPage <= 1 ? 'hidden' : '' }}">
                         <button id="btnNotifPrev" onclick="fetchNotificationsPage(notifCurrentPage - 1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
                             <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
                         </button>
 
                         <div class="text-slate-600 font-bold bg-slate-100/80 px-3.5 py-1 rounded-xl border border-slate-200/90 text-[11px] shadow-2xs">
-                            {{ app()->getLocale() === 'ar' ? 'صفحة' : 'Page' }} <span id="notifCurrentPageText" class="text-teal-700 font-extrabold">{{ $currentPage }}</span> {{ app()->getLocale() === 'ar' ? 'من' : 'of' }} <span id="notifLastPageText" class="text-slate-800">{{ $lastPage }}</span>
+                            {{ app()->getLocale() === 'ar' ? 'صفحة' : 'Page' }} <span id="notifCurrentPageText" class="text-teal-700 font-extrabold">{{ $notifCurrentPage }}</span> {{ app()->getLocale() === 'ar' ? 'من' : 'of' }} <span id="notifLastPageText" class="text-slate-800">{{ $notifLastPage }}</span>
                         </div>
 
                         <button id="btnNotifNext" onclick="fetchNotificationsPage(notifCurrentPage + 1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
@@ -534,6 +650,21 @@
                         }
                         stream.prepend(item);
                     });
+
+                    // Real-Time Polling for Interactive Live Sessions & Demo Changes
+                    setInterval(() => {
+                        fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                            .then(res => res.text())
+                            .then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newContainer = doc.querySelector('#upcomingSessionsContainer');
+                                const currentContainer = document.querySelector('#upcomingSessionsContainer');
+                                if (newContainer && currentContainer && newContainer.innerHTML.trim() !== currentContainer.innerHTML.trim()) {
+                                    currentContainer.innerHTML = newContainer.innerHTML;
+                                }
+                            }).catch(() => {});
+                    }, 8000);
                 </script>
 
                 {{-- Submitted Exceptions List --}}
@@ -972,8 +1103,8 @@ async function trigger30SecTestPush() {
 // ─────────────────────────────────────────────────────────────────────────
 // Real-Time AJAX Notifications Pagination (No Page Refresh)
 // ─────────────────────────────────────────────────────────────────────────
-let notifCurrentPage = {{ $currentPage ?? 1 }};
-let notifLastPage = {{ $lastPage ?? 1 }};
+let notifCurrentPage = {{ $notifCurrentPage }};
+let notifLastPage = {{ $notifLastPage }};
 
 function updatePaginationControls(page, lastPage, total) {
     notifCurrentPage = page;
@@ -1003,7 +1134,7 @@ function updatePaginationControls(page, lastPage, total) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    updatePaginationControls(notifCurrentPage, notifLastPage, {{ $totalAlertsCount ?? 0 }});
+    updatePaginationControls(notifCurrentPage, notifLastPage, {{ $totalAlertsCount }});
 });
 
 async function fetchNotificationsPage(page) {
@@ -1084,6 +1215,279 @@ function escapeHtml(str) {
     return str.replace(/[&<>"']/g, function(m) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
+}
+</script>
+
+{{-- Ultra-Premium Glassmorphic Enrolled Course Details Modal --}}
+<div id="enrolledCourseModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200/90 flex flex-col my-auto relative">
+        
+        {{-- Modal Header --}}
+        <div class="bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white p-6 sm:p-8 flex items-start justify-between relative overflow-hidden shrink-0">
+            <div class="absolute -right-10 -top-10 w-48 h-48 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="space-y-2 relative z-10">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span id="modalCourseSubject" class="bg-teal-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow-xs"></span>
+                    <span id="modalCourseGrade" class="bg-slate-800 text-slate-300 text-xs font-mono px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40">✓ {{ app()->getLocale() === 'ar' ? 'مشترك بالنظام' : 'Enrolled' }}</span>
+                </div>
+                <h2 id="modalCourseTitle" class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"></h2>
+                <p id="modalCourseTeacher" class="text-xs font-mono text-teal-300 flex items-center gap-1.5"></p>
+            </div>
+            <button onclick="closeEnrolledCourseModal()" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition-all cursor-pointer border border-slate-700 shrink-0 relative z-10">
+                ✕
+            </button>
+        </div>
+
+        {{-- Modal Scrollable Body --}}
+        <div class="p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)] font-mono text-slate-800">
+            {{-- Overview Card --}}
+            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500">
+                    {{ app()->getLocale() === 'ar' ? 'نبذة عن الكورس والمحتوى' : 'Course Overview & Learning Objectives' }}
+                </h4>
+                <p id="modalCourseDesc" class="text-xs text-slate-700 leading-relaxed"></p>
+            </div>
+
+            {{-- Tabs / Section Header --}}
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
+                    <span>📺</span> {{ app()->getLocale() === 'ar' ? 'منهج الكورس والحصص التفصيلية' : 'Full Curriculum & Session Modules' }}
+                </h3>
+                <span id="modalTotalSessionsBadge" class="text-xs font-bold bg-teal-100 text-teal-900 px-3 py-1 rounded-full border border-teal-200"></span>
+            </div>
+
+            {{-- Live Sessions Subsection --}}
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+                        <span>🟢</span> {{ app()->getLocale() === 'ar' ? 'جدول الحصص والبث المباشر (Live Streams)' : 'Live Stream Schedule' }}
+                    </h4>
+                    <span id="liveSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
+                </div>
+                <div id="modalLiveSessionsList" class="space-y-2.5"></div>
+                {{-- Live Sessions Pagination Bar --}}
+                <div id="modalLivePaginationBar" class="hidden flex items-center justify-between pt-2 text-xs font-mono text-slate-600 border-t border-slate-100">
+                    <button id="btnLivePrev" onclick="changeModalLivePage(-1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
+                        <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
+                    </button>
+                    <span id="modalLivePageText" class="font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">Page 1 of 1</span>
+                    <button id="btnLiveNext" onclick="changeModalLivePage(1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
+                        <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Recorded Course Sessions Subsection --}}
+            <div class="space-y-3 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-indigo-800 flex items-center gap-1.5">
+                        <span>📹</span> {{ app()->getLocale() === 'ar' ? 'دروس الفيديو والواجبات المنهجية (Recorded Modules & MSQs)' : 'Recorded Modules & Assignments' }}
+                    </h4>
+                    <span id="recSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
+                </div>
+                <div id="modalRecordedSessionsList" class="space-y-2.5"></div>
+                {{-- Recorded Sessions Pagination Bar --}}
+                <div id="modalRecPaginationBar" class="hidden flex items-center justify-between pt-2 text-xs font-mono text-slate-600 border-t border-slate-100">
+                    <button id="btnRecPrev" onclick="changeModalRecPage(-1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
+                        <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
+                    </button>
+                    <span id="modalRecPageText" class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-200">Page 1 of 1</span>
+                    <button id="btnRecNext" onclick="changeModalRecPage(1)" class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
+                        <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal Footer --}}
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs font-mono text-slate-500 shrink-0">
+            <span>🎓 Elite Academy Certified Curriculum</span>
+            <button onclick="closeEnrolledCourseModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold cursor-pointer transition-all">
+                {{ app()->getLocale() === 'ar' ? 'إغلاق النافذة' : 'Close' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+window.enrolledCoursesData = @json($enrolledCoursesDataMap);
+
+let currentModalCourseId = null;
+let currentModalLivePage = 1;
+let currentModalRecPage = 1;
+const MODAL_LIVE_PER_PAGE = 3;
+const MODAL_REC_PER_PAGE = 3;
+
+function openEnrolledCourseModal(courseId) {
+    const data = window.enrolledCoursesData[courseId];
+    if (!data) return;
+
+    currentModalCourseId = courseId;
+    currentModalLivePage = 1;
+    currentModalRecPage = 1;
+
+    document.getElementById('modalCourseTitle').textContent = data.title;
+    document.getElementById('modalCourseSubject').textContent = data.subject;
+    document.getElementById('modalCourseGrade').textContent = data.grade;
+    document.getElementById('modalCourseTeacher').textContent = '👨‍🏫 ' + (data.teacher || 'Dr. Instructor');
+    document.getElementById('modalCourseDesc').textContent = data.description;
+
+    const liveCount = data.live_sessions ? data.live_sessions.length : 0;
+    const recCount = data.recorded_sessions ? data.recorded_sessions.length : 0;
+    document.getElementById('modalTotalSessionsBadge').textContent = (liveCount + recCount) + ' Sessions Total';
+    
+    document.getElementById('liveSessionsCountBadge').textContent = liveCount + ' ' + @json(app()->getLocale() === 'ar' ? 'بث مباشر' : 'streams');
+    document.getElementById('recSessionsCountBadge').textContent = recCount + ' ' + @json(app()->getLocale() === 'ar' ? 'دروس مسجلة' : 'modules');
+
+    renderModalLiveSessions();
+    renderModalRecordedSessions();
+
+    const modal = document.getElementById('enrolledCourseModal');
+    modal.classList.remove('hidden');
+}
+
+function renderModalLiveSessions() {
+    const data = window.enrolledCoursesData[currentModalCourseId];
+    if (!data) return;
+
+    const liveContainer = document.getElementById('modalLiveSessionsList');
+    const pagBar = document.getElementById('modalLivePaginationBar');
+    liveContainer.innerHTML = '';
+
+    const list = data.live_sessions || [];
+    const total = list.length;
+
+    if (total === 0) {
+        liveContainer.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 text-center font-mono">${@json(app()->getLocale() === 'ar' ? 'لا توجد جلسات بث مباشر مجدولة لهذا الكورس حالياً.' : 'No live streams currently scheduled for this course.')}</div>`;
+        if (pagBar) pagBar.classList.add('hidden');
+        return;
+    }
+
+    const lastPage = Math.ceil(total / MODAL_LIVE_PER_PAGE);
+    if (currentModalLivePage < 1) currentModalLivePage = 1;
+    if (currentModalLivePage > lastPage) currentModalLivePage = lastPage;
+
+    const startIdx = (currentModalLivePage - 1) * MODAL_LIVE_PER_PAGE;
+    const endIdx = startIdx + MODAL_LIVE_PER_PAGE;
+    const pageItems = list.slice(startIdx, endIdx);
+
+    pageItems.forEach(ls => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200 space-y-2 transition-all';
+        
+        let btnHtml = `<span class="text-[11px] font-bold px-3 py-1 rounded-xl bg-slate-200 text-slate-700">${escapeHtml(ls.state_label)}</span>`;
+        if (ls.can_join && ls.meeting_link) {
+            btnHtml = `<a href="${escapeHtml(ls.meeting_link)}" target="_blank" class="btn-lift text-[11px] font-bold px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">🟢 Join Stream</a>`;
+        }
+
+        card.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full ${ls.is_live ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}"></span>
+                    <span class="font-bold text-xs text-slate-900">${escapeHtml(ls.title)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-slate-500">📅 ${escapeHtml(ls.start_at)}</span>
+                    ${btnHtml}
+                </div>
+            </div>
+        `;
+        liveContainer.appendChild(card);
+    });
+
+    if (pagBar) {
+        if (lastPage > 1) {
+            pagBar.classList.remove('hidden');
+            document.getElementById('modalLivePageText').textContent = @json(app()->getLocale() === 'ar' ? 'صفحة' : 'Page') + ` ${currentModalLivePage} ` + @json(app()->getLocale() === 'ar' ? 'من' : 'of') + ` ${lastPage}`;
+            document.getElementById('btnLivePrev').disabled = (currentModalLivePage <= 1);
+            document.getElementById('btnLiveNext').disabled = (currentModalLivePage >= lastPage);
+        } else {
+            pagBar.classList.add('hidden');
+        }
+    }
+}
+
+function changeModalLivePage(delta) {
+    currentModalLivePage += delta;
+    renderModalLiveSessions();
+}
+
+function renderModalRecordedSessions() {
+    const data = window.enrolledCoursesData[currentModalCourseId];
+    if (!data) return;
+
+    const recContainer = document.getElementById('modalRecordedSessionsList');
+    const pagBar = document.getElementById('modalRecPaginationBar');
+    recContainer.innerHTML = '';
+
+    const list = data.recorded_sessions || [];
+    const total = list.length;
+
+    if (total === 0) {
+        recContainer.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 text-center font-mono">${@json(app()->getLocale() === 'ar' ? 'لا توجد دروس فيديو مسجلة منشورة لهذا الكورس حالياً.' : 'No recorded video lessons published for this course yet.')}</div>`;
+        if (pagBar) pagBar.classList.add('hidden');
+        return;
+    }
+
+    const lastPage = Math.ceil(total / MODAL_REC_PER_PAGE);
+    if (currentModalRecPage < 1) currentModalRecPage = 1;
+    if (currentModalRecPage > lastPage) currentModalRecPage = lastPage;
+
+    const startIdx = (currentModalRecPage - 1) * MODAL_REC_PER_PAGE;
+    const endIdx = startIdx + MODAL_REC_PER_PAGE;
+    const pageItems = list.slice(startIdx, endIdx);
+
+    pageItems.forEach(rs => {
+        const card = document.createElement('div');
+        card.className = 'p-4 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200 space-y-2.5 transition-all';
+        
+        let assignHtml = '';
+        if (rs.assignments && rs.assignments.length > 0) {
+            assignHtml = `<div class="pt-2 border-t border-slate-200/60 flex flex-wrap items-center gap-2">`;
+            rs.assignments.forEach(a => {
+                assignHtml += `<a href="${escapeHtml(a.url)}" class="btn-lift inline-flex items-center gap-1 text-[11px] font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2.5 py-1 rounded-lg">📝 ${escapeHtml(a.title)} (${a.points} pts) &rarr;</a>`;
+            });
+            assignHtml += `</div>`;
+        }
+
+        card.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="space-y-0.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase bg-slate-200 text-slate-700 px-2 py-0.5 rounded">Module ${rs.index}</span>
+                        <span class="font-bold text-xs text-slate-900">${escapeHtml(rs.title)}</span>
+                    </div>
+                    ${rs.description ? `<p class="text-[11px] text-slate-600 line-clamp-1">${escapeHtml(rs.description)}</p>` : ''}
+                </div>
+                <span class="text-[11px] text-slate-500 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200">⏱️ ${rs.duration} mins</span>
+            </div>
+            ${assignHtml}
+        `;
+        recContainer.appendChild(card);
+    });
+
+    if (pagBar) {
+        if (lastPage > 1) {
+            pagBar.classList.remove('hidden');
+            document.getElementById('modalRecPageText').textContent = @json(app()->getLocale() === 'ar' ? 'صفحة' : 'Page') + ` ${currentModalRecPage} ` + @json(app()->getLocale() === 'ar' ? 'من' : 'of') + ` ${lastPage}`;
+            document.getElementById('btnRecPrev').disabled = (currentModalRecPage <= 1);
+            document.getElementById('btnRecNext').disabled = (currentModalRecPage >= lastPage);
+        } else {
+            pagBar.classList.add('hidden');
+        }
+    }
+}
+
+function changeModalRecPage(delta) {
+    currentModalRecPage += delta;
+    renderModalRecordedSessions();
+}
+
+function closeEnrolledCourseModal() {
+    const modal = document.getElementById('enrolledCourseModal');
+    modal.classList.add('hidden');
 }
 </script>
 @endsection

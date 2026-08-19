@@ -15,22 +15,31 @@
             <span class="text-xs font-mono text-slate-500 font-medium">&larr; Swipe Teachers &rarr;</span>
         </div>
 
-        {{-- Mentor Slider Carousel --}}
+        {{-- Mentor Slider Carousel (Dynamic from DB) --}}
         @php
-            $mentors = [
+            $dbTeachers = \Illuminate\Support\Facades\Schema::hasTable('teacher_profiles')
+                ? \App\Models\TeacherProfile::with('user')->get()
+                : collect();
+
+            $mentors = $dbTeachers->count() > 0 ? $dbTeachers->map(fn($t) => [
+                'name' => $t->user?->name ?: 'Teacher Profile',
+                'title' => $t->specialization ?: 'Senior Academic Mentor',
+                'dept' => 'Faculty',
+                'badgeBg' => 'bg-teal-600',
+                'textColor' => 'group-hover:text-teal-300',
+                'meta' => ($t->years_experience ?: 5) . '+ Yrs Exp • Active Educator',
+                'photo' => 'images/instructor_portrait.png',
+            ]) : [
                 ['name' => 'Dr. Ahmed Hassan', 'title' => 'Senior AI & Systems Researcher', 'dept' => 'Programming', 'badgeBg' => 'bg-teal-600', 'textColor' => 'group-hover:text-teal-300', 'meta' => '15+ Yrs Exp • 1,400+ Students • PhD - MIT', 'photo' => 'images/instructor_portrait.png'],
                 ['name' => 'Sarah Mohamed', 'title' => 'Deep Learning Lead Architect', 'dept' => 'Artificial Intelligence', 'badgeBg' => 'bg-purple-600', 'textColor' => 'group-hover:text-purple-300', 'meta' => '12+ Yrs Exp • 1,100+ Students • MSc - Stanford', 'photo' => 'images/instructor_female.png'],
                 ['name' => 'Omar Khaled', 'title' => 'Robotics & Autonomous Systems Specialist', 'dept' => 'Robotics', 'badgeBg' => 'bg-orange-600', 'textColor' => 'group-hover:text-orange-300', 'meta' => '10+ Yrs Exp • 950+ Students • PhD - Cambridge', 'photo' => 'images/instructor_male.png'],
-                ['name' => 'Fatma Ali', 'title' => 'Tech Ventures & Product Director', 'dept' => 'Business', 'badgeBg' => 'bg-emerald-600', 'textColor' => 'group-hover:text-emerald-300', 'meta' => '14+ Yrs Exp • 1,250+ Students • MBA - Harvard', 'photo' => 'images/hero_student.png'],
-                ['name' => 'Mohamed Adel', 'title' => 'Information Security & Ethics Lead', 'dept' => 'Cyber Security', 'badgeBg' => 'bg-rose-600', 'textColor' => 'group-hover:text-rose-300', 'meta' => '11+ Yrs Exp • 880+ Students • CISSP - Oxford', 'photo' => 'images/course_ai.png'],
-                ['name' => 'Dr. Nour Ibrahim', 'title' => 'Applied Mathematics Chair', 'dept' => 'Mathematics', 'badgeBg' => 'bg-amber-600', 'textColor' => 'group-hover:text-amber-300', 'meta' => '16+ Yrs Exp • 1,600+ Students • PhD - ETH Zurich', 'photo' => 'images/academy_campus.png'],
             ];
         @endphp
 
         <div class="carousel-container no-scrollbar">
             @foreach ($mentors as $m)
                 <div class="carousel-card-large-peek anim-projects delay-3 rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 h-96 relative group card-lift flex-shrink-0 transition-all duration-300">
-                    <img src="{{ asset($m['photo']) }}" alt="{{ $m['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                    <img src="{{ media_url($m['photo'], 'images/instructor_portrait.png') }}" alt="{{ $m['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
 
                     <span class="absolute top-5 left-5 text-xs font-mono font-extrabold text-white {{ $m['badgeBg'] }} px-3.5 py-1.5 rounded-full shadow-md">

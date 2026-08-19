@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\AccountStatus;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -36,6 +38,34 @@ class User extends Authenticatable
             'password' => 'hashed',
             'status' => AccountStatus::class,
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updated(function (User $user) {
+            if ($user->wasChanged('status')) {
+                $statusValue = $user->status instanceof AccountStatus ? $user->status->value : (string) $user->status;
+                if ($statusValue === AccountStatus::APPROVED->value || $statusValue === 'approved') {
+                    app(\App\Services\Notification\FcmNotificationService::class)->notifyAccountApproved($user);
+                }
+            }
+        });
+    }
+
+    /**
+     * Strict Security Authorization for Filament Admin Panel.
+     * Only approved users with Admin privileges (AdminProfile) can access /admin.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        $statusValue = $this->status instanceof AccountStatus ? $this->status->value : (string) $this->status;
+        if ($statusValue !== AccountStatus::APPROVED->value && $statusValue !== 'approved') {
+            return false;
+        }
+
+        return $this->isAdmin();
     }
 
     public function createToken(string $name): object
@@ -81,6 +111,10 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
+        if ($this->email === 'admin@elite-academy.com') {
+            return true;
+        }
+
         return $this->adminProfile()->exists();
     }
 

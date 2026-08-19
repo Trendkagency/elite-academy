@@ -8,18 +8,64 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
     <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/png">
-    <title>{{ $pageTitle ?? config('app.name') }}</title>
-    @isset($pageDescription)
-        <meta name="description" content="{{ $pageDescription }}">
-    @endisset
+    <title>{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt' }}</title>
+    <meta name="description" content="{{ $pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.' }}">
+    <meta name="keywords" content="Elite Academy, أكاديمية إيليت, منصة تعليمية, الثانوية العامة, برمجة, ذكاء اصطناعي, مصر, كورس, دروس مباشرة">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="author" content="Elite Academy Team">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- Multilingual Hreflang Alternates --}}
+    <link rel="alternate" hreflang="ar" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="en" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
+
+    {{-- Open Graph / Facebook Meta Tags --}}
+    <meta property="og:site_name" content="Elite Academy | أكاديمية إيليت">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform' }}">
+    <meta property="og:description" content="{{ $pageDescription ?? 'Join Egypt’s premier academic platform for live classes, accredited tracks, and expert mentors.' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ media_url($ogImage ?? 'images/academy_campus.png') }}">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_EG' : 'en_US' }}">
+
+    {{-- Twitter Card Meta Tags --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت' }}">
+    <meta name="twitter:description" content="{{ $pageDescription ?? 'Egypt’s premier academic platform for live classes and accredited tracks.' }}">
+    <meta name="twitter:image" content="{{ media_url($ogImage ?? 'images/academy_campus.png') }}">
+
+    {{-- JSON-LD Schema.org Structured Data --}}
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Elite Academy",
+        "alternateName": "أكاديمية إيليت التعليمية",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('images/logo.png') }}",
+        "description": "Egypt's leading educational platform for secondary academic tracks, live streaming classes, and AI/tech curricula.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Cairo",
+            "addressCountry": "EG"
+        },
+        "sameAs": [
+            "{{ \App\Models\SiteSetting::get('social_facebook', 'https://facebook.com') }}",
+            "{{ \App\Models\SiteSetting::get('social_twitter', 'https://twitter.com') }}",
+            "{{ \App\Models\SiteSetting::get('social_instagram', 'https://instagram.com') }}"
+        ]
+    }
+    </script>
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* Critical styles to eliminate white flash and apply Cairo font family */
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
-
         html, body, button, input, select, textarea, .font-sans, .font-heading {
             font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
         }
@@ -91,49 +137,54 @@
 <body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] text-slate-900 selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen m-0 p-0">
 
     {{-- Scroll Progress Bar --}}
-    @unless(request()->boolean('iframe'))
+    @if(!request()->boolean('iframe'))
         <div id="scroll-progress" class="fixed top-0 left-0 right-0 h-1 bg-teal-500 z-[60]" style="width: 0%"></div>
-    @endunless
+    @endif
 
-    @unless(($minimalLayout ?? false) || request()->boolean('iframe'))
+    @if(!($minimalLayout ?? false) && !request()->boolean('iframe'))
         @include('partials.ambient')
         @include('partials.navbar')
-    @endunless
+    @endif
 
     <main class="flex-grow w-full bg-[#FAFAF9] min-h-[60vh]">
         @yield('content')
     </main>
 
-    @unless(($minimalLayout ?? false) || request()->boolean('iframe'))
+    @if(!($minimalLayout ?? false) && !request()->boolean('iframe'))
         @include('partials.footer')
-    @endunless
+    @endif
 
     {{-- Back to Top Button --}}
-    @unless(request()->boolean('iframe'))
+    @if(!request()->boolean('iframe'))
         <button id="back-to-top" aria-label="Back to top">↑</button>
-    @endunless
+    @endif
 
     <script src="{{ asset('js/scroll-reveal.js') }}"></script>
     <script src="{{ asset('js/toast.js') }}?v={{ time() }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            @if(session('success'))
-                if (window.Toast) window.Toast.success(@json(session('success')));
-            @endif
-            @if(session('error'))
-                if (window.Toast) window.Toast.error(@json(session('error')));
-            @endif
-            @if(session('warning'))
-                if (window.Toast) window.Toast.warning(@json(session('warning')));
-            @endif
-            @if(session('info'))
-                if (window.Toast) window.Toast.info(@json(session('info')));
-            @endif
-        });
-    </script>
+    @php
+        $flashToasts = array_filter([
+            'success' => session('success'),
+            'error' => session('error'),
+            'warning' => session('warning'),
+            'info' => session('info'),
+        ]);
+    @endphp
+    @if(!empty($flashToasts))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const toasts = @json($flashToasts);
+                if (window.Toast) {
+                    Object.keys(toasts).forEach(type => {
+                        if (toasts[type] && typeof window.Toast[type] === 'function') {
+                            window.Toast[type](toasts[type]);
+                        }
+                    });
+                }
+            });
+        </script>
+    @endif
 
-    @auth
-        @unless(request()->boolean('iframe'))
+    @if(auth()->check() && !request()->boolean('iframe'))
         {{-- FCM Push Notification Permission Popup Modal --}}
         <div id="fcm-permission-modal" class="hidden fixed bottom-6 right-6 left-6 sm:left-auto sm:max-w-md bg-slate-900/95 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl border border-slate-700/80 z-50 transition-all duration-300">
             <div class="flex items-start gap-4">
@@ -158,7 +209,7 @@
                 </div>
             </div>
         </div>
-        @endunless
+    @endif
 
     <!-- Firebase JS SDK (v9 Compat) for Real Native FCM Web Push -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -183,7 +234,8 @@
                 input.value = token;
             });
 
-            const fcmTokenKey = 'elite_fcm_token_' + {{ auth()->id() }};
+            const currentUserId = "{{ auth()->id() ?? 0 }}";
+            const fcmTokenKey = 'elite_fcm_token_' + currentUserId;
             localStorage.setItem(fcmTokenKey, token);
 
             fetch('{{ route('ajax.notifications.token') }}', {
@@ -201,7 +253,6 @@
             .then(data => {
                 if (data.success) {
                     console.log('[FCM] Token saved to server.');
-                    console.log('[FCM] Token synced silently for user:', {{ auth()->id() }});
                 }
             })
             .catch(() => {});
@@ -212,23 +263,17 @@
             const btnEnable = document.getElementById('btn-enable-fcm');
             const btnDismiss = document.getElementById('btn-dismiss-fcm');
 
-            // Initialize Native Firebase Messaging Web SDK
             let messaging = null;
             if (typeof firebase !== 'undefined') {
                 try {
                     if (!firebase.apps.length) {
                         firebase.initializeApp(firebaseConfig);
-                        console.log('[FCM] Firebase initialized.');
-                        console.log('NotificationManager initialized (push mode).');
                     }
                     if (firebase.messaging.isSupported()) {
                         messaging = firebase.messaging();
                         
-                        // Register Service Worker
                         if ('serviceWorker' in navigator) {
                             navigator.serviceWorker.register('{{ url('/firebase-messaging-sw.js') }}').then((reg) => {
-                                console.log('[FCM] Service Worker registered:', '{{ url('/') }}');
-
                                 if (messaging && Notification.permission === 'granted') {
                                     const vapidKey = "{{ config('fcm.web_config.vapid_key') }}";
                                     const tokenOpts = { serviceWorkerRegistration: reg };
@@ -246,18 +291,13 @@
                             }).catch(() => {});
                         }
 
-                        // Foreground Real-Time Firebase Message Listener
                         messaging.onMessage((payload) => {
-                            console.log('[FCM] Message received:', payload);
-
                             const title = (payload.notification && payload.notification.title) ||
                                           (payload.data && payload.data.title) ||
-                                          (payload.data && payload.data.heading) ||
                                           '🔔 Firebase Push Notification';
 
                             const body = (payload.notification && payload.notification.body) ||
                                          (payload.data && payload.data.body) ||
-                                         (payload.data && payload.data.message) ||
                                          '';
 
                             const icon = (payload.notification && payload.notification.image) ||
@@ -274,7 +314,6 @@
                                 } catch (e) {}
                             }
 
-                            // Dispatch custom DOM event for UI stream updates
                             window.dispatchEvent(new CustomEvent('fcm-realtime-message', { detail: { notification: { title, body, image: icon }, data: payload.data || {} } }));
                         });
                     }
@@ -284,7 +323,8 @@
             }
 
             function getSavedToken() {
-                const fcmTokenKey = 'elite_fcm_token_' + {{ auth()->id() }};
+                const currentUserId = "{{ auth()->id() ?? 0 }}";
+                const fcmTokenKey = 'elite_fcm_token_' + currentUserId;
                 return localStorage.getItem(fcmTokenKey);
             }
 
@@ -293,20 +333,14 @@
                 sendFcmTokenToServer(savedToken);
             }
 
-            // Show permission popup directly if permission is not decided yet
             if ('Notification' in window) {
                 if (Notification.permission === 'default') {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === 'granted' && messaging) {
-                            messaging.getToken().then((token) => {
-                                if (token) sendFcmTokenToServer(token);
-                            }).catch(() => {});
-                        } else if (permission === 'default' && modal) {
-                            modal.classList.remove('hidden');
-                        }
-                    }).catch(() => {
-                        if (modal) modal.classList.remove('hidden');
-                    });
+                    if (modal) modal.classList.remove('hidden');
+                } else if (Notification.permission === 'granted') {
+                    const saved = getSavedToken();
+                    if (!saved && messaging) {
+                        window.requestLiveFirebaseToken();
+                    }
                 }
             }
 
@@ -350,7 +384,8 @@
                 return;
             }
 
-            const fcmTokenKey = 'elite_fcm_token_' + {{ auth()->id() }};
+            const currentUserId = "{{ auth()->id() ?? 0 }}";
+            const fcmTokenKey = 'elite_fcm_token_' + currentUserId;
             localStorage.setItem(fcmTokenKey, token);
 
             fetch('{{ route('ajax.notifications.token') }}', {
@@ -377,13 +412,13 @@
 
         window.requestLiveFirebaseToken = function() {
             if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
-                if (window.Toast) window.Toast.error('Browser does not support Web Push notifications');
+                if (window.Toast) window.Toast.error(document.documentElement.lang === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications');
                 return;
             }
 
             Notification.requestPermission().then(async (permission) => {
                 if (permission !== 'granted') {
-                    if (window.Toast) window.Toast.warning('Notification permission was not granted');
+                    if (window.Toast) window.Toast.warning(document.documentElement.lang === 'ar' ? 'لم يتم منح إذن الإشعارات' : 'Notification permission was not granted');
                     return;
                 }
 
@@ -394,7 +429,7 @@
                         }
                         if (firebase.messaging.isSupported()) {
                             const messaging = firebase.messaging();
-                            const reg = await navigator.serviceWorker.register('{{ url('/firebase-messaging-sw.js') }}');
+                            const reg = await navigator.serviceWorker.register('{{ url('/firebase-messaging-sw.js') }}', { scope: '/' });
                             await navigator.serviceWorker.ready;
 
                             const vapidKey = "{{ config('fcm.web_config.vapid_key') }}";
@@ -404,15 +439,25 @@
                             messaging.getToken(opts).then((token) => {
                                 if (token) {
                                     sendFcmTokenToServer(token);
+                                    
+                                    fetch("{{ route('ajax.notifications.test-push') }}", {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        }
+                                    }).catch(() => {});
+
                                     if (window.Toast) {
-                                        window.Toast.success(@json(app()->getLocale() === 'ar' ? 'تم جلب رمز FCM الحقيقي مباشرة من فايبربيس بنجاح!' : 'Live Firebase Token retrieved from Google successfully!'));
+                                        window.Toast.success(document.documentElement.lang === 'ar' ? 'تم تفعيل وتحديث إشعارات الفايبربيس بنجاح! 🔔' : 'Live Firebase Push Notifications Enabled Successfully! 🔔');
                                     }
                                 } else {
                                     if (window.Toast) window.Toast.warning('No FCM registration token returned by Firebase');
                                 }
                             }).catch(err => {
                                 console.error('Firebase getToken error:', err);
-                                const saved = localStorage.getItem('elite_fcm_token_' + {{ auth()->id() }});
+                                const currentUserId = "{{ auth()->id() ?? 0 }}";
+                                const saved = localStorage.getItem('elite_fcm_token_' + currentUserId);
                                 if (saved) sendFcmTokenToServer(saved);
                                 if (window.Toast) window.Toast.error('Firebase token request: ' + (err ? err.message : 'Push manager not ready'));
                             });
@@ -424,7 +469,6 @@
             });
         };
     </script>
-    @endauth
 
     @stack('scripts')
 </body>

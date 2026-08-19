@@ -22,9 +22,27 @@ class ArticleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'CMS & Communications';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مقالات المدونة' : 'Blog Articles';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مقال' : 'Article';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مقالات المدونة' : 'Blog Articles';
+    }
 
     public static function form(Schema $schema): Schema
     {

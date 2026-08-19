@@ -3,20 +3,71 @@
 <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
 <div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float pointer-events-none -z-10"></div>
 
+@php
+    $dbHeroSlides = \Illuminate\Support\Facades\Schema::hasTable('hero_slides')
+        ? \App\Models\HeroSlide::where('is_active', true)->orderBy('sort_order')->get()
+        : collect();
+@endphp
+
 <section class="w-full min-h-[75vh] lg:min-h-[95vh] relative overflow-hidden bg-slate-950 text-white flex flex-col justify-between hero-section">
 
-    {{-- Hidden Pure CSS Radio Triggers for 4 Slides --}}
-    <input type="radio" name="hero-slide" id="slide-1" class="peer/s1 hidden" checked>
-    <input type="radio" name="hero-slide" id="slide-2" class="peer/s2 hidden">
-    <input type="radio" name="hero-slide" id="slide-3" class="peer/s3 hidden">
-    <input type="radio" name="hero-slide" id="slide-4" class="peer/s4 hidden">
+    {{-- Radio Triggers --}}
+    @if($dbHeroSlides->count() > 0)
+        @foreach($dbHeroSlides as $idx => $s)
+            <input type="radio" name="hero-slide" id="slide-{{ $idx + 1 }}" class="peer/s{{ $idx + 1 }} hidden" {{ $idx === 0 ? 'checked' : '' }}>
+        @endforeach
+    @else
+        <input type="radio" name="hero-slide" id="slide-1" class="peer/s1 hidden" checked>
+        <input type="radio" name="hero-slide" id="slide-2" class="peer/s2 hidden">
+        <input type="radio" name="hero-slide" id="slide-3" class="peer/s3 hidden">
+        <input type="radio" name="hero-slide" id="slide-4" class="peer/s4 hidden">
+    @endif
 
     {{-- Ambient Mesh Radial Glows --}}
     <div class="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-teal-500/20 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-glow"></div>
     <div class="absolute bottom-0 right-0 w-[45rem] h-[45rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none z-0 animate-float"></div>
 
-    {{-- SLIDE 01: PROGRAMMING & TECHNOLOGY --}}
-    <div class="absolute inset-0 z-10 hidden peer-checked/s1:flex flex-col justify-between transition-all duration-700">
+    @if($dbHeroSlides->count() > 0)
+        @foreach($dbHeroSlides as $idx => $s)
+            <div class="absolute inset-0 z-10 hidden peer-checked/s{{ $idx + 1 }}:flex flex-col justify-between transition-all duration-700">
+                <img src="{{ media_url($s->image, 'images/hero_student.png') }}" alt="{{ $s->title }}" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+                    <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+                        @if($s->track_label)
+                            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                <span>{{ $s->track_label }}</span>
+                            </div>
+                        @endif
+
+                        <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+                            {{ $s->title }}
+                        </h1>
+
+                        <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+                            {{ $s->subtitle }}
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+                            @if($s->cta_primary_url)
+                                <a href="{{ $s->cta_primary_url }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+                                    <span>Explore Now</span>
+                                    <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+                                </a>
+                            @endif
+                            @if($s->cta_secondary_url)
+                                <a href="{{ $s->cta_secondary_url }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                                    <span>Learn More</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @else
         <img src="{{ asset('images/hero_student.png') }}" alt="Programming & Tech Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
@@ -215,6 +266,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Editorial Progress Bar & Slide Controls --}}
     <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8 flex items-center justify-between border-t border-white/15 pt-6">

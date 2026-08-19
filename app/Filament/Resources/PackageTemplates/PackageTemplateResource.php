@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PackageTemplateResource extends Resource
 {
@@ -21,11 +23,27 @@ class PackageTemplateResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Academic Management';
-
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'Package Plan Templates';
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة الباقات والمالية' : 'Packages & Finance';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'نماذج الباقات والخطط' : 'Package Plan Templates';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'خطة باقة' : 'Package Template';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'نماذج الباقات' : 'Package Templates';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -51,5 +69,13 @@ class PackageTemplateResource extends Resource
             'create' => CreatePackageTemplate::route('/create'),
             'edit' => EditPackageTemplate::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

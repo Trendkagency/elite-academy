@@ -27,7 +27,7 @@
         <div class="bg-gradient-to-br from-slate-900 via-slate-950 to-teal-950 rounded-3xl p-8 lg:p-12 text-white shadow-2xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-5 relative">
                 <div class="rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl h-[380px] bg-slate-950">
-                    <img src="{{ asset($photo) }}" alt="{{ $name }}" class="w-full h-full object-cover">
+                    <img src="{{ media_url($photo, 'images/instructor_portrait.png') }}" alt="{{ $name }}" class="w-full h-full object-cover">
                 </div>
                 <span class="absolute bottom-4 left-4 bg-teal-500 text-slate-950 font-mono font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg">
                     ✔ Faculty Member

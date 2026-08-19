@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StudentPackageResource extends Resource
 {
@@ -21,15 +23,27 @@ class StudentPackageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Student & Teaching Ops';
-
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = '🎟️ Student Packages';
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة الباقات والمالية' : 'Packages & Finance';
+    }
 
-    protected static ?string $modelLabel = 'Student Package';
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? '🎟️ باقات اشتراكات الطلاب' : '🎟️ Student Packages';
+    }
 
-    protected static ?string $pluralModelLabel = 'Student Packages & Credits';
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'باقة طالب' : 'Student Package';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'باقات اشتراكات الطلاب' : 'Student Packages & Credits';
+    }
 
     protected static ?string $recordTitleAttribute = 'student_user_id';
 
@@ -71,5 +85,13 @@ class StudentPackageResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'success';
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

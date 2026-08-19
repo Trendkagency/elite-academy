@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth h-full bg-[#FAFAF9] text-slate-900 antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="csrf-token" content="JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <link rel="icon" href="https://localhost:8000/images/logo.png" type="image/png">
+    <link rel="shortcut icon" href="https://localhost:8000/images/logo.png" type="image/png">
+    <title>Courses — Elite Academy</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Critical styles to eliminate white flash and apply Cairo font family */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+
+        html, body, button, input, select, textarea, .font-sans, .font-heading {
+            font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+        }
+
+        html, body {
+            background-color: #FAFAF9 !important;
+            color: #0F172A;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Smooth UI Keyframe Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.12s; }
+        .stagger-3 { animation-delay: 0.19s; }
+        .stagger-4 { animation-delay: 0.26s; }
+
+        /* Card Elevation & Hover Micro-interactions */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+        }
+
+        .btn-lift {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-lift:hover {
+            transform: translateY(-1.5px);
+            filter: brightness(1.05);
+        }
+        .btn-lift:active {
+            transform: translateY(0.5px) scale(0.98);
+        }
+    </style>
+    <link rel="stylesheet" href="https://localhost:8000/dist/output.css?v=1787142648">
+    </head>
+<body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] text-slate-900 selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen m-0 p-0">
+
+    
+            <div id="scroll-progress" class="fixed top-0 left-0 right-0 h-1 bg-teal-500 z-[60]" style="width: 0%"></div>
+    
+            <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
+    <div class="absolute top-8 -left-24 w-[34rem] h-[34rem] bg-teal-400/15 rounded-full blur-3xl animate-pulse-glow"></div>
+    <div class="absolute top-1/3 -right-24 w-[34rem] h-[34rem] bg-orange-400/15 rounded-full blur-3xl animate-float"></div>
+    <div class="absolute bottom-20 left-1/3 w-[28rem] h-[28rem] bg-purple-400/15 rounded-full blur-3xl animate-float-reverse"></div>
+    <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift"></div>
+    <div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float"></div>
+</div>
+        <header class="anim-nav sticky z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 h-[64px] flex items-center justify-between gap-4">
+        
+        <a href="https://localhost:8000" class="flex items-center group focus-visible:outline-teal-600 rounded-xl transition-all duration-300 flex-shrink-0">
+            <img src="https://localhost:8000/images/logo.png" alt="Elite Academy Logo" class="h-20 sm:h-11 w-auto max-h-11 object-contain">
+        </a>
+
+        
+        <nav class="hidden md:flex items-center space-x-1 lg:space-x-3 rtl:space-x-reverse text-sm font-semibold text-slate-700">
+                            <a href="https://localhost:8000"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">Home</a>
+                            <a href="https://localhost:8000/subjects"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">Subjects</a>
+                            <a href="https://localhost:8000/courses"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap text-teal-600 font-bold bg-teal-50/80 border border-teal-100/50">Courses</a>
+                            <a href="https://localhost:8000/teachers"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">Teachers</a>
+                            <a href="https://localhost:8000/blog"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">Blog</a>
+                            <a href="https://localhost:8000/about"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">About</a>
+                            <a href="https://localhost:8000/contact"
+                   class="px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap hover:text-teal-600 hover:bg-slate-100/80">Contact</a>
+                    </nav>
+
+        
+        <div class="hidden md:flex items-center space-x-3 rtl:space-x-reverse text-xs font-bold font-mono">
+            <a href="https://localhost:8000/lang/ar" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 uppercase border border-slate-200/60 transition-colors">
+                ar
+            </a>
+
+            
+                            
+                <a href="https://localhost:8000/student-portal" class="btn-lift px-3.5 py-2 rounded-xl bg-teal-600 text-white shadow-md font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
+                    <span>📊</span> Student Portal
+                </a>
+                                    <a href="https://localhost:8000/student/profile" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1.5 whitespace-nowrap">
+                        <span>👤</span> Profile
+                    </a>
+                                <form action="https://localhost:8000/logout" method="POST" class="inline">
+                    <input type="hidden" name="_token" value="JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9" autocomplete="off">                    <button type="submit" class="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-red-600 transition-colors font-sans text-xs">
+                        Logout
+                    </button>
+                </form>
+                    </div>
+
+        
+        <div class="flex items-center gap-2 md:hidden">
+            <a href="https://localhost:8000/lang/ar" class="px-2 py-1 rounded-lg text-xs font-mono font-bold text-slate-600 uppercase border border-slate-200">
+                ar
+            </a>
+
+            <label for="mobile-drawer-toggle" class="p-2 text-slate-700 hover:bg-slate-100 rounded-xl cursor-pointer touch-press" aria-label="Toggle Navigation Menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+
+<input type="checkbox" id="mobile-drawer-toggle" class="peer hidden">
+
+
+<label for="mobile-drawer-toggle" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 md:hidden"></label>
+
+
+<div class="fixed top-0 right-0 bottom-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col justify-between p-6 transform translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out rtl:right-auto rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 md:hidden">
+    <div class="space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <img src="https://localhost:8000/images/logo.png" alt="Elite Academy Logo" class="h-8 w-auto">
+            <label for="mobile-drawer-toggle" class="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg cursor-pointer">
+                ✕
+            </label>
+        </div>
+
+        <nav class="flex flex-col space-y-2">
+                            <a href="https://localhost:8000"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">Home</a>
+                            <a href="https://localhost:8000/subjects"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">Subjects</a>
+                            <a href="https://localhost:8000/courses"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors bg-teal-50 text-teal-600 border border-teal-100">Courses</a>
+                            <a href="https://localhost:8000/teachers"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">Teachers</a>
+                            <a href="https://localhost:8000/blog"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">Blog</a>
+                            <a href="https://localhost:8000/about"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">About</a>
+                            <a href="https://localhost:8000/contact"
+                   class="px-4 py-2.5 rounded-xl font-bold text-sm transition-colors text-slate-700 hover:bg-slate-50">Contact</a>
+                    </nav>
+    </div>
+
+    <div class="pt-6 border-t border-slate-100 space-y-3">
+                            <a href="https://localhost:8000/student-portal" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center">👤 Reenroll Student (Student Portal)</a>
+            <form action="https://localhost:8000/logout" method="POST">
+                <input type="hidden" name="_token" value="JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9" autocomplete="off">                <button type="submit" class="btn-mobile-lg w-full text-red-600 bg-red-50 hover:bg-red-100 touch-press text-center font-bold">Log Out</button>
+            </form>
+            </div>
+</div>
+    
+    <main class="flex-grow w-full bg-[#FAFAF9] min-h-[60vh]">
+        <section class="py-12 md:py-16 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="space-y-4 text-center">
+    <span class="text-xs font-mono uppercase tracking-widest font-bold px-3.5 py-1 rounded-full border text-orange-600 bg-orange-50 border-orange-100">
+        Curriculum Catalog • Free Demos Included
+    </span>
+    <h1 class="font-heading text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+        Featured Learning Courses
+    </h1>
+            <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto">
+            Filter through our accredited programs. Every course includes a free sample demo lesson before enrollment.
+        </p>
+    </div>
+
+        
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+            <a href="https://localhost:8000/courses"
+               class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-teal-600 text-white shadow-md border-teal-600">
+                All Disciplines
+            </a>
+                                                        <a href="https://localhost:8000/courses?category=Programming"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    Programming
+                </a>
+                                            <a href="https://localhost:8000/courses?category=AI%20%26%20Science"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    AI &amp; Science
+                </a>
+                                            <a href="https://localhost:8000/courses?category=Mathematics"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    Mathematics
+                </a>
+                                            <a href="https://localhost:8000/courses?category=Languages"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    Languages
+                </a>
+                                            <a href="https://localhost:8000/courses?category=Design"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    Design
+                </a>
+                                            <a href="https://localhost:8000/courses?category=Physics"
+                   class="px-4 py-2 rounded-full text-xs font-bold transition-all border bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200">
+                    Physics
+                </a>
+                    </div>
+    </div>
+</section>
+
+
+<section class="py-12 md:py-16 bg-[#FAFAF9]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                                                                        </div>
+
+        
+            </div>
+</section>
+    </main>
+
+            <footer class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 text-center sm:text-left">
+            <div class="sm:col-span-2 space-y-4 flex flex-col items-center sm:items-start">
+                <a href="https://localhost:8000" class="inline-block">
+                    <img src="https://localhost:8000/images/logo.png" alt="Elite Academy Logo" class="h-16 sm:h-20 w-auto object-contain mx-auto sm:mx-0">
+                </a>
+                <p class="text-sm text-slate-400 leading-relaxed max-w-sm text-center sm:text-left">
+                    ﻿Egypt&#039;s leading educational platform empowering future innovators through practical learning, PhD mentorship, and international certification.
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="https://localhost:8000" class="hover:text-teal-400 transition-colors link-underline">Home</a></li>
+                    <li><a href="https://localhost:8000/about" class="hover:text-teal-400 transition-colors link-underline">About Us</a></li>
+                    <li><a href="https://localhost:8000/teachers" class="hover:text-teal-400 transition-colors link-underline">Teachers</a></li>
+                    <li><a href="https://localhost:8000/events" class="hover:text-teal-400 transition-colors link-underline">Events</a></li>
+                    <li><a href="https://localhost:8000/blog" class="hover:text-teal-400 transition-colors link-underline">Blog</a></li>
+                    <li><a href="https://localhost:8000/student-portal" class="hover:text-teal-400 transition-colors link-underline">Student Portal</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Subjects</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Programming</a></li>
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Artificial Intelligence</a></li>
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Science &amp; Physics</a></li>
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Business Administration</a></li>
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Creative Design</a></li>
+                    <li><a href="https://localhost:8000/subject-details" class="hover:text-teal-400 transition-colors link-underline">Mathematics</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">Contact</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li class="flex items-center justify-center sm:justify-start gap-2">📍 <span>New Cairo, Egypt</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">📞 <span>+20 100 000 0000</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">✉️ <span>info@eliteacademy.edu.eg</span></li>
+                    <li class="flex items-center justify-center sm:justify-start gap-2">🕒 <span>Sun - Thu: 9:00 - 18:00</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
+            <div class="flex items-center gap-4">
+                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">f</a>
+                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">𝕏</a>
+                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">ig</a>
+                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">in</a>
+                <a href="#" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">yt</a>
+            </div>
+            <p>© 2026 Elite Academy. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+    
+    
+            <button id="back-to-top" aria-label="Back to top">↑</button>
+    
+    <script src="https://localhost:8000/js/scroll-reveal.js"></script>
+    <script src="https://localhost:8000/js/toast.js?v=1787142648"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+                                                        });
+    </script>
+
+                    
+        <div id="fcm-permission-modal" class="hidden fixed bottom-6 right-6 left-6 sm:left-auto sm:max-w-md bg-slate-900/95 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl border border-slate-700/80 z-50 transition-all duration-300">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center text-2xl shrink-0">
+                    🔔
+                </div>
+                <div class="space-y-2 flex-1">
+                    <h4 class="font-heading font-bold text-sm sm:text-base text-white">
+                        Enable Live Push Notifications
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed font-mono">
+                        Stay updated with instant alerts for upcoming live sessions, 24h assignment deadlines, and admin approvals.
+                    </p>
+                    <div class="flex items-center gap-2 pt-1">
+                        <button id="btn-enable-fcm" type="button" class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                            <span>✨</span> Allow Notifications Now
+                        </button>
+                        <button id="btn-dismiss-fcm" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-all cursor-pointer">
+                            Later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    <!-- Firebase JS SDK (v9 Compat) for Real Native FCM Web Push -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+    <script>
+        window.firebaseConfig = {
+            apiKey: "AIzaSyCmAS3q2VNvCbKhrfKtC8hn163GX7116Ns",
+            authDomain: "elite-academy-67a15.firebaseapp.com",
+            projectId: "elite-academy-67a15",
+            storageBucket: "elite-academy-67a15.firebasestorage.app",
+            messagingSenderId: "53377882422",
+            appId: "1:53377882422:web:dddcb2f63b4fcc089f7b97"
+        };
+
+        window.sendFcmTokenToServer = function(token) {
+            const shortToken = token.length > 25 ? token.substring(0, 22) + '...' : token;
+            console.log('[FCM] Token obtained:', shortToken);
+
+            const tokenInputs = document.querySelectorAll('#userFcmTokenInput');
+            tokenInputs.forEach(input => {
+                input.value = token;
+            });
+
+            const fcmTokenKey = 'elite_fcm_token_' + 2;
+            localStorage.setItem(fcmTokenKey, token);
+
+            fetch('https://localhost:8000/ajax/notifications/fcm-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': 'JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9'
+                },
+                body: JSON.stringify({
+                    token: token,
+                    device_type: 'web_browser'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('[FCM] Token saved to server.');
+                    console.log('[FCM] Token synced silently for user:', 2);
+                }
+            })
+            .catch(() => {});
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('fcm-permission-modal');
+            const btnEnable = document.getElementById('btn-enable-fcm');
+            const btnDismiss = document.getElementById('btn-dismiss-fcm');
+
+            // Initialize Native Firebase Messaging Web SDK
+            let messaging = null;
+            if (typeof firebase !== 'undefined') {
+                try {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                        console.log('[FCM] Firebase initialized.');
+                        console.log('NotificationManager initialized (push mode).');
+                    }
+                    if (firebase.messaging.isSupported()) {
+                        messaging = firebase.messaging();
+                        
+                        // Register Service Worker
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker.register('https://localhost:8000/firebase-messaging-sw.js').then((reg) => {
+                                console.log('[FCM] Service Worker registered:', 'https://localhost:8000');
+
+                                if (messaging && Notification.permission === 'granted') {
+                                    const vapidKey = "BM-m60kE0EKBkhRfnv-Lq4GH2X2NRZ15ir9QcSPJO_xKOHavHtTrTTbIvDShwxNcrgaMKLYU02fz0jgc7KfwZPA";
+                                    const tokenOpts = { serviceWorkerRegistration: reg };
+                                    if (vapidKey) tokenOpts.vapidKey = vapidKey;
+
+                                    messaging.getToken(tokenOpts).then((token) => {
+                                        if (token) {
+                                            sendFcmTokenToServer(token);
+                                        }
+                                    }).catch((err) => {
+                                        const saved = getSavedToken();
+                                        if (saved) sendFcmTokenToServer(saved);
+                                    });
+                                }
+                            }).catch(() => {});
+                        }
+
+                        // Foreground Real-Time Firebase Message Listener
+                        messaging.onMessage((payload) => {
+                            console.log('[FCM] Message received:', payload);
+
+                            const title = (payload.notification && payload.notification.title) ||
+                                          (payload.data && payload.data.title) ||
+                                          (payload.data && payload.data.heading) ||
+                                          '🔔 Firebase Push Notification';
+
+                            const body = (payload.notification && payload.notification.body) ||
+                                         (payload.data && payload.data.body) ||
+                                         (payload.data && payload.data.message) ||
+                                         '';
+
+                            const icon = (payload.notification && payload.notification.image) ||
+                                         (payload.data && payload.data.icon) ||
+                                         '/images/logo.png';
+
+                            if (window.Toast) {
+                                window.Toast.info(body, title);
+                            }
+
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                try {
+                                    new Notification(title, { body: body, icon: icon });
+                                } catch (e) {}
+                            }
+
+                            // Dispatch custom DOM event for UI stream updates
+                            window.dispatchEvent(new CustomEvent('fcm-realtime-message', { detail: { notification: { title, body, image: icon }, data: payload.data || {} } }));
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Firebase Messaging init fallback:', err);
+                }
+            }
+
+            function getSavedToken() {
+                const fcmTokenKey = 'elite_fcm_token_' + 2;
+                return localStorage.getItem(fcmTokenKey);
+            }
+
+            const savedToken = getSavedToken();
+            if (savedToken) {
+                sendFcmTokenToServer(savedToken);
+            }
+
+            // Show permission popup directly if permission is not decided yet
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    if (modal) modal.classList.remove('hidden');
+                } else if (Notification.permission === 'granted') {
+                    const saved = getSavedToken();
+                    if (!saved && messaging) {
+                        window.requestLiveFirebaseToken();
+                    }
+                }
+            }
+
+            if (btnEnable) {
+                btnEnable.addEventListener('click', function () {
+                    if (modal) modal.classList.add('hidden');
+                    window.requestLiveFirebaseToken();
+                });
+            }
+
+            if (btnDismiss) {
+                btnDismiss.addEventListener('click', function () {
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
+        });
+
+        window.copyFcmTokenToClipboard = function() {
+            const input = document.getElementById('userFcmTokenInput');
+            if (input && input.value) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    if (window.Toast) {
+                        window.Toast.success("FCM Token copied to clipboard!");
+                    }
+                }).catch(() => {
+                    input.select();
+                    document.execCommand('copy');
+                    if (window.Toast) {
+                        window.Toast.success("FCM Token copied to clipboard!");
+                    }
+                });
+            }
+        };
+
+        window.registerCustomFcmToken = function() {
+            const input = document.getElementById('userFcmTokenInput');
+            const token = input ? input.value.trim() : '';
+
+            if (!token) {
+                if (window.Toast) window.Toast.error("Please enter an FCM token string first!");
+                return;
+            }
+
+            const fcmTokenKey = 'elite_fcm_token_' + 2;
+            localStorage.setItem(fcmTokenKey, token);
+
+            fetch('https://localhost:8000/ajax/notifications/fcm-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': 'JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9'
+                },
+                body: JSON.stringify({
+                    token: token,
+                    device_type: 'web_browser'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && window.Toast) {
+                    window.Toast.success("FCM Token registered and updated cleanly!");
+                }
+            })
+            .catch(() => {
+                if (window.Toast) window.Toast.error('Failed to update FCM token');
+            });
+        };
+
+        window.requestLiveFirebaseToken = function() {
+            if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
+                if (window.Toast) window.Toast.error(document.documentElement.lang === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications');
+                return;
+            }
+
+            Notification.requestPermission().then(async (permission) => {
+                if (permission !== 'granted') {
+                    if (window.Toast) window.Toast.warning(document.documentElement.lang === 'ar' ? 'لم يتم منح إذن الإشعارات' : 'Notification permission was not granted');
+                    return;
+                }
+
+                if (typeof firebase !== 'undefined') {
+                    try {
+                        if (!firebase.apps.length) {
+                            firebase.initializeApp(firebaseConfig);
+                        }
+                        if (firebase.messaging.isSupported()) {
+                            const messaging = firebase.messaging();
+                            const reg = await navigator.serviceWorker.register('https://localhost:8000/firebase-messaging-sw.js', { scope: '/' });
+                            await navigator.serviceWorker.ready;
+
+                            const vapidKey = "BM-m60kE0EKBkhRfnv-Lq4GH2X2NRZ15ir9QcSPJO_xKOHavHtTrTTbIvDShwxNcrgaMKLYU02fz0jgc7KfwZPA";
+                            const opts = { serviceWorkerRegistration: reg };
+                            if (vapidKey) opts.vapidKey = vapidKey;
+
+                            messaging.getToken(opts).then((token) => {
+                                if (token) {
+                                    sendFcmTokenToServer(token);
+                                    
+                                    // Trigger confirmation push alert
+                                    fetch("https://localhost:8000/ajax/notifications/test-push", {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': 'JeHzohoQ3hL54T63OKDVkmWpFEodnY8Z11ryBln9'
+                                        }
+                                    }).catch(() => {});
+
+                                    if (window.Toast) {
+                                        window.Toast.success(document.documentElement.lang === 'ar' ? 'تم تفعيل وتحديث إشعارات الفايبربيس بنجاح! 🔔' : 'Live Firebase Push Notifications Enabled Successfully! 🔔');
+                                    }
+                                } else {
+                                    if (window.Toast) window.Toast.warning('No FCM registration token returned by Firebase');
+                                }
+                            }).catch(err => {
+                                console.error('Firebase getToken error:', err);
+                                const saved = localStorage.getItem('elite_fcm_token_' + 2);
+                                if (saved) sendFcmTokenToServer(saved);
+                                if (window.Toast) window.Toast.error('Firebase token request: ' + (err ? err.message : 'Push manager not ready'));
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Firebase error:', e);
+                    }
+                }
+            });
+        };
+    </script>
+    
+    </body>
+</html>

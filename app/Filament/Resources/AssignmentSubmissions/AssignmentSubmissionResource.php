@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AssignmentSubmissionResource extends Resource
 {
@@ -20,9 +22,27 @@ class AssignmentSubmissionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Student & Teaching Ops';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة الكورسات والواجبات' : 'Course & Exam Management';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'تسليمات الطلاب والدرجات' : 'Submissions & Grades';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'تسليم إجابة' : 'Submission';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'تسليمات الطلاب' : 'Submissions';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,5 +68,13 @@ class AssignmentSubmissionResource extends Resource
             'create' => CreateAssignmentSubmission::route('/create'),
             'edit' => EditAssignmentSubmission::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

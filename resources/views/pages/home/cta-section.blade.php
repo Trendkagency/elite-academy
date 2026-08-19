@@ -1,5 +1,10 @@
-{{-- CTA Section --}}
+@php
+    $ctaBg = \App\Models\SiteSetting::get('cta_bg_image');
+@endphp
 <section class="py-20 md:py-28 bg-gradient-to-br from-teal-950 via-slate-900 to-teal-900 text-white relative overflow-hidden">
+    @if($ctaBg)
+        <img src="{{ media_url($ctaBg) }}" alt="CTA Background" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
+    @endif
     {{-- Ambient Blurs --}}
     <div class="absolute -top-12 left-1/4 w-[30rem] h-[30rem] bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
     <div class="absolute -bottom-12 right-1/4 w-[30rem] h-[30rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none animate-float"></div>
@@ -11,11 +16,11 @@
         </span>
 
         <h2 class="anim-cta delay-2 sr-h font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
-            Join Egypt's Leading <span class="text-teal-400 underline decoration-orange-500 underline-offset-8">Educational Platform</span>
+            {{ \App\Models\SiteSetting::get('cta_headline', "Join Egypt's Leading Educational Platform") }}
         </h2>
 
         <p class="anim-cta delay-3 sr-sub text-slate-300 text-base sm:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-            Learn from the best instructors, master future-ready skills, and achieve accredited credentials.
+            {{ \App\Models\SiteSetting::get('cta_subtitle', "Learn from the best teachers, master future-ready skills, and achieve accredited credentials.") }}
         </p>
 
         <div class="anim-cta delay-4 sr-btn flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">

@@ -1,29 +1,53 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- Section 01: Hero Slider (4 Fullscreen Slides) --}}
-    @include('pages.home.hero-slider')
+    @php
+        $layoutRaw = \App\Models\SiteSetting::get('sections_layout');
+        $layout = $layoutRaw ? json_decode($layoutRaw, true) : null;
 
-    {{-- Section 01.1: Overlapping Glass Statistics Bar --}}
-    @include('pages.home.stats-overlay')
+        $sectionsMap = [
+            'hero-slider' => 'pages.home.hero-slider',
+            'stats-overlay' => 'pages.home.stats-overlay',
+            'why-choose' => 'pages.home.why-choose',
+            'about-preview' => 'pages.home.about-preview',
+            'subjects-grid' => 'pages.home.subjects-grid',
+            'teachers-marquee' => 'pages.home.teachers-marquee',
+            'testimonials' => 'pages.home.testimonials',
+            'cta_section' => 'pages.home.cta-section',
+        ];
+    @endphp
 
-    {{-- Section 01.5: Why Choose Elite Section --}}
-    @include('pages.home.why-choose')
+    @if(is_array($layout) && count($layout) > 0)
+        @foreach($layout as $sec)
+            @if(($sec['is_enabled'] ?? true) && isset($sectionsMap[$sec['key']]))
+                @include($sectionsMap[$sec['key']])
+            @endif
+        @endforeach
+    @else
+        {{-- Section 01: Hero Slider (4 Fullscreen Slides) --}}
+        @include('pages.home.hero-slider')
 
-    {{-- Section 02: About Elite Academy Preview --}}
-    @include('pages.home.about-preview')
+        {{-- Section 01.1: Overlapping Glass Statistics Bar --}}
+        @include('pages.home.stats-overlay')
 
-    {{-- Section 03: Subjects Showcase Grid --}}
-    @include('pages.home.subjects-grid')
+        {{-- Section 01.5: Why Choose Elite Section --}}
+        @include('pages.home.why-choose')
 
-    {{-- Section 04: Featured Faculty Mentors --}}
-    @include('pages.home.teachers-marquee')
+        {{-- Section 02: About Elite Academy Preview --}}
+        @include('pages.home.about-preview')
 
-    {{-- Section 05: Student & Parent Testimonials --}}
-    @include('pages.home.testimonials')
+        {{-- Section 03: Subjects Showcase Grid --}}
+        @include('pages.home.subjects-grid')
 
-    {{-- Section 06: Call To Action & Stats Strip --}}
-    @include('pages.home.cta-section')
+        {{-- Section 04: Featured Faculty Mentors --}}
+        @include('pages.home.teachers-marquee')
+
+        {{-- Section 05: Student & Parent Testimonials --}}
+        @include('pages.home.testimonials')
+
+        {{-- Section 06: Call To Action & Stats Strip --}}
+        @include('pages.home.cta-section')
+    @endif
 @endsection
 
 @push('scripts')

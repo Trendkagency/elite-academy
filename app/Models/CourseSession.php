@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CourseSession extends Model
 {
+    use SoftDeletes;
     protected $table = 'course_sessions';
 
     protected $fillable = [
@@ -16,6 +18,9 @@ class CourseSession extends Model
         'description',
         'sort_order',
         'duration_minutes',
+        'scheduled_at',
+        'start_at',
+        'end_at',
         'video_url',
         'content',
         'is_free_demo',
@@ -25,7 +30,34 @@ class CourseSession extends Model
         'is_free_demo' => 'boolean',
         'sort_order' => 'integer',
         'duration_minutes' => 'integer',
+        'scheduled_at' => 'datetime',
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function (CourseSession $courseSession) {
+            $updateData = [
+                'is_free_demo' => (bool) $courseSession->is_free_demo,
+            ];
+
+            if ($courseSession->scheduled_at || $courseSession->start_at) {
+                $scheduledAt = $courseSession->scheduled_at ?: $courseSession->start_at;
+                $startAt = $courseSession->start_at ?: $scheduledAt;
+                $duration = $courseSession->duration_minutes ?: 60;
+                $endAt = $courseSession->end_at ?: ($scheduledAt ? $scheduledAt->copy()->addMinutes($duration) : null);
+
+                $updateData['scheduled_at'] = $scheduledAt;
+                $updateData['start_at'] = $startAt;
+                $updateData['end_at'] = $endAt;
+                $updateData['duration_minutes'] = $duration;
+            }
+
+            LiveSession::where('course_id', $courseSession->course_id)
+                ->update($updateData);
+        });
+    }
 
     public function course(): BelongsTo
     {

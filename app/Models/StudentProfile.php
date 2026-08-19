@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StudentProfile extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'user_id',
         'grade_level_id',
@@ -40,6 +42,11 @@ class StudentProfile extends Model
     public function sessionProgress(): HasMany
     {
         return $this->hasMany(CourseSessionProgress::class);
+    }
+
+    public function subjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'student_subject', 'student_profile_id', 'subject_id');
     }
 
     public function submissions(): HasMany

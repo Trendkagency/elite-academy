@@ -40,7 +40,7 @@
 
             <div class="flex flex-wrap items-center gap-6 pt-4 text-xs font-medium text-slate-300">
                 <span>⏱️ Duration: 16 Weeks</span>
-                <span>👥 Instructor: {{ $cTeacher }}</span>
+                <span>👥 Teacher: {{ $cTeacher }}</span>
                 <span>⭐ Rating: 4.9/5</span>
                 <span>🏆 Accredited Certification</span>
             </div>
@@ -92,11 +92,18 @@
 
             {{-- Sidebar --}}
             <div class="lg:col-span-4 space-y-6">
+                @php
+                    $nextLiveSession = $course?->liveSessions?->where('scheduled_at', '>=', now())->sortBy('scheduled_at')->first();
+                    $targetDate = $nextLiveSession ? $nextLiveSession->scheduled_at->toIso8601String() : now()->addDays(3)->setTime(18, 0)->toIso8601String();
+                    $sessionTitle = $nextLiveSession ? $nextLiveSession->title : null;
+                @endphp
+
                 {{-- Live Countdown Timer Widget Component --}}
                 @include('components.course-countdown-timer', [
-                    'targetDate' => '2026-09-01T10:00:00',
-                    'title' => 'Live Cohort Start Timer',
-                    'subtitle' => 'Countdown to live stream lecture & interactive Q&A'
+                    'targetDate' => $targetDate,
+                    'sessionTitle' => $sessionTitle,
+                    'title' => app()->getLocale() === 'ar' ? 'عداد البث المباشر القادم' : 'Live Cohort Start Timer',
+                    'subtitle' => app()->getLocale() === 'ar' ? 'الوقت المتبقي لإنطلاق حصة البث المباشر التفاعلية' : 'Countdown to upcoming interactive live stream'
                 ])
 
                 <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
@@ -124,7 +131,7 @@
                     @endauth
 
                     <div class="pt-4 border-t border-slate-100 space-y-3">
-                        <p class="text-xs font-bold text-slate-900 uppercase tracking-wider">Course Instructor</p>
+                        <p class="text-xs font-bold text-slate-900 uppercase tracking-wider">Course Teacher</p>
                         <div class="flex items-center gap-3">
                             <img src="{{ asset('images/instructor_portrait.png') }}" alt="{{ $cTeacher }}" class="w-10 h-10 rounded-xl object-cover border border-teal-500">
                             <div>

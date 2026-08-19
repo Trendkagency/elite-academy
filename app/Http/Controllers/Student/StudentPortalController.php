@@ -14,11 +14,16 @@ use Illuminate\View\View;
 
 class StudentPortalController extends Controller
 {
-    public function index(): View
+    public function index()
     {
         $user = auth()->user();
 
-        $studentProfile = $user ? StudentProfile::where('user_id', $user->id)->with('gradeLevel')->first() : null;
+        if ($user && $user->status !== \App\Enums\AccountStatus::APPROVED) {
+            auth()->logout();
+            return redirect()->route('login')->with('error', __('app.auth.account_pending'));
+        }
+
+        $studentProfile = $user ? StudentProfile::where('user_id', $user->id)->with(['gradeLevel', 'subjects'])->first() : null;
 
         $package = $user ? StudentPackage::where('student_user_id', $user->id)
             ->with('packageTemplate')
@@ -27,13 +32,41 @@ class StudentPortalController extends Controller
 
         $hasActivePackage = $package && $package->status === 'active' && $package->remaining_sessions > 0 && (! $package->expires_at || $package->expires_at->isFuture());
 
-        $upcomingSessions = $user ? LiveSession::where('student_user_id', $user->id)
+        $upcomingSessions = $user ? LiveSession::where(function ($q) use ($user) {
+                $q->where('student_user_id', $user->id)
+                  ->orWhereNull('student_user_id');
+            })
+            ->where(function ($q) {
+                $q->whereNull('course_id')
+                  ->orWhereHas('course', function ($cQuery) {
+                      $cQuery->where('is_active', true);
+                  });
+            })
             ->with(['teacherProfile.user', 'subject', 'course'])
             ->orderBy('scheduled_at', 'asc')
-            ->get() : collect();
+            ->get()
+            ->filter(function ($session) use ($user, $hasActivePackage) {
+                if ($session->course && ! $session->course->is_active) {
+                    return false;
+                }
+                // If session is NOT a free demo, it strictly REQUIRES an active paid package!
+                if (! $session->is_free_demo_session) {
+                    return $hasActivePackage;
+                }
+                // If it IS a free demo session, it is visible for free trial
+                return true;
+            })
+            ->values() : collect();
 
         $enrollments = $user ? CourseEnrollment::where('student_user_id', $user->id)
-            ->with(['course.subject', 'course.teacher.user', 'progress'])
+            ->with([
+                'course.subject',
+                'course.teacher.user',
+                'course.sessions.assignments',
+                'course.liveSessions.teacherProfile.user',
+                'course.gradeLevel',
+                'progress'
+            ])
             ->get() : collect();
 
         $submissions = $user ? AssignmentSubmission::where('student_user_id', $user->id)
@@ -71,18 +104,136 @@ class StudentPortalController extends Controller
             ->paginate(5, ['*'], 'notifications_page')
             ->withQueryString() : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 5);
 
+        $enrolledCoursesDataMap = [];
+        foreach ($enrollments as $enr) {
+            $c = $enr->course;
+            if (!$c) continue;
+
+            $recList = [];
+            if ($c->sessions) {
+                foreach ($c->sessions as $idx => $cs) {
+                    $assigns = [];
+                    if ($cs->assignments) {
+                        foreach ($cs->assignments as $a) {
+                            $assigns[] = [
+                                'id' => $a->id,
+                                'title' => $a->title,
+                                'points' => (float) $a->total_points,
+                                'due' => $a->due_at ? $a->due_at->format('Y-m-d H:i') : null,
+                                'url' => route('student.assignment.take', ['id' => $a->id]),
+                            ];
+                        }
+                    }
+                    $recList[] = [
+                        'id' => $cs->id,
+                        'index' => $idx + 1,
+                        'title' => $cs->title ?: ('Lesson ' . ($idx + 1)),
+                        'description' => $cs->description ?: '',
+                        'video_url' => $cs->video_url ?: null,
+                        'duration' => $cs->duration_minutes ?: 45,
+                        'is_free_demo' => (bool) $cs->is_free_demo,
+                        'assignments' => $assigns,
+                    ];
+                }
+            }
+
+            $liveList = [];
+            if ($c->liveSessions) {
+                foreach ($c->liveSessions as $idx => $ls) {
+                    $state = $ls->evaluateState($user);
+                    $liveList[] = [
+                        'id' => $ls->id,
+                        'index' => $idx + 1,
+                        'title' => $ls->title ?: ('Live Stream ' . ($idx + 1)),
+                        'start_at' => $ls->effective_start_at ? $ls->effective_start_at->format('Y-m-d h:i A') : 'Scheduled',
+                        'teacher' => $ls->teacherProfile?->user?->name ?: 'Dr. Teacher',
+                        'meeting_link' => $ls->meeting_link ?: '',
+                        'state_label' => $state->label(),
+                        'can_join' => $state->canJoin(),
+                        'is_live' => $state === \App\Enums\LiveSessionState::LIVE,
+                    ];
+                }
+            }
+
+            $enrolledCoursesDataMap[$c->id] = [
+                'id' => $c->id,
+                'title' => $c->title,
+                'subject' => $c->subject?->name ?: 'Science',
+                'teacher' => $c->teacher?->user?->name ?: 'Dr. Teacher',
+                'grade' => $c->gradeLevel?->name ?: 'High School',
+                'description' => $c->description ?: (app()->getLocale() === 'ar' ? 'مقرر تعليمي تفاعلي شامل للمرحلة الثانوية مع تطبيقات عملية.' : 'Comprehensive interactive curriculum with hands-on labs.'),
+                'recorded_sessions' => $recList,
+                'live_sessions' => $liveList,
+            ];
+        }
+
+        // ── Attendance & Absence stats (for dashboard KPI card) ────────────────
+        $attendedSessions  = $upcomingSessions->where('status', 'completed')->count();
+        $totalSessionCount = $upcomingSessions->count();
+        $attendanceRate    = $totalSessionCount > 0 ? round(($attendedSessions / $totalSessionCount) * 100) : 0;
+        $approvedExcuses   = $exceptions->where('status', 'approved')->count();
+
+        // ── Homework / assignment avg score (for dashboard KPI card) ───────────
+        $gradedSubmissions = $submissions
+            ->whereIn('status', ['reviewed', 'submitted', 'completed'])
+            ->filter(fn ($s) => !is_null($s->score));
+        $avgScore = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('score')) : null;
+
+        // ── Per-enrollment card display data (avoids @php in foreach) ─────────
+        $enrollmentCards = $enrollments->map(function ($enr) {
+            $c = $enr->course;
+            if (!$c) return null;
+
+            $recCount    = $c->sessions    ? $c->sessions->count()    : 0;
+            $liveCount   = $c->liveSessions ? $c->liveSessions->count() : 0;
+            $totalSess   = $recCount + $liveCount;
+            $unlocked    = $enr->progress  ? $enr->progress->count()  : 0;
+            $progressPct = $totalSess > 0 ? min(100, round(($unlocked / max(1, $totalSess)) * 100)) : 0;
+
+            return [
+                'enrollment'  => $enr,
+                'course'      => $c,
+                'teacher'     => $c->teacher?->user?->name ?: 'Dr. Teacher',
+                'subject'     => $c->subject?->name         ?: 'Science',
+                'recCount'    => $recCount,
+                'liveCount'   => $liveCount,
+                'progressPct' => $progressPct,
+            ];
+        })->filter()->values();
+
+        // ── Notification pagination vars (for AJAX pagination controls) ────────
+        $notifCurrentPage  = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $userNotifications->currentPage() : 1;
+        $notifLastPage     = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $userNotifications->lastPage() : 1;
+        $totalAlertsCount  = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $userNotifications->total() : count($userNotifications);
+
         return view('pages.student-portal', [
-            'pageTitle' => 'Student Portal — Learner Dashboard',
-            'activeNav' => 'portal',
-            'studentProfile' => $studentProfile,
-            'package' => $package,
-            'hasActivePackage' => $hasActivePackage,
-            'upcomingSessions' => $upcomingSessions,
-            'enrollments' => $enrollments,
-            'submissions' => $submissions,
-            'availableAssignments' => $availableAssignments,
-            'exceptions' => $exceptions,
-            'userNotifications' => $userNotifications,
+            'pageTitle'              => 'Student Portal — Learner Dashboard',
+            'activeNav'              => 'portal',
+            'studentProfile'         => $studentProfile,
+            'studentSubjects'        => $studentProfile?->subjects ?: collect(),
+            'package'                => $package,
+            'hasActivePackage'       => $hasActivePackage,
+            'upcomingSessions'       => $upcomingSessions,
+            'enrollments'            => $enrollments,
+            'enrollmentCards'        => $enrollmentCards,
+            'enrolledCoursesDataMap' => $enrolledCoursesDataMap,
+            'submissions'            => $submissions,
+            'availableAssignments'   => $availableAssignments,
+            'exceptions'             => $exceptions,
+            'userNotifications'      => $userNotifications,
+            // KPI cards
+            'attendedSessions'       => $attendedSessions,
+            'totalSessionCount'      => $totalSessionCount,
+            'attendanceRate'         => $attendanceRate,
+            'approvedExcuses'        => $approvedExcuses,
+            'avgScore'               => $avgScore,
+            // Notification pagination
+            'notifCurrentPage'       => $notifCurrentPage,
+            'notifLastPage'          => $notifLastPage,
+            'totalAlertsCount'       => $totalAlertsCount,
         ]);
     }
 }

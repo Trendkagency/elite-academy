@@ -31,8 +31,23 @@ class LiveSessionService
         }
 
         // Half-session cutoff: If current time exceeds halfway mark or session end time/completed status
-        if ($currentTime->gt($endTime) || $currentTime->gt($halfTime) || $session->status === 'completed') {
+        if ($currentTime->gte($endTime) || $currentTime->gte($halfTime) || $session->status === 'completed') {
             return LiveSessionState::ENDED;
+        }
+
+        // Active package requirement check: If session is NOT a free trial demo, student MUST have an active package
+        if (! $this->isSessionFreeDemo($session, $student)) {
+            $hasActivePackage = \App\Models\StudentPackage::where('student_user_id', $student->id)
+                ->where('status', 'active')
+                ->where('remaining_sessions', '>', 0)
+                ->where(function ($q) use ($currentTime) {
+                    $q->whereNull('expires_at')->orWhere('expires_at', '>', $currentTime);
+                })
+                ->exists();
+
+            if (! $hasActivePackage) {
+                return LiveSessionState::PACKAGE_REQUIRED;
+            }
         }
 
         if ($currentTime->lt($startWindow)) {
@@ -86,33 +101,46 @@ class LiveSessionService
         ];
     }
     /**
+     * Determine if a live session is a free demo session.
+     */
+    public function isSessionFreeDemo(LiveSession $session, ?User $student = null): bool
+    {
+        return (bool) $session->is_free_demo_session;
+    }
+
+    /**
      * Determine if a student can access the live session stream.
      *
      * Rules:
      * 1. Access is allowed within 30 minutes before scheduled start time up to end time.
      * 2. Prerequisite MSQ assignments for the course/session must be completed, unless an approved exception request exists.
+     * 3. First session of a course with has_free_demo = true or is_free_demo = true is FREE and does NOT require an active package.
      */
     public function canAccessStream(User $student, LiveSession $session): array
     {
         $now = now();
 
-        // 0. Active package check
-        $hasActivePackage = \App\Models\StudentPackage::where('student_user_id', $student->id)
-            ->where('status', 'active')
-            ->where('remaining_sessions', '>', 0)
-            ->where(function ($q) use ($now) {
-                $q->whereNull('expires_at')->orWhere('expires_at', '>', $now);
-            })
-            ->exists();
+        $isFreeDemo = $this->isSessionFreeDemo($session, $student);
 
-        if (! $hasActivePackage) {
-            return [
-                'allowed' => false,
-                'reason_code' => 'PACKAGE_REQUIRED',
-                'message' => app()->getLocale() === 'ar'
-                    ? 'يلزم الاشتراك في باقة حصص نشطة تحتوي على رصيد للوصول للبث المباشر والكورسات.'
-                    : 'An active package subscription with session credits is required to access live streams and courses.',
-            ];
+        // 0. Active package check (Bypassed if session is a free demo / 1st free session)
+        if (! $isFreeDemo) {
+            $hasActivePackage = \App\Models\StudentPackage::where('student_user_id', $student->id)
+                ->where('status', 'active')
+                ->where('remaining_sessions', '>', 0)
+                ->where(function ($q) use ($now) {
+                    $q->whereNull('expires_at')->orWhere('expires_at', '>', $now);
+                })
+                ->exists();
+
+            if (! $hasActivePackage) {
+                return [
+                    'allowed' => false,
+                    'reason_code' => 'PACKAGE_REQUIRED',
+                    'message' => app()->getLocale() === 'ar'
+                        ? 'يلزم الاشتراك في باقة حصص نشطة تحتوي على رصيد للوصول للبث المباشر والكورسات.'
+                        : 'An active package subscription with session credits is required to access live streams and courses.',
+                ];
+            }
         }
 
         $sessionStart = Carbon::parse($session->scheduled_at ?? $session->start_at);
@@ -202,6 +230,11 @@ class LiveSessionService
      */
     public function getRemainingGatingAssignments(User $student, LiveSession $session)
     {
+        // First Free Demo Session has NO mandatory prerequisite assignment requirements
+        if ($this->isSessionFreeDemo($session, $student)) {
+            return collect();
+        }
+
         $mandatoryAssignments = Assignment::where('course_id', $session->course_id)
             ->where('status', 'published')
             ->where('is_mandatory', true)

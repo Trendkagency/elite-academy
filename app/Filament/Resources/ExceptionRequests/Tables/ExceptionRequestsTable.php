@@ -2,13 +2,20 @@
 
 namespace App\Filament\Resources\ExceptionRequests\Tables;
 
+use App\Services\Notification\FcmNotificationService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class ExceptionRequestsTable
@@ -53,7 +60,7 @@ class ExceptionRequestsTable
                     ->sortable(),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 Action::make('approve')
@@ -62,29 +69,40 @@ class ExceptionRequestsTable
                     ->color('success')
                     ->action(function ($record) {
                         $record->update(['status' => 'approved']);
+                        app(FcmNotificationService::class)->notifyExceptionStatus($record);
+
                         Notification::make()
-                            ->title('Student Exception Approved (Unlocks Session Access)')
+                            ->title('Student Exception Approved & Notification Sent 🔔')
                             ->success()
                             ->send();
                     })
                     ->visible(fn ($record) => $record->status !== 'approved'),
+
                 Action::make('reject')
                     ->label('Reject Exception')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->action(function ($record) {
                         $record->update(['status' => 'rejected']);
+                        app(FcmNotificationService::class)->notifyExceptionStatus($record);
+
                         Notification::make()
-                            ->title('Student Exception Rejected')
+                            ->title('Student Exception Rejected & Notification Sent 🔔')
                             ->danger()
                             ->send();
                     })
                     ->visible(fn ($record) => $record->status !== 'rejected'),
+
                 EditAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -22,9 +22,27 @@ class TeacherProfileResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'User Management';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة المستخدمين والأدوار' : 'User Management';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'حسابات المعلمين' : 'Teacher Profiles';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'ملف معلم' : 'Teacher Profile';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'حسابات المعلمين' : 'Teacher Profiles';
+    }
 
     public static function form(Schema $schema): Schema
     {

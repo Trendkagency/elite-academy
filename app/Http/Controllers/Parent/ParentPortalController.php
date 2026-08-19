@@ -15,9 +15,15 @@ use Illuminate\View\View;
 
 class ParentPortalController extends Controller
 {
-    public function index(): View
+    public function index(): View|\Illuminate\Http\RedirectResponse
     {
         $user = auth()->user();
+
+        if ($user && $user->status !== \App\Enums\AccountStatus::APPROVED) {
+            auth()->logout();
+            return redirect()->route('login')->with('error', __('app.auth.account_pending'));
+        }
+
         $parentProfile = $user ? ParentProfile::where('user_id', $user->id)->first() : null;
 
         $linkedStudents = [];

@@ -4,59 +4,79 @@ namespace App\Filament\Resources\Courses\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class CourseForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Select::make('subject_id')
-                    ->relationship('subject', 'name')
-                    ->required(),
-                Select::make('grade_level_id')
-                    ->relationship('gradeLevel', 'name'),
-                Select::make('teacher_id')
-                    ->relationship('teacher', 'title')
-                    ->required(),
-                TextInput::make('title')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Textarea::make('description')
-                    ->columnSpanFull(),
-                FileUpload::make('image')
-                    ->image(),
-                TextInput::make('sessions_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('session_duration_minutes')
-                    ->required()
-                    ->numeric()
-                    ->default(60),
-                TextInput::make('rating_avg')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0),
-                TextInput::make('reviews_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('enrollments_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Toggle::make('has_free_demo')
-                    ->required(),
-                Toggle::make('is_accredited')
-                    ->required(),
-                Toggle::make('is_active')
-                    ->required(),
+                Section::make('📚 Course Basic Information')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->components([
+                        Select::make('subject_id')
+                            ->relationship('subject', 'name')
+                            ->searchable()
+                            ->required(),
+                        Select::make('grade_level_id')
+                            ->relationship('gradeLevel', 'name')
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('teacher_id')
+                            ->relationship('teacher')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: $record->title ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
+                            ->searchable()
+                            ->required(),
+                        TextInput::make('title')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+                        TextInput::make('slug')
+                            ->required(),
+                        Textarea::make('description')
+                            ->columnSpanFull(),
+                        FileUpload::make('image')
+                            ->image()
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('🎓 First Free Demo Session & Live Attendance Policy')
+                    ->description('Manage whether the 1st session of this course is a free trial demo. Students can attend the 1st live session without an active paid package.')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->components([
+                        Toggle::make('has_free_demo')
+                            ->label('🎓 First Session Free Trial (حصّة أولى مجانيّة)')
+                            ->helperText('When enabled, students can attend the 1st live session for free without consuming package credits.')
+                            ->default(true),
+
+                        Toggle::make('is_active')
+                            ->label('Active Status (مُفعل)')
+                            ->default(true),
+
+                        Toggle::make('is_accredited')
+                            ->label('Accredited Course (معتمد)'),
+
+                        TextInput::make('sessions_count')
+                            ->label('Total Course Sessions')
+                            ->numeric()
+                            ->default(12)
+                            ->required(),
+
+                        TextInput::make('session_duration_minutes')
+                            ->label('Session Duration (Minutes)')
+                            ->numeric()
+                            ->default(60)
+                            ->required(),
+                    ]),
             ]);
     }
 }

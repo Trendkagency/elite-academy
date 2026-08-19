@@ -35,6 +35,34 @@ class Course extends Model
         'session_duration_minutes' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function (Course $course) {
+            // 1. Sync free demo policy across all sessions
+            if ($course->wasChanged('has_free_demo')) {
+                if (! $course->has_free_demo) {
+                    CourseSession::where('course_id', $course->id)->update(['is_free_demo' => false]);
+                    LiveSession::where('course_id', $course->id)->update(['is_free_demo' => false]);
+                } else {
+                    $firstSession = CourseSession::where('course_id', $course->id)->orderBy('sort_order')->first();
+                    if ($firstSession) {
+                        $firstSession->update(['is_free_demo' => true]);
+                    }
+                    $firstLive = LiveSession::where('course_id', $course->id)->orderBy('scheduled_at')->first();
+                    if ($firstLive) {
+                        $firstLive->update(['is_free_demo' => true]);
+                    }
+                }
+            }
+
+            // 2. Sync session duration
+            if ($course->wasChanged('session_duration_minutes')) {
+                CourseSession::where('course_id', $course->id)->update(['duration_minutes' => $course->session_duration_minutes]);
+                LiveSession::where('course_id', $course->id)->update(['duration_minutes' => $course->session_duration_minutes]);
+            }
+        });
+    }
+
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
@@ -53,5 +81,10 @@ class Course extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(CourseSession::class)->orderBy('sort_order');
+    }
+
+    public function liveSessions(): HasMany
+    {
+        return $this->hasMany(LiveSession::class)->orderBy('scheduled_at', 'desc');
     }
 }

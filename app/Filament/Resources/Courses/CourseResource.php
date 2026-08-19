@@ -22,9 +22,27 @@ class CourseResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Academic Management';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'المقررات والكورسات' : 'Courses';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مقرر دراسي' : 'Course';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'المقررات والكورسات' : 'Courses';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -39,7 +57,8 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\SessionsRelationManager::class,
+            RelationManagers\LiveSessionsRelationManager::class,
         ];
     }
 

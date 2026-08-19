@@ -24,9 +24,21 @@
             </div>
         </div>
 
-        {{-- Testimonial Cards Carousel --}}
+        {{-- Testimonial Cards Carousel (Dynamic from DB) --}}
         @php
-            $testimonials = [
+            $dbTestimonials = \Illuminate\Support\Facades\Schema::hasTable('testimonials')
+                ? \App\Models\Testimonial::where('is_featured', true)->orderBy('sort_order')->get()
+                : collect();
+            $testimonials = $dbTestimonials->count() > 0 ? $dbTestimonials->map(fn($t) => [
+                'quote' => '"' . $t->content . '"',
+                'photo' => $t->avatar ?: 'images/instructor_portrait.png',
+                'name' => $t->name,
+                'course' => $t->course_name ?: 'Elite Academic Track',
+                'badge' => $t->is_verified ? '✔ Verified ' . ucfirst($t->reviewer_type) : ucfirst($t->reviewer_type),
+                'quoteColor' => 'group-hover:text-teal-600',
+                'nameColor' => 'group-hover:text-teal-600',
+                'badgeBg' => 'bg-teal-50 text-teal-700 border-teal-200/80',
+            ]) : [
                 [
                     'quote' => '"Elite Academy completely transformed my son\'s approach to coding and math. Having direct access to PhD mentors made all the difference."',
                     'photo' => 'images/hero_student.png',
@@ -47,26 +59,6 @@
                     'nameColor' => 'group-hover:text-purple-600',
                     'badgeBg' => 'bg-purple-50 text-purple-700 border-purple-200/80',
                 ],
-                [
-                    'quote' => '"Building enterprise design systems and UI tokens in Figma under senior faculty guidance was invaluable. My portfolio got me hired immediately."',
-                    'photo' => 'images/instructor_female.png',
-                    'name' => 'Yasmine Tarek',
-                    'course' => 'UX Architecture',
-                    'badge' => '✔ Verified Student',
-                    'quoteColor' => 'group-hover:text-rose-600',
-                    'nameColor' => 'group-hover:text-rose-600',
-                    'badgeBg' => 'bg-rose-50 text-rose-700 border-rose-200/80',
-                ],
-                [
-                    'quote' => '"As a parent, seeing the structured guidance, live dashboards, and rigorous academic standards gave us complete confidence in our daughter\'s tech education."',
-                    'photo' => 'images/instructor_male.png',
-                    'name' => 'Dr. Alex Rivera',
-                    'course' => 'Parent Advocate',
-                    'badge' => '✔ Verified Parent',
-                    'quoteColor' => 'group-hover:text-orange-600',
-                    'nameColor' => 'group-hover:text-orange-600',
-                    'badgeBg' => 'bg-orange-50 text-orange-700 border-orange-200/80',
-                ],
             ];
         @endphp
 
@@ -83,7 +75,7 @@
                     </p>
 
                     <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
-                        <img src="{{ asset($t['photo']) }}" alt="{{ $t['name'] }}" class="w-18 h-18 sm:w-18 sm:h-18 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+                        <img src="{{ media_url($t['photo'], 'images/instructor_portrait.png') }}" alt="{{ $t['name'] }}" class="w-14 h-14 sm:w-14 sm:h-14 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
                         <div class="space-y-1 min-w-0 flex-1">
                             <h3 class="font-heading font-extrabold text-base text-slate-900 truncate {{ $t['nameColor'] }} transition-colors">{{ $t['name'] }}</h3>
                             <p class="text-xs font-mono text-slate-500 font-semibold truncate">{{ $t['course'] }}</p>

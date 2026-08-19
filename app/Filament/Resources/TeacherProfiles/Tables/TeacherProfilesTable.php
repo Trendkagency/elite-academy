@@ -46,6 +46,9 @@ class TeacherProfilesTable
                     ->label('Students')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('user.status')
+                    ->label('Account Status')
+                    ->badge(),
                 ToggleColumn::make('is_public')
                     ->label('Publicly Visible'),
                 ToggleColumn::make('is_featured')
@@ -55,7 +58,29 @@ class TeacherProfilesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('approveAccount')
+                    ->label('Approve Teacher')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->action(function ($record) {
+                        $record->user?->update(['status' => \App\Enums\AccountStatus::APPROVED]);
+                        \Filament\Notifications\Notification::make()->title('Teacher Approved')->success()->send();
+                    })
+                    ->visible(fn ($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
+                \Filament\Actions\Action::make('rejectAccount')
+                    ->label('Reject Teacher')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->user?->update(['status' => \App\Enums\AccountStatus::REJECTED]);
+                        \Filament\Notifications\Notification::make()->title('Teacher Rejected')->warning()->send();
+                    })
+                    ->visible(fn ($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
                 EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
+                \Filament\Actions\RestoreAction::make(),
+                \Filament\Actions\ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ParentProfileResource extends Resource
 {
@@ -20,9 +22,27 @@ class ParentProfileResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHeart;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'User Management';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة المستخدمين والأدوار' : 'User Management';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'حسابات أولياء الأمور' : 'Parent Profiles';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'ملف ولي أمر' : 'Parent Profile';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'حسابات أولياء الأمور' : 'Parent Profiles';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,5 +68,13 @@ class ParentProfileResource extends Resource
             'create' => CreateParentProfile::route('/create'),
             'edit' => EditParentProfile::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

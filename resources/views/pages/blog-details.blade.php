@@ -47,7 +47,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {{-- Featured Image --}}
         <div class="relative w-full h-64 sm:h-96 lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl bg-slate-950">
-            <img src="{{ asset($image) }}" alt="{{ $title }}" class="w-full h-full object-cover">
+            <img src="{{ media_url($image, 'images/course_ai.png') }}" alt="{{ $title }}" class="w-full h-full object-cover">
         </div>
 
         {{-- Excerpt Callout --}}

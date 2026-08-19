@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ExceptionRequestResource extends Resource
 {
@@ -20,9 +22,27 @@ class ExceptionRequestResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Student & Teaching Ops';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'التواصل والدعم الفني' : 'Communication & Support';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'طلبات الاستثناءات والأعذار' : 'Exception Requests';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'طلب استثناء' : 'Exception Request';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'طلبات الاستثناءات' : 'Exception Requests';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,5 +68,13 @@ class ExceptionRequestResource extends Resource
             'create' => CreateExceptionRequest::route('/create'),
             'edit' => EditExceptionRequest::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

@@ -6,9 +6,11 @@ use App\Enums\SubmissionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AssignmentSubmission extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'assignment_id',
         'homework_assignment_id',
@@ -44,6 +46,27 @@ class AssignmentSubmission extends Model
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function (AssignmentSubmission $submission) {
+            $statusVal = $submission->status instanceof SubmissionStatus ? $submission->status->value : (string) $submission->status;
+            if (in_array($statusVal, ['submitted', 'completed'], true) || ! $statusVal) {
+                app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherAssignmentSubmitted($submission);
+            }
+        });
+
+        static::updated(function (AssignmentSubmission $submission) {
+            if ($submission->wasChanged('status')) {
+                $statusVal = $submission->status instanceof SubmissionStatus ? $submission->status->value : (string) $submission->status;
+                if (in_array($statusVal, ['submitted', 'completed'], true)) {
+                    app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherAssignmentSubmitted($submission);
+                }
+            }
+        });
+    }
 
     public function assignment(): BelongsTo
     {

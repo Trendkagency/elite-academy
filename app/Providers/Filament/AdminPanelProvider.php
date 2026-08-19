@@ -38,8 +38,15 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                \App\Filament\Widgets\AdminOverviewStatsWidget::class,
+                \App\Filament\Widgets\SessionsAnalyticsChartWidget::class,
+                \App\Filament\Widgets\StudentAccountStatusChartWidget::class,
+            ])
+            ->userMenuItems([
+                \Filament\Navigation\MenuItem::make('language_switcher')
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'English (🇬🇧 EN)' : 'اللغة العربية (🇪🇬 AR)')
+                    ->icon(\Filament\Support\Icons\Heroicon::OutlinedLanguage)
+                    ->url(fn () => route('lang.switch', ['locale' => app()->getLocale() === 'ar' ? 'en' : 'ar'])),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -51,6 +58,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\SetLocale::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

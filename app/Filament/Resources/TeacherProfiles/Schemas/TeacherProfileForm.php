@@ -17,7 +17,10 @@ class TeacherProfileForm
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->relationship('user', 'name')
+                    ->relationship('user')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
+                    ->searchable(['name', 'email', 'phone'])
+                    ->preload()
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (string $operation, $state, callable $set) => $operation === 'create' ? $set('slug', Str::slug('teacher-'.$state)) : null),

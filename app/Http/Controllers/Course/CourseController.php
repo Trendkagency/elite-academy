@@ -22,8 +22,10 @@ class CourseController extends Controller
             ->when($selectedCategory, function ($query) use ($selectedCategory) {
                 $query->whereHas('subject', function ($q) use ($selectedCategory) {
                     $q->where('name', 'like', "%{$selectedCategory}%")
+                      ->orWhere('slug', 'like', "%{$selectedCategory}%")
                       ->orWhereHas('category', function ($catQuery) use ($selectedCategory) {
-                          $catQuery->where('name', 'like', "%{$selectedCategory}%");
+                          $catQuery->where('name', 'like', "%{$selectedCategory}%")
+                                   ->orWhere('slug', 'like', "%{$selectedCategory}%");
                       });
                 });
             })
@@ -31,8 +33,8 @@ class CourseController extends Controller
             ->paginate(6)
             ->withQueryString();
 
-        $enrolledCourseIds = auth()->check()
-            ? CourseEnrollment::where('student_user_id', auth()->id())->pluck('course_id')->toArray()
+        $enrolledCourseIds = (auth()->check() && auth()->user())
+            ? CourseEnrollment::where('student_user_id', auth()->user()->id)->pluck('course_id')->map(fn ($id) => (int) $id)->toArray()
             : [];
 
         return view('pages.courses', [
@@ -68,24 +70,6 @@ class CourseController extends Controller
         $user = auth()->user();
         if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-        }
-
-        $activePackage = \App\Models\StudentPackage::where('student_user_id', $user->id)
-            ->where('status', 'active')
-            ->where('remaining_sessions', '>', 0)
-            ->where(function ($q) {
-                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-            })
-            ->first();
-
-        if (! $activePackage) {
-            return response()->json([
-                'success' => false,
-                'package_required' => true,
-                'message' => app()->getLocale() === 'ar'
-                    ? 'عذراً! يلزم الاشتراك في باقة حصص نشطة وتحتوي على رصيد للتسجيل والدخول للكورسات.'
-                    : 'An active package subscription with available session credits is required to enroll in courses. Please subscribe to a package first.',
-            ], 403);
         }
 
         $course = Course::find($id);

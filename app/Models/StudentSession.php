@@ -25,6 +25,21 @@ class StudentSession extends Model
         'completed_at' => 'datetime',
     ];
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updated(function (StudentSession $session) {
+            if ($session->wasChanged('attendance_status') && $session->attendance_status === 'absent') {
+                $liveSession = $session->liveSession ?: LiveSession::find($session->live_session_id);
+                $student     = $session->studentUser ?: User::find($session->student_user_id);
+                if ($liveSession && $student) {
+                    app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherStudentAbsent($liveSession, $student);
+                }
+            }
+        });
+    }
+
     public function studentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_user_id');

@@ -15,17 +15,21 @@ class LoginController extends Controller
     {
         if (auth()->check()) {
             $user = auth()->user();
-            if ($user->isAdmin()) {
-                return redirect('/admin');
-            }
-            if ($user->isTeacher()) {
-                return redirect()->route('teachers');
-            }
-            if ($user->isParent()) {
-                return redirect()->route('parent-portal');
-            }
+            if ($user->status !== \App\Enums\AccountStatus::APPROVED) {
+                auth()->logout();
+            } else {
+                if ($user->isAdmin()) {
+                    return redirect('/admin');
+                }
+                if ($user->isTeacher()) {
+                    return redirect()->route('teachers');
+                }
+                if ($user->isParent()) {
+                    return redirect()->route('parent-portal');
+                }
 
-            return redirect()->route('student-portal');
+                return redirect()->route('student-portal');
+            }
         }
 
         return view('pages.login', [
