@@ -81,4 +81,40 @@ class ManageContactPageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('201299988877');
     }
+
+    public function test_admin_can_update_support_desk_floating_badge_settings(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin Badge User',
+            'email' => 'admin.badge@elite.edu',
+            'password' => bcrypt('password'),
+            'status' => AccountStatus::APPROVED,
+        ]);
+        AdminProfile::create(['user_id' => $admin->id]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(ManageContactPage::class)
+            ->fillForm([
+                'contact_card_title' => '24/7 Premium Helpdesk',
+                'contact_card_subtitle' => 'Instant Advisor Response',
+                'contact_card_icon' => '📞',
+                'contact_form_title' => 'Custom Form Title',
+                'contact_form_subtitle' => 'Custom Form Subtitle',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertEquals('24/7 Premium Helpdesk', SiteSetting::get('contact_card_title'));
+        $this->assertEquals('Instant Advisor Response', SiteSetting::get('contact_card_subtitle'));
+        $this->assertEquals('📞', SiteSetting::get('contact_card_icon'));
+
+        $response = $this->get('/contact');
+        $response->assertStatus(200)
+            ->assertSee('24/7 Premium Helpdesk')
+            ->assertSee('Instant Advisor Response')
+            ->assertSee('📞')
+            ->assertSee('Custom Form Title')
+            ->assertSee('Custom Form Subtitle');
+    }
 }

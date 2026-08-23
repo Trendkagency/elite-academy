@@ -6,10 +6,15 @@
     $heroTitle = $contactSettings['hero_title'] ?? 'We Are Always Here To Help';
     $heroSubtitle = $contactSettings['hero_subtitle'] ?? 'Have questions regarding curriculum enrollment, parent progress dashboards, or scheduling a campus visit? Reach out to our dedicated support advisors.';
     $heroImage = $contactSettings['hero_image'] ?? 'images/academy_campus.png';
+    $cardTitle = $contactSettings['card_title'] ?? 'Support Desk 24/7';
+    $cardSubtitle = $contactSettings['card_subtitle'] ?? 'Direct Academic Assistance';
+    $cardIcon = $contactSettings['card_icon'] ?? '🎧';
     $phone = $contactSettings['phone'] ?? '+20 100 123 4567';
     $whatsapp = $contactSettings['whatsapp'] ?? '+20 100 123 4568';
     $email = $contactSettings['email'] ?? 'support@elite-academy.edu.eg';
     $address = $contactSettings['address'] ?? 'New Cairo Hub, Egypt';
+    $formTitle = $contactSettings['form_title'] ?? 'Send Us a Message';
+    $formSubtitle = $contactSettings['form_subtitle'] ?? 'Our student advisors will respond within 24 hours.';
     $mapUrl = $contactSettings['map_url'] ?? 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d55251.33660578643!2d31.470000000000002!3d30.030000000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145822ee00000001%3A0x1000000000000000!2sNew%20Cairo%2C%20Cairo%20Governorate%2C%20Egypt!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg';
 @endphp
 
@@ -65,10 +70,10 @@
                     <img src="{{ media_url($heroImage, 'images/academy_campus.png') }}" alt="Campus Support Desk" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 -left-6 bg-teal-600 text-white p-5 rounded-2xl shadow-2xl flex items-center gap-3">
-                    <span class="text-3xl">🎧</span>
+                    <span class="text-3xl">{{ $cardIcon }}</span>
                     <div>
-                        <p class="font-heading font-black text-lg">24/7 Support Desk</p>
-                        <p class="text-xs font-mono text-teal-100">Direct Academic Assistance</p>
+                        <p class="font-heading font-black text-lg">{{ $cardTitle }}</p>
+                        <p class="text-xs font-mono text-teal-100">{{ $cardSubtitle }}</p>
                     </div>
                 </div>
             </div>
@@ -85,8 +90,8 @@
 
         <div class="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
             <div class="space-y-2">
-                <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900">Send Us a Message</h2>
-                <p class="text-xs font-mono text-slate-500">Our student advisors will respond within 24 hours.</p>
+                <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900">{{ $formTitle }}</h2>
+                <p class="text-xs font-mono text-slate-500">{{ $formSubtitle }}</p>
             </div>
 
             <div id="contactAlert" class="hidden p-4 rounded-2xl text-xs font-semibold"></div>
