@@ -28,6 +28,7 @@ class GlobalExceptionAutoCascadeTest extends TestCase
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'tcascade']);
 
         $student = User::create(['name' => 'Global Student', 'email' => 'student.cascade@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         // Create 3 Courses and Enroll Student
         $c1 = Course::create(['subject_id' => $subject->id, 'teacher_id' => $teacher->id, 'grade_level_id' => $grade->id, 'title' => 'Course 1', 'slug' => 'c1', 'is_active' => true]);

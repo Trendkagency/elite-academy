@@ -31,6 +31,7 @@ class CourseVsGlobalExceptionLogicTest extends TestCase
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'tscope']);
 
         $student = User::create(['name' => 'Student Exception', 'email' => 'student.scope@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         // Course A
         $courseA = Course::create([

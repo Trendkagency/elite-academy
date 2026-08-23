@@ -20,6 +20,7 @@ class MultiRoleApprovalProtectionTest extends TestCase
         $teacherRes = $this->postJson('/ajax/register', [
             'name' => 'Professor Smith',
             'email' => 'teacher@example.com',
+            'phone' => '01012345671',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'user_type' => 'teacher',
@@ -40,6 +41,7 @@ class MultiRoleApprovalProtectionTest extends TestCase
         $parentRes = $this->postJson('/ajax/register', [
             'name' => 'Parent Johnson',
             'email' => 'parent@example.com',
+            'phone' => '01012345672',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'user_type' => 'parent',
@@ -58,6 +60,7 @@ class MultiRoleApprovalProtectionTest extends TestCase
         $studentRes = $this->postJson('/ajax/register', [
             'name' => 'Student Alex',
             'email' => 'student@example.com',
+            'phone' => '01012345673',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'user_type' => 'student',

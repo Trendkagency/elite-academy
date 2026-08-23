@@ -88,13 +88,16 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->name('ajax.assignment.update-step');
             Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->name('ajax.assignment.submit');
             Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->name('ajax.assignment.security-audit');
-            Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
         });
+
+        // Grading Submission (Authorized for Teachers / Admins via Policy Gate)
+        Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
 
         // Parent Role Protected Domain Routes
         Route::middleware([\App\Http\Middleware\EnsureParentRole::class])->group(function () {
             Route::get('/parent-portal', [\App\Http\Controllers\Parent\ParentPortalController::class, 'index'])->name('parent-portal');
             Route::get('/ajax/parent/student/{studentId}/progress', [\App\Http\Controllers\Parent\ParentPortalController::class, 'studentProgress'])->name('ajax.parent.student.progress');
+            Route::post('/ajax/parent/link-child', [\App\Http\Controllers\Parent\ParentPortalController::class, 'linkChildByPhone'])->name('ajax.parent.link-child');
         });
 
         // Teacher Role Protected Domain Routes (Strict Security & Authorization)

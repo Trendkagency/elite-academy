@@ -29,6 +29,7 @@ class SessionAndExceptionRulesTest extends TestCase
         $category = Category::create(['name' => 'Cat', 'slug' => 'cat']);
         $subject = Subject::create(['category_id' => $category->id, 'name' => 'Sub', 'slug' => 'sub']);
         $studentUser = User::create(['name' => 'Student', 'email' => 's1@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
         $teacherUser = User::create(['name' => 'Teacher', 'email' => 't1@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
         $teacherProfile = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 't1']);
 
@@ -61,6 +62,7 @@ class SessionAndExceptionRulesTest extends TestCase
         $category = Category::create(['name' => 'Cat', 'slug' => 'cat']);
         $subject = Subject::create(['category_id' => $category->id, 'name' => 'Sub', 'slug' => 'sub']);
         $studentUser = User::create(['name' => 'Student', 'email' => 's2@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
         $teacherUser = User::create(['name' => 'Teacher', 'email' => 't2@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
         $teacherProfile = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 't2']);
 
@@ -92,6 +94,7 @@ class SessionAndExceptionRulesTest extends TestCase
     {
         $grade = GradeLevel::create(['name' => 'HS', 'slug' => 'hs']);
         $studentUser = User::create(['name' => 'Student', 'email' => 's3@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
         $teacherUser = User::create(['name' => 'Teacher', 'email' => 't3@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
         $teacherProfile = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 't3']);
 
@@ -128,6 +131,7 @@ class SessionAndExceptionRulesTest extends TestCase
     {
         $grade = GradeLevel::create(['name' => 'HS', 'slug' => 'hs']);
         $studentUser = User::create(['name' => 'Student', 'email' => 's4@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
         $teacherUser = User::create(['name' => 'Teacher', 'email' => 't4@test.com', 'password' => bcrypt('p'), 'status' => AccountStatus::APPROVED]);
         $teacherProfile = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 't4']);
 

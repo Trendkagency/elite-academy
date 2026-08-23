@@ -29,7 +29,8 @@ class AssignmentDraftSyncTest extends TestCase
     {
         parent::setUp();
 
-        $this->student = User::factory()->create();
+        $this->student = User::factory()->create(['status' => \App\Enums\AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $this->student->id]);
         \App\Models\StudentPackage::create(['student_user_id' => $this->student->id, 'total_sessions' => 12, 'used_sessions' => 0, 'remaining_sessions' => 12, 'status' => 'active', 'activated_at' => now()]);
         $teacherUser = User::factory()->create();
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'draft-teacher', 'bio' => 'Teacher']);

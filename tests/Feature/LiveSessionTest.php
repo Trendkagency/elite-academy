@@ -30,7 +30,9 @@ class LiveSessionTest extends TestCase
         $this->service = new LiveSessionService();
 
         $this->student = User::factory()->create(['name' => 'Test Student', 'status' => 'approved']);
+        \App\Models\StudentProfile::create(['user_id' => $this->student->id]);
         $this->otherStudent = User::factory()->create(['name' => 'Other Student', 'status' => 'approved']);
+        \App\Models\StudentProfile::create(['user_id' => $this->otherStudent->id]);
 
         $teacherUser = User::factory()->create(['name' => 'Dr. Teacher']);
         $teacherProfile = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'dr-teacher']);

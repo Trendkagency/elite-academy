@@ -31,6 +31,7 @@ class HomeworkAndExamSubmissionsFullIntegrationTest extends TestCase
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'thw']);
 
         $student = User::create(['name' => 'Student Homework', 'email' => 'student.hw@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         $course = Course::create([
             'subject_id' => $subject->id,

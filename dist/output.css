@@ -6257,8 +6257,7 @@ footer a.social-icon:hover, footer .flex.gap-6 a:hover {
   color: #0D9488 !important;
 }
 body.page-exit {
-  opacity: 0 !important;
-  transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 1 !important;
 }
 @property --tw-translate-x {
   syntax: "*";

@@ -309,24 +309,12 @@
   }
 
   /* ──────────────────────────────────────────────
-     8. PAGE FADE OUT / IN TRANSITIONS
+     8. PAGE BCACHE & FADE PROTECTION
   ────────────────────────────────────────────── */
   function initPageTransitions() {
-    document.addEventListener('click', (e) => {
-      const link = e.target.closest('a[href]');
-      if (!link) return;
-
-      const href = link.getAttribute('href');
-      // Only transition internal html page links
-      if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:') || link.target === '_blank') return;
-
-      // Prevent default and fade out before navigating
-      e.preventDefault();
-      document.body.classList.add('page-exit');
-
-      setTimeout(() => {
-        window.location.href = href;
-      }, 250);
+    window.addEventListener('pageshow', function (event) {
+      document.body.classList.remove('page-exit');
+      document.body.style.opacity = '1';
     });
   }
 

@@ -30,7 +30,8 @@ class HalfSessionCutoffTest extends TestCase
     {
         parent::setUp();
 
-        $this->student = User::factory()->create(['name' => 'Half Session Student']);
+        $this->student = User::factory()->create(['name' => 'Half Session Student', 'status' => \App\Enums\AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $this->student->id]);
         StudentPackage::create([
             'student_user_id' => $this->student->id,
             'total_sessions' => 12,

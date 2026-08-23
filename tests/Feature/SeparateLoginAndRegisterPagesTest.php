@@ -27,6 +27,7 @@ class SeparateLoginAndRegisterPagesTest extends TestCase
         $regData = [
             'name' => 'New Learner',
             'email' => 'new.learner@elite.edu',
+            'phone' => '01012345678',
             'password' => 'password123',
             'user_type' => 'student',
         ];

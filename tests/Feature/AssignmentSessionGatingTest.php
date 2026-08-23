@@ -76,6 +76,7 @@ class AssignmentSessionGatingTest extends TestCase
             'password' => bcrypt('password'),
             'status' => AccountStatus::APPROVED,
         ]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         $enrollment = CourseEnrollment::create([
             'student_user_id' => $student->id,

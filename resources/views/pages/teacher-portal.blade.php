@@ -156,7 +156,7 @@
                                     @php
                                         $state = $session->evaluateState(auth()->user());
                                         $isLive = $state === \App\Enums\LiveSessionState::LIVE;
-                                        $isStartingSoon = $state === \App\Enums\LiveSessionState::STARTING_SOON;
+                                        $isStartingSoon = $state === \App\Enums\LiveSessionState::BEFORE_JOINABLE;
                                     @endphp
                                     <div class="bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 space-y-4 hover:border-teal-300 transition-colors">
                                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 pb-3">

@@ -19,6 +19,7 @@ class SystemBilingualTranslationsTest extends TestCase
             'password' => bcrypt('password'),
             'status' => AccountStatus::APPROVED,
         ]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         $this->actingAs($student);
 

@@ -17,7 +17,7 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30', 'unique:users,phone'],
             'user_type' => ['nullable', 'string', 'in:student,teacher,parent'],
             'grade_level_id' => ['nullable', 'integer', 'exists:grade_levels,id'],
             'school_name' => ['nullable', 'string', 'max:255'],

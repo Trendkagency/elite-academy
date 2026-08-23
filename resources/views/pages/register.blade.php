@@ -30,8 +30,11 @@
             </div>
 
             <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'رقم الهاتف (اختياري)' : 'Phone Number (Optional)' }}</label>
-                <input type="tel" name="phone" placeholder="{{ app()->getLocale() === 'ar' ? '01000000000' : '+1234567890' }}" class="input-mobile">
+                <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <span>{{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}</span>
+                    <span class="text-[10px] text-rose-500 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب لربط ولي الأمر' : 'Required' }}</span>
+                </label>
+                <input type="tel" name="phone" required placeholder="{{ app()->getLocale() === 'ar' ? '01000000000' : '+1234567890' }}" class="input-mobile">
             </div>
 
             <div class="space-y-4 pt-1">

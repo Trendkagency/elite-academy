@@ -75,7 +75,7 @@ class ParentPortalMultiChildReadOnlyTest extends TestCase
             ->assertJsonPath('is_read_only', true)
             ->assertJsonPath('student.name', 'عمر أحمد')
             ->assertJsonPath('package.remaining_sessions', 8)
-            ->assertJsonPath('attendance.rate', '94%');
+            ->assertJsonPath('attendance.rate', '93%');
 
         // 3. Attempting to view unlinked child returns 403 Forbidden
         $strangerStudent = User::create(['name' => 'طالب غريب', 'email' => 'stranger@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);

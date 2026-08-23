@@ -35,6 +35,7 @@ class EnrolledCoursesVisibilityTest extends TestCase
         ]);
 
         $student = User::create(['name' => 'Reenroll Student', 'email' => 'student.reenroll@elite.edu', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
         \App\Models\StudentPackage::create(['student_user_id' => $student->id, 'total_sessions' => 12, 'used_sessions' => 0, 'remaining_sessions' => 12, 'status' => 'active', 'activated_at' => now()]);
         $this->actingAs($student);
 

@@ -22,6 +22,7 @@ class StudentPackageManagementFullTest extends TestCase
             'password' => bcrypt('password'),
             'status' => AccountStatus::APPROVED,
         ]);
+        \App\Models\StudentProfile::create(['user_id' => $student->id]);
 
         $template = PackageTemplate::create([
             'name' => 'Monthly Pro 12 Sessions',
