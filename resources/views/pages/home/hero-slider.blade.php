@@ -1,36 +1,62 @@
 @use('App\Models\SiteSetting')
-{{-- Home Hero Slider: 4-slide CSS-only carousel --}}
-{{-- Subtle Floating Decorative Ambient Shapes --}}
-<div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
-<div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float pointer-events-none -z-10"></div>
-
+{{-- Home Hero Slider: Alpine.js Auto-playing Carousel with Zero Text Overlap --}}
 @php
     $dbHeroSlides = \Illuminate\Support\Facades\Schema::hasTable('hero_slides')
         ? \App\Models\HeroSlide::where('is_active', true)->orderBy('sort_order')->get()
         : collect();
+    $totalSlideCount = $dbHeroSlides->count() > 0 ? $dbHeroSlides->count() : 4;
 @endphp
 
-<section class="w-full min-h-[75vh] lg:min-h-[95vh] relative overflow-hidden bg-slate-950 text-white flex flex-col justify-between hero-section">
-
-    {{-- Radio Triggers --}}
-    @if($dbHeroSlides->count() > 0)
-        @foreach($dbHeroSlides as $idx => $s)
-            <input type="radio" name="hero-slide" id="slide-{{ $idx + 1 }}" class="peer/s{{ $idx + 1 }} hidden" {{ $idx === 0 ? 'checked' : '' }}>
-        @endforeach
-    @else
-        <input type="radio" name="hero-slide" id="slide-1" class="peer/s1 hidden" checked>
-        <input type="radio" name="hero-slide" id="slide-2" class="peer/s2 hidden">
-        <input type="radio" name="hero-slide" id="slide-3" class="peer/s3 hidden">
-        <input type="radio" name="hero-slide" id="slide-4" class="peer/s4 hidden">
-    @endif
+<section 
+    x-data="{ 
+        activeSlide: 0, 
+        totalSlides: {{ $totalSlideCount }},
+        timer: null,
+        startAutoplay() {
+            this.stopAutoplay();
+            this.timer = setInterval(() => {
+                this.nextSlide();
+            }, 6000);
+        },
+        stopAutoplay() {
+            if (this.timer) clearInterval(this.timer);
+        },
+        nextSlide() {
+            this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
+        },
+        prevSlide() {
+            this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
+        },
+        goToSlide(index) {
+            this.activeSlide = index;
+        }
+    }"
+    x-init="startAutoplay()"
+    @mouseenter="stopAutoplay()"
+    @mouseleave="startAutoplay()"
+    class="w-full min-h-[75vh] lg:min-h-[92vh] relative overflow-hidden bg-slate-950 text-white flex flex-col justify-between hero-section select-none"
+>
+    {{-- Subtle Floating Decorative Ambient Shapes --}}
+    <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
+    <div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float pointer-events-none -z-10"></div>
 
     {{-- Ambient Mesh Radial Glows --}}
     <div class="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-teal-500/20 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-glow"></div>
     <div class="absolute bottom-0 right-0 w-[45rem] h-[45rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none z-0 animate-float"></div>
 
+    {{-- DYNAMIC DB SLIDES --}}
     @if($dbHeroSlides->count() > 0)
         @foreach($dbHeroSlides as $idx => $s)
-            <div class="absolute inset-0 z-10 hidden peer-checked/s{{ $idx + 1 }}:flex flex-col justify-between transition-all duration-700">
+            <div 
+                x-show="activeSlide === {{ $idx }}" 
+                x-transition:enter="transition ease-out duration-700" 
+                x-transition:enter-start="opacity-0 scale-98" 
+                x-transition:enter-end="opacity-100 scale-100" 
+                x-transition:leave="transition ease-in duration-400" 
+                x-transition:leave-start="opacity-100" 
+                x-transition:leave-end="opacity-0"
+                class="absolute inset-0 z-10 flex flex-col justify-between"
+            >
                 <img src="{{ media_url($s->image, 'images/hero_student.png') }}" alt="{{ $s->title }}" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
@@ -65,237 +91,290 @@
                             @endif
                         </div>
                     </div>
+
+                    <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+                        <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
+                            <div class="text-left">
+                                <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
+                                <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
+                            <div class="text-left">
+                                <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
+                                <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endforeach
     @else
-        <img src="{{ asset('images/hero_student.png') }}" alt="Programming & Tech Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+        {{-- DEFAULT SLIDE 01: ACADEMIC PLATFORM --}}
+        <div 
+            x-show="activeSlide === 0" 
+            x-transition:enter="transition ease-out duration-700" 
+            x-transition:enter-start="opacity-0 scale-98" 
+            x-transition:enter-end="opacity-100 scale-100" 
+            x-transition:leave="transition ease-in duration-400" 
+            x-transition:leave-start="opacity-100" 
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 z-10 flex flex-col justify-between"
+        >
+            <img src="{{ asset('images/hero_student.png') }}" alt="Programming & Tech Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
-            <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                    <span>{{ SiteSetting::getLocalized('landing_hero_badge', '🚀 EGYPT’S #1 ACADEMIC PLATFORM') }}</span>
-                </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+                <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                        <span>{{ SiteSetting::getLocalized('landing_hero_badge', '🚀 EGYPT’S #1 ACADEMIC PLATFORM') }}</span>
+                    </div>
 
-                <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                    {{ SiteSetting::getLocalized('landing_hero_title', 'Empowering Future Leaders with Practical Academic Excellence') }}
-                </h1>
+                    <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+                        {{ SiteSetting::getLocalized('landing_hero_title', 'Empowering Future Leaders with Practical Academic Excellence') }}
+                    </h1>
 
-                <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                    {{ SiteSetting::getLocalized('landing_hero_subtitle', 'Join thousands of students learning Programming, Artificial Intelligence, Science, and Business from Egypt’s top educators.') }}
-                </p>
+                    <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+                        {{ SiteSetting::getLocalized('landing_hero_subtitle', 'Join thousands of students learning Programming, Artificial Intelligence, Science, and Business from Egypt’s top educators.') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                    <a href="{{ SiteSetting::get('landing_cta_primary_link', '/subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
-                        <span>{{ SiteSetting::getLocalized('landing_cta_primary_text', 'Explore All Subjects →') }}</span>
-                        <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
-                    </a>
-                    <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                        <span>{{ __('Book Free Trial') }}</span>
-                    </a>
-                </div>
-            </div>
-
-            {{-- Floating Stat Cards --}}
-            <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+                        <a href="{{ SiteSetting::get('landing_cta_primary_link', '/subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+                            <span>{{ SiteSetting::getLocalized('landing_cta_primary_text', 'Explore All Subjects') }}</span>
+                            <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                            <span>{{ __('Book Free Trial') }}</span>
+                        </a>
                     </div>
                 </div>
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+
+                <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- SLIDE 02: ARTIFICIAL INTELLIGENCE --}}
-    <div class="absolute inset-0 z-10 hidden peer-checked/s2:flex flex-col justify-between transition-all duration-700">
-        <img src="{{ asset('images/course_ai.png') }}" alt="AI Neural Networks Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
-            <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                    <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
-                    <span>🧠 Artificial Intelligence Track</span>
-                </div>
-
-                <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                    Learn Artificial Intelligence. <span class="text-purple-300 underline decoration-teal-400 underline-offset-8">Shape Tomorrow.</span>
-                </h1>
-
-                <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                    Explore Machine Learning, Deep Neural Networks, and modern computer vision.
-                </p>
-
-                <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                    <a href="{{ route('subject-details') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 shadow-lg shadow-purple-600/25">
-                        <span>Explore AI</span>
-                        <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
-                    </a>
-                    <a href="{{ route('courses') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                        <span>View Curriculum</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
-                    </div>
-                </div>
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- SLIDE 03: ROBOTICS & ENGINEERING --}}
-    <div class="absolute inset-0 z-10 hidden peer-checked/s3:flex flex-col justify-between transition-all duration-700">
-        <img src="{{ asset('images/instructor_male.png') }}" alt="Robotics Engineering Lab" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+        {{-- DEFAULT SLIDE 02: ARTIFICIAL INTELLIGENCE --}}
+        <div 
+            x-show="activeSlide === 1" 
+            x-transition:enter="transition ease-out duration-700" 
+            x-transition:enter-start="opacity-0 scale-98" 
+            x-transition:enter-end="opacity-100 scale-100" 
+            x-transition:leave="transition ease-in duration-400" 
+            x-transition:leave-start="opacity-100" 
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 z-10 flex flex-col justify-between"
+        >
+            <img src="{{ asset('images/course_ai.png') }}" alt="AI Neural Networks Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
-            <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                    <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse"></span>
-                    <span>🤖 Robotics Track</span>
-                </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+                <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
+                        <span>🧠 {{ __('Artificial Intelligence Track') }}</span>
+                    </div>
 
-                <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                    Build. Create. <span class="text-orange-300 underline decoration-purple-400 underline-offset-8">Innovate.</span>
-                </h1>
+                    <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+                        {!! __('Learn Artificial Intelligence. <span class="text-purple-300 underline decoration-teal-400 underline-offset-8">Shape Tomorrow.</span>') !!}
+                    </h1>
 
-                <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                    Design real robots and autonomous engineering hardware inside state-of-the-art labs.
-                </p>
+                    <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+                        {{ __('Explore Machine Learning, Deep Neural Networks, and modern computer vision.') }}
+                    </p>
 
-                <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                    <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 shadow-lg shadow-orange-500/25">
-                        <span>Explore Robotics</span>
-                        <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
-                    </a>
-                    <a href="{{ route('event-details') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                        <span>Join Workshop</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
-                <div class="glass-card bg-white/15 backdrop-blur-lg p-3.5 sm:p-4 rounded-3xl border border-white/25 shadow-xl flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-orange-500/30 text-orange-300 flex items-center justify-center font-extrabold text-base border border-orange-400/40 shrink-0">50+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-xs font-mono uppercase text-slate-300 font-bold">Autonomous</p>
-                        <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">Robotics Projects</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+                        <a href="{{ route('subject-details') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 shadow-lg shadow-purple-600/25">
+                            <span>{{ __('Explore AI') }}</span>
+                            <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+                        </a>
+                        <a href="{{ route('courses') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                            <span>{{ __('View Curriculum') }}</span>
+                        </a>
                     </div>
                 </div>
-                <div class="glass-card bg-white/15 backdrop-blur-lg p-3.5 sm:p-4 rounded-3xl border border-white/25 shadow-xl flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-teal-500/30 text-teal-300 flex items-center justify-center font-extrabold text-base border border-teal-400/40 shrink-0">Live</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-xs font-mono uppercase text-slate-300 font-bold">Hands-On</p>
-                        <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">Workshops</p>
+
+                <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">50+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('Autonomous') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('AI Models') }}</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- SLIDE 04: SCIENCE & MATHEMATICS --}}
-    <div class="absolute inset-0 z-10 hidden peer-checked/s4:flex flex-col justify-between transition-all duration-700">
-        <img src="{{ asset('images/academy_campus.png') }}" alt="Science Laboratory" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
-            <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
-                    <span>🔬 Science & Math Track</span>
-                </div>
-
-                <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                    Curiosity Creates <span class="text-teal-300 underline decoration-orange-500 underline-offset-8">Excellence.</span>
-                </h1>
-
-                <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                    Interactive science and mathematics education designed to build problem-solving mindsets.
-                </p>
-
-                <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                    <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 shadow-lg shadow-teal-500/25">
-                        <span>Explore Science</span>
-                        <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
-                    </a>
-                    <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                        <span>Book Trial</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
-                    </div>
-                </div>
-                <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
-                    <div class="text-left">
-                        <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
-                        <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">Live</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('Hands-On') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('Mentorship') }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        {{-- DEFAULT SLIDE 03: ROBOTICS & ENGINEERING --}}
+        <div 
+            x-show="activeSlide === 2" 
+            x-transition:enter="transition ease-out duration-700" 
+            x-transition:enter-start="opacity-0 scale-98" 
+            x-transition:enter-end="opacity-100 scale-100" 
+            x-transition:leave="transition ease-in duration-400" 
+            x-transition:leave-start="opacity-100" 
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 z-10 flex flex-col justify-between"
+        >
+            <img src="{{ asset('images/instructor_male.png') }}" alt="Robotics Engineering Lab" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+                <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse"></span>
+                        <span>🤖 {{ __('Robotics Track') }}</span>
+                    </div>
+
+                    <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+                        {!! __('Build. Create. <span class="text-orange-300 underline decoration-purple-400 underline-offset-8">Innovate.</span>') !!}
+                    </h1>
+
+                    <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+                        {{ __('Design real robots and autonomous engineering hardware inside state-of-the-art labs.') }}
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 shadow-lg shadow-orange-500/25">
+                            <span>{{ __('Explore Robotics') }}</span>
+                            <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+                        </a>
+                        <a href="{{ route('event-details') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                            <span>{{ __('Join Workshop') }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">50+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('Autonomous') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('Robotics Projects') }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">Live</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('Hands-On') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('Workshops') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- DEFAULT SLIDE 04: SCIENCE & MATHEMATICS --}}
+        <div 
+            x-show="activeSlide === 3" 
+            x-transition:enter="transition ease-out duration-700" 
+            x-transition:enter-start="opacity-0 scale-98" 
+            x-transition:enter-end="opacity-100 scale-100" 
+            x-transition:leave="transition ease-in duration-400" 
+            x-transition:leave-start="opacity-100" 
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 z-10 flex flex-col justify-between"
+        >
+            <img src="{{ asset('images/academy_campus.png') }}" alt="Science Laboratory" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
+                <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+                        <span>🔬 {{ __('Science & Math Track') }}</span>
+                    </div>
+
+                    <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
+                        {!! __('Curiosity Creates <span class="text-teal-300 underline decoration-orange-500 underline-offset-8">Excellence.</span>') !!}
+                    </h1>
+
+                    <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
+                        {{ __('Interactive science and mathematics education designed to build problem-solving mindsets.') }}
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
+                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 shadow-lg shadow-teal-500/25">
+                            <span>{{ __('Explore Science') }}</span>
+                            <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                            <span>{{ __('Book Trial') }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 w-full max-w-md mx-auto grid grid-cols-2 lg:flex lg:flex-col gap-3 pt-4 lg:pt-0">
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">120+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_accredited') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_courses') }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/95 backdrop-blur-md border border-white/70 rounded-3xl shadow-xl p-3.5 sm:p-4 flex items-center gap-3">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">25K+</div>
+                        <div class="text-left">
+                            <p class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest font-semibold text-slate-400">{{ __('home.stat_global') }}</p>
+                            <p class="text-xs sm:text-base font-bold text-slate-900 leading-tight">{{ __('home.stat_students') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
-    {{-- Editorial Progress Bar & Slide Controls --}}
+    {{-- Progress Bar & Interactive Slide Controls --}}
     <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8 flex items-center justify-between border-t border-white/15 pt-6">
         <div class="font-mono text-sm font-bold text-slate-200 flex items-center gap-4">
-            <span class="text-teal-400 text-xl font-extrabold tracking-wider">
-                <span class="hidden peer-checked/s1:inline">01</span>
-                <span class="hidden peer-checked/s2:inline">02</span>
-                <span class="hidden peer-checked/s3:inline">03</span>
-                <span class="hidden peer-checked/s4:inline">04</span>
-            </span>
+            <span class="text-teal-400 text-xl font-extrabold tracking-wider" x-text="String(activeSlide + 1).padStart(2, '0')">01</span>
             <div class="w-32 sm:w-48 h-1.5 bg-white/20 rounded-full relative overflow-hidden">
-                <div class="absolute top-0 bottom-0 left-0 bg-teal-400 rounded-full transition-all duration-500 peer-checked/s1:w-1/4 peer-checked/s2:w-2/4 peer-checked/s3:w-3/4 peer-checked/s4:w-full"></div>
+                <div class="absolute top-0 bottom-0 left-0 bg-teal-400 rounded-full transition-all duration-500" :style="'width: ' + (((activeSlide + 1) / totalSlides) * 100) + '%'"></div>
             </div>
-            <span class="text-slate-400 text-sm">04</span>
+            <span class="text-slate-400 text-sm" x-text="String(totalSlides).padStart(2, '0')">04</span>
         </div>
 
         <div class="flex items-center gap-4">
             <div class="hidden sm:flex items-center gap-2.5">
-                <label for="slide-1" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s1:bg-teal-400 peer-checked/s1:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 01"></label>
-                <label for="slide-2" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s2:bg-purple-400 peer-checked/s2:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 02"></label>
-                <label for="slide-3" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s3:bg-orange-400 peer-checked/s3:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 03"></label>
-                <label for="slide-4" class="w-3 h-3 rounded-full bg-white/30 peer-checked/s4:bg-teal-400 peer-checked/s4:w-7 cursor-pointer transition-all duration-300 hover:bg-white/70" title="Slide 04"></label>
+                <template x-for="i in totalSlides" :key="i">
+                    <button 
+                        type="button" 
+                        @click="goToSlide(i - 1)" 
+                        :class="activeSlide === (i - 1) ? 'bg-teal-400 w-7' : 'bg-white/30 w-3 hover:bg-white/70'" 
+                        class="h-3 rounded-full transition-all duration-300 cursor-pointer" 
+                        :aria-label="'Go to slide ' + i"
+                    ></button>
+                </template>
             </div>
             <div class="flex items-center gap-2.5">
-                <label for="slide-1" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md">&larr;</label>
-                <label for="slide-2" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md">&rarr;</label>
+                <button type="button" @click="prevSlide()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Previous Slide">&larr;</button>
+                <button type="button" @click="nextSlide()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Next Slide">&rarr;</button>
             </div>
         </div>
     </div>
-
 </section>
