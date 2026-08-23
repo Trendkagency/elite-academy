@@ -48,16 +48,16 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::get('/blog', [\App\Http\Controllers\Blog\BlogController::class, 'index'])->name('blog');
     Route::get('/blog-details/{slug?}', [\App\Http\Controllers\Blog\BlogController::class, 'show'])->name('blog-details');
     Route::get('/contact', [\App\Http\Controllers\Cms\ContactController::class, 'show'])->name('contact');
-    Route::post('/ajax/contact/submit', [\App\Http\Controllers\Cms\ContactController::class, 'submitAjax'])->name('ajax.contact.submit');
+    Route::post('/ajax/contact/submit', [\App\Http\Controllers\Cms\ContactController::class, 'submitAjax'])->middleware('throttle:contact')->name('ajax.contact.submit');
     Route::get('/faq', [PageController::class, 'show'])->defaults('page', 'faq')->name('faq');
 
-    // 2. Authentication Domain Routes
+    // 2. Authentication Domain Routes (Protected with Brute Force & Rate Limit Protection)
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/ajax/login', [LoginController::class, 'login'])->name('ajax.login');
+    Route::post('/ajax/login', [LoginController::class, 'login'])->middleware('throttle:login')->name('ajax.login');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/ajax/register', [RegisterController::class, 'register'])->name('ajax.register');
+    Route::post('/ajax/register', [RegisterController::class, 'register'])->middleware('throttle:register')->name('ajax.register');
 
     // 3. Media & Stream Routes
     Route::get('/ajax/secure-video/token/{course}', [\App\Http\Controllers\SecureVideoController::class, 'generateToken'])->name('ajax.secure-video.token');
@@ -74,44 +74,44 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::post('/student/profile/password', [\App\Http\Controllers\Student\StudentProfileController::class, 'updatePassword'])->name('student.profile.password');
 
             // Course Enrollment
-            Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('ajax.course.enroll');
+            Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('throttle:strict_actions')->name('ajax.course.enroll');
 
             // Sessions & Stream Access
             Route::get('/ajax/sessions/{id}/access', [SessionController::class, 'show'])->name('ajax.session.access');
             Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
-            Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->name('ajax.exception.submit');
+            Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->middleware('throttle:strict_actions')->name('ajax.exception.submit');
 
             // Submissions & Interactive Assignment Solver Page
             Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
             Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
-            Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->name('ajax.assignment.save-answer');
-            Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->name('ajax.assignment.update-step');
-            Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->name('ajax.assignment.submit');
-            Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->name('ajax.assignment.security-audit');
+            Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.save-answer');
+            Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.update-step');
+            Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->middleware('throttle:strict_actions')->name('ajax.assignment.submit');
+            Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.security-audit');
         });
 
         // Grading Submission (Authorized for Teachers / Admins via Policy Gate)
-        Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
+        Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('throttle:strict_actions')->name('ajax.submission.grade');
 
         // Parent Role Protected Domain Routes
         Route::middleware([\App\Http\Middleware\EnsureParentRole::class])->group(function () {
             Route::get('/parent-portal', [\App\Http\Controllers\Parent\ParentPortalController::class, 'index'])->name('parent-portal');
             Route::get('/ajax/parent/student/{studentId}/progress', [\App\Http\Controllers\Parent\ParentPortalController::class, 'studentProgress'])->name('ajax.parent.student.progress');
-            Route::post('/ajax/parent/link-child', [\App\Http\Controllers\Parent\ParentPortalController::class, 'linkChildByPhone'])->name('ajax.parent.link-child');
+            Route::post('/ajax/parent/link-child', [\App\Http\Controllers\Parent\ParentPortalController::class, 'linkChildByPhone'])->middleware('throttle:strict_actions')->name('ajax.parent.link-child');
         });
 
         // Teacher Role Protected Domain Routes (Strict Security & Authorization)
         Route::middleware([\App\Http\Middleware\EnsureTeacherRole::class])->group(function () {
             Route::get('/teacher-portal', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'index'])->name('teacher-portal');
-            Route::post('/ajax/teacher/sessions/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createSession'])->name('ajax.teacher.sessions.create');
-            Route::post('/ajax/teacher/sessions/{id}/update', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateSession'])->name('ajax.teacher.sessions.update');
-            Route::post('/ajax/teacher/sessions/{id}/link', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateMeetingLink'])->name('ajax.teacher.sessions.link');
-            Route::post('/ajax/teacher/sessions/{id}/reschedule', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'rescheduleSession'])->name('ajax.teacher.sessions.reschedule');
-            Route::post('/ajax/teacher/sessions/{id}/cancel', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'cancelSession'])->name('ajax.teacher.sessions.cancel');
-            Route::post('/ajax/teacher/assignments/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createAssignment'])->name('ajax.teacher.assignments.create');
+            Route::post('/ajax/teacher/sessions/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.create');
+            Route::post('/ajax/teacher/sessions/{id}/update', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.update');
+            Route::post('/ajax/teacher/sessions/{id}/link', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateMeetingLink'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.link');
+            Route::post('/ajax/teacher/sessions/{id}/reschedule', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'rescheduleSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.reschedule');
+            Route::post('/ajax/teacher/sessions/{id}/cancel', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'cancelSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.cancel');
+            Route::post('/ajax/teacher/assignments/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createAssignment'])->middleware('throttle:strict_actions')->name('ajax.teacher.assignments.create');
             Route::get('/ajax/teacher/submissions/{submissionId}/review-details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSubmissionReview'])->name('ajax.teacher.submissions.review-details');
-            Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->name('ajax.teacher.submissions.review');
-            Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->name('ajax.teacher.attendance.mark');
+            Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->middleware('throttle:strict_actions')->name('ajax.teacher.submissions.review');
+            Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->middleware('throttle:strict_actions')->name('ajax.teacher.attendance.mark');
             Route::get('/ajax/teacher/students/{studentUserId}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentDetails'])->name('ajax.teacher.students.details');
         });
 
