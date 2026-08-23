@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -34,6 +35,7 @@ class ManageContactPage extends Page implements HasForms
             'contact_hero_badge' => SiteSetting::get('contact_hero_badge', 'STUDENT & PARENT SUPPORT'),
             'contact_hero_title' => SiteSetting::get('contact_hero_title', 'We Are Always Here To Help'),
             'contact_hero_subtitle' => SiteSetting::get('contact_hero_subtitle', 'Have questions regarding curriculum enrollment, parent progress dashboards, or scheduling a campus visit? Reach out to our dedicated support advisors.'),
+            'contact_hero_image' => SiteSetting::get('contact_hero_image', 'images/academy_campus.png'),
             'contact_phone' => SiteSetting::get('contact_phone', '+20 100 123 4567'),
             'contact_whatsapp' => SiteSetting::get('contact_whatsapp', '+20 100 123 4568'),
             'contact_email' => SiteSetting::get('contact_email', 'support@elite-academy.edu.eg'),
@@ -58,6 +60,18 @@ class ManageContactPage extends Page implements HasForms
                             ->label('Hero Subtitle / Description')
                             ->rows(3)
                             ->required(),
+                    ]),
+
+                Section::make('Contact Hero Media & Campus Image')
+                    ->components([
+                        FileUpload::make('contact_hero_image')
+                            ->label('Contact Page Campus / Support Image (Drag & Drop)')
+                            ->disk('public')
+                            ->directory('cms')
+                            ->visibility('public')
+                            ->image()
+                            ->imageEditor()
+                            ->helperText('Upload custom image to display on the contact page hero section.'),
                     ]),
 
                 Section::make('Contact Details & Phone Numbers')

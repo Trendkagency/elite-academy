@@ -1,3 +1,4 @@
+@use('App\Models\SiteSetting')
 {{-- Home Hero Slider: 4-slide CSS-only carousel --}}
 {{-- Subtle Floating Decorative Ambient Shapes --}}
 <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
@@ -38,28 +39,28 @@
                         @if($s->track_label)
                             <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
                                 <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                                <span>{{ $s->track_label }}</span>
+                                <span>{{ $s->getLocalizedTrackLabel() }}</span>
                             </div>
                         @endif
 
                         <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                            {{ $s->title }}
+                            {{ $s->getLocalizedTitle() }}
                         </h1>
 
                         <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                            {{ $s->subtitle }}
+                            {{ $s->getLocalizedSubtitle() }}
                         </p>
 
                         <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
                             @if($s->cta_primary_url)
                                 <a href="{{ $s->cta_primary_url }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
-                                    <span>Explore Now</span>
+                                    <span>{{ __('Explore Now') }}</span>
                                     <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                                 </a>
                             @endif
                             @if($s->cta_secondary_url)
                                 <a href="{{ $s->cta_secondary_url }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                                    <span>Learn More</span>
+                                    <span>{{ __('Learn More') }}</span>
                                 </a>
                             @endif
                         </div>
@@ -75,24 +76,24 @@
             <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                 <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
                     <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                    <span>💻 Programming & Tech Track</span>
+                    <span>{{ SiteSetting::getLocalized('landing_hero_badge', '🚀 EGYPT’S #1 ACADEMIC PLATFORM') }}</span>
                 </div>
 
                 <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">
-                    Build Your Future Through <span class="text-teal-300 underline decoration-orange-500 underline-offset-8">Technology.</span>
+                    {{ SiteSetting::getLocalized('landing_hero_title', 'Empowering Future Leaders with Practical Academic Excellence') }}
                 </h1>
 
                 <p class="text-slate-200 text-[16px] sm:text-[18px] lg:text-xl font-medium leading-relaxed max-w-xl drop-shadow-sm text-center lg:text-left">
-                    Master programming with industry experts through hands-on projects and interactive cohorts.
+                    {{ SiteSetting::getLocalized('landing_hero_subtitle', 'Join thousands of students learning Programming, Artificial Intelligence, Science, and Business from Egypt’s top educators.') }}
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                    <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
-                        <span>Explore Programming</span>
+                    <a href="{{ SiteSetting::get('landing_cta_primary_link', '/subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+                        <span>{{ SiteSetting::getLocalized('landing_cta_primary_text', 'Explore All Subjects →') }}</span>
                         <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                     </a>
                     <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
-                        <span>Book Free Trial</span>
+                        <span>{{ __('Book Free Trial') }}</span>
                     </a>
                 </div>
             </div>

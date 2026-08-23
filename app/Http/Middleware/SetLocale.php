@@ -14,15 +14,23 @@ class SetLocale
 
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->route('locale')
-            ?? session('locale', config('app.locale', 'en'));
+        $locale = $request->query('lang')
+            ?? $request->route('locale')
+            ?? session('locale')
+            ?? $request->cookie('elite_locale')
+            ?? config('app.locale', 'ar');
 
         if (! in_array($locale, self::SUPPORTED, true)) {
-            $locale = 'en';
+            $locale = 'ar';
         }
 
         App::setLocale($locale);
+        config(['app.locale' => $locale]);
+        if (class_exists(\Carbon\Carbon::class)) {
+            \Carbon\Carbon::setLocale($locale);
+        }
         session(['locale' => $locale]);
+        cookie()->queue(cookie()->forever('elite_locale', $locale));
 
         return $next($request);
     }

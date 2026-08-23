@@ -179,8 +179,10 @@ class AssignmentForm
                                     ->rows(2),
                                 FileUpload::make('image_path')
                                     ->label('Question Image (Optional)')
-                                    ->image()
-                                    ->directory('assignment-questions'),
+                                    ->disk('public')
+                                    ->directory('assignment-questions')
+                                    ->visibility('public')
+                                    ->image(),
 
                                 Section::make('Answer Options')
                                     ->components([
@@ -204,8 +206,10 @@ class AssignmentForm
                                                 ]),
                                                 FileUpload::make('image_path')
                                                     ->label('Option Image (Optional)')
-                                                    ->image()
-                                                    ->directory('assignment-options'),
+                                                    ->disk('public')
+                                                    ->directory('assignment-options')
+                                                    ->visibility('public')
+                                                    ->image(),
                                             ])
                                             ->minItems(2)
                                             ->defaultItems(4)

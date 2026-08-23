@@ -22,7 +22,7 @@ class LoginController extends Controller
                     return redirect('/admin');
                 }
                 if ($user->isTeacher()) {
-                    return redirect()->route('teachers');
+                    return redirect()->route('teacher-portal');
                 }
                 if ($user->isParent()) {
                     return redirect()->route('parent-portal');
@@ -78,7 +78,7 @@ class LoginController extends Controller
 
         $redirectUrl = match (true) {
             $user->isAdmin() => url('/admin'),
-            $user->isTeacher() => route('teachers'),
+            $user->isTeacher() => route('teacher-portal'),
             $user->isParent() => route('parent-portal'),
             $user->isStudent() => route('student-portal'),
             default => route('student-portal'),
@@ -108,7 +108,7 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Logged out successfully']);
+            return response()->json(['success' => true, 'message' => __('Logged out successfully')]);
         }
 
         return redirect()->route('home');

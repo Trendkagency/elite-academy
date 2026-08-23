@@ -16,6 +16,7 @@ Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'ar'], true)) {
         session(['locale' => $locale]);
         App::setLocale($locale);
+        cookie()->queue(cookie()->forever('elite_locale', $locale));
     }
 
     return redirect()->back();
@@ -26,10 +27,17 @@ Route::middleware(SetLocale::class)->group(function () {
     // 1. Static & Public Pages
     Route::get('/', [PageController::class, 'show'])->defaults('page', 'home')->name('home');
     Route::get('/about', [\App\Http\Controllers\Cms\AboutController::class, 'show'])->name('about');
-    Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
-    Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
-    Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
-    Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
+    // Public Catalog Pages (Redirect Teachers to Teacher Portal)
+    Route::middleware([\App\Http\Middleware\RedirectTeacherToPortal::class])->group(function () {
+        Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
+        Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
+        Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
+
+        Route::get('/courses', [CourseController::class, 'index'])->name('courses');
+        Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
+    });
+
     Route::redirect('/instructors', '/teachers');
     Route::get('/instructor-profile/{slug}', function (string $slug) {
         return redirect()->route('teacher-profile', ['slug' => $slug]);
@@ -51,38 +59,58 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/ajax/register', [RegisterController::class, 'register'])->name('ajax.register');
 
-    // 3. Course Catalog Domain Routes
-    Route::get('/courses', [CourseController::class, 'index'])->name('courses');
-    Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
+    // 3. Media & Stream Routes
+    Route::get('/ajax/secure-video/token/{course}', [\App\Http\Controllers\SecureVideoController::class, 'generateToken'])->name('ajax.secure-video.token');
+    Route::get('/secure-video/stream/{course}', [\App\Http\Controllers\SecureVideoController::class, 'stream'])->name('secure-video.stream');
 
     // 4. Protected Student, Parent & Teacher Portals
     Route::middleware('auth')->group(function () {
-        // Student Portal Dashboard & Profile Management
-        Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
-        Route::get('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'show'])->name('student.profile');
-        Route::post('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'update'])->name('student.profile.update');
-        Route::post('/student/profile/password', [\App\Http\Controllers\Student\StudentProfileController::class, 'updatePassword'])->name('student.profile.password');
 
-        // Course Enrollment
-        Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('ajax.course.enroll');
+        // Student Role Protected Domain Routes
+        Route::middleware([\App\Http\Middleware\EnsureStudentRole::class])->group(function () {
+            Route::get('/student-portal', [\App\Http\Controllers\Student\StudentPortalController::class, 'index'])->name('student-portal');
+            Route::get('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'show'])->name('student.profile');
+            Route::post('/student/profile', [\App\Http\Controllers\Student\StudentProfileController::class, 'update'])->name('student.profile.update');
+            Route::post('/student/profile/password', [\App\Http\Controllers\Student\StudentProfileController::class, 'updatePassword'])->name('student.profile.password');
 
-        // Sessions & Stream Access
-        Route::get('/ajax/sessions/{id}/access', [SessionController::class, 'show'])->name('ajax.session.access');
-        Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
-        Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->name('ajax.exception.submit');
+            // Course Enrollment
+            Route::post('/ajax/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('ajax.course.enroll');
 
-        // Submissions & Interactive Assignment Solver Page
-        Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
-        Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
-        Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->name('ajax.assignment.save-answer');
-        Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->name('ajax.assignment.update-step');
-        Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->name('ajax.assignment.submit');
-        Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->name('ajax.assignment.security-audit');
-        Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
+            // Sessions & Stream Access
+            Route::get('/ajax/sessions/{id}/access', [SessionController::class, 'show'])->name('ajax.session.access');
+            Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
+            Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->name('ajax.exception.submit');
 
-        // Parent Portal Domain Routes
-        Route::get('/parent-portal', [\App\Http\Controllers\Parent\ParentPortalController::class, 'index'])->name('parent-portal');
-        Route::get('/ajax/parent/student/{studentId}/progress', [\App\Http\Controllers\Parent\ParentPortalController::class, 'studentProgress'])->name('ajax.parent.student.progress');
+            // Submissions & Interactive Assignment Solver Page
+            Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
+            Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
+            Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->name('ajax.assignment.save-answer');
+            Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->name('ajax.assignment.update-step');
+            Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->name('ajax.assignment.submit');
+            Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->name('ajax.assignment.security-audit');
+            Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->name('ajax.submission.grade');
+        });
+
+        // Parent Role Protected Domain Routes
+        Route::middleware([\App\Http\Middleware\EnsureParentRole::class])->group(function () {
+            Route::get('/parent-portal', [\App\Http\Controllers\Parent\ParentPortalController::class, 'index'])->name('parent-portal');
+            Route::get('/ajax/parent/student/{studentId}/progress', [\App\Http\Controllers\Parent\ParentPortalController::class, 'studentProgress'])->name('ajax.parent.student.progress');
+        });
+
+        // Teacher Role Protected Domain Routes (Strict Security & Authorization)
+        Route::middleware([\App\Http\Middleware\EnsureTeacherRole::class])->group(function () {
+            Route::get('/teacher-portal', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'index'])->name('teacher-portal');
+            Route::post('/ajax/teacher/sessions/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createSession'])->name('ajax.teacher.sessions.create');
+            Route::post('/ajax/teacher/sessions/{id}/update', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateSession'])->name('ajax.teacher.sessions.update');
+            Route::post('/ajax/teacher/sessions/{id}/link', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateMeetingLink'])->name('ajax.teacher.sessions.link');
+            Route::post('/ajax/teacher/sessions/{id}/reschedule', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'rescheduleSession'])->name('ajax.teacher.sessions.reschedule');
+            Route::post('/ajax/teacher/sessions/{id}/cancel', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'cancelSession'])->name('ajax.teacher.sessions.cancel');
+            Route::post('/ajax/teacher/assignments/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createAssignment'])->name('ajax.teacher.assignments.create');
+            Route::get('/ajax/teacher/submissions/{submissionId}/review-details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSubmissionReview'])->name('ajax.teacher.submissions.review-details');
+            Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->name('ajax.teacher.submissions.review');
+            Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->name('ajax.teacher.attendance.mark');
+            Route::get('/ajax/teacher/students/{studentUserId}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentDetails'])->name('ajax.teacher.students.details');
+        });
 
         // FCM Notifications, Deadline Reminders & 30s Test Push
         Route::get('/ajax/notifications', [\App\Http\Controllers\Notification\NotificationController::class, 'feed'])->name('ajax.notifications.feed');
@@ -145,4 +173,9 @@ JS;
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
     ]);
 });
+});
+
+// System Fallback Route for Undefined Paths -> Animated 404 Page
+Route::fallback(function () {
+    abort(404, __('The page or resource you are looking for does not exist'));
 });

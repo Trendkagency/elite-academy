@@ -17,6 +17,7 @@ class ContactController extends Controller
             'hero_badge' => SiteSetting::get('contact_hero_badge', 'STUDENT & PARENT SUPPORT'),
             'hero_title' => SiteSetting::get('contact_hero_title', 'We Are Always Here To Help'),
             'hero_subtitle' => SiteSetting::get('contact_hero_subtitle', 'Have questions regarding curriculum enrollment, parent progress dashboards, or scheduling a campus visit? Reach out to our dedicated support advisors.'),
+            'hero_image' => SiteSetting::get('contact_hero_image', 'images/academy_campus.png'),
             'phone' => SiteSetting::get('contact_phone', '+20 100 123 4567'),
             'whatsapp' => SiteSetting::get('contact_whatsapp', '+20 100 123 4568'),
             'email' => SiteSetting::get('contact_email', 'support@elite-academy.edu.eg'),

@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 namespace Tests\Feature;
 
@@ -48,6 +48,60 @@ class SubjectsAboutContactIntegrationTest extends TestCase
         $response->assertStatus(200)
             ->assertSee('Calculus & Geometry')
             ->assertSee('Derivatives and coordinate geometry');
+    }
+
+    public function test_subject_details_page_renders_dynamic_counters(): void
+    {
+        $category = Category::create(['name' => 'Science', 'slug' => 'science', 'sort_order' => 1]);
+
+        $subject = Subject::create([
+            'category_id' => $category->id,
+            'name' => 'Quantum Physics',
+            'slug' => 'quantum-physics',
+            'description' => 'Quantum state functions and wave mechanics.',
+            'is_active' => true,
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => 'Dr. Quantum',
+            'email' => 'quantum@teacher.com',
+            'password' => bcrypt('password'),
+            'role' => 'teacher',
+        ]);
+
+        $teacher = \App\Models\TeacherProfile::create([
+            'user_id' => $user->id,
+            'slug' => 'dr-quantum',
+            'rating_avg' => 4.95,
+            'students_count' => 1250,
+        ]);
+
+        $course = \App\Models\Course::create([
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'Quantum Mechanics 101',
+            'slug' => 'quantum-101',
+            'sessions_count' => 14,
+            'rating_avg' => 4.9,
+            'is_active' => true,
+        ]);
+
+        \App\Models\CourseSession::create([
+            'course_id' => $course->id,
+            'title' => 'Session 1: Wave Functions',
+            'sort_order' => 1,
+            'duration_minutes' => 60,
+        ]);
+
+        $response = $this->get("/subject-details/{$subject->slug}");
+
+        $response->assertStatus(200)
+            ->assertSee('Quantum Physics')
+            ->assertSee('Active Courses')
+            ->assertSee('Video Lessons')
+            ->assertSee('Active Students')
+            ->assertSee('Student Rating')
+            ->assertSee('+1,250');
     }
 
     public function test_contact_form_ajax_submission_stores_message(): void

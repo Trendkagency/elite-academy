@@ -24,4 +24,14 @@ class Testimonial extends Model
         'is_featured' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    public function getLocalizedContent(): string
+    {
+        return __($this->content ?? '');
+    }
+
+    public function getLocalizedCourseName(): string
+    {
+        return __($this->course_name ?? '');
+    }
 }

@@ -24,28 +24,14 @@
             @endif
         @endforeach
     @else
-        {{-- Section 01: Hero Slider (4 Fullscreen Slides) --}}
+        {{-- Full Original Landing Page --}}
         @include('pages.home.hero-slider')
-
-        {{-- Section 01.1: Overlapping Glass Statistics Bar --}}
         @include('pages.home.stats-overlay')
-
-        {{-- Section 01.5: Why Choose Elite Section --}}
         @include('pages.home.why-choose')
-
-        {{-- Section 02: About Elite Academy Preview --}}
         @include('pages.home.about-preview')
-
-        {{-- Section 03: Subjects Showcase Grid --}}
         @include('pages.home.subjects-grid')
-
-        {{-- Section 04: Featured Faculty Mentors --}}
         @include('pages.home.teachers-marquee')
-
-        {{-- Section 05: Student & Parent Testimonials --}}
         @include('pages.home.testimonials')
-
-        {{-- Section 06: Call To Action & Stats Strip --}}
         @include('pages.home.cta-section')
     @endif
 @endsection

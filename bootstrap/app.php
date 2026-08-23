@@ -16,6 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
         ]);
+        $middleware->alias([
+            'role.student'     => \App\Http\Middleware\EnsureStudentRole::class,
+            'role.teacher'     => \App\Http\Middleware\EnsureTeacherRole::class,
+            'role.parent'      => \App\Http\Middleware\EnsureParentRole::class,
+            'role.admin'       => \App\Http\Middleware\EnsureAdminRole::class,
+            'permission'       => \App\Http\Middleware\EnsureHasPermission::class,
+            'redirect.teacher' => \App\Http\Middleware\RedirectTeacherToPortal::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

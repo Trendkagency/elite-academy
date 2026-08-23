@@ -1,3 +1,4 @@
+<?php use \App\Models\SiteSetting; ?>
 
 <section class="py-16 md:py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden">
     <div class="absolute top-1/2 -left-24 w-[36rem] h-[36rem] bg-teal-400/12 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
@@ -9,13 +10,16 @@
         <div class="block md:hidden space-y-6 anim-about delay-1">
             <div class="space-y-2">
                 <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
-                    ABOUT ELITE
+                    <?php echo e(SiteSetting::getLocalized('about_badge', 'REDEFINING EDUCATION')); ?>
+
                 </span>
                 <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                    Redefining Education For <span class="text-teal-600 underline decoration-orange-500 underline-offset-4">Future Innovators</span>
+                    <?php echo e(SiteSetting::getLocalized('about_title', 'Where Passion Meets Academic Mastery')); ?>
+
                 </h2>
                 <p class="text-slate-600 text-sm font-medium leading-relaxed line-clamp-2">
-                    Empowering future leaders through hands-on learning, PhD mentorship, and accredited certifications.
+                    <?php echo e(SiteSetting::getLocalized('about_content', 'Elite Academy bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.')); ?>
+
                 </p>
             </div>
 
@@ -24,16 +28,16 @@
                     <div class="relative rounded-2xl overflow-hidden aspect-[4/5] border border-slate-200 shadow-md">
                         <img src="<?php echo e(media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.png')); ?>" alt="Elite Academy Campus" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
-                        <span class="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-xs">Campus</span>
+                        <span class="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-xs"><?php echo e(__('Campus')); ?></span>
                     </div>
                 </div>
 
                 <div class="w-[60%] space-y-3.5">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
-                        ['icon' => '🎓', 'title' => 'Expert Mentors', 'desc' => 'PhD faculty guidance.'],
-                        ['icon' => '💻', 'title' => 'Practical Learning', 'desc' => 'Hands-on lab projects.'],
-                        ['icon' => '🌍', 'title' => 'Global Certificates', 'desc' => 'Accredited diplomas.'],
-                        ['icon' => '🚀', 'title' => 'Career Support', 'desc' => 'Job readiness tracks.'],
+                        ['icon' => '🎓', 'title' => __('Expert Mentors'), 'desc' => __('PhD faculty guidance.')],
+                        ['icon' => '💻', 'title' => __('Practical Learning'), 'desc' => __('Hands-on lab projects.')],
+                        ['icon' => '🌍', 'title' => __('Global Certificates'), 'desc' => __('Accredited diplomas.')],
+                        ['icon' => '🚀', 'title' => __('Career Support'), 'desc' => __('Job readiness tracks.')],
                     ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-start gap-2.5">
                             <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base font-bold shrink-0">
@@ -51,7 +55,7 @@
 
             <div>
                 <a href="<?php echo e(route('about')); ?>" class="btn-lift w-full inline-flex items-center justify-center gap-2 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 min-h-[52px] rounded-2xl shadow-md touch-press">
-                    <span>Learn More About Elite</span>
+                    <span><?php echo e(__('Learn More')); ?></span>
                     <span>&rarr;</span>
                 </a>
             </div>
@@ -62,22 +66,25 @@
             <div class="md:col-span-6 flex flex-col space-y-6 lg:space-y-8">
                 <div class="space-y-3 sm:space-y-4">
                     <span class="anim-about delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
-                        ABOUT ELITE
+                        <?php echo e(SiteSetting::getLocalized('about_badge', 'REDEFINING EDUCATION')); ?>
+
                     </span>
                     <h2 class="anim-about delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                        Redefining Education For <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Future Innovators.</span>
+                        <?php echo e(SiteSetting::getLocalized('about_title', 'Where Passion Meets Academic Mastery')); ?>
+
                     </h2>
                     <p class="anim-about delay-3 sr-img text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
-                        Building future-ready students through practical learning, world-class mentorship, and industry-accredited certifications.
+                        <?php echo e(SiteSetting::getLocalized('about_content', 'Elite Academy bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.')); ?>
+
                     </p>
                 </div>
 
                 <div class="anim-about delay-4 sr grid grid-cols-2 gap-4 border-t border-slate-200/80 pt-6">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
-                        ['icon' => '🎓', 'title' => 'Expert Mentors'],
-                        ['icon' => '💻', 'title' => 'Practical Learning'],
-                        ['icon' => '🌍', 'title' => 'Global Certificates'],
-                        ['icon' => '🚀', 'title' => 'Career Support'],
+                        ['icon' => '🎓', 'title' => __('Expert Mentors')],
+                        ['icon' => '💻', 'title' => __('Practical Learning')],
+                        ['icon' => '🌍', 'title' => __('Global Certificates')],
+                        ['icon' => '🚀', 'title' => __('Career Support')],
                     ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-center gap-3 group">
                             <div class="w-10 h-10 rounded-xl bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0">
@@ -94,7 +101,7 @@
 
                 <div class="anim-about delay-5 pt-1">
                     <a href="<?php echo e(route('about')); ?>" class="btn-lift group inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-extrabold text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 px-8 py-4 rounded-2xl shadow-lg shadow-teal-600/20 touch-press">
-                        <span>Learn More</span>
+                        <span><?php echo e(__('Learn More')); ?></span>
                         <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                     </a>
                 </div>

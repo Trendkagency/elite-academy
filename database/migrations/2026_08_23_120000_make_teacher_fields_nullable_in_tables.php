@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('live_sessions', function (Blueprint $table) {
+            $table->foreignId('student_user_id')->nullable()->change();
+            $table->foreignId('subject_id')->nullable()->change();
+        });
+
+        Schema::table('assignment_submissions', function (Blueprint $table) {
+            $table->foreignId('course_enrollment_id')->nullable()->change();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('live_sessions', function (Blueprint $table) {
+            $table->foreignId('student_user_id')->nullable(false)->change();
+            $table->foreignId('subject_id')->nullable(false)->change();
+        });
+
+        Schema::table('assignment_submissions', function (Blueprint $table) {
+            $table->foreignId('course_enrollment_id')->nullable(false)->change();
+        });
+    }
+};

@@ -54,32 +54,36 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div class="lg:col-span-8 space-y-12">
                 {{-- Free Demo Section --}}
+                @php
+                    $isArabicTitle = preg_match('/\p{Arabic}/u', $cTitle);
+                    $demoTitle = ($isArabicTitle || app()->getLocale() === 'ar')
+                        ? 'الحصة الأولى التجريبية: ' . $cTitle 
+                        : 'Watch Sample Lesson 1.1: ' . $cTitle;
+                    $demoSubtitle = ($isArabicTitle || app()->getLocale() === 'ar')
+                        ? 'شاهد الحصة المجانية الأولى واستكشف أسلوب الشرح التفاعلي والتطبيقات العملية قبل الاشتراك.'
+                        : 'Get a glimpse of our hands-on teaching style before committing. This sample demo covers core concepts and interactive exercises.';
+                    $videoData = $course ? $course->getVideoEmbedData() : ['type' => 'mp4', 'embed_url' => asset('videos/physics_demo.mp4')];
+                    $posterImage = $course && $course->image ? media_url($course->image, 'images/course_ai.png') : asset('images/course_ai.png');
+                @endphp
                 <div id="demo" class="bg-gradient-to-br from-teal-900 via-slate-900 to-teal-950 text-white rounded-3xl p-8 border border-teal-500/40 shadow-xl space-y-6">
                     <div class="flex items-center justify-between border-b border-teal-500/30 pb-4">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></span>
-                            <span class="font-mono text-xs font-bold uppercase tracking-widest text-orange-400">Interactive Preview</span>
+                            <span class="font-mono text-xs font-bold uppercase tracking-widest text-orange-400">{{ __('Interactive Preview') }}</span>
                         </div>
-                        <span class="text-xs font-mono bg-teal-800/80 text-teal-200 px-3 py-1 rounded-full border border-teal-500/30">Free Demo Lesson</span>
+                        <span class="text-xs font-mono bg-teal-800/80 text-teal-200 px-3 py-1 rounded-full border border-teal-500/30">{{ __('Free Demo Lesson') }}</span>
                     </div>
 
                     <div class="space-y-3">
                         <h2 class="font-heading font-extrabold text-2xl text-white">
-                            Watch Sample Lesson 1.1: Building Async Microservices
+                            {{ $demoTitle }}
                         </h2>
                         <p class="text-slate-300 text-xs leading-relaxed">
-                            Get a glimpse of our hands-on teaching style before committing. This sample demo covers task queues and API setup.
+                            {{ $demoSubtitle }}
                         </p>
                     </div>
 
-                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-950 border border-teal-500/30 group cursor-pointer shadow-2xl">
-                        <img src="{{ asset('images/course_ai.png') }}" alt="Demo Video Thumbnail" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center">
-                            <div class="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-2xl shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                ▶
-                            </div>
-                        </div>
-                    </div>
+                    <x-secure-video-player :course="$course" :videoData="$videoData" :posterImage="$posterImage" :title="$cTitle" />
                 </div>
 
                 {{-- Interactive Curriculum Lifetime Timeline Component --}}

@@ -8,15 +8,15 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-slate-200/60">
             <div class="space-y-3 max-w-xl">
                 <span class="anim-testimonials delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-4 py-1.5 rounded-full border border-teal-200/80 shadow-xs">
-                    STUDENT REVIEWS
+                    {{ __('TESTIMONIALS') }}
                 </span>
                 <h2 class="anim-testimonials delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                    What Our Students & <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Parents Say.</span>
+                    {{ \App\Models\SiteSetting::getLocalized('testimonials_title', __('What Our Students & Parents Say.')) }}
                 </h2>
             </div>
 
             <div class="flex items-center gap-4">
-                <span class="text-xs font-mono text-slate-500 font-medium hidden sm:inline">&larr; Swipe Reviews &rarr;</span>
+                <span class="text-xs font-mono text-slate-500 font-medium hidden sm:inline">&larr; {{ __('Swipe Reviews') }} &rarr;</span>
                 <div class="flex items-center gap-2">
                     <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&larr;</button>
                     <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&rarr;</button>
@@ -30,10 +30,10 @@
                 ? \App\Models\Testimonial::where('is_featured', true)->orderBy('sort_order')->get()
                 : collect();
             $testimonials = $dbTestimonials->count() > 0 ? $dbTestimonials->map(fn($t) => [
-                'quote' => '"' . $t->content . '"',
+                'quote' => '"' . $t->getLocalizedContent() . '"',
                 'photo' => $t->avatar ?: 'images/instructor_portrait.png',
                 'name' => $t->name,
-                'course' => $t->course_name ?: 'Elite Academic Track',
+                'course' => $t->getLocalizedCourseName() ?: __('Elite Academic Track'),
                 'badge' => $t->is_verified ? '✔ Verified ' . ucfirst($t->reviewer_type) : ucfirst($t->reviewer_type),
                 'quoteColor' => 'group-hover:text-teal-600',
                 'nameColor' => 'group-hover:text-teal-600',

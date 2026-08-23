@@ -44,7 +44,16 @@ class CourseForm
                         Textarea::make('description')
                             ->columnSpanFull(),
                         FileUpload::make('image')
+                            ->label(__('Course Thumbnail Image'))
+                            ->disk('public')
+                            ->directory('courses')
+                            ->visibility('public')
                             ->image()
+                            ->imageEditor()
+                            ->columnSpanFull(),
+                        TextInput::make('demo_video_url')
+                            ->label(__('Free Demo Video URL (MP4 / YouTube Link)'))
+                            ->placeholder('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')
                             ->columnSpanFull(),
                     ]),
 

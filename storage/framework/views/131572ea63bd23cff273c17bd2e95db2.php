@@ -62,12 +62,39 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 
     <style>
-        /* Critical styles to eliminate white flash and apply Cairo font family */
-        html, body, button, input, select, textarea, .font-sans, .font-heading {
-            font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+        :root {
+            --font-family-english: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-family-arabic: "GE Jarida", "Cairo", "Traditional Arabic", sans-serif;
+            --font-family-mono: "JetBrains Mono", monospace;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-md: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --line-height-tight: 1.2;
+            --line-height-normal: 1.5;
+            --line-height-relaxed: 1.7;
+        }
+        html[lang="ar"], [dir="rtl"] {
+            --font-sans: var(--font-family-arabic);
+            --font-heading: var(--font-family-arabic);
+        }
+        html[lang="en"], [dir="ltr"] {
+            --font-sans: var(--font-family-english);
+            --font-heading: var(--font-family-english);
+        }
+        html, body, button, input, select, textarea, table, .font-sans, .font-heading {
+            font-family: var(--font-sans) !important;
         }
 
         html, body {
@@ -193,20 +220,20 @@
                 </div>
                 <div class="space-y-2 flex-1">
                     <h4 class="font-heading font-bold text-sm sm:text-base text-white">
-                        <?php echo e(app()->getLocale() === 'ar' ? 'تفعيل إشعارات الفصول والبث المباشر' : 'Enable Live Push Notifications'); ?>
+                        <?php echo e(__('Enable Live Push Notifications')); ?>
 
                     </h4>
-                    <p class="text-xs text-slate-300 leading-relaxed font-mono">
-                        <?php echo e(app()->getLocale() === 'ar' ? 'اشترك في الإشعارات المباشرة ليصلك تنبيه قبل 24 ساعة من المواعيد وتذكيرات الواجبات وتنبيهات الإدارة.' : 'Stay updated with instant alerts for upcoming live sessions, 24h assignment deadlines, and admin approvals.'); ?>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        <?php echo e(__('Stay updated with instant alerts for upcoming live sessions, 24h assignment deadlines, and admin approvals.')); ?>
 
                     </p>
                     <div class="flex items-center gap-2 pt-1">
                         <button id="btn-enable-fcm" type="button" class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
-                            <span>✨</span> <?php echo e(app()->getLocale() === 'ar' ? 'السماح بالإشعارات الآن' : 'Allow Notifications Now'); ?>
+                            <span>✨</span> <?php echo e(__('Allow Notifications Now')); ?>
 
                         </button>
                         <button id="btn-dismiss-fcm" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-all cursor-pointer">
-                            <?php echo e(app()->getLocale() === 'ar' ? 'لاحقاً' : 'Later'); ?>
+                            <?php echo e(__('Later')); ?>
 
                         </button>
                     </div>

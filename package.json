@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "build": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
-    "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+    "dev": "tailwindcss -i ./src/input.css -o ./public/dist/output.css --watch",
+    "build": "tailwindcss -i ./src/input.css -o ./public/dist/output.css --minify && tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/dist/output.css && tailwindcss -i ./src/input.css -o ./dist/output.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

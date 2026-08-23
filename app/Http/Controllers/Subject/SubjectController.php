@@ -36,13 +36,32 @@ class SubjectController extends Controller
                       ->orWhere('name', 'like', "%{$slug}%");
                 });
             })
-            ->with(['category', 'courses.teacher.user', 'courses.gradeLevel'])
+            ->with(['category', 'courses' => function ($q) {
+                $q->where('is_active', true)->with(['teacher.user', 'gradeLevel', 'sessions']);
+            }])
             ->first();
 
+        if (! $subject && $slug) {
+            $subject = Subject::where('is_active', true)
+                ->with(['category', 'courses' => function ($q) {
+                    $q->where('is_active', true)->with(['teacher.user', 'gradeLevel', 'sessions']);
+                }])
+                ->first();
+        }
+
+        $videoLessonsCount = $subject ? $subject->getVideoLessonsCount() : 0;
+        $activeCoursesCount = $subject ? $subject->getActiveCoursesCount() : 0;
+        $activeStudentsCount = $subject ? $subject->getActiveStudentsCount() : 0;
+        $ratingAvg = $subject ? $subject->getRatingAvg() : 4.9;
+
         return view('pages.subject-details', [
-            'pageTitle' => $subject ? "{$subject->name} — Elite Academy" : 'Subject Details — Elite Academy',
+            'pageTitle' => $subject ? "{$subject->getLocalizedName()} — Elite Academy" : 'Subject Details — Elite Academy',
             'activeNav' => 'subjects',
             'subject' => $subject,
+            'videoLessonsCount' => $videoLessonsCount,
+            'activeCoursesCount' => $activeCoursesCount,
+            'activeStudentsCount' => $activeStudentsCount,
+            'ratingAvg' => $ratingAvg,
         ]);
     }
 }

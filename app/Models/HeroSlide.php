@@ -21,4 +21,19 @@ class HeroSlide extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    public function getLocalizedTitle(): string
+    {
+        return __($this->title ?? '');
+    }
+
+    public function getLocalizedSubtitle(): string
+    {
+        return __($this->subtitle ?? '');
+    }
+
+    public function getLocalizedTrackLabel(): string
+    {
+        return __($this->track_label ?? '');
+    }
 }

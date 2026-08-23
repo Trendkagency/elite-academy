@@ -25,6 +25,27 @@ class SiteSetting extends Model
         return $setting ? $setting->value : $default;
     }
 
+    public static function getLocalized(string $key, ?string $default = null): ?string
+    {
+        $locale = app()->getLocale();
+        $localizedKey = "{$key}_{$locale}";
+        $val = static::get($localizedKey);
+
+        if ($val !== null && $val !== '') {
+            return $val;
+        }
+
+        $fallbackLocale = $locale === 'ar' ? 'en' : 'ar';
+        $fallbackKey = "{$key}_{$fallbackLocale}";
+        $val = static::get($fallbackKey);
+
+        if ($val !== null && $val !== '') {
+            return $val;
+        }
+
+        return static::get($key, $default);
+    }
+
     public static function set(string $key, ?string $value, string $group = 'general'): void
     {
         static::updateOrCreate(

@@ -10,8 +10,12 @@ use Illuminate\View\View;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|\Illuminate\Http\RedirectResponse
     {
+        if (auth()->check() && auth()->user()->isTeacher()) {
+            return redirect()->route('teacher-portal');
+        }
+
         $subjectFilter = $request->query('subject');
         $searchQuery = $request->query('q');
 

@@ -84,7 +84,7 @@
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
                         <span>{{ app()->getLocale() === 'ar' ? 'الصف الدراسي' : 'Grade Level' }}</span>
-                        <span class="text-[10px] font-mono text-teal-600 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب للطالب' : 'Required for Student' }}</span>
+                        <span class="text-[10px] text-teal-600 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب للطالب' : 'Required for Student' }}</span>
                     </label>
                     <select name="grade_level_id" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 shadow-xs">
                         <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الصف الدراسي...' : 'Select Grade Level...' }}</option>

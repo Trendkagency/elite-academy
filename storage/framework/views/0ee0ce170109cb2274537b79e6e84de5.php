@@ -1,3 +1,27 @@
+<?php use \App\Models\SiteSetting; ?>
+<?php
+    $locale = app()->getLocale();
+    $badge = SiteSetting::getLocalized('why_badge', __('home.why_badge'));
+    $title = SiteSetting::getLocalized('why_title', __('Why Students Choose Elite Academy'));
+    $subtitle = SiteSetting::getLocalized('why_subtitle', __('Elite Academy blends academic rigour with real-world application to give students the edge they need.'));
+    
+    $rawItems = SiteSetting::get('landing_why_items');
+    $customItems = $rawItems ? json_decode($rawItems, true) : null;
+    
+    $features = $customItems ? array_map(function($item) use ($locale) {
+        return [
+            'icon' => '✨',
+            'title' => ($locale === 'ar' ? ($item['title_ar'] ?? null) : null) ?: ($item['title_en'] ?? ''),
+            'desc' => ($locale === 'ar' ? ($item['desc_ar'] ?? null) : null) ?: ($item['desc_en'] ?? ''),
+        ];
+    }, $customItems) : [
+        ['icon' => '🎓', 'title' => __('250+ Courses'), 'desc' => __('Industry-recognized curriculum.')],
+        ['icon' => '👨‍🏫', 'title' => __('Expert Teachers'), 'desc' => __('Learn from experienced educators.')],
+        ['icon' => '🌍', 'title' => __('International Certificates'), 'desc' => __('Recognized academic credentials.')],
+        ['icon' => '🛠', 'title' => __('Practical Learning'), 'desc' => __('Hands-on projects and labs.')],
+    ];
+?>
+
 
 <section class="py-12 sm:py-20 lg:py-28 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/70">
     
@@ -24,23 +48,19 @@
             <div class="flex-1 space-y-3 sm:space-y-6">
 
                 <div class="space-y-1.5 sm:space-y-3">
-                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse"><?php echo e(__('home.why_badge')); ?></span>
+                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse"><?php echo e($badge); ?></span>
 
                     <h2 class="font-heading font-black text-base sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 tracking-tight leading-tight">
-                        Why Students Choose <span class="text-teal-600 underline decoration-orange-500 underline-offset-4 sm:underline-offset-8">Elite Academy</span>
+                        <?php echo e($title); ?>
+
                     </h2>
 
-                    <p class="text-slate-600 text-xs sm:text-base font-medium leading-relaxed line-clamp-2"><?php echo e(__('home.why_subtitle')); ?></p>
+                    <p class="text-slate-600 text-xs sm:text-base font-medium leading-relaxed line-clamp-2"><?php echo e($subtitle); ?></p>
                 </div>
 
                 
                 <div class="space-y-2 sm:space-y-4 pt-1 sm:pt-2" data-stagger>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = [
-                        ['icon' => '🎓', 'title' => '250+ Courses', 'desc' => 'Industry-recognized curriculum.'],
-                        ['icon' => '👨‍🏫', 'title' => 'Expert Teachers', 'desc' => 'Learn from experienced educators.'],
-                        ['icon' => '🌍', 'title' => 'International Certificates', 'desc' => 'Recognized academic credentials.'],
-                        ['icon' => '🛠', 'title' => 'Practical Learning', 'desc' => 'Hands-on projects and labs.'],
-                    ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
                             <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
                                 <?php echo e($feature['icon']); ?>

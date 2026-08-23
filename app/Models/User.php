@@ -132,4 +132,35 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->parentProfile()->exists();
     }
+
+    public function getRoleName(): string
+    {
+        if ($this->isAdmin()) {
+            return \App\Enums\Role::ADMIN->value;
+        }
+        if ($this->isTeacher()) {
+            return \App\Enums\Role::TEACHER->value;
+        }
+        if ($this->isParent()) {
+            return \App\Enums\Role::PARENT->value;
+        }
+
+        return \App\Enums\Role::STUDENT->value;
+    }
+
+    public function getPermissionsList(): array
+    {
+        return \App\Permissions\PermissionsRegistry::defaultPermissionsForRole($this->getRoleName());
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $this->getPermissionsList();
+
+        return in_array($permission, $permissions, true);
+    }
 }

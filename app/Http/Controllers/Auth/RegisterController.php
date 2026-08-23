@@ -31,7 +31,7 @@ class RegisterController extends Controller
                     return redirect('/admin');
                 }
                 if ($user->isTeacher()) {
-                    return redirect()->route('teachers');
+                    return redirect()->route('teacher-portal');
                 }
                 if ($user->isParent()) {
                     return redirect()->route('parent-portal');

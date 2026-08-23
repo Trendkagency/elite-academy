@@ -392,6 +392,28 @@ class FcmNotificationService
     }
 
     /**
+     * 5b. إشعار الطالب بتقييم الواجب ورصد الدرجة
+     */
+    public function notifyStudentSubmissionGraded(AssignmentSubmission $submission): ?UserNotification
+    {
+        $student = $submission->studentUser ?: User::find($submission->student_user_id);
+        if (! $student) return null;
+
+        $assignmentTitle = $submission->assignment?->title ?: 'الواجب';
+        $score = $submission->score !== null ? number_format($submission->score, 1) : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📊 تم رصد درجة الواجب'
+            : '📊 Assignment Graded';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم تقييم إجاباتك في واجب ({$assignmentTitle}) وحصلت على درجة ({$score})."
+            : "Your submission for ({$assignmentTitle}) has been evaluated. Score: ({$score}).";
+
+        return $this->sendNotification($student, 'SUBMISSION_GRADED', $title, $body, route('student-portal'));
+    }
+
+    /**
      * 5. عدم تسليم الواجب
      */
     public function notifyAssignmentOverdue(Assignment $assignment, User $student): UserNotification

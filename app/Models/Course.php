@@ -20,6 +20,7 @@ class Course extends Model
         'slug',
         'description',
         'image',
+        'demo_video_url',
         'is_active',
         'sessions_count',
         'session_duration_minutes',
@@ -86,5 +87,64 @@ class Course extends Model
     public function liveSessions(): HasMany
     {
         return $this->hasMany(LiveSession::class)->orderBy('scheduled_at', 'desc');
+    }
+
+    public function getDemoVideoUrl(): string
+    {
+        if (! empty($this->demo_video_url)) {
+            $url = trim($this->demo_video_url);
+            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                return $url;
+            }
+
+            return asset(ltrim($url, '/'));
+        }
+
+        $subjectSlug = $this->subject ? $this->subject->slug : '';
+
+        return match ($subjectSlug) {
+            'physics' => asset('videos/physics_demo.mp4'),
+            'chemistry' => asset('videos/chemistry_demo.mp4'),
+            'biology' => asset('videos/chemistry_demo.mp4'),
+            'mathematics' => asset('videos/math_demo.mp4'),
+            'programming' => asset('videos/programming_demo.mp4'),
+            'arabic' => asset('videos/arabic_demo.mp4'),
+            'english' => asset('videos/english_demo.mp4'),
+            default => asset('videos/physics_demo.mp4'),
+        };
+    }
+
+    public function getVideoEmbedData(): array
+    {
+        $rawUrl = $this->getDemoVideoUrl();
+
+        // 1. YouTube check
+        if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/i', $rawUrl, $matches)) {
+            $youtubeId = $matches[1];
+            return [
+                'type' => 'youtube',
+                'embed_url' => "https://www.youtube.com/embed/{$youtubeId}?autoplay=1&rel=0&enablejsapi=1",
+                'raw_url' => $rawUrl,
+                'youtube_id' => $youtubeId,
+            ];
+        }
+
+        // 2. Vimeo check
+        if (preg_match('/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i', $rawUrl, $matches)) {
+            $vimeoId = $matches[1];
+            return [
+                'type' => 'vimeo',
+                'embed_url' => "https://player.vimeo.com/video/{$vimeoId}?autoplay=1",
+                'raw_url' => $rawUrl,
+                'vimeo_id' => $vimeoId,
+            ];
+        }
+
+        // 3. Native MP4
+        return [
+            'type' => 'mp4',
+            'embed_url' => $rawUrl,
+            'raw_url' => $rawUrl,
+        ];
     }
 }

@@ -18,4 +18,9 @@ class Category extends Model
     {
         return $this->hasMany(Subject::class);
     }
+
+    public function getLocalizedName(): string
+    {
+        return __($this->name ?? '');
+    }
 }
