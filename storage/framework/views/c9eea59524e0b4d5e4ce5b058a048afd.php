@@ -1,0 +1,1 @@
+<?php /**PATH C:\laragon\www\elite-academy\resources\views/pages/home/faq-section.blade.php ENDPATH**/ ?>
