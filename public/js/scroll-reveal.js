@@ -11,27 +11,28 @@
   /* ──────────────────────────────────────────────
      CONFIG & CONSTANTS
   ────────────────────────────────────────────── */
-  const EASING    = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  const DURATION  = 900;    // ms — default
-  const STAGGER   = 100;    // ms — between card children
-  const THRESHOLD = 0.15;   // 15% visible before triggering
+  const EASING    = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  const DURATION  = 180;    // ms — ultra-snappy instant response
+  const STAGGER   = 30;     // ms — quick micro-stagger
+  const THRESHOLD = 0.01;   // Triggers immediately on 1px viewport touch
 
   /* ──────────────────────────────────────────────
      1. INJECT BASE REVEAL & MOTION CSS
   ────────────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    /* Scroll Reveal — hidden initial states */
-    .sr, .sr-h, .sr-img, .sr-btn, .sr-card {
+    /* Scroll Reveal — subtle initial states for instant responsiveness */
+    .sr, .sr-h, .sr-img, .sr-btn, .sr-card, .sr-sub, .sr-stat {
       will-change: opacity, transform;
+      transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sr        { opacity: 0; transform: translateY(60px); }
-    .sr-h      { opacity: 0; transform: translateY(40px); }
-    .sr-sub    { opacity: 0; transform: translateY(30px); }
-    .sr-img    { opacity: 0; transform: scale(0.94) translateY(28px); }
-    .sr-btn    { opacity: 0; transform: scale(0.95); }
-    .sr-card   { opacity: 0; transform: translateY(48px); }
-    .sr-stat   { opacity: 0; transform: translateY(32px) scale(0.95); }
+    .sr        { opacity: 0; transform: translateY(12px); }
+    .sr-h      { opacity: 0; transform: translateY(10px); }
+    .sr-sub    { opacity: 0; transform: translateY(8px); }
+    .sr-img    { opacity: 0; transform: scale(0.98) translateY(10px); }
+    .sr-btn    { opacity: 0; transform: scale(0.98); }
+    .sr-card   { opacity: 0; transform: translateY(12px); }
+    .sr-stat   { opacity: 0; transform: translateY(10px) scale(0.98); }
 
     /* Revealed — final state */
     .sr.revealed, .sr-h.revealed, .sr-sub.revealed,

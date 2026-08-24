@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class SiteSetting extends Model
 {
@@ -14,15 +16,28 @@ class SiteSetting extends Model
         'value',
     ];
 
+    /**
+     * Get all settings key-value pairs cached in memory.
+     */
+    public static function allCached(): array
+    {
+        return Cache::rememberForever('site_settings_dict', function () {
+            if (!Schema::hasTable('site_settings')) {
+                return [];
+            }
+            return static::pluck('value', 'key')->toArray();
+        });
+    }
+
     public static function get(string $key, ?string $default = null): ?string
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('site_settings')) {
-            return $default;
+        $settings = static::allCached();
+
+        if (array_key_exists($key, $settings)) {
+            return $settings[$key];
         }
 
-        $setting = static::where('key', $key)->first();
-
-        return $setting ? $setting->value : $default;
+        return $default;
     }
 
     public static function getLocalized(string $key, ?string $default = null): ?string
@@ -52,5 +67,7 @@ class SiteSetting extends Model
             ['key' => $key],
             ['value' => $value, 'group' => $group]
         );
+
+        Cache::forget('site_settings_dict');
     }
 }

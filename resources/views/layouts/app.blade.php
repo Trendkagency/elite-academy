@@ -195,6 +195,7 @@
     </style>
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
     @stack('head')
+    @include('partials.inp-optimizer')
 </head>
 <body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] text-slate-900 selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen m-0 p-0">
 

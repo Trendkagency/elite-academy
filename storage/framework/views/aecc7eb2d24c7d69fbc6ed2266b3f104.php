@@ -17,10 +17,11 @@
     $quickLinksRaw = \App\Models\SiteSetting::get('footer_quick_links');
     $quickLinks = $quickLinksRaw ? json_decode($quickLinksRaw, true) : [
         ['label_ar' => 'الرئيسية', 'label_en' => 'Home', 'url' => '/'],
+        ['label_ar' => 'الأسئلة الشائعة', 'label_en' => 'FAQ & Help', 'url' => '/faq'],
         ['label_ar' => 'من نحن', 'label_en' => 'About Us', 'url' => '/about'],
         ['label_ar' => 'المعلمون', 'label_en' => 'Teachers', 'url' => '/teachers'],
-        ['label_ar' => 'الفعاليات', 'label_en' => 'Events', 'url' => '/events'],
         ['label_ar' => 'المدونة', 'label_en' => 'Blog', 'url' => '/blog'],
+        ['label_ar' => 'خريطة الموقع', 'label_en' => 'Sitemap XML', 'url' => '/sitemap.xml'],
         ['label_ar' => 'بوابة الطلاب', 'label_en' => 'Student Portal', 'url' => '/student-portal'],
     ];
 

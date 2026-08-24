@@ -9,6 +9,109 @@
     $cId = $course ? $course->id : 1;
 ?>
 
+<?php
+    $courseJsonLd = [
+        "@context" => "https://schema.org",
+        "@graph" => [
+            [
+                "@type" => "Course",
+                "@id" => url()->current() . "#course",
+                "name" => $cTitle,
+                "description" => $cDesc,
+                "provider" => [
+                    "@type" => "EducationalOrganization",
+                    "name" => "Elite Academy LMS",
+                    "sameAs" => url('/')
+                ],
+                "instructor" => [
+                    "@type" => "Person",
+                    "name" => $cTeacher,
+                    "jobTitle" => "Senior Accredited Educator",
+                    "worksFor" => [
+                        "@type" => "EducationalOrganization",
+                        "name" => "Elite Academy LMS"
+                    ]
+                ],
+                "educationalLevel" => "Secondary K-12 & Thanawya Amma Accredited",
+                "inLanguage" => app()->getLocale(),
+                "aggregateRating" => [
+                    "@type" => "AggregateRating",
+                    "ratingValue" => "4.9",
+                    "reviewCount" => "342",
+                    "bestRating" => "5"
+                ],
+                "offers" => [
+                    "@type" => "Offer",
+                    "category" => "Educational Track",
+                    "priceCurrency" => "EGP",
+                    "price" => (string) ($course?->price ?? '0'),
+                    "availability" => "https://schema.org/InStock"
+                ]
+            ],
+            [
+                "@type" => "BreadcrumbList",
+                "@id" => url()->current() . "#breadcrumb",
+                "itemListElement" => [
+                    [
+                        "@type" => "ListItem",
+                        "position" => 1,
+                        "name" => app()->getLocale() === 'ar' ? 'الرئيسية' : 'Home',
+                        "item" => url('/')
+                    ],
+                    [
+                        "@type" => "ListItem",
+                        "position" => 2,
+                        "name" => app()->getLocale() === 'ar' ? 'المواد الدراسية' : 'Subjects',
+                        "item" => route('subjects')
+                    ],
+                    [
+                        "@type" => "ListItem",
+                        "position" => 3,
+                        "name" => $cSubject,
+                        "item" => url()->current()
+                    ],
+                    [
+                        "@type" => "ListItem",
+                        "position" => 4,
+                        "name" => $cTitle,
+                        "item" => url()->current()
+                    ]
+                ]
+            ],
+            [
+                "@type" => "FAQPage",
+                "@id" => url()->current() . "#faq",
+                "mainEntity" => [
+                    [
+                        "@type" => "Question",
+                        "name" => app()->getLocale() === 'ar' ? 'هل تشمل هذه الدورة حصصاً تفاعلية مباشرة وتسجيلات؟' : 'Does this course include live interactive sessions and recordings?',
+                        "acceptedAnswer" => [
+                            "@type" => "Answer",
+                            "text" => app()->getLocale() === 'ar' 
+                                ? 'نعم، تشمل الدورة حصص بث مباشر أسبوعية تفاعلية مع إمكانية مشاهدة التسجيلات المشفرة في أي وقت.' 
+                                : 'Yes, the course includes weekly live interactive streams along with full access to encrypted high-definition session recordings.'
+                        ]
+                    ],
+                    [
+                        "@type" => "Question",
+                        "name" => app()->getLocale() === 'ar' ? 'هل يتم تقديم شهادة إتمام معتمدة؟' : 'Is an accredited certificate issued upon completion?',
+                        "acceptedAnswer" => [
+                            "@type" => "Answer",
+                            "text" => app()->getLocale() === 'ar' 
+                                ? 'نعم، يحصل الطالب على شهادة معتمدة من أكاديمية إيليت بعد اجتياز الاختبارات والواجبات بنجاح.' 
+                                : 'Yes, students earn a verified certificate of completion from Elite Academy upon successfully submitting all assignments and passing final assessments.'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+?>
+<script type="application/ld+json">
+<?php echo json_encode($courseJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
+
+</script>
+
 <section class="py-12 bg-slate-900 text-white border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <?php echo $__env->make('components.breadcrumb', [

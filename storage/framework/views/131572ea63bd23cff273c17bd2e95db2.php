@@ -196,6 +196,7 @@
     </style>
     <link rel="stylesheet" href="<?php echo e(asset('dist/output.css')); ?>?v=<?php echo e(time()); ?>">
     <?php echo $__env->yieldPushContent('head'); ?>
+    <?php echo $__env->make('partials.inp-optimizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </head>
 <body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] text-slate-900 selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen m-0 p-0">
 

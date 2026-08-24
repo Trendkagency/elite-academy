@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request): View|\Illuminate\Http\RedirectResponse
+    public function index(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         if (auth()->check() && auth()->user()->isTeacher()) {
             return redirect()->route('teacher-portal');
@@ -41,9 +41,23 @@ class TeacherController extends Controller
 
         $teachers = $query->orderBy('is_featured', 'desc')
             ->orderBy('rating_avg', 'desc')
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
 
         $subjects = Subject::orderBy('sort_order')->get();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'total' => $teachers->total(),
+                'from' => $teachers->firstItem() ?? 0,
+                'to' => $teachers->lastItem() ?? 0,
+                'current_page' => $teachers->currentPage(),
+                'last_page' => $teachers->lastPage(),
+                'html' => view('partials.teachers-grid-items', ['teachers' => $teachers])->render(),
+                'pagination_html' => $teachers->links('components.pagination')->render(),
+            ]);
+        }
 
         return view('pages.teachers', [
             'pageTitle' => 'Teachers & Faculty Directory — Elite Academy',
