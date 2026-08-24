@@ -32,8 +32,22 @@ class StudentPortalController extends Controller
 
         $hasActivePackage = $package && $package->status === 'active' && $package->remaining_sessions > 0 && (! $package->expires_at || $package->expires_at->isFuture());
 
-        $upcomingSessions = $user ? LiveSession::where(function ($q) use ($user) {
+        $enrollments = $user ? CourseEnrollment::where('student_user_id', $user->id)
+            ->with([
+                'course.subject',
+                'course.teacher.user',
+                'course.sessions.assignments',
+                'course.liveSessions.teacherProfile.user',
+                'course.gradeLevel',
+                'progress'
+            ])
+            ->get() : collect();
+
+        $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();
+
+        $upcomingSessions = $user ? LiveSession::where(function ($q) use ($user, $enrolledCourseIds) {
                 $q->where('student_user_id', $user->id)
+                  ->orWhereIn('course_id', $enrolledCourseIds)
                   ->orWhereNull('student_user_id');
             })
             ->where(function ($q) {
@@ -56,18 +70,8 @@ class StudentPortalController extends Controller
                 // If it IS a free demo session, it is visible for free trial
                 return true;
             })
+            ->unique('id')
             ->values() : collect();
-
-        $enrollments = $user ? CourseEnrollment::where('student_user_id', $user->id)
-            ->with([
-                'course.subject',
-                'course.teacher.user',
-                'course.sessions.assignments',
-                'course.liveSessions.teacherProfile.user',
-                'course.gradeLevel',
-                'progress'
-            ])
-            ->get() : collect();
 
         $submissions = $user ? AssignmentSubmission::where('student_user_id', $user->id)
             ->with(['assignment.course', 'assignment.session', 'assignment.liveSession', 'answers'])

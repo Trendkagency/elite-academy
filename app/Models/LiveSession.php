@@ -21,6 +21,7 @@ class LiveSession extends Model
         'teacher_profile_id',
         'subject_id',
         'course_id',
+        'course_session_id',
         'scheduled_at',
         'start_at',
         'end_at',
@@ -123,6 +124,21 @@ class LiveSession extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function sessionMeeting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SessionMeeting::class, 'live_session_id');
+    }
+
+    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MeetingAttendance::class, 'live_session_id');
+    }
+
+    public function securityEvents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MeetingSecurityEvent::class, 'live_session_id');
+    }
+
     public function getEffectiveStartAtAttribute(): ?Carbon
     {
         if ($this->start_at || $this->scheduled_at) {
@@ -169,13 +185,13 @@ class LiveSession extends Model
 
     public function getIsFreeDemoSessionAttribute(): bool
     {
+        if (array_key_exists('is_free_demo', $this->attributes) && $this->attributes['is_free_demo'] !== null) {
+            return (bool) $this->attributes['is_free_demo'];
+        }
+
         $course = $this->course;
         if (! $course || ! (bool) $course->has_free_demo) {
             return false;
-        }
-
-        if (array_key_exists('is_free_demo', $this->attributes) && $this->attributes['is_free_demo'] !== null) {
-            return (bool) $this->attributes['is_free_demo'];
         }
 
         $firstSessionId = static::where('course_id', $course->id)

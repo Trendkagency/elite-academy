@@ -1,6 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $siteJsonLd = [
+        "@context" => "https://schema.org",
+        "@graph" => [
+            [
+                "@type" => "WebSite",
+                "@id" => url('/') . "/#website",
+                "url" => url('/'),
+                "name" => "Elite Academy LMS",
+                "description" => "Leading K-12 Interactive Learning Management System & Online Tutoring Platform",
+                "publisher" => [
+                    "@id" => url('/') . "/#organization"
+                ],
+                "inLanguage" => app()->getLocale()
+            ],
+            [
+                "@type" => "EducationalOrganization",
+                "@id" => url('/') . "/#organization",
+                "name" => "Elite Academy LMS",
+                "url" => url('/'),
+                "logo" => asset('images/logo.png'),
+                "sameAs" => [
+                    "https://facebook.com/eliteacademy",
+                    "https://twitter.com/eliteacademy"
+                ]
+            ]
+        ]
+    ];
+@endphp
+<script type="application/ld+json">
+{!! json_encode($siteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
     @php
         $layoutRaw = \App\Models\SiteSetting::get('sections_layout');
         $layout = $layoutRaw ? json_decode($layoutRaw, true) : null;

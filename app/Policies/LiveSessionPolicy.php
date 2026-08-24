@@ -25,16 +25,31 @@ class LiveSessionPolicy
             return true;
         }
 
-        // Student can only join their own assigned live session
-        if ((int) $session->student_user_id !== (int) $user->id) {
+        // Status must be active (scheduled, link_visible, or in_progress)
+        if (in_array($session->status, ['cancelled', 'completed', 'cancelled_by_teacher'], true)) {
             return false;
         }
 
-        // Status must be active (scheduled or link_visible or in_progress)
-        if (in_array($session->status, ['cancelled', 'completed'])) {
+        // Teacher assigned to session
+        if ($user->isTeacher()) {
+            if ($session->teacherProfile && (int) $session->teacherProfile->user_id === (int) $user->id) {
+                return true;
+            }
             return false;
         }
 
-        return true;
+        // Student assigned directly
+        if ($session->student_user_id && (int) $session->student_user_id === (int) $user->id) {
+            return true;
+        }
+
+        // Course-wide session check
+        if ($session->student_user_id === null && $session->course_id) {
+            return \App\Models\CourseEnrollment::where('student_user_id', $user->id)
+                ->where('course_id', $session->course_id)
+                ->exists();
+        }
+
+        return false;
     }
 }

@@ -215,9 +215,10 @@
                                 $state = $s->evaluateState(auth()->user());
                                 $startAt = $s->effective_start_at;
                                 $endAt = $s->effective_end_at;
+                                $joinableAt = $s->joinable_at;
                             ?>
                             <div class="p-5 bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                     <div class="flex items-center gap-2.5">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($state === \App\Enums\LiveSessionState::LIVE): ?>
                                             <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
@@ -227,12 +228,20 @@
                                         <h3 class="font-bold text-base text-slate-900"><?php echo e($s->title ?: (app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session')); ?></h3>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                        <span class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200">
+                                        <span class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap">
                                             📅 <?php echo e(app()->getLocale() === 'ar' ? 'البداية' : 'Start'); ?>: <?php echo e($startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled'); ?>
 
                                         </span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($startAt && $startAt->isFuture()): ?>
+                                            <span class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
+                                                  data-start-time="<?php echo e($startAt->toIso8601String()); ?>"
+                                                  data-join-time="<?php echo e($joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String()); ?>">
+                                                <span>⏳</span>
+                                                <span class="countdown-text"><?php echo e(app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...'); ?></span>
+                                            </span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($endAt): ?>
-                                            <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60">
+                                            <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
                                                 ⏱️ <?php echo e(app()->getLocale() === 'ar' ? 'النهاية' : 'End'); ?>: <?php echo e($endAt->format('h:i A')); ?>
 
                                             </span>
@@ -241,7 +250,7 @@
                                             $halfAt = $startAt ? $startAt->copy()->addMinutes((int) ceil(($s->duration_minutes ?: 60) / 2)) : null;
                                         ?>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($halfAt): ?>
-                                            <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80" title="<?php echo e(app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session'); ?>">
+                                            <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap" title="<?php echo e(app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session'); ?>">
                                                 ⏳ <?php echo e(app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff'); ?>: <?php echo e($halfAt->format('h:i A')); ?>
 
                                             </span>
@@ -255,11 +264,19 @@
                                         <span>📚 <?php echo e(app()->getLocale() === 'ar' ? 'المادة' : 'Subject'); ?>: <strong><?php echo e($s->subject?->name ?: 'Physics'); ?></strong></span>
                                     </div>
 
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($state === \App\Enums\LiveSessionState::LIVE && $s->meeting_link): ?>
-                                        <a href="<?php echo e($s->meeting_link); ?>" target="_blank" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($state === \App\Enums\LiveSessionState::LIVE): ?>
+                                        <a href="<?php echo e(route('student.meeting.show', ['id' => $s->id])); ?>" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
                                             <span>🟢</span> <?php echo e(app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream'); ?>
 
                                         </a>
+                                    <?php elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE): ?>
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                            <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs" title="<?php echo e(app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time'); ?>">
+                                                <span>🔒</span>
+                                                <span><?php echo e(app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:'); ?></span>
+                                                <span class="text-teal-700 font-extrabold"><?php echo e($joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before')); ?></span>
+                                            </span>
+                                        </div>
                                     <?php elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED): ?>
                                         <a href="<?php echo e(route('courses')); ?>" class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
                                             <span>🔒</span> <?php echo e($state->label()); ?>
@@ -1553,6 +1570,52 @@ function changeModalRecPage(delta) {
 function closeEnrolledCourseModal() {
     const modal = document.getElementById('enrolledCourseModal');
     modal.classList.add('hidden');
+}
+
+// ── Live Session Countdown Timers ──────────────────────────────────────────
+function initSessionCountdowns() {
+    const isAr = <?php echo json_encode(app()->getLocale() === 'ar', 15, 512) ?>;
+
+    function update() {
+        const now = new Date().getTime();
+
+        // Single live ticking countdown to session start time
+        document.querySelectorAll('.session-countdown-pill').forEach(pill => {
+            const startStr = pill.getAttribute('data-start-time');
+            const textEl = pill.querySelector('.countdown-text');
+            if (!startStr || !textEl) return;
+
+            const startTime = new Date(startStr).getTime();
+            const diff = startTime - now;
+
+            if (diff <= 0) {
+                textEl.textContent = isAr ? 'بدأت الحصة الآن 🔴' : 'Session Live Now 🔴';
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            let parts = [];
+            if (d > 0) parts.push(d + (isAr ? 'ي ' : 'd '));
+            if (h > 0 || d > 0) parts.push(String(h).padStart(2, '0') + (isAr ? 'س ' : 'h '));
+            parts.push(String(m).padStart(2, '0') + (isAr ? 'د ' : 'm '));
+            parts.push(String(s).padStart(2, '0') + (isAr ? 'ث' : 's'));
+
+            textEl.textContent = (isAr ? 'تبدأ خلال: ' : 'Starts in: ') + parts.join('');
+        });
+    }
+
+    update();
+    setInterval(update, 1000);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSessionCountdowns);
+} else {
+    initSessionCountdowns();
 }
 </script>
 <?php $__env->stopSection(); ?>

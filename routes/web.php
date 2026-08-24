@@ -81,6 +81,13 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
             Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->middleware('throttle:strict_actions')->name('ajax.exception.submit');
 
+            // In-System Live Meeting & Attendance Routes
+            Route::get('/student/sessions/{id}/meeting', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'show'])->name('student.meeting.show');
+            Route::post('/ajax/sessions/{id}/meeting/join', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'join'])->middleware('throttle:strict_actions')->name('ajax.meeting.join');
+            Route::post('/ajax/sessions/{id}/meeting/heartbeat', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'heartbeat'])->middleware('throttle:ajax_interactive')->name('ajax.meeting.heartbeat');
+            Route::post('/ajax/sessions/{id}/meeting/leave', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'leave'])->name('ajax.meeting.leave');
+            Route::post('/ajax/sessions/{id}/meeting/security-event', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'logSecurityEvent'])->middleware('throttle:ajax_interactive')->name('ajax.meeting.security-event');
+
             // Submissions & Interactive Assignment Solver Page
             Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
             Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
@@ -168,6 +175,24 @@ messaging.onBackgroundMessage(function(payload) {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : '/student-portal';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      for (let i = 0; i < clientList.length; i++) {
+        let client = clientList[i];
+        if (client.url.includes(targetUrl) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
 JS;
 

@@ -38,24 +38,36 @@ class CourseSession extends Model
     protected static function booted(): void
     {
         static::saved(function (CourseSession $courseSession) {
+            $scheduledAt = $courseSession->scheduled_at ?: ($courseSession->start_at ?: now());
+            $startAt = $courseSession->start_at ?: $scheduledAt;
+            $duration = $courseSession->duration_minutes ?: 60;
+            $endAt = $courseSession->end_at ?: $scheduledAt->copy()->addMinutes($duration);
+
             $updateData = [
+                'course_id' => $courseSession->course_id,
+                'title' => $courseSession->title,
+                'subject_id' => $courseSession->course?->subject_id,
+                'teacher_profile_id' => $courseSession->course?->teacher_id,
                 'is_free_demo' => (bool) $courseSession->is_free_demo,
+                'duration_minutes' => $duration,
+                'scheduled_at' => $scheduledAt,
+                'start_at' => $startAt,
+                'end_at' => $endAt,
+                'status' => 'scheduled',
             ];
 
-            if ($courseSession->scheduled_at || $courseSession->start_at) {
-                $scheduledAt = $courseSession->scheduled_at ?: $courseSession->start_at;
-                $startAt = $courseSession->start_at ?: $scheduledAt;
-                $duration = $courseSession->duration_minutes ?: 60;
-                $endAt = $courseSession->end_at ?: ($scheduledAt ? $scheduledAt->copy()->addMinutes($duration) : null);
-
-                $updateData['scheduled_at'] = $scheduledAt;
-                $updateData['start_at'] = $startAt;
-                $updateData['end_at'] = $endAt;
-                $updateData['duration_minutes'] = $duration;
+            if ($courseSession->video_url) {
+                $updateData['meeting_link'] = $courseSession->video_url;
             }
 
-            LiveSession::where('course_id', $courseSession->course_id)
-                ->update($updateData);
+            LiveSession::updateOrCreate(
+                ['course_session_id' => $courseSession->id],
+                $updateData
+            );
+        });
+
+        static::deleted(function (CourseSession $courseSession) {
+            LiveSession::where('course_session_id', $courseSession->id)->delete();
         });
     }
 

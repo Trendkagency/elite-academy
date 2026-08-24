@@ -347,29 +347,38 @@ window.restoreSavedAnswers = function() {
     window.updateStepUI();
 };
 
-window.saveDraftAnswerToServer = async function(questionId, selectedOptionIds) {
-    try {
-        const res = await fetch("<?php echo e(route('ajax.assignment.save-answer')); ?>", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                assignment_id: window.assignmentId,
-                question_id: parseInt(questionId, 10),
-                selected_option_ids: selectedOptionIds
-            })
-        });
+window.saveDraftTimers = window.saveDraftTimers || {};
 
-        const data = await res.json();
-        if (!res.ok || !data.success) {
+window.saveDraftAnswerToServer = function(questionId, selectedOptionIds) {
+    const qIdStr = String(questionId);
+    if (window.saveDraftTimers[qIdStr]) {
+        clearTimeout(window.saveDraftTimers[qIdStr]);
+    }
+
+    window.saveDraftTimers[qIdStr] = setTimeout(async function() {
+        try {
+            const res = await fetch("<?php echo e(route('ajax.assignment.save-answer')); ?>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    assignment_id: window.assignmentId,
+                    question_id: parseInt(questionId, 10),
+                    selected_option_ids: selectedOptionIds
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                window.queueOfflineDraft(questionId, selectedOptionIds);
+            }
+        } catch (err) {
             window.queueOfflineDraft(questionId, selectedOptionIds);
         }
-    } catch (err) {
-        window.queueOfflineDraft(questionId, selectedOptionIds);
-    }
+    }, 500);
 };
 
 window.queueOfflineDraft = function(questionId, selectedOptionIds) {

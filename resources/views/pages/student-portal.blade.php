@@ -204,9 +204,10 @@
                                 $state = $s->evaluateState(auth()->user());
                                 $startAt = $s->effective_start_at;
                                 $endAt = $s->effective_end_at;
+                                $joinableAt = $s->joinable_at;
                             @endphp
                             <div class="p-5 bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                     <div class="flex items-center gap-2.5">
                                         @if($state === \App\Enums\LiveSessionState::LIVE)
                                             <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
@@ -216,11 +217,19 @@
                                         <h3 class="font-bold text-base text-slate-900">{{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}</h3>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                        <span class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200">
+                                        <span class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap">
                                             📅 {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}: {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
                                         </span>
+                                        @if($startAt && $startAt->isFuture())
+                                            <span class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
+                                                  data-start-time="{{ $startAt->toIso8601String() }}"
+                                                  data-join-time="{{ $joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String() }}">
+                                                <span>⏳</span>
+                                                <span class="countdown-text">{{ app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...' }}</span>
+                                            </span>
+                                        @endif
                                         @if($endAt)
-                                            <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60">
+                                            <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
                                                 ⏱️ {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}: {{ $endAt->format('h:i A') }}
                                             </span>
                                         @endif
@@ -228,7 +237,7 @@
                                             $halfAt = $startAt ? $startAt->copy()->addMinutes((int) ceil(($s->duration_minutes ?: 60) / 2)) : null;
                                         @endphp
                                         @if($halfAt)
-                                            <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80" title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
+                                            <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap" title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
                                                 ⏳ {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}: {{ $halfAt->format('h:i A') }}
                                             </span>
                                         @endif
@@ -241,10 +250,18 @@
                                         <span>📚 {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}: <strong>{{ $s->subject?->name ?: 'Physics' }}</strong></span>
                                     </div>
 
-                                    @if($state === \App\Enums\LiveSessionState::LIVE && $s->meeting_link)
-                                        <a href="{{ $s->meeting_link }}" target="_blank" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
+                                    @if($state === \App\Enums\LiveSessionState::LIVE)
+                                        <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
                                             <span>🟢</span> {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream' }}
                                         </a>
+                                    @elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE)
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                            <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs" title="{{ app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time' }}">
+                                                <span>🔒</span>
+                                                <span>{{ app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:' }}</span>
+                                                <span class="text-teal-700 font-extrabold">{{ $joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before') }}</span>
+                                            </span>
+                                        </div>
                                     @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
                                         <a href="{{ route('courses') }}" class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
                                             <span>🔒</span> {{ $state->label() }}
@@ -1488,6 +1505,52 @@ function changeModalRecPage(delta) {
 function closeEnrolledCourseModal() {
     const modal = document.getElementById('enrolledCourseModal');
     modal.classList.add('hidden');
+}
+
+// ── Live Session Countdown Timers ──────────────────────────────────────────
+function initSessionCountdowns() {
+    const isAr = @json(app()->getLocale() === 'ar');
+
+    function update() {
+        const now = new Date().getTime();
+
+        // Single live ticking countdown to session start time
+        document.querySelectorAll('.session-countdown-pill').forEach(pill => {
+            const startStr = pill.getAttribute('data-start-time');
+            const textEl = pill.querySelector('.countdown-text');
+            if (!startStr || !textEl) return;
+
+            const startTime = new Date(startStr).getTime();
+            const diff = startTime - now;
+
+            if (diff <= 0) {
+                textEl.textContent = isAr ? 'بدأت الحصة الآن 🔴' : 'Session Live Now 🔴';
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            let parts = [];
+            if (d > 0) parts.push(d + (isAr ? 'ي ' : 'd '));
+            if (h > 0 || d > 0) parts.push(String(h).padStart(2, '0') + (isAr ? 'س ' : 'h '));
+            parts.push(String(m).padStart(2, '0') + (isAr ? 'د ' : 'm '));
+            parts.push(String(s).padStart(2, '0') + (isAr ? 'ث' : 's'));
+
+            textEl.textContent = (isAr ? 'تبدأ خلال: ' : 'Starts in: ') + parts.join('');
+        });
+    }
+
+    update();
+    setInterval(update, 1000);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSessionCountdowns);
+} else {
+    initSessionCountdowns();
 }
 </script>
 @endsection

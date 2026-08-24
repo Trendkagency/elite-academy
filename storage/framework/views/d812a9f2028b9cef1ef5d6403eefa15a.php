@@ -9,6 +9,37 @@
     $cId = $course ? $course->id : 1;
 ?>
 
+<?php
+    $courseJsonLd = [
+        "@context" => "https://schema.org",
+        "@type" => "Course",
+        "name" => $cTitle,
+        "description" => $cDesc,
+        "provider" => [
+            "@type" => "EducationalOrganization",
+            "name" => "Elite Academy LMS",
+            "sameAs" => url('/')
+        ],
+        "instructor" => [
+            "@type" => "Person",
+            "name" => $cTeacher
+        ],
+        "educationalLevel" => "Intermediate to Advanced",
+        "inLanguage" => app()->getLocale(),
+        "offers" => [
+            "@type" => "Offer",
+            "category" => "Educational",
+            "priceCurrency" => "EGP",
+            "price" => (string) ($course?->price ?? '0'),
+            "availability" => "https://schema.org/InStock"
+        ]
+    ];
+?>
+<script type="application/ld+json">
+<?php echo json_encode($courseJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
+
+</script>
+
 <section class="py-12 bg-slate-900 text-white border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <?php echo $__env->make('components.breadcrumb', [

@@ -76,7 +76,7 @@ class StudentPortalFullFeaturesTest extends TestCase
         $response->assertStatus(200)
             ->assertSee('طالب متميز')
             ->assertSee('د. أحمد محمود')
-            ->assertSee('https://meet.google.com/abc-defg-hij')
+            ->assertSee(route('student.meeting.show', ['id' => $liveSession->id]))
             ->assertSee('9 Sessions Remaining');
 
         // Submit Absence Excuse Action for future session (5h > 2h rule)

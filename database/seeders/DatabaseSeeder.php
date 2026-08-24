@@ -385,65 +385,75 @@ class DatabaseSeeder extends Seeder
         );
 
         // 11. Live Sessions (الحصص المباشرة والروابط - تغطي سيناريوهات منتصف وقت الحصة)
-        LiveSession::query()->delete();
+        LiveSession::updateOrCreate(
+            ['course_session_id' => $s1->id],
+            [
+                'title' => 'الجلسة الأولى: التيار الكهربي وقانون أوم وتطبيقات المقاومات',
+                'student_user_id' => $ahmed->id,
+                'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+                'subject_id' => $subPhysics->id,
+                'course_id' => $cPhysics->id,
+                'scheduled_at' => now()->subMinutes(15),
+                'start_at' => now()->subMinutes(15),
+                'end_at' => now()->addMinutes(45),
+                'duration_minutes' => 60,
+                'meeting_link' => 'https://zoom.us/j/84920481928?pwd=elite123',
+                'status' => 'scheduled',
+                'is_free_demo' => true,
+            ]
+        );
 
-        // Session 1: BEFORE Half-Time (Started 15m ago, 60m duration -> Joinable NOW)
-        // Scheduled: 15 mins ago, Halfway: in +15 mins -> OPEN & JOINABLE NOW
-        LiveSession::create([
-            'student_user_id' => $ahmed->id,
-            'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
-            'subject_id' => $subPhysics->id,
-            'course_id' => $cPhysics->id,
-            'scheduled_at' => now()->subMinutes(15),
-            'start_at' => now()->subMinutes(15),
-            'end_at' => now()->addMinutes(45),
-            'duration_minutes' => 60,
-            'meeting_link' => 'https://meet.google.com/active-before-half',
-            'status' => 'scheduled',
-        ]);
-
-        // Session 2: AFTER Half-Time (Started 45m ago, 60m duration -> Cutoff Passed, Entry CLOSED)
-        // Scheduled: 45 mins ago, Halfway: was 15 mins ago -> OUT OF TIME / CLOSED NOW
-        LiveSession::create([
-            'student_user_id' => $ahmed->id,
-            'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
-            'subject_id' => $subPhysics->id,
-            'course_id' => $cPhysics->id,
-            'scheduled_at' => now()->subMinutes(45),
-            'start_at' => now()->subMinutes(45),
-            'end_at' => now()->addMinutes(15),
-            'duration_minutes' => 60,
-            'meeting_link' => 'https://meet.google.com/expired-after-half',
-            'status' => 'scheduled',
-        ]);
+        LiveSession::updateOrCreate(
+            ['course_session_id' => $s2->id],
+            [
+                'title' => 'الجلسة الثانية: قوانين كيرشوف والدوائر الكهربية المركبة',
+                'student_user_id' => $ahmed->id,
+                'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+                'subject_id' => $subPhysics->id,
+                'course_id' => $cPhysics->id,
+                'scheduled_at' => now()->addDay(),
+                'start_at' => now()->addDay(),
+                'end_at' => now()->addDay()->addMinutes(60),
+                'duration_minutes' => 60,
+                'meeting_link' => 'https://meet.google.com/future-physics-session',
+                'status' => 'scheduled',
+                'is_free_demo' => false,
+            ]
+        );
 
         // Session 3: Completed Session (Started 2h ago)
-        LiveSession::create([
-            'student_user_id' => $mariam->id,
-            'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
-            'subject_id' => $subChem->id,
-            'course_id' => $cChem->id,
-            'scheduled_at' => now()->subHours(2),
-            'start_at' => now()->subHours(2),
-            'end_at' => now()->subHour(),
-            'duration_minutes' => 60,
-            'meeting_link' => 'https://meet.google.com/completed-session',
-            'status' => 'completed',
-        ]);
+        LiveSession::updateOrCreate(
+            ['title' => 'الجلسة الأولى: مقدمة الكيمياء العضوية والألكانات'],
+            [
+                'student_user_id' => $mariam->id,
+                'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
+                'subject_id' => $subChem->id,
+                'course_id' => $cChem->id,
+                'scheduled_at' => now()->subHours(2),
+                'start_at' => now()->subHours(2),
+                'end_at' => now()->subHour(),
+                'duration_minutes' => 60,
+                'meeting_link' => 'https://meet.google.com/completed-session',
+                'status' => 'completed',
+            ]
+        );
 
         // Session 4: Future Scheduled Session (In 5 hours)
-        LiveSession::create([
-            'student_user_id' => $mariam->id,
-            'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
-            'subject_id' => $subChem->id,
-            'course_id' => $cChem->id,
-            'scheduled_at' => now()->addHours(5),
-            'start_at' => now()->addHours(5),
-            'end_at' => now()->addHours(6),
-            'duration_minutes' => 60,
-            'meeting_link' => 'https://meet.google.com/future-session',
-            'status' => 'scheduled',
-        ]);
+        LiveSession::updateOrCreate(
+            ['title' => 'الجلسة الثانية: تفاعلات الألكينات وميكانيكية الإضافة'],
+            [
+                'student_user_id' => $mariam->id,
+                'teacher_profile_id' => $teacherSarah ? $teacherSarah->id : 1,
+                'subject_id' => $subChem->id,
+                'course_id' => $cChem->id,
+                'scheduled_at' => now()->addHours(5),
+                'start_at' => now()->addHours(5),
+                'end_at' => now()->addHours(6),
+                'duration_minutes' => 60,
+                'meeting_link' => 'https://meet.google.com/future-session',
+                'status' => 'scheduled',
+            ]
+        );
 
         // 12. Exception Requests (طلبات الاستثناء للأعذار)
         ExceptionRequest::updateOrCreate(

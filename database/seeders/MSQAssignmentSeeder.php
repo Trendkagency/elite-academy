@@ -35,6 +35,7 @@ class MSQAssignmentSeeder extends Seeder
         $sessionPhysics = LiveSession::updateOrCreate(
             ['student_user_id' => $ahmed?->id ?? 1, 'course_id' => $physicsCourse?->id],
             [
+                'title' => 'الجلسة الأولى: التيار الكهربي وقانون أوم وتطبيقات المقاومات',
                 'teacher_profile_id' => $teacherDrAhmed?->id ?? 1,
                 'subject_id' => $physicsCourse?->subject_id,
                 'scheduled_at' => now()->addMinutes(15),
@@ -47,6 +48,7 @@ class MSQAssignmentSeeder extends Seeder
         $sessionChem = LiveSession::updateOrCreate(
             ['student_user_id' => $mariam?->id ?? 2, 'course_id' => $chemCourse?->id],
             [
+                'title' => 'الجلسة الأولى: مقدمة الكيمياء العضوية والألكانات',
                 'teacher_profile_id' => $teacherSarah?->id ?? 2,
                 'subject_id' => $chemCourse?->subject_id,
                 'scheduled_at' => now()->addHours(2),

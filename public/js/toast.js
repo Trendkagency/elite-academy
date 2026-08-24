@@ -193,6 +193,9 @@
             container = document.createElement('div');
             container.id = 'toast-container';
             container.className = 'toast-container';
+            container.setAttribute('aria-live', 'polite');
+            container.setAttribute('aria-atomic', 'true');
+            container.setAttribute('role', 'status');
             document.body.appendChild(container);
         }
         return container;
@@ -210,6 +213,7 @@
             const container = getOrCreateContainer();
             const card = document.createElement('div');
             card.className = `toast-card toast-${type}`;
+            card.setAttribute('role', 'alert');
 
             let defaultTitle = '';
             let iconSymbol = 'ℹ️';
