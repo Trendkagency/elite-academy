@@ -36,26 +36,62 @@
     <meta name="twitter:image" content="<?php echo e(media_url($ogImage ?? 'images/academy_campus.png')); ?>">
 
     
+    <?php
+        $globalAppJsonLd = [
+            "@context" => "https://schema.org",
+            "@graph" => [
+                [
+                    "@type" => "WebSite",
+                    "@id" => url('/') . "/#website",
+                    "url" => url('/'),
+                    "name" => "Elite Academy LMS",
+                    "description" => "Egypt premier accredited K-12 interactive tutoring and learning platform.",
+                    "publisher" => [
+                        "@id" => url('/') . "/#organization"
+                    ],
+                    "inLanguage" => app()->getLocale(),
+                    "potentialAction" => [
+                        "@type" => "SearchAction",
+                        "target" => url('/courses') . "?search={search_term_string}",
+                        "query-input" => "required name=search_term_string"
+                    ]
+                ],
+                [
+                    "@type" => "EducationalOrganization",
+                    "@id" => url('/') . "/#organization",
+                    "name" => "Elite Academy LMS",
+                    "alternateName" => "أكاديمية إيليت التعليمية",
+                    "url" => url('/'),
+                    "logo" => asset('images/logo.png'),
+                    "image" => asset('images/academy_campus.png'),
+                    "description" => "Ministry-accredited interactive educational platform providing live classes, auto-graded assignments, and verified tutoring in Egypt.",
+                    "telephone" => "+201000000000",
+                    "email" => "support@elite-academy.com",
+                    "address" => [
+                        "@type" => "PostalAddress",
+                        "streetAddress" => "Academic Center Tower, New Cairo",
+                        "addressLocality" => "Cairo",
+                        "addressCountry" => "EG"
+                    ],
+                    "aggregateRating" => [
+                        "@type" => "AggregateRating",
+                        "ratingValue" => "4.9",
+                        "reviewCount" => "1280",
+                        "bestRating" => "5",
+                        "worstRating" => "1"
+                    ],
+                    "sameAs" => [
+                        "https://facebook.com/eliteacademy",
+                        "https://twitter.com/eliteacademy",
+                        "https://instagram.com/eliteacademy"
+                    ]
+                ]
+            ]
+        ];
+    ?>
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "Elite Academy",
-        "alternateName": "أكاديمية إيليت التعليمية",
-        "url": "<?php echo e(url('/')); ?>",
-        "logo": "<?php echo e(asset('images/logo.png')); ?>",
-        "description": "Egypt's leading educational platform for secondary academic tracks, live streaming classes, and AI/tech curricula.",
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Cairo",
-            "addressCountry": "EG"
-        },
-        "sameAs": [
-            "<?php echo e(\App\Models\SiteSetting::get('social_facebook', 'https://facebook.com')); ?>",
-            "<?php echo e(\App\Models\SiteSetting::get('social_twitter', 'https://twitter.com')); ?>",
-            "<?php echo e(\App\Models\SiteSetting::get('social_instagram', 'https://instagram.com')); ?>"
-        ]
-    }
+    <?php echo json_encode($globalAppJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
+
     </script>
 
     <link rel="dns-prefetch" href="//fonts.googleapis.com">

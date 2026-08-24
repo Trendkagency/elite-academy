@@ -11,6 +11,7 @@
         $navLink('courses', 'courses', __('Courses')),
         $navLink('teachers', 'teachers', __('Teachers')),
         $navLink('blog', 'blog', __('Blog')),
+        $navLink('faq', 'faq', __('FAQ')),
         $navLink('about', 'about', __('About')),
         $navLink('contact', 'contact', __('Contact')),
     ];

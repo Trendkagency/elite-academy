@@ -203,6 +203,42 @@ JS;
 });
 });
 
+// Dynamic XML Sitemap for AI Crawlers & Search Engine Indexing
+Route::get('/sitemap.xml', function () {
+    $baseUrl = url('/');
+    $now = now()->toAtomString();
+
+    $staticRoutes = [
+        ['url' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
+        ['url' => $baseUrl . '/about', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['url' => $baseUrl . '/subjects', 'priority' => '0.9', 'changefreq' => 'daily'],
+        ['url' => $baseUrl . '/courses', 'priority' => '0.9', 'changefreq' => 'daily'],
+        ['url' => $baseUrl . '/teachers', 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => $baseUrl . '/blog', 'priority' => '0.8', 'changefreq' => 'daily'],
+        ['url' => $baseUrl . '/faq', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['url' => $baseUrl . '/contact', 'priority' => '0.7', 'changefreq' => 'monthly'],
+    ];
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+    foreach ($staticRoutes as $item) {
+        $xml .= '  <url>' . "\n";
+        $xml .= '    <loc>' . $item['url'] . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . $now . '</lastmod>' . "\n";
+        $xml .= '    <changefreq>' . $item['changefreq'] . '</changefreq>' . "\n";
+        $xml .= '    <priority>' . $item['priority'] . '</priority>' . "\n";
+        $xml .= '  </url>' . "\n";
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200, [
+        'Content-Type' => 'application/xml; charset=utf-8',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->name('sitemap');
+
 // System Fallback Route for Undefined Paths -> Animated 404 Page
 Route::fallback(function () {
     abort(404, __('The page or resource you are looking for does not exist'));
