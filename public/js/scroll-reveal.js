@@ -1,62 +1,40 @@
 /**
- * Elite Academy — Premium Motion & Micro-Interactions Engine
- * Apple / Stripe / Framer / Linear / Awwwards inspired animations.
+ * Elite Academy — Continuous Bidirectional Scroll Motion Engine
+ * Apple / Framer / Awwwards inspired scroll-triggered animations.
+ * Smoothly animates elements on Scroll DOWN and Scroll UP.
  * GPU-accelerated (opacity + transform only). 60 FPS target.
- * Animations fire once per element — never on scroll-back.
  */
 
 (function () {
   'use strict';
 
-  /* ──────────────────────────────────────────────
-     CONFIG & CONSTANTS
-  ────────────────────────────────────────────── */
   const EASING    = 'cubic-bezier(0.16, 1, 0.3, 1)';
-  const DURATION  = 180;    // ms — ultra-snappy instant response
-  const STAGGER   = 30;     // ms — quick micro-stagger
-  const THRESHOLD = 0.01;   // Triggers immediately on 1px viewport touch
+  const DURATION  = 400;    // ms — ultra-smooth liquid motion
+  const STAGGER   = 50;     // ms — stagger delay
+  const THRESHOLD = 0.12;   // Triggers when 12% of element is in view
 
   /* ──────────────────────────────────────────────
      1. INJECT BASE REVEAL & MOTION CSS
   ────────────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    /* Scroll Reveal — subtle initial states for instant responsiveness */
     .sr, .sr-h, .sr-img, .sr-btn, .sr-card, .sr-sub, .sr-stat {
       will-change: opacity, transform;
-      transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sr        { opacity: 0; transform: translateY(12px); }
-    .sr-h      { opacity: 0; transform: translateY(10px); }
-    .sr-sub    { opacity: 0; transform: translateY(8px); }
-    .sr-img    { opacity: 0; transform: scale(0.98) translateY(10px); }
-    .sr-btn    { opacity: 0; transform: scale(0.98); }
-    .sr-card   { opacity: 0; transform: translateY(12px); }
-    .sr-stat   { opacity: 0; transform: translateY(10px) scale(0.98); }
+    .sr        { opacity: 0; transform: translateY(22px); }
+    .sr-h      { opacity: 0; transform: translateY(20px); }
+    .sr-sub    { opacity: 0; transform: translateY(16px); }
+    .sr-img    { opacity: 0; transform: scale(0.97) translateY(18px); }
+    .sr-btn    { opacity: 0; transform: scale(0.97); }
+    .sr-card   { opacity: 0; transform: translateY(24px); }
+    .sr-stat   { opacity: 0; transform: translateY(20px) scale(0.97); }
 
-    /* Revealed — final state */
+    /* Revealed state (Scroll In) — Allows hover scale transitions to work smoothly */
     .sr.revealed, .sr-h.revealed, .sr-sub.revealed,
     .sr-img.revealed, .sr-btn.revealed, .sr-card.revealed, .sr-stat.revealed {
       opacity: 1 !important;
-      transform: none !important;
-    }
-
-    /* Word Stagger Containers */
-    .word-wrap {
-      display: inline-block;
-      overflow: hidden;
-      vertical-align: top;
-      margin-right: 0.25em;
-    }
-    .word-wrap .word {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(100%);
-      transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .sr-h.revealed .word-wrap .word {
-      opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   `;
   document.head.appendChild(style);
@@ -68,7 +46,6 @@
   let backToTopEl = null;
 
   function initUIControls() {
-    // Scroll Progress Bar
     if (!document.getElementById('scroll-progress')) {
       scrollProgressEl = document.createElement('div');
       scrollProgressEl.id = 'scroll-progress';
@@ -77,7 +54,6 @@
       scrollProgressEl = document.getElementById('scroll-progress');
     }
 
-    // Back to Top Button
     if (!document.getElementById('back-to-top')) {
       backToTopEl = document.createElement('button');
       backToTopEl.id = 'back-to-top';
@@ -94,56 +70,37 @@
   }
 
   /* ──────────────────────────────────────────────
-     3. APPLY TRANSITIONS & STAGGER
+     3. BIDIRECTIONAL INTERSECTION OBSERVER
   ────────────────────────────────────────────── */
-  function applyTransitions() {
-    document.querySelectorAll('.sr, .sr-h, .sr-sub, .sr-img, .sr-btn, .sr-card, .sr-stat').forEach(el => {
-      const dur = el.dataset.srDuration || DURATION;
-      const delay = el.style.getPropertyValue('--sr-delay') || el.dataset.srDelay || '0';
-      el.style.transition = `opacity ${dur}ms ${EASING} ${delay}ms, transform ${dur}ms ${EASING} ${delay}ms`;
-    });
-  }
-
-  function staggerGroup(parent) {
-    const cards = parent.querySelectorAll('.sr-card, .sr-stat');
-    cards.forEach((card, i) => {
-      const delay = i * STAGGER;
-      card.style.transitionDelay = `${delay}ms`;
-      card.dataset.srDelay = delay;
-    });
-  }
-
-  /* ──────────────────────────────────────────────
-     4. INTERSECTION OBSERVER — REVEAL
-  ────────────────────────────────────────────── */
-  const revealed = new WeakSet();
-
-  function reveal(el) {
-    if (revealed.has(el)) return;
-    revealed.add(el);
-    el.classList.add('revealed');
-  }
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
       const el = entry.target;
-      reveal(el);
-      observer.unobserve(el);
+      if (entry.isIntersecting) {
+        el.classList.add('revealed');
+      } else {
+        const rect = el.getBoundingClientRect();
+        if (rect.top > window.innerHeight + 60 || rect.bottom < -60) {
+          el.classList.remove('revealed');
+        }
+      }
     });
   }, {
     threshold: THRESHOLD,
-    rootMargin: '0px 0px -40px 0px'
+    rootMargin: '0px 0px -20px 0px'
   });
 
   function observeAll() {
     document.querySelectorAll('.sr, .sr-h, .sr-sub, .sr-img, .sr-btn, .sr-card, .sr-stat').forEach(el => {
       observer.observe(el);
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('revealed');
+      }
     });
   }
 
   /* ──────────────────────────────────────────────
-     5. NUMBER COUNTER ANIMATION
+     4. NUMBER COUNTER ANIMATION
   ────────────────────────────────────────────── */
   function animateCounter(el) {
     const raw    = el.dataset.count || el.textContent;
@@ -153,7 +110,7 @@
 
     const isFloat   = raw.includes('.');
     const decimals  = isFloat ? (raw.split('.')[1]?.replace(/\D/g, '').length || 1) : 0;
-    const duration  = 1800;
+    const duration  = 1600;
     const startTime = performance.now();
 
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
@@ -173,11 +130,11 @@
 
   const counterObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      animateCounter(entry.target);
-      counterObserver.unobserve(entry.target);
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+      }
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.2 });
 
   function observeCounters() {
     document.querySelectorAll('[data-count]').forEach(el => {
@@ -186,7 +143,7 @@
   }
 
   /* ──────────────────────────────────────────────
-     6. SCROLL ENGINE (Progress Bar, Navbar Shrink, Back-To-Top)
+     5. SCROLL ENGINE
   ────────────────────────────────────────────── */
   const headerEl = document.querySelector('header');
 
@@ -194,13 +151,11 @@
     const scrollY = window.scrollY;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
 
-    // Scroll Progress Bar Width
     if (scrollProgressEl && maxScroll > 0) {
       const progress = Math.min((scrollY / maxScroll) * 100, 100);
       scrollProgressEl.style.width = `${progress}%`;
     }
 
-    // Navbar Shrink & Glass Transparency Effect
     if (headerEl) {
       if (scrollY > 30) {
         headerEl.classList.add('is-scrolled');
@@ -209,9 +164,8 @@
       }
     }
 
-    // Back to Top Button Visibility
     if (backToTopEl) {
-      if (scrollY > 500) {
+      if (scrollY > 400) {
         backToTopEl.classList.add('is-visible');
       } else {
         backToTopEl.classList.remove('is-visible');
@@ -220,107 +174,7 @@
   }
 
   /* ──────────────────────────────────────────────
-     7. HERO AUTOPLAY SLIDER & MOUSE PARALLAX
-  ────────────────────────────────────────────── */
-  let heroAutoplayTimer = null;
-
-  function initHeroAutoplay() {
-    const slides = ['slide-1', 'slide-2', 'slide-3', 'slide-4'];
-    let currentIdx = 0;
-
-    function advanceSlide() {
-      currentIdx = (currentIdx + 1) % slides.length;
-      const radio = document.getElementById(slides[currentIdx]);
-      if (radio) radio.checked = true;
-    }
-
-    // Advance slide every 6 seconds
-    heroAutoplayTimer = setInterval(advanceSlide, 6000);
-
-    // Pause autoplay on user interaction
-    const heroSection = document.querySelector('section.relative.overflow-hidden') || document.querySelector('.hero-section');
-    if (heroSection) {
-      heroSection.addEventListener('pointerdown', () => {
-        if (heroAutoplayTimer) clearInterval(heroAutoplayTimer);
-      }, { passive: true });
-    }
-
-    initHeroSwipe();
-    initHeroMouseParallax();
-  }
-
-  function initHeroMouseParallax() {
-    // Only run desktop mouse parallax on non-touch devices
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-
-    const heroSection = document.querySelector('section.relative.overflow-hidden');
-    if (!heroSection) return;
-
-    const floatingCards = heroSection.querySelectorAll('.glass-card, .animate-float, .animate-float-reverse');
-
-    heroSection.addEventListener('mousemove', (e) => {
-      const rect = heroSection.getBoundingClientRect();
-      const mouseX = (e.clientX - rect.left) / rect.width - 0.5;
-      const mouseY = (e.clientY - rect.top) / rect.height - 0.5;
-
-      floatingCards.forEach((card, i) => {
-        const depth = (i + 1) * 12;
-        const moveX = mouseX * depth;
-        const moveY = mouseY * depth;
-        card.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) rotate(${mouseX * 3}deg)`;
-      });
-    }, { passive: true });
-  }
-
-  function initHeroSwipe() {
-    const heroSection = document.querySelector('section.relative.overflow-hidden') || document.querySelector('.hero-section');
-    if (!heroSection) return;
-
-    const slides = ['slide-1', 'slide-2', 'slide-3', 'slide-4'];
-    let touchStartX = 0;
-
-    heroSection.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    heroSection.addEventListener('touchend', (e) => {
-      const touchEndX = e.changedTouches[0].screenX;
-      const diff = touchEndX - touchStartX;
-      if (Math.abs(diff) < 35) return;
-
-      let currentIndex = slides.findIndex(id => {
-        const radio = document.getElementById(id);
-        return radio && radio.checked;
-      });
-
-      if (currentIndex === -1) currentIndex = 0;
-
-      const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
-      if ((diff < 0 && !isRtl) || (diff > 0 && isRtl)) {
-        currentIndex = (currentIndex + 1) % slides.length;
-      } else {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-      }
-
-      const nextRadio = document.getElementById(slides[currentIndex]);
-      if (nextRadio) {
-        nextRadio.checked = true;
-      }
-    }, { passive: true });
-  }
-
-  /* ──────────────────────────────────────────────
-     8. PAGE BCACHE & FADE PROTECTION
-  ────────────────────────────────────────────── */
-  function initPageTransitions() {
-    window.addEventListener('pageshow', function (event) {
-      document.body.classList.remove('page-exit');
-      document.body.style.opacity = '1';
-    });
-  }
-
-  /* ──────────────────────────────────────────────
-     9. AUTO-LABEL ELEMENTS FOR MOTION
+     6. AUTO-LABEL ELEMENTS FOR MOTION
   ────────────────────────────────────────────── */
   function labelElements() {
     const rules = [
@@ -345,10 +199,6 @@
       cards.forEach((card, i) => {
         card.style.transitionDelay = `${i * STAGGER}ms`;
       });
-      const stats = [...section.querySelectorAll('.sr-stat')];
-      stats.forEach((stat, i) => {
-        stat.style.transitionDelay = `${i * STAGGER}ms`;
-      });
     });
   }
 
@@ -358,19 +208,11 @@
   function boot() {
     initUIControls();
     labelElements();
-    applyTransitions();
-    initHeroAutoplay();
-    initPageTransitions();
+    observeAll();
+    observeCounters();
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        observeAll();
-        observeCounters();
-      });
-    });
   }
 
   if (document.readyState === 'loading') {

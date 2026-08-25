@@ -170,44 +170,4 @@
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
-<?php $__env->startPush('scripts'); ?>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const slides = ['slide-1', 'slide-2', 'slide-3', 'slide-4'];
-      let currentIndex = 0;
-      let autoplayInterval = null;
-
-      function goToNextSlide() {
-        currentIndex = (currentIndex + 1) % slides.length;
-        const targetRadio = document.getElementById(slides[currentIndex]);
-        if (targetRadio) {
-          targetRadio.checked = true;
-        }
-      }
-
-      function startAutoplay() {
-        stopAutoplay();
-        autoplayInterval = setInterval(goToNextSlide, 6000);
-      }
-
-      function stopAutoplay() {
-        if (autoplayInterval) {
-          clearInterval(autoplayInterval);
-          autoplayInterval = null;
-        }
-      }
-
-      startAutoplay();
-
-      const controls = document.querySelectorAll('label[for^="slide-"]');
-      controls.forEach((control, index) => {
-        control.addEventListener('click', () => {
-          currentIndex = index;
-          startAutoplay();
-        });
-      });
-    });
-</script>
-<?php $__env->stopPush(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\elite-academy\resources\views/pages/home.blade.php ENDPATH**/ ?>

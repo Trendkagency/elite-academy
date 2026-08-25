@@ -157,8 +157,63 @@
             to { opacity: 1; }
         }
 
+        /* Ken Burns Slow Hero Image Zoom */
+        @keyframes kenBurns {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-ken-burns {
+            animation: kenBurns 18s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        /* Floating Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(4deg); }
+        }
+
+        .animate-float {
+            animation: floatSlow 6s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        /* Ambient Pulse Glow */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.08); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulseGlow 8s ease-in-out infinite;
+            will-change: opacity, transform;
+        }
+
+        /* Badge Pulse */
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(20, 184, 166, 0); }
+        }
+
+        .animate-badge-pulse {
+            animation: badgePulse 3s infinite;
+        }
+
+        /* Drift Animation */
+        @keyframes driftSlow {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(10px, -15px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        .animate-drift {
+            animation: driftSlow 14s linear infinite;
+        }
+
         .animate-fade-in-up {
-            animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-fade-in {
@@ -170,7 +225,36 @@
         .stagger-3 { animation-delay: 0.19s; }
         .stagger-4 { animation-delay: 0.26s; }
 
+        /* Smooth GPU-Accelerated Image Hover Scaling */
+        img {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .img-hover-zoom,
+        .group:hover img,
+        .card-lift img,
+        [class*="group-hover:scale"],
+        [class*="hover:scale"] {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
         /* Card Elevation & Hover Micro-interactions */
+        .card-lift {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform, box-shadow;
+            backface-visibility: hidden;
+        }
+
+        .card-lift:hover {
+            transform: translateY(-5px) !important;
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(12px);
