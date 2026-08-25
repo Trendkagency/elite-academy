@@ -25,7 +25,7 @@ class AboutController extends Controller
         ];
 
         return view('pages.about', [
-            'pageTitle' => 'About Us — Elite Academy',
+            'pageTitle' => __('About Us — Elite Academy'),
             'activeNav' => 'about',
             'aboutSettings' => $aboutSettings,
         ]);

@@ -31,7 +31,7 @@ class ContactController extends Controller
         ];
 
         return view('pages.contact', [
-            'pageTitle' => 'Contact Us — Elite Academy',
+            'pageTitle' => __('Contact Us — Elite Academy'),
             'activeNav' => 'contact',
             'contactSettings' => $contactSettings,
         ]);

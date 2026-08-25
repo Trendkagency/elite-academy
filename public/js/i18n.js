@@ -314,8 +314,8 @@ function switchLanguage(lang) {
   html.setAttribute('lang', lang);
   html.setAttribute('dir',  isAr ? 'rtl' : 'ltr');
 
-  /* Font */
-  document.body.style.fontFamily = "var(--font-sans)";
+  /* Font - Enforce Cairo */
+  document.body.style.fontFamily = "'Cairo', sans-serif";
 
   /* Switcher label */
   ['lang-label', 'mobile-lang-label'].forEach(id => {

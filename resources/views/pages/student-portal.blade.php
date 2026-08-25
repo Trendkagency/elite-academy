@@ -33,10 +33,10 @@
                         </span>
                     </div>
                     <h1 class="font-heading text-2xl sm:text-4xl font-black text-white tracking-tight">
-                        {{ __('app.portal.welcome_back') }}، <span class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ auth()->user()->name ?? (app()->getLocale() === 'ar' ? 'طالبنا المتميز' : 'Learner') }}!</span>
+                        {{ __('app.portal.welcome_back') }}، <span class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ auth()->user()->name ?? __('Learner') }}!</span>
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm font-mono flex flex-wrap items-center gap-2 pt-1">
-                        <span>🎓 {{ __('app.portal.grade_level') }}: <strong class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: (app()->getLocale() === 'ar' ? 'الصف الثالث الثانوي (الثانوية العامة & STEM)' : 'Grade 12 STEM') }}</strong></span>
+                        <span>🎓 {{ __('app.portal.grade_level') }}: <strong class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: __('Grade 12 STEM') }}</strong></span>
                         <span class="text-slate-600">•</span>
                         <span>🏫 {{ __('app.portal.school') }}: <strong class="text-slate-200">{{ $studentProfile?->school_name ?: 'Elite STEM Academy Cairo' }}</strong></span>
                     </p>
@@ -46,7 +46,7 @@
             {{-- Quick Action Buttons --}}
             <div class="flex flex-wrap items-center gap-3">
                 <button id="btn30sTestPush" onclick="trigger30SecTestPush()" class="btn-lift px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-500/20 cursor-pointer flex items-center gap-2 transition-all">
-                    <span>🚀</span> {{ app()->getLocale() === 'ar' ? 'اختبار إشعار FCM (خلال 30 ثانية)' : 'Start 30s FCM Test Push' }}
+                    <span>🚀</span> {{ __('Start 30s FCM Test Push') }}
                 </button>
                 <button onclick="document.getElementById('excuseModal').classList.remove('hidden')" class="btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
                     <span>📄</span> {{ __('app.portal.submit_excuse') }}

@@ -72,6 +72,14 @@ class PermissionsRegistry
     public const PROFILE_VIEW_OWN    = 'profile.view-own';
     public const PROFILE_UPDATE_OWN  = 'profile.update-own';
 
+    // 11. Translation Management
+    public const TRANSLATIONS_VIEW      = 'translations.view';
+    public const TRANSLATIONS_CREATE    = 'translations.create';
+    public const TRANSLATIONS_UPDATE    = 'translations.update';
+    public const TRANSLATIONS_DELETE    = 'translations.delete';
+    public const TRANSLATIONS_TRANSLATE = 'translations.translate';
+    public const TRANSLATIONS_BULK      = 'translations.bulk';
+
     /**
      * Get list of all permissions defined in system.
      */
@@ -133,6 +141,13 @@ class PermissionsRegistry
 
             self::PROFILE_VIEW_OWN,
             self::PROFILE_UPDATE_OWN,
+
+            self::TRANSLATIONS_VIEW,
+            self::TRANSLATIONS_CREATE,
+            self::TRANSLATIONS_UPDATE,
+            self::TRANSLATIONS_DELETE,
+            self::TRANSLATIONS_TRANSLATE,
+            self::TRANSLATIONS_BULK,
         ];
     }
 

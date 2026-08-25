@@ -467,8 +467,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 13. Call ArticleSeeder & MSQAssignmentSeeder
+        // 13. Call CMSSeeder, ArticleSeeder, MSQAssignmentSeeder & TranslationSystemSeeder
+        $this->call(CMSSeeder::class);
         $this->call(ArticleSeeder::class);
         $this->call(MSQAssignmentSeeder::class);
+        $this->call(TranslationSystemSeeder::class);
     }
 }

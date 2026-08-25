@@ -31,36 +31,36 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div class="lg:col-span-6 space-y-6">
                 <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
-                    {{ $heroBadge }}
+                    {{ __($heroBadge) }}
                 </span>
 
                 <h1 class="font-heading text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                    {!! $heroTitle !!}
+                    {!! __($heroTitle) !!}
                 </h1>
 
                 <p class="text-slate-600 text-base font-medium leading-relaxed">
-                    {{ $heroSubtitle }}
+                    {{ __($heroSubtitle) }}
                 </p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div class="bg-[#FAFAF9] p-4 rounded-2xl border border-slate-200/80 space-y-1">
-                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">Phone Support</span>
-                        <p class="font-extrabold text-slate-900 text-sm">{{ $phone }}</p>
+                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">{{ __('Phone Support') }}</span>
+                        <p class="font-extrabold text-slate-900 text-sm" dir="ltr">{{ $phone }}</p>
                     </div>
 
                     <div class="bg-[#FAFAF9] p-4 rounded-2xl border border-slate-200/80 space-y-1">
-                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">WhatsApp Help</span>
-                        <p class="font-extrabold text-slate-900 text-sm">{{ $whatsapp }}</p>
+                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">{{ __('WhatsApp Help') }}</span>
+                        <p class="font-extrabold text-slate-900 text-sm" dir="ltr">{{ $whatsapp }}</p>
                     </div>
 
                     <div class="bg-[#FAFAF9] p-4 rounded-2xl border border-slate-200/80 space-y-1">
-                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">Support Email</span>
+                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">{{ __('Support Email') }}</span>
                         <p class="font-extrabold text-slate-900 text-sm truncate">{{ $email }}</p>
                     </div>
 
                     <div class="bg-[#FAFAF9] p-4 rounded-2xl border border-slate-200/80 space-y-1">
-                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">Campus Location</span>
-                        <p class="font-extrabold text-slate-900 text-sm truncate">{{ $address }}</p>
+                        <span class="text-xs font-mono font-bold text-teal-600 uppercase">{{ __('Campus Location') }}</span>
+                        <p class="font-extrabold text-slate-900 text-sm truncate">{{ __($address) }}</p>
                     </div>
                 </div>
             </div>
@@ -72,8 +72,8 @@
                 <div class="absolute -bottom-6 -left-6 bg-teal-600 text-white p-5 rounded-2xl shadow-2xl flex items-center gap-3">
                     <span class="text-3xl">{{ $cardIcon }}</span>
                     <div>
-                        <p class="font-heading font-black text-lg">{{ $cardTitle }}</p>
-                        <p class="text-xs font-mono text-teal-100">{{ $cardSubtitle }}</p>
+                        <p class="font-heading font-black text-lg">{{ __($cardTitle) }}</p>
+                        <p class="text-xs font-mono text-teal-100">{{ __($cardSubtitle) }}</p>
                     </div>
                 </div>
             </div>
@@ -90,8 +90,8 @@
 
         <div class="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
             <div class="space-y-2">
-                <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900">{{ $formTitle }}</h2>
-                <p class="text-xs font-mono text-slate-500">{{ $formSubtitle }}</p>
+                <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900">{{ __($formTitle) }}</h2>
+                <p class="text-xs font-mono text-slate-500">{{ __($formSubtitle) }}</p>
             </div>
 
             <div id="contactAlert" class="hidden p-4 rounded-2xl text-xs font-semibold"></div>
@@ -99,33 +99,33 @@
             <form id="contactForm" action="{{ route('ajax.contact.submit') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label>
-                    <input type="text" name="full_name" placeholder="e.g. Ahmed Mohamed" required class="input-mobile">
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Full Name') }}</label>
+                    <input type="text" name="full_name" placeholder="{{ __('e.g. David Kovacs') }}" required class="input-mobile">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
+                        <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Email Address') }}</label>
                         <input type="email" name="email" placeholder="name@example.com" required class="input-mobile">
                     </div>
                     <div>
-                        <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone Number</label>
+                        <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Phone Number') }}</label>
                         <input type="tel" name="phone" placeholder="+20 100..." class="input-mobile">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">Subject of Inquiry</label>
-                    <input type="text" name="subject" placeholder="e.g. Grade 10 Mathematics Enrollment Inquiry" class="input-mobile">
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Subject of Inquiry') }}</label>
+                    <input type="text" name="subject" placeholder="{{ __('e.g. STEM High School') }}" class="input-mobile">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">Message</label>
-                    <textarea name="message" rows="4" placeholder="How can we help you?" required class="w-full bg-white border border-slate-200 rounded-xl p-4 text-[16px] font-medium focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"></textarea>
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Message') }}</label>
+                    <textarea name="message" rows="4" placeholder="{{ __('How can we help you?') }}" required class="w-full bg-white border border-slate-200 rounded-xl p-4 text-[16px] font-medium focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"></textarea>
                 </div>
 
                 <button type="submit" class="btn-mobile-lg btn-lift bg-teal-600 hover:bg-teal-700 text-white font-extrabold shadow-lg shadow-teal-600/20 cursor-pointer touch-press">
-                    Submit Inquiry &rarr;
+                    {{ __('Submit Inquiry →') }}
                 </button>
             </form>
         </div>
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (err) {
             contactAlert.className = 'p-4 rounded-2xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
-            contactAlert.textContent = 'Network error. Please try again.';
+            contactAlert.textContent = '{{ __('Network error. Please try again.') }}';
             contactAlert.classList.remove('hidden');
         }
     });

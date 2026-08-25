@@ -7,7 +7,12 @@ module.exports = {
     "./*.html"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Cairo', 'sans-serif'],
+        heading: ['Cairo', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

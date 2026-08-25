@@ -1,24 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Rubik:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap');
-
-@font-face {
-  font-family: 'GE Jarida';
-  src: local('GE Jarida'),
-       local('GEJarida'),
-       local('GE Jarida Regular');
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 @source "../resources";
 @source "../resources/views";
 @source "../index.html";
 
 :root {
-  /* Centralized Typography Configuration */
-  --font-family-english: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-arabic: "Cairo", "GE Jarida", "Tajawal", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Centralized Typography Configuration - Cairo Primary */
+  --font-family-english: "Cairo", sans-serif;
+  --font-family-arabic: "Cairo", sans-serif;
   --font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Typography Scale */
@@ -43,20 +33,20 @@
   --line-height-relaxed: 1.7;
 
   /* Default Active Semantic Tokens */
-  --font-sans: var(--font-family-english);
-  --font-heading: var(--font-family-english);
+  --font-sans: "Cairo", sans-serif;
+  --font-heading: "Cairo", sans-serif;
   --font-mono: var(--font-family-mono);
 }
 
-/* Language & Direction-aware Automatic Font Selection */
+/* Global Font Family Enforcement - Cairo Everywhere */
 :lang(ar), html[lang="ar"], [dir="rtl"], [dir="rtl"] body {
-  --font-sans: var(--font-family-arabic);
-  --font-heading: var(--font-family-arabic);
+  --font-sans: "Cairo", sans-serif;
+  --font-heading: "Cairo", sans-serif;
 }
 
 :lang(en), html[lang="en"], [dir="ltr"], [dir="ltr"] body {
-  --font-sans: var(--font-family-english);
-  --font-heading: var(--font-family-english);
+  --font-sans: "Cairo", sans-serif;
+  --font-heading: "Cairo", sans-serif;
 }
 
 html, body {
@@ -185,8 +175,59 @@ details[open] summary .faq-icon {
 
 /* Focus Ring Accessibility */
 :focus-visible {
-  outline: 2px solid #0D9488;
-  outline-offset: 3px;
+  outline: 2px solid #0D9488 !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced Motion Accessibility Compliance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Humanized Motion & Micro-Interaction Utility Classes */
+:root {
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease-human: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-lift {
+  transition: transform var(--duration-fast) var(--ease-human), box-shadow var(--duration-fast) var(--ease-human), background-color var(--duration-fast) var(--ease-human), border-color var(--duration-fast) var(--ease-human);
+  will-change: transform;
+}
+.btn-lift:hover {
+  transform: translateY(-2px);
+}
+.btn-lift:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.card-lift {
+  transition: transform var(--duration-normal) var(--ease-human), box-shadow var(--duration-normal) var(--ease-human), border-color var(--duration-normal) var(--ease-human);
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Skeleton Loading State Helper */
+.skeleton-pulse {
+  background: linear-gradient(90deg, rgba(226,232,240,0.6) 25%, rgba(241,245,249,0.9) 50%, rgba(226,232,240,0.6) 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite ease-in-out;
+}
+
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* Smooth Scrolling & Scrollbar Utility */

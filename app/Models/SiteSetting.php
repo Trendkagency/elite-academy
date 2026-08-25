@@ -58,7 +58,8 @@ class SiteSetting extends Model
             return $val;
         }
 
-        return static::get($key, $default);
+        $raw = static::get($key, $default);
+        return __($raw ?? '');
     }
 
     public static function set(string $key, ?string $value, string $group = 'general'): void

@@ -15,7 +15,7 @@
         margin: 0 !important;
         padding: 0 !important;
         font-size: 11pt !important;
-        font-family: 'Cairo', 'Rubik', sans-serif !important;
+        font-family: 'Cairo', sans-serif !important;
         width: 100% !important;
     }
 

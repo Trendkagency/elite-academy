@@ -67,7 +67,7 @@
                 <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1 text-amber-400 text-sm">★★★★★</div>
-                        <span class="text-4xl font-serif font-black text-slate-300 {{ $t['quoteColor'] }} transition-colors duration-300 select-none leading-none">"</span>
+                        <span class="text-4xl font-sans font-black text-slate-300 {{ $t['quoteColor'] }} transition-colors duration-300 select-none leading-none">"</span>
                     </div>
 
                     <p class="font-heading font-medium text-slate-700 text-base leading-relaxed italic line-clamp-3 my-3 flex-1">
