@@ -23,6 +23,10 @@ class TranslationManagerService
     public static function getDictionary(string $locale): array
     {
         return Cache::rememberForever("system_translation_dict_{$locale}", function () use ($locale) {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('translation_values') || !\Illuminate\Support\Facades\Schema::hasTable('translation_keys')) {
+                return [];
+            }
+
             $dictionary = [];
             $values = TranslationValue::with('key')
                 ->where('locale', $locale)
