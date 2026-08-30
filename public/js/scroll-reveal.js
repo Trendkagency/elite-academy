@@ -18,23 +18,14 @@
   ────────────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    .sr, .sr-h, .sr-img, .sr-btn, .sr-card, .sr-sub, .sr-stat {
-      will-change: opacity, transform;
+    .sr-pending {
+      opacity: 0;
+      transform: translateY(20px);
       transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sr        { opacity: 0; transform: translateY(22px); }
-    .sr-h      { opacity: 0; transform: translateY(20px); }
-    .sr-sub    { opacity: 0; transform: translateY(16px); }
-    .sr-img    { opacity: 0; transform: scale(0.97) translateY(18px); }
-    .sr-btn    { opacity: 0; transform: scale(0.97); }
-    .sr-card   { opacity: 0; transform: translateY(24px); }
-    .sr-stat   { opacity: 0; transform: translateY(20px) scale(0.97); }
-
-    /* Revealed state (Scroll In) — Allows hover scale transitions to work smoothly */
-    .sr.revealed, .sr-h.revealed, .sr-sub.revealed,
-    .sr-img.revealed, .sr-btn.revealed, .sr-card.revealed, .sr-stat.revealed {
+    .sr-pending.revealed {
       opacity: 1 !important;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) !important;
     }
   `;
   document.head.appendChild(style);
@@ -70,31 +61,30 @@
   }
 
   /* ──────────────────────────────────────────────
-     3. BIDIRECTIONAL INTERSECTION OBSERVER
+     3. HIGH-PERFORMANCE ONE-SHOT INTERSECTION OBSERVER
   ────────────────────────────────────────────── */
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      const el = entry.target;
       if (entry.isIntersecting) {
-        el.classList.add('revealed');
-      } else {
-        const rect = el.getBoundingClientRect();
-        if (rect.top > window.innerHeight + 60 || rect.bottom < -60) {
-          el.classList.remove('revealed');
-        }
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
       }
     });
   }, {
     threshold: THRESHOLD,
-    rootMargin: '0px 0px -20px 0px'
+    rootMargin: '0px 0px 80px 0px'
   });
 
   function observeAll() {
+    const vh = window.innerHeight;
     document.querySelectorAll('.sr, .sr-h, .sr-sub, .sr-img, .sr-btn, .sr-card, .sr-stat').forEach(el => {
-      observer.observe(el);
       const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
+      // If above-the-fold, keep immediately 100% visible
+      if (rect.top <= vh * 1.1) {
         el.classList.add('revealed');
+      } else {
+        el.classList.add('sr-pending');
+        observer.observe(el);
       }
     });
   }

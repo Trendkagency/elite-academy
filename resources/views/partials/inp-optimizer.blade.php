@@ -1,27 +1,16 @@
-{{-- Elite Academy — High-Performance Instant Motion & INP Engine --}}
 <style>
-    /* GPU Hardware Acceleration for Sub-16ms Response Times */
-    button, a, summary, input, select, textarea, .btn-lift, .card-lift, .subject-chip {
-        will-change: transform, opacity;
-        transform: translateZ(0);
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Fast Touch & Click Response */
+    /* Fast Touch & Click Response without forced compositing layer explosion */
     html {
         touch-action: manipulation;
     }
-
-    /* Emergency Fallback: If animation JS is delayed, render visible after 200ms */
-    @keyframes instantRevealFallback {
-        to {
-            opacity: 1 !important;
-            transform: none !important;
-        }
+    button, a, summary, input, select, textarea {
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .sr, .sr-h, .sr-img, .sr-btn, .sr-card, .sr-sub, .sr-stat {
-        animation: instantRevealFallback 1ms forwards 250ms;
+    /* Fallback: Ensure elements stay visible */
+    .sr.revealed, .sr-h.revealed, .sr-img.revealed, .sr-btn.revealed, .sr-card.revealed, .sr-sub.revealed, .sr-stat.revealed {
+        opacity: 1 !important;
+        transform: none !important;
     }
 </style>
 

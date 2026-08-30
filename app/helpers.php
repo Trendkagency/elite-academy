@@ -1,24 +1,27 @@
 <?php
 
 if (! function_exists('media_url')) {
-    function media_url(?string $path, string $default = 'images/logo.png'): string
+    function media_url(?string $path, string $default = 'images/logo_500.webp'): string
     {
-        if (empty($path)) {
-            return asset($default);
+        $target = $path ?: $default;
+
+        if (str_starts_with($target, 'http://') || str_starts_with($target, 'https://')) {
+            return $target;
         }
 
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
+        // Check if there is a .webp variant for local images/
+        if (str_starts_with($target, 'images/')) {
+            $webpCandidate = preg_replace('/\.(png|jpe?g)$/i', '.webp', $target);
+            if ($webpCandidate !== $target && file_exists(public_path($webpCandidate))) {
+                return asset($webpCandidate);
+            }
+            return asset($target);
         }
 
-        if (str_starts_with($path, 'images/')) {
-            return asset($path);
+        if (str_starts_with($target, 'storage/')) {
+            return asset($target);
         }
 
-        if (str_starts_with($path, 'storage/')) {
-            return asset($path);
-        }
-
-        return asset('storage/' . ltrim($path, '/'));
+        return asset('storage/' . ltrim($target, '/'));
     }
 }

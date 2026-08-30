@@ -43,7 +43,7 @@
             ]) : [
                 [
                     'quote' => '"Elite Academy completely transformed my son\'s approach to coding and math. Having direct access to PhD mentors made all the difference."',
-                    'photo' => 'images/hero_student.png',
+                    'photo' => 'images/hero_student_128.webp',
                     'name' => 'Mariam Al-Mansoor',
                     'course' => 'Full-Stack Programming',
                     'badge' => '✔ Verified Student',
@@ -53,7 +53,7 @@
                 ],
                 [
                     'quote' => '"The robotics and AI labs gave me real hands-on experience building computer vision models. I secured a software engineering role right after graduation!"',
-                    'photo' => 'images/instructor_portrait.png',
+                    'photo' => 'images/instructor_portrait_128.webp',
                     'name' => 'Kareem El-Sayed',
                     'course' => 'AI & Machine Learning',
                     'badge' => '✔ Verified Student',
@@ -78,7 +78,7 @@
                     </p>
 
                     <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
-                        <img src="<?php echo e(media_url($t['photo'], 'images/instructor_portrait.png')); ?>" alt="<?php echo e($t['name']); ?>" class="w-14 h-14 sm:w-14 sm:h-14 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+                        <img src="<?php echo e(media_url($t['photo'], 'images/instructor_portrait_128.webp')); ?>" alt="<?php echo e($t['name']); ?>" width="56" height="56" class="w-14 h-14 sm:w-14 sm:h-14 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0" loading="lazy" decoding="async">
                         <div class="space-y-1 min-w-0 flex-1">
                             <h3 class="font-heading font-extrabold text-base text-slate-900 truncate <?php echo e($t['nameColor']); ?> transition-colors"><?php echo e($t['name']); ?></h3>
                             <p class="text-xs font-mono text-slate-500 font-semibold truncate"><?php echo e($t['course']); ?></p>

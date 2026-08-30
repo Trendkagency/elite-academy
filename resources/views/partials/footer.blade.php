@@ -43,18 +43,18 @@
             
             {{-- Col 1: Brand & Tagline --}}
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
-                <a href="{{ route('home') }}" class="inline-block">
-                    <img src="{{ asset('images/logo.png') }}" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0">
+                <a href="{{ route('home') }}" class="inline-block" aria-label="Elite Academy Homepage">
+                    <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">
                 </a>
-                <p class="text-sm text-slate-400 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
+                <p class="text-sm text-slate-300 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
                     {{ $tagline }}
                 </p>
             </div>
 
             {{-- Col 2: Dynamic Quick Links --}}
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $quickTitle }}</h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $quickTitle }}</h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     @foreach($quickLinks as $link)
                         @php
                             $label = ($locale === 'ar' ? ($link['label_ar'] ?? null) : null) ?: ($link['label_en'] ?? '');
@@ -72,8 +72,8 @@
 
             {{-- Col 3: Dynamic Subjects / Services Links --}}
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $subjectsTitle }}</h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $subjectsTitle }}</h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     @foreach($subjectsLinks as $link)
                         @php
                             $label = ($locale === 'ar' ? ($link['label_ar'] ?? null) : null) ?: ($link['label_en'] ?? '');
@@ -91,8 +91,8 @@
 
             {{-- Col 4: Dynamic Contact Information --}}
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $contactTitle }}</h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $contactTitle }}</h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📍 <span>{{ $address }}</span></li>
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📞 <span>{{ $phone }}</span></li>
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">✉️ <span>{{ $email }}</span></li>
@@ -104,11 +104,11 @@
         {{-- Bottom Footer: Social Links & Copyright Notice --}}
         <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
             <div class="flex items-center gap-4">
-                <a href="{{ \App\Models\SiteSetting::get('social_facebook', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">f</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_twitter', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">𝕏</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_instagram', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">ig</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_linkedin', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">in</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_youtube', '#') }}" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">yt</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_facebook', '#') }}" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Facebook">f</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_twitter', '#') }}" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Twitter">𝕏</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_instagram', '#') }}" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Instagram">ig</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_linkedin', '#') }}" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Connect with Elite Academy on LinkedIn">in</a>
+                <a href="{{ \App\Models\SiteSetting::get('social_youtube', '#') }}" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Subscribe to Elite Academy on YouTube">yt</a>
             </div>
             <p>{{ $rights }}</p>
         </div>

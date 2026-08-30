@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
         ]);
         $middleware->alias([
             'role.student'     => \App\Http\Middleware\EnsureStudentRole::class,
