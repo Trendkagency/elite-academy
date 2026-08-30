@@ -57,8 +57,8 @@
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\App\Models\SiteSetting::get('announcement_enabled') === '1'): ?>
     <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white text-xs font-bold py-2 px-4 text-center border-b border-teal-500/30 flex items-center justify-center gap-2">
         <span><?php echo e(\App\Models\SiteSetting::get('announcement_text', '🎉 Fall Cohort 2026 Registration is Now Open!')); ?></span>
-        <a href="<?php echo e(\App\Models\SiteSetting::get('announcement_link', '/courses')); ?>" class="underline font-extrabold hover:text-teal-300 focus-visible:outline-white">
-            <?php echo e(app()->getLocale() === 'ar' ? 'التفاصيل والاشتراك ←' : 'Learn More →'); ?>
+        <a href="<?php echo e(\App\Models\SiteSetting::get('announcement_link', '/courses')); ?>" class="underline font-extrabold hover:text-teal-300 focus-visible:outline-white" aria-label="Explore Fall 2026 Cohort Registration and Details">
+            <?php echo e(app()->getLocale() === 'ar' ? 'تفاصيل التسجيل والاشتراك ←' : 'Explore Cohort Details →'); ?>
 
         </a>
     </div>
@@ -68,7 +68,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[90px] lg:h-[100px] flex items-center justify-between gap-2 lg:gap-4">
         
         <a href="<?php echo e(route('home')); ?>" class="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-xl transition-all duration-300 shrink-0 py-1" aria-label="Elite Academy Homepage">
+<<<<<<< HEAD
             <img src="<?php echo e(asset('images/logo.webp')); ?>" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105">
+=======
+            <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105" fetchpriority="high">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
         </a>
 
         
@@ -124,7 +128,7 @@
 
         
         <div class="flex items-center gap-2 md:hidden">
-            <a href="<?php echo e(route('lang.switch', ['locale' => $otherLocale])); ?>" class="px-2.5 py-1.5 rounded-lg text-xs font-sans font-bold text-slate-700 bg-slate-100 uppercase border border-slate-200" aria-label="Switch Language">
+            <a href="<?php echo e(route('lang.switch', ['locale' => $otherLocale])); ?>" class="px-2.5 py-1.5 rounded-lg text-xs font-sans font-bold text-slate-700 bg-slate-100 uppercase border border-slate-200" aria-label="Switch Language to <?php echo e(strtoupper($otherLocale)); ?>">
                 <?php echo e(strtoupper($otherLocale)); ?>
 
             </a>
@@ -142,14 +146,19 @@
 <input type="checkbox" id="mobile-drawer-toggle" class="peer hidden">
 
 
-<label for="mobile-drawer-toggle" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 md:hidden"></label>
+<label for="mobile-drawer-toggle" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 md:hidden" aria-label="Close Mobile Navigation Menu"></label>
 
 
 <div class="fixed top-0 right-0 bottom-0 w-[300px] bg-white z-50 shadow-2xl flex flex-col justify-between p-6 transform translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out rtl:right-auto rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 md:hidden">
     <div class="space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+<<<<<<< HEAD
             <img src="<?php echo e(asset('images/logo.webp')); ?>" alt="Elite Academy Logo" class="h-14 sm:h-16 w-auto object-contain">
             <label for="mobile-drawer-toggle" class="p-2 text-slate-500 hover:text-slate-900 rounded-xl cursor-pointer font-bold text-lg">
+=======
+            <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="160" height="36" class="h-14 sm:h-16 w-auto object-contain" loading="lazy">
+            <label for="mobile-drawer-toggle" class="p-2 text-slate-500 hover:text-slate-900 rounded-xl cursor-pointer font-bold text-lg" aria-label="Close Mobile Navigation Menu">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 ✕
             </label>
         </div>

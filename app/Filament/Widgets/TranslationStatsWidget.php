@@ -13,6 +13,15 @@ class TranslationStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('translation_keys') || !\Illuminate\Support\Facades\Schema::hasTable('translation_values')) {
+            return [
+                Stat::make(__('Translation System'), __('Pending Migration'))
+                    ->description(__('Run: php artisan migrate --seed'))
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('warning'),
+            ];
+        }
+
         $totalKeys = TranslationKey::count();
         $enCount = TranslationValue::where('locale', 'en')->whereNotNull('value')->where('value', '!=', '')->count();
         $arCount = TranslationValue::where('locale', 'ar')->whereNotNull('value')->where('value', '!=', '')->count();

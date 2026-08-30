@@ -1,5 +1,5 @@
 @use('App\Models\SiteSetting')
-{{-- Home Hero Slider: Alpine.js Auto-playing Carousel with Zero Text Overlap --}}
+{{-- Home Hero Slider: Zero-Dependency High-Performance Carousel --}}
 @php
     $dbHeroSlides = \Illuminate\Support\Facades\Schema::hasTable('hero_slides')
         ? \App\Models\HeroSlide::where('is_active', true)->orderBy('sort_order')->get()
@@ -8,63 +8,33 @@
 @endphp
 
 <section 
-    x-data="{ 
-        activeSlide: 0, 
-        totalSlides: {{ $totalSlideCount }},
-        timer: null,
-        startAutoplay() {
-            this.stopAutoplay();
-            this.timer = setInterval(() => {
-                this.nextSlide();
-            }, 6000);
-        },
-        stopAutoplay() {
-            if (this.timer) clearInterval(this.timer);
-        },
-        nextSlide() {
-            this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
-        },
-        prevSlide() {
-            this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
-        },
-        goToSlide(index) {
-            this.activeSlide = index;
-        }
-    }"
-    x-init="startAutoplay()"
-    @mouseenter="stopAutoplay()"
-    @mouseleave="startAutoplay()"
+    id="hero-slider-section"
     class="w-full min-h-[75vh] lg:min-h-[92vh] relative overflow-hidden bg-slate-950 text-white flex flex-col justify-between hero-section select-none"
 >
-    {{-- Subtle Floating Decorative Ambient Shapes --}}
-    <div class="absolute top-28 left-[10%] w-4 h-4 border-2 border-teal-500/30 rounded-full animate-drift pointer-events-none -z-10"></div>
-    <div class="absolute top-96 right-[12%] w-6 h-6 border-2 border-orange-500/20 rounded-md rotate-12 animate-float pointer-events-none -z-10"></div>
+    {{-- Subtle Decorative Static Accent Glows --}}
+    <div class="absolute -top-24 -left-24 w-[36rem] h-[36rem] bg-teal-500/15 rounded-full blur-2xl pointer-events-none -z-10"></div>
+    <div class="absolute bottom-0 right-0 w-[40rem] h-[40rem] bg-orange-500/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
 
-    {{-- Ambient Mesh Radial Glows --}}
-    <div class="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-teal-500/20 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-glow"></div>
-    <div class="absolute bottom-0 right-0 w-[45rem] h-[45rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none z-0 animate-float"></div>
-
+    <div class="relative w-full flex-1 flex flex-col justify-between min-h-[65vh] lg:min-h-[78vh]">
     {{-- DYNAMIC DB SLIDES --}}
     @if($dbHeroSlides->count() > 0)
         @foreach($dbHeroSlides as $idx => $s)
             <div 
-                x-show="activeSlide === {{ $idx }}" 
-                x-transition:enter="transition ease-out duration-700" 
-                x-transition:enter-start="opacity-0 scale-98" 
-                x-transition:enter-end="opacity-100 scale-100" 
-                x-transition:leave="transition ease-in duration-400" 
-                x-transition:leave-start="opacity-100" 
-                x-transition:leave-end="opacity-0"
-                class="absolute inset-0 z-10 flex flex-col justify-between"
+                data-slide-index="{{ $idx }}"
+                class="hero-slide absolute inset-0 {{ $idx === 0 ? 'opacity-100 z-10 block' : 'opacity-0 z-0 hidden pointer-events-none' }} transition-opacity duration-700 ease-out flex flex-col justify-between"
             >
+<<<<<<< HEAD
                 <img src="{{ media_url($s->image, 'images/hero_student.webp') }}" alt="{{ $s->title }}" width="1920" height="1080" {{ $idx === 0 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy" decoding="async"' }} class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+=======
+                <img src="{{ media_url($s->image, 'images/hero_student.webp') }}" alt="{{ $s->title }}" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" {{ $idx === 0 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy" decoding="async"' }}>
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                     <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                         @if($s->track_label)
-                            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
                                 <span>{{ $s->getLocalizedTrackLabel() }}</span>
                             </div>
                         @endif
@@ -79,13 +49,13 @@
 
                         <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
                             @if($s->cta_primary_url)
-                                <a href="{{ $s->cta_primary_url }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+                                <a href="{{ $s->cta_primary_url }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25" aria-label="Explore {{ $s->getLocalizedTitle() }}">
                                     <span>{{ __('Explore Now') }}</span>
                                     <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                                 </a>
                             @endif
                             @if($s->cta_secondary_url)
-                                <a href="{{ $s->cta_secondary_url }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                                <a href="{{ $s->cta_secondary_url }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10" aria-label="Learn more about {{ $s->getLocalizedTitle() }}">
                                     <span>{{ __('Learn More') }}</span>
                                 </a>
                             @endif
@@ -114,22 +84,20 @@
     @else
         {{-- DEFAULT SLIDE 01: ACADEMIC PLATFORM --}}
         <div 
-            x-show="activeSlide === 0" 
-            x-transition:enter="transition ease-out duration-700" 
-            x-transition:enter-start="opacity-0 scale-98" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            x-transition:leave="transition ease-in duration-400" 
-            x-transition:leave-start="opacity-100" 
-            x-transition:leave-end="opacity-0"
-            class="absolute inset-0 z-10 flex flex-col justify-between"
+            data-slide-index="0"
+            class="hero-slide absolute inset-0 opacity-100 z-10 block transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
+<<<<<<< HEAD
             <img src="{{ asset('images/hero_student.webp') }}" alt="Programming & Tech Lab" width="1920" height="1080" fetchpriority="high" loading="eager" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+=======
+            <img src="{{ asset('images/hero_student.webp') }}" alt="Programming & Tech Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" loading="eager">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
                         <span>{{ SiteSetting::getLocalized('landing_hero_badge', '🚀 EGYPT’S #1 ACADEMIC PLATFORM') }}</span>
                     </div>
 
@@ -142,11 +110,11 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                        <a href="{{ SiteSetting::get('landing_cta_primary_link', '/subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25">
+                        <a href="{{ SiteSetting::get('landing_cta_primary_link', '/subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 hover:to-teal-400 shadow-lg shadow-teal-500/25" aria-label="Explore all academic subjects">
                             <span>{{ SiteSetting::getLocalized('landing_cta_primary_text', 'Explore All Subjects') }}</span>
                             <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                         </a>
-                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10" aria-label="Book a free academic trial session">
                             <span>{{ __('Book Free Trial') }}</span>
                         </a>
                     </div>
@@ -173,22 +141,20 @@
 
         {{-- DEFAULT SLIDE 02: ARTIFICIAL INTELLIGENCE --}}
         <div 
-            x-show="activeSlide === 1" 
-            x-transition:enter="transition ease-out duration-700" 
-            x-transition:enter-start="opacity-0 scale-98" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            x-transition:leave="transition ease-in duration-400" 
-            x-transition:leave-start="opacity-100" 
-            x-transition:leave-end="opacity-0"
-            class="absolute inset-0 z-10 flex flex-col justify-between"
+            data-slide-index="1"
+            class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
+<<<<<<< HEAD
             <img src="{{ asset('images/course_ai.webp') }}" alt="AI Neural Networks Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+=======
+            <img src="{{ asset('images/course_ai.webp') }}" alt="AI Neural Networks Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
                         <span>🧠 {{ __('Artificial Intelligence Track') }}</span>
                     </div>
 
@@ -201,11 +167,11 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                        <a href="{{ route('subject-details') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 shadow-lg shadow-purple-600/25">
+                        <a href="{{ route('subject-details') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 shadow-lg shadow-purple-600/25" aria-label="Explore AI Subject Curriculum">
                             <span>{{ __('Explore AI') }}</span>
                             <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                         </a>
-                        <a href="{{ route('courses') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                        <a href="{{ route('courses') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10" aria-label="View Full Course Curriculum">
                             <span>{{ __('View Curriculum') }}</span>
                         </a>
                     </div>
@@ -232,22 +198,20 @@
 
         {{-- DEFAULT SLIDE 03: ROBOTICS & ENGINEERING --}}
         <div 
-            x-show="activeSlide === 2" 
-            x-transition:enter="transition ease-out duration-700" 
-            x-transition:enter-start="opacity-0 scale-98" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            x-transition:leave="transition ease-in duration-400" 
-            x-transition:leave-start="opacity-100" 
-            x-transition:leave-end="opacity-0"
-            class="absolute inset-0 z-10 flex flex-col justify-between"
+            data-slide-index="2"
+            class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
+<<<<<<< HEAD
             <img src="{{ asset('images/instructor_male.webp') }}" alt="Robotics Engineering Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
+=======
+            <img src="{{ asset('images/instructor_male.webp') }}" alt="Robotics Engineering Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse"></span>
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
                         <span>🤖 {{ __('Robotics Track') }}</span>
                     </div>
 
@@ -260,11 +224,11 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 shadow-lg shadow-orange-500/25">
+                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 shadow-lg shadow-orange-500/25" aria-label="Explore Robotics Track">
                             <span>{{ __('Explore Robotics') }}</span>
                             <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                         </a>
-                        <a href="{{ route('event-details') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                        <a href="{{ route('event-details') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10" aria-label="Join Robotics Engineering Workshop">
                             <span>{{ __('Join Workshop') }}</span>
                         </a>
                     </div>
@@ -291,22 +255,20 @@
 
         {{-- DEFAULT SLIDE 04: SCIENCE & MATHEMATICS --}}
         <div 
-            x-show="activeSlide === 3" 
-            x-transition:enter="transition ease-out duration-700" 
-            x-transition:enter-start="opacity-0 scale-98" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            x-transition:leave="transition ease-in duration-400" 
-            x-transition:leave-start="opacity-100" 
-            x-transition:leave-end="opacity-0"
-            class="absolute inset-0 z-10 flex flex-col justify-between"
+            data-slide-index="3"
+            class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
+<<<<<<< HEAD
             <img src="{{ asset('images/academy_campus.webp') }}" alt="Science Laboratory" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
+=======
+            <img src="{{ asset('images/academy_campus.webp') }}" alt="Science Laboratory" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md animate-badge-pulse shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
                         <span>🔬 {{ __('Science & Math Track') }}</span>
                     </div>
 
@@ -319,11 +281,11 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3.5 pt-2 w-full max-w-md lg:max-w-none">
-                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 shadow-lg shadow-teal-500/25">
+                        <a href="{{ route('subjects') }}" class="btn-mobile-lg btn-lift group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 text-slate-950 bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-300 shadow-lg shadow-teal-500/25" aria-label="Explore Science & Math">
                             <span>{{ __('Explore Science') }}</span>
                             <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                         </a>
-                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10">
+                        <a href="{{ route('register') }}" class="btn-mobile-lg btn-lift w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 text-white bg-white/12 hover:bg-white/20 border border-white/30 backdrop-blur-md shadow-md shadow-white/10" aria-label="Book a free science trial session">
                             <span>{{ __('Book Trial') }}</span>
                         </a>
                     </div>
@@ -348,33 +310,35 @@
             </div>
         </div>
     @endif
+    </div>
 
     {{-- Progress Bar & Interactive Slide Controls --}}
     <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8 flex items-center justify-between border-t border-white/15 pt-6">
         <div class="font-mono text-sm font-bold text-slate-200 flex items-center gap-4">
-            <span class="text-teal-400 text-xl font-extrabold tracking-wider" x-text="String(activeSlide + 1).padStart(2, '0')">01</span>
+            <span id="hero-active-slide-num" class="text-teal-400 text-xl font-extrabold tracking-wider">01</span>
             <div class="w-32 sm:w-48 h-1.5 bg-white/20 rounded-full relative overflow-hidden">
-                <div class="absolute top-0 bottom-0 left-0 bg-teal-400 rounded-full transition-all duration-500" :style="'width: ' + (((activeSlide + 1) / totalSlides) * 100) + '%'"></div>
+                <div id="hero-progress-bar" class="absolute top-0 bottom-0 left-0 bg-teal-400 rounded-full transition-all duration-500" style="width: {{ round((1 / $totalSlideCount) * 100) }}%"></div>
             </div>
-            <span class="text-slate-400 text-sm" x-text="String(totalSlides).padStart(2, '0')">04</span>
+            <span class="text-slate-400 text-sm">{{ str_pad($totalSlideCount, 2, '0', STR_PAD_LEFT) }}</span>
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="hidden sm:flex items-center gap-2.5">
-                <template x-for="i in totalSlides" :key="i">
+            <div id="hero-dots-container" class="hidden sm:flex items-center gap-2.5">
+                @for ($i = 0; $i < $totalSlideCount; $i++)
                     <button 
                         type="button" 
-                        @click="goToSlide(i - 1)" 
-                        :class="activeSlide === (i - 1) ? 'bg-teal-400 w-7' : 'bg-white/30 w-3 hover:bg-white/70'" 
-                        class="h-3 rounded-full transition-all duration-300 cursor-pointer" 
-                        :aria-label="'Go to slide ' + i"
+                        onclick="window.heroSlider && window.heroSlider.goTo({{ $i }})" 
+                        class="hero-dot h-3 rounded-full transition-all duration-300 cursor-pointer {{ $i === 0 ? 'bg-teal-400 w-7' : 'bg-white/30 w-3 hover:bg-white/70' }}" 
+                        aria-label="Go to slide {{ $i + 1 }}"
                     ></button>
-                </template>
+                @endfor
             </div>
             <div class="flex items-center gap-2.5">
-                <button type="button" @click="prevSlide()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Previous Slide">&larr;</button>
-                <button type="button" @click="nextSlide()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Next Slide">&rarr;</button>
+                <button type="button" onclick="window.heroSlider && window.heroSlider.prev()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Previous Slide">&larr;</button>
+                <button type="button" onclick="window.heroSlider && window.heroSlider.next()" class="btn-lift w-10 h-10 rounded-full bg-white/12 border border-white/25 flex items-center justify-center text-white cursor-pointer hover:bg-teal-500/40 shadow-sm backdrop-blur-md" aria-label="Next Slide">&rarr;</button>
             </div>
         </div>
     </div>
 </section>
+
+

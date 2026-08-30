@@ -4,8 +4,11 @@
 @php
     $siteJsonLd = [
         "@context" => "https://schema.org",
-        "@graph" => [
+        "@type" => "BreadcrumbList",
+        "@id" => url('/') . "/#breadcrumb",
+        "itemListElement" => [
             [
+<<<<<<< HEAD
                 "@type" => "WebSite",
                 "@id" => url('/') . "/#website",
                 "url" => url('/'),
@@ -127,6 +130,12 @@
                         ]
                     ]
                 ]
+=======
+                "@type" => "ListItem",
+                "position" => 1,
+                "name" => app()->getLocale() === 'ar' ? 'الرئيسية' : 'Home',
+                "item" => url('/')
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             ]
         ]
     ];

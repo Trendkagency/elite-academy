@@ -43,10 +43,15 @@
             
             
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
+<<<<<<< HEAD
                 <a href="<?php echo e(route('home')); ?>" class="inline-block">
                     <img src="<?php echo e(asset('images/logo.webp')); ?>" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0">
+=======
+                <a href="<?php echo e(route('home')); ?>" class="inline-block" aria-label="Elite Academy Homepage">
+                    <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 </a>
-                <p class="text-sm text-slate-400 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
+                <p class="text-sm text-slate-300 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
                     <?php echo e($tagline); ?>
 
                 </p>
@@ -54,8 +59,8 @@
 
             
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($quickTitle); ?></h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($quickTitle); ?></h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $quickLinks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $link): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <?php
                             $label = ($locale === 'ar' ? ($link['label_ar'] ?? null) : null) ?: ($link['label_en'] ?? '');
@@ -73,8 +78,8 @@
 
             
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($subjectsTitle); ?></h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($subjectsTitle); ?></h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $subjectsLinks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $link): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <?php
                             $label = ($locale === 'ar' ? ($link['label_ar'] ?? null) : null) ?: ($link['label_en'] ?? '');
@@ -92,8 +97,8 @@
 
             
             <div class="space-y-3">
-                <h4 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($contactTitle); ?></h4>
-                <ul class="space-y-2 text-sm text-slate-400">
+                <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider"><?php echo e($contactTitle); ?></h3>
+                <ul class="space-y-2 text-sm text-slate-300">
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📍 <span><?php echo e($address); ?></span></li>
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📞 <span><?php echo e($phone); ?></span></li>
                     <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">✉️ <span><?php echo e($email); ?></span></li>
@@ -105,11 +110,11 @@
         
         <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
             <div class="flex items-center gap-4">
-                <a href="<?php echo e(\App\Models\SiteSetting::get('social_facebook', '#')); ?>" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Facebook">f</a>
-                <a href="<?php echo e(\App\Models\SiteSetting::get('social_twitter', '#')); ?>" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Twitter">𝕏</a>
-                <a href="<?php echo e(\App\Models\SiteSetting::get('social_instagram', '#')); ?>" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Instagram">ig</a>
-                <a href="<?php echo e(\App\Models\SiteSetting::get('social_linkedin', '#')); ?>" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="LinkedIn">in</a>
-                <a href="<?php echo e(\App\Models\SiteSetting::get('social_youtube', '#')); ?>" target="_blank" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="YouTube">yt</a>
+                <a href="<?php echo e(\App\Models\SiteSetting::get('social_facebook', '#')); ?>" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Facebook">f</a>
+                <a href="<?php echo e(\App\Models\SiteSetting::get('social_twitter', '#')); ?>" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Twitter">𝕏</a>
+                <a href="<?php echo e(\App\Models\SiteSetting::get('social_instagram', '#')); ?>" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Follow Elite Academy on Instagram">ig</a>
+                <a href="<?php echo e(\App\Models\SiteSetting::get('social_linkedin', '#')); ?>" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Connect with Elite Academy on LinkedIn">in</a>
+                <a href="<?php echo e(\App\Models\SiteSetting::get('social_youtube', '#')); ?>" target="_blank" rel="noopener noreferrer" class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300" aria-label="Subscribe to Elite Academy on YouTube">yt</a>
             </div>
             <p><?php echo e($rights); ?></p>
         </div>

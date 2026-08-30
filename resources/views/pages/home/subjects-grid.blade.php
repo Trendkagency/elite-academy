@@ -5,7 +5,7 @@
         {{-- 2-Column Section Header --}}
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             <div class="space-y-3 max-w-xl">
-                <span class="anim-subject delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+                <span class="anim-subject delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
                     {{ __('OUR SUBJECTS') }}
                 </span>
                 <h2 class="anim-subject delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -34,14 +34,39 @@
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 md:gap-8">
             @foreach ($dbSubjects as $sub)
                 @php
+<<<<<<< HEAD
                     $categoryName = $sub->category ? $sub->category->getLocalizedName() : __('General');
                     $coursesCount = $sub->courses ? $sub->courses->count() : 0;
                     $subjectUrl = route('subject-details', ['slug' => $sub->slug]);
                     $image = media_url($sub->image, 'images/hero_student.webp');
+=======
+                    $isModel = is_object($sub) && $sub instanceof \App\Models\Subject;
+                    $subjectName = $isModel ? $sub->getLocalizedName() : (is_array($sub) ? ($sub['name'] ?? __('Subject')) : (string) $sub);
+                    
+                    $categoryName = __('General');
+                    if ($isModel && $sub->category && is_object($sub->category)) {
+                        $categoryName = method_exists($sub->category, 'getLocalizedName') ? $sub->category->getLocalizedName() : ($sub->category->name ?? __('General'));
+                    } elseif (is_array($sub) && isset($sub['category'])) {
+                        $categoryName = is_array($sub['category']) ? ($sub['category']['name'] ?? __('General')) : (string) $sub['category'];
+                    }
+
+                    $coursesCount = 0;
+                    if ($isModel && $sub->courses) {
+                        $coursesCount = $sub->courses->count();
+                    } elseif (is_array($sub) && isset($sub['courses_count'])) {
+                        $coursesCount = (int) $sub['courses_count'];
+                    }
+
+                    $slug = $isModel ? $sub->slug : (is_array($sub) ? ($sub['slug'] ?? null) : null);
+                    $subjectUrl = $slug ? route('subject-details', ['slug' => $slug]) : route('subjects');
+                    
+                    $rawImage = $isModel ? $sub->image : (is_array($sub) ? ($sub['image'] ?? null) : null);
+                    $image = media_url($rawImage, 'images/hero_student.webp');
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 @endphp
                 <div class="anim-subject delay-3 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-slate-950 text-white shadow-lg hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
                     <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">
-                        <img src="{{ $image }}" alt="{{ $sub->getLocalizedName() }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
+                        <img src="{{ $image }}" alt="{{ $subjectName }}" width="400" height="338" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none"></div>
                     </div>
 
@@ -51,13 +76,13 @@
                                 {{ $categoryName }}
                             </span>
                             <h3 class="font-heading font-extrabold text-sm sm:text-base md:text-2xl text-white group-hover:text-teal-300 transition-colors line-clamp-2 leading-snug">
-                                <a href="{{ $subjectUrl }}">{{ $sub->getLocalizedName() }}</a>
+                                <a href="{{ $subjectUrl }}">{{ $subjectName }}</a>
                             </h3>
                         </div>
 
                         <div class="hidden md:flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-300 font-medium">
                             <span>📚 {{ $coursesCount }} {{ __('Courses') }}</span>
-                            <a href="{{ $subjectUrl }}" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1">
+                            <a href="{{ $subjectUrl }}" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1" aria-label="View curriculum and details for {{ $subjectName }}">
                                 <span>{{ __('View Details') }}</span>
                                 <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                             </a>

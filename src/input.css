@@ -246,138 +246,68 @@ html {
 /* COMPONENT & SECTION ANIMATION KEYFRAMES   */
 /* ========================================== */
 
+/* Section Entrance Keyframes (Hardware Accelerated Opacity & Transform) */
 @keyframes navSlideDown {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Section Variety Keyframes (Req #8) */
-@keyframes heroFadeBlurScale {
-  from { opacity: 0; filter: blur(12px); transform: scale(0.95) translateY(24px); }
-  to { opacity: 1; filter: blur(0); transform: scale(1) translateY(0); }
+@keyframes heroFadeScale {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes aboutSlideUp {
-  from { opacity: 0; transform: translateY(40px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes subjectTiltScale {
-  from { opacity: 0; transform: scale(0.92) rotate(-1deg) translateY(30px); }
-  to { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes mentorFadeScale {
-  from { opacity: 0; transform: scale(0.90) translateY(25px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes courseUpScale {
-  from { opacity: 0; transform: scale(0.94) translateY(35px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes projectsSlideFade {
-  from { opacity: 0; transform: translateX(-35px) translateY(15px); }
-  to { opacity: 1; transform: translateX(0) translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes eventsPop {
-  0% { opacity: 0; transform: scale(0.82) translateY(20px); }
-  75% { opacity: 0.95; transform: scale(1.025); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes testimonialsFade {
-  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes ctaGlowEntrance {
-  0% { opacity: 0; transform: scale(0.96) translateY(20px); box-shadow: 0 0 0 rgba(13, 148, 136, 0); }
-  100% { opacity: 1; transform: scale(1) translateY(0); box-shadow: 0 0 35px rgba(13, 148, 136, 0.25); }
-}
-
-/* Floating Ambient & Micro-Motion Keyframes (Req #4 & #7) */
-@keyframes floatSlow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-16px) rotate(2.5deg); }
-}
-
-@keyframes floatReverse {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(16px) rotate(-2.5deg); }
-}
-
-@keyframes driftSlow {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(12px, -14px) rotate(4deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.08); }
-}
-
-@keyframes badgeSoftPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.2); }
-  50% { transform: scale(1.03); box-shadow: 0 0 12px 4px rgba(13, 148, 136, 0.15); }
-}
-
-@keyframes statPop {
-  0% { transform: scale(0.92); opacity: 0.8; }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes heroCardFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-@keyframes kenBurnsZoom {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.05); }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Trigger Classes */
-.anim-nav { animation: navSlideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-hero { animation: heroFadeBlurScale 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-about { animation: aboutSlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-subject { animation: subjectTiltScale 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-mentor { animation: mentorFadeScale 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-course { animation: courseUpScale 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-projects { animation: projectsSlideFade 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-events { animation: eventsPop 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
-.anim-testimonials { animation: testimonialsFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.anim-cta { animation: ctaGlowEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
-
-.animate-float { animation: floatSlow 7s ease-in-out infinite; }
-.animate-float-reverse { animation: floatReverse 8.5s ease-in-out infinite; }
-.animate-drift { animation: driftSlow 11s ease-in-out infinite; }
-.animate-pulse-glow { animation: pulseGlow 6s ease-in-out infinite; }
-.animate-badge-pulse { animation: badgeSoftPulse 3s ease-in-out infinite; }
-.animate-hero-card-float { animation: heroCardFloat 4s ease-in-out infinite; }
-.animate-ken-burns { animation: kenBurnsZoom 6s ease-in-out infinite alternate; }
-
-/* Progressive Reveal Stagger Delays (Req #3) */
-.delay-1 { animation-delay: 0.05s; }
-.delay-2 { animation-delay: 0.15s; }
-.delay-3 { animation-delay: 0.25s; }
-.delay-4 { animation-delay: 0.35s; }
-.delay-5 { animation-delay: 0.45s; }
-.delay-6 { animation-delay: 0.55s; }
-.delay-7 { animation-delay: 0.65s; }
-.delay-8 { animation-delay: 0.75s; }
-
-/* Scroll-Driven Animations via animation-timeline: view() */
-@supports (animation-timeline: view()) {
-  .anim-hero, .anim-about, .anim-subject, .anim-mentor, .anim-course, .anim-projects, .anim-events, .anim-testimonials, .anim-cta {
-    animation-timeline: view();
-    animation-range: entry 8% cover 28%;
-  }
-}
+.anim-nav { animation: navSlideDown 0.4s ease-out both; }
+.anim-hero { animation: heroFadeScale 0.4s ease-out both; }
+.anim-about { animation: aboutSlideUp 0.4s ease-out both; }
+.anim-subject { animation: subjectTiltScale 0.4s ease-out both; }
+.anim-mentor { animation: mentorFadeScale 0.4s ease-out both; }
+.anim-course { animation: courseUpScale 0.4s ease-out both; }
+.anim-projects { animation: projectsSlideFade 0.4s ease-out both; }
+.anim-events { animation: eventsPop 0.4s ease-out both; }
+.anim-testimonials { animation: testimonialsFade 0.4s ease-out both; }
+.anim-cta { animation: ctaGlowEntrance 0.4s ease-out both; }
 
 /* Micro-Interaction Hover Lift & Button Scale (Apple/Stripe/Framer Premium Motion) */
 .btn-lift {
@@ -656,6 +586,7 @@ html {
   -webkit-backface-visibility: hidden;
 }
 
+<<<<<<< HEAD
 .sr-h {
   transform: translateY(24px);
 }
@@ -707,6 +638,11 @@ html {
   opacity: 1 !important;
   transform: none !important;
 }
+=======
+/* ============================================ */
+/* SMOOTH BODY BASE                            */
+/* ============================================ */
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
 
 /* ============================================ */
 /* MOBILE DESIGN SYSTEM & TOUCH SPECIFICATIONS  */

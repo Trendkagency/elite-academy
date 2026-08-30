@@ -16,15 +16,18 @@ class SiteSetting extends Model
         'value',
     ];
 
+    protected static ?array $runtimeCache = null;
+
     /**
      * Get all settings key-value pairs cached in memory.
      */
     public static function allCached(): array
     {
-        return Cache::rememberForever('site_settings_dict', function () {
-            if (!Schema::hasTable('site_settings')) {
-                return [];
-            }
+        if (static::$runtimeCache !== null) {
+            return static::$runtimeCache;
+        }
+
+        return static::$runtimeCache = Cache::rememberForever('site_settings_dict', function () {
             return static::pluck('value', 'key')->toArray();
         });
     }
@@ -69,6 +72,7 @@ class SiteSetting extends Model
             ['value' => $value, 'group' => $group]
         );
 
+        static::$runtimeCache = null;
         Cache::forget('site_settings_dict');
     }
 }

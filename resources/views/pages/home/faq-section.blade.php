@@ -70,9 +70,9 @@
 
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 rounded-3xl p-8 text-white flex flex-wrap items-center justify-between gap-6 shadow-xl border border-slate-700/80">
             <div class="space-y-1 max-w-xl">
-                <h4 class="font-heading font-bold text-lg text-white">
+                <h3 class="font-heading font-bold text-lg text-white">
                     {{ $isAr ? 'لديك استفسار آخر لم نجب عليه؟' : 'Have a specific question not listed here?' }}
-                </h4>
+                </h3>
                 <p class="text-xs text-slate-300">
                     {{ $isAr ? 'فريق الدعم الأكاديمي والتقني متاح على مدار الساعة للإجابة على جميع تساؤلاتك.' : 'Our academic support specialists are available 24/7 to guide you.' }}
                 </p>

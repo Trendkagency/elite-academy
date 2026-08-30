@@ -24,52 +24,64 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# ==========================================================
-# 1. 1-YEAR STATIC ASSET CACHING (Cache-Control & Expires)
-# ==========================================================
+# Browser Caching & Expiry
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresDefault "access plus 1 month"
 
-    # CSS, JavaScript
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType text/javascript "access plus 1 year"
-    ExpiresByType application/javascript "access plus 1 year"
-    ExpiresByType application/x-javascript "access plus 1 year"
+    # HTML Documents
+    ExpiresByType text/html "access plus 0 seconds"
 
-    # Images & Media (WebP, PNG, JPG, SVG, ICO)
+    # Data & Feed
+    ExpiresByType text/xml "access plus 0 seconds"
+    ExpiresByType application/xml "access plus 0 seconds"
+    ExpiresByType application/json "access plus 0 seconds"
+
+    # Images
     ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
     ExpiresByType image/x-icon "access plus 1 year"
 
-    # Web Fonts (WOFF2, WOFF, TTF, EOT)
+    # Web Fonts
     ExpiresByType font/woff2 "access plus 1 year"
     ExpiresByType font/woff "access plus 1 year"
-    ExpiresByType application/font-woff2 "access plus 1 year"
-    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+
+    # CSS & JavaScript
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
 </IfModule>
 
+# HTTP Header Control
 <IfModule mod_headers.c>
-    # 1-Year Cache-Control for Versioned Static Assets
-    <FilesMatch "\.(css|js|webp|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot)$">
-        Header set Cache-Control "max-age=31536000, public, immutable"
+    # 1 Year Cache for Static Assets
+    <FilesMatch "\.(ico|jpe?g|png|gif|webp|avif|svg|woff2?|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 
-    # Disable Caching for Dynamic PHP & Service Workers
-    <FilesMatch "\.(php|html|json)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    # Versioned CSS & JS
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+
+    # Dynamic HTML Responses
+    <FilesMatch "\.(php|html)$">
+        Header set Cache-Control "public, max-age=0, must-revalidate"
+    </FilesMatch>
+
+    # Baseline Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# ==========================================================
-# 2. GZIP / DEFLATE COMPRESSION (HTML, CSS, JS, JSON, SVG)
-# ==========================================================
+# Gzip / Deflate Compression
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
-    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
-    AddOutputFilterByType DEFLATE image/svg+xml font/woff2 font/woff
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json image/svg+xml
 </IfModule>

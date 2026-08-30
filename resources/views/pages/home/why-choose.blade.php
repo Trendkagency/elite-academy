@@ -25,8 +25,8 @@
 {{-- Why Choose Elite Academy Section --}}
 <section class="py-12 sm:py-20 lg:py-28 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/70">
     {{-- Ambient Backdrop Blurs --}}
-    <div class="absolute top-1/3 -left-20 w-72 h-72 sm:w-[30rem] sm:h-[30rem] bg-teal-400/15 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
-    <div class="absolute bottom-10 right-0 w-64 h-64 sm:w-[28rem] sm:h-[28rem] bg-orange-400/12 rounded-full blur-3xl pointer-events-none -z-10 animate-float"></div>
+    <div class="absolute top-1/3 -left-20 w-72 h-72 sm:w-[30rem] sm:h-[30rem] bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
+    <div class="absolute bottom-10 right-0 w-64 h-64 sm:w-[28rem] sm:h-[28rem] bg-orange-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -35,11 +35,16 @@
 
             {{-- LEFT SIDE: Mentor Photo Frame --}}
             <div class="w-[38%] sm:w-[40%] lg:w-[42%] flex-shrink-0 relative group sr-img">
-                <div class="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-24 h-24 sm:w-48 sm:h-48 bg-teal-400/25 rounded-full blur-2xl pointer-events-none -z-10 animate-pulse-glow"></div>
-                <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/20 rounded-full blur-2xl pointer-events-none -z-10 animate-float"></div>
+                <div class="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-24 h-24 sm:w-48 sm:h-48 bg-teal-400/20 rounded-full blur-xl pointer-events-none -z-10"></div>
+                <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/15 rounded-full blur-xl pointer-events-none -z-10"></div>
 
+<<<<<<< HEAD
                 <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white animate-float">
                     <img src="{{ asset('images/hero_student.webp') }}" alt="Why Students Choose Elite Academy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+=======
+                <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white">
+                    <img src="{{ asset('images/hero_student.webp') }}" alt="Why Students Choose Elite Academy" width="500" height="625" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             </div>
@@ -48,7 +53,7 @@
             <div class="flex-1 space-y-3 sm:space-y-6">
 
                 <div class="space-y-1.5 sm:space-y-3">
-                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">{{ $badge }}</span>
+                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80">{{ $badge }}</span>
 
                     <h2 class="font-heading font-black text-base sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 tracking-tight leading-tight">
                         {{ $title }}

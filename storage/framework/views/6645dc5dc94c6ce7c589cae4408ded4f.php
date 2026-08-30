@@ -58,7 +58,11 @@
             <div class="flex items-center justify-center gap-4 mx-auto py-2">
                 
                 <div class="relative w-24 h-24 bg-white rounded-3xl p-3 shadow-xl border border-slate-200/90 flex items-center justify-center anim-mascot">
+<<<<<<< HEAD
                     <img src="<?php echo e(asset('images/logo.webp')); ?>" alt="Elite Academy" class="w-full h-full object-contain">
+=======
+                    <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Elite Academy" class="w-full h-full object-contain">
+>>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 </div>
 
                 
