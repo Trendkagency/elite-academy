@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
 
 @source "../resources";
@@ -644,28 +643,69 @@ html {
 }
 
 /* ============================================ */
-/* SCROLL REVEAL TRANSITION HELPERS             */
-/* (Base hidden-state styles injected by JS;    */
-/*  these just complement for CSS fallback)     */
+/* SCROLL REVEAL TRANSITION SYSTEM              */
 /* ============================================ */
 
-/* Ensure GPU compositing layer */
+/* Base hidden state for scroll reveal elements */
 .sr, .sr-h, .sr-sub, .sr-img, .sr-btn, .sr-card, .sr-stat {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
-/* ============================================ */
-/* SMOOTH PAGE ENTRANCE (body fade-in)          */
-/* ============================================ */
-
-@keyframes pageEntrance {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.sr-h {
+  transform: translateY(24px);
 }
 
-body {
-  animation: pageEntrance 400ms ease-out both;
+.sr-sub {
+  transform: translateY(18px);
+  transition-delay: 0.1s;
+}
+
+.sr-img {
+  transform: scale(0.94) translateY(24px);
+  transition-delay: 0.15s;
+}
+
+.sr-card {
+  transform: translateY(32px);
+}
+
+.sr-btn {
+  transform: translateY(16px);
+  transition-delay: 0.2s;
+}
+
+.sr-stat {
+  transform: scale(0.9) translateY(16px);
+}
+
+/* Revealed State */
+.revealed,
+.sr.revealed,
+.sr-h.revealed,
+.sr-sub.revealed,
+.sr-img.revealed,
+.sr-btn.revealed,
+.sr-card.revealed,
+.sr-stat.revealed {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* Ensure above-the-fold hero content is visible immediately */
+#hero-slider-section .sr,
+#hero-slider-section .sr-h,
+#hero-slider-section .sr-sub,
+#hero-slider-section .sr-img,
+#hero-slider-section .sr-btn,
+#hero-slider-section .sr-card,
+#hero-slider-section .sr-stat {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* ============================================ */

@@ -31,7 +31,7 @@
                 : collect();
             $testimonials = $dbTestimonials->count() > 0 ? $dbTestimonials->map(fn($t) => [
                 'quote' => '"' . $t->getLocalizedContent() . '"',
-                'photo' => $t->avatar ?: 'images/instructor_portrait.png',
+                'photo' => $t->avatar ?: 'images/instructor_portrait.webp',
                 'name' => $t->name,
                 'course' => $t->getLocalizedCourseName() ?: __('Elite Academic Track'),
                 'badge' => $t->is_verified ? '✔ Verified ' . ucfirst($t->reviewer_type) : ucfirst($t->reviewer_type),
@@ -41,7 +41,7 @@
             ]) : [
                 [
                     'quote' => '"Elite Academy completely transformed my son\'s approach to coding and math. Having direct access to PhD mentors made all the difference."',
-                    'photo' => 'images/hero_student.png',
+                    'photo' => 'images/hero_student.webp',
                     'name' => 'Mariam Al-Mansoor',
                     'course' => 'Full-Stack Programming',
                     'badge' => '✔ Verified Student',
@@ -51,7 +51,7 @@
                 ],
                 [
                     'quote' => '"The robotics and AI labs gave me real hands-on experience building computer vision models. I secured a software engineering role right after graduation!"',
-                    'photo' => 'images/instructor_portrait.png',
+                    'photo' => 'images/instructor_portrait.webp',
                     'name' => 'Kareem El-Sayed',
                     'course' => 'AI & Machine Learning',
                     'badge' => '✔ Verified Student',
@@ -75,7 +75,7 @@
                     </p>
 
                     <div class="pt-5 border-t border-slate-100 flex items-center gap-4">
-                        <img src="{{ media_url($t['photo'], 'images/instructor_portrait.png') }}" alt="{{ $t['name'] }}" class="w-14 h-14 sm:w-14 sm:h-14 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
+                        <img src="{{ media_url($t['photo'], 'images/instructor_portrait.webp') }}" alt="{{ $t['name'] }}" class="w-14 h-14 sm:w-14 sm:h-14 rounded-full object-cover shadow-md group-hover:scale-105 transition-transform duration-500 border-2 border-white flex-shrink-0">
                         <div class="space-y-1 min-w-0 flex-1">
                             <h3 class="font-heading font-extrabold text-base text-slate-900 truncate {{ $t['nameColor'] }} transition-colors">{{ $t['name'] }}</h3>
                             <p class="text-xs font-mono text-slate-500 font-semibold truncate">{{ $t['course'] }}</p>

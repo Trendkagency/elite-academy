@@ -419,7 +419,7 @@
                                         </p>
 
                                         <div class="flex items-center gap-2 pt-1 text-xs font-mono text-slate-700">
-                                            <img src="{{ asset('images/instructor_portrait.png') }}" alt="{{ $card['teacher'] }}" class="w-6 h-6 rounded-full object-cover border border-teal-500">
+                                            <img src="{{ asset('images/instructor_portrait.webp') }}" alt="{{ $card['teacher'] }}" class="w-6 h-6 rounded-full object-cover border border-teal-500">
                                             <span>👨‍🏫 <strong>{{ $card['teacher'] }}</strong></span>
                                         </div>
 
@@ -1082,7 +1082,7 @@ async function trigger30SecTestPush() {
                 if ('Notification' in window && Notification.permission === 'granted' && data.notification) {
                     new Notification(data.notification.title, {
                         body: data.notification.body,
-                        icon: '/images/logo.png'
+                        icon: '/images/logo.webp'
                     });
                 } else if ('Notification' in window && Notification.permission !== 'denied') {
                     Notification.requestPermission();

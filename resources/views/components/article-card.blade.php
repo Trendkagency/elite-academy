@@ -15,7 +15,7 @@
 <a href="{{ $route }}" class="block space-y-6 group cursor-pointer p-6 -mx-6 rounded-3xl hover:bg-white transition-all duration-300 hover:shadow-xl border border-transparent hover:border-slate-200/90">
     {{-- Image --}}
     <div class="relative w-full h-56 sm:h-96 lg:h-[440px] rounded-3xl overflow-hidden shadow-lg bg-slate-950">
-        <img src="{{ media_url($image, 'images/course_ai.png') }}" loading="lazy" alt="{{ $imageAlt ?? $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        <img src="{{ media_url($image, 'images/course_ai.webp') }}" loading="lazy" alt="{{ $imageAlt ?? $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
         <span class="absolute top-6 left-6 text-xs font-mono font-extrabold text-white {{ $categoryColor }} px-4 py-1.5 rounded-full shadow-md uppercase tracking-wider">
             {{ $category }}

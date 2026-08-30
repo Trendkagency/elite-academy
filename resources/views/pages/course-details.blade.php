@@ -165,7 +165,7 @@
                         ? 'شاهد الحصة المجانية الأولى واستكشف أسلوب الشرح التفاعلي والتطبيقات العملية قبل الاشتراك.'
                         : 'Get a glimpse of our hands-on teaching style before committing. This sample demo covers core concepts and interactive exercises.';
                     $videoData = $course ? $course->getVideoEmbedData() : ['type' => 'mp4', 'embed_url' => asset('videos/physics_demo.mp4')];
-                    $posterImage = $course && $course->image ? media_url($course->image, 'images/course_ai.png') : asset('images/course_ai.png');
+                    $posterImage = $course && $course->image ? media_url($course->image, 'images/course_ai.webp') : asset('images/course_ai.webp');
                 @endphp
                 <div id="demo" class="bg-gradient-to-br from-teal-900 via-slate-900 to-teal-950 text-white rounded-3xl p-8 border border-teal-500/40 shadow-xl space-y-6">
                     <div class="flex items-center justify-between border-b border-teal-500/30 pb-4">
@@ -239,7 +239,7 @@
                     <div class="pt-4 border-t border-slate-100 space-y-3">
                         <p class="text-xs font-bold text-slate-900 uppercase tracking-wider">Course Teacher</p>
                         <div class="flex items-center gap-3">
-                            <img src="{{ asset('images/instructor_portrait.png') }}" alt="{{ $cTeacher }}" class="w-10 h-10 rounded-xl object-cover border border-teal-500">
+                            <img src="{{ asset('images/instructor_portrait.webp') }}" alt="{{ $cTeacher }}" class="w-10 h-10 rounded-xl object-cover border border-teal-500">
                             <div>
                                 <a href="{{ route('teachers') }}" class="text-xs font-bold text-slate-900 hover:text-teal-600">{{ $cTeacher }}</a>
                                 <p class="text-[11px] text-slate-500">Senior Academic Lead</p>

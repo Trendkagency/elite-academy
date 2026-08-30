@@ -8,7 +8,7 @@
 @php
     $cId = $course ? $course->id : 1;
     $vData = $videoData ?: ($course ? $course->getVideoEmbedData() : ['type' => 'mp4', 'embed_url' => asset('videos/physics_demo.mp4')]);
-    $poster = $posterImage ?: ($course && $course->image ? media_url($course->image, 'images/course_ai.png') : asset('images/course_ai.png'));
+    $poster = $posterImage ?: ($course && $course->image ? media_url($course->image, 'images/course_ai.webp') : asset('images/course_ai.webp'));
     $user = auth()->user();
     $userName = $user ? $user->name : 'Guest Student';
     $userPhone = $user ? ($user->phone ?: 'ID: ' . $user->id) : 'ID: Guest';

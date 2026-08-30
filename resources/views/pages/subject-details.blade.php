@@ -11,12 +11,12 @@
     $studentsCount = isset($activeStudentsCount) ? $activeStudentsCount : ($subject?->getActiveStudentsCount() ?? 0);
     $rating = isset($ratingAvg) ? $ratingAvg : ($subject?->getRatingAvg() ?? 4.9);
 
-    $image = $subject ? ($subject->image ?: 'images/course_ai.png') : 'images/course_ai.png';
+    $image = $subject ? ($subject->image ?: 'images/course_ai.webp') : 'images/course_ai.webp';
 @endphp
 
 {{-- Hero Cover & Stats --}}
 <section class="relative py-24 lg:py-32 bg-slate-950 text-white overflow-hidden">
-    <img src="{{ media_url($image, 'images/course_ai.png') }}" alt="{{ $name }} Cover" class="absolute inset-0 w-full h-full object-cover opacity-30">
+    <img src="{{ media_url($image, 'images/course_ai.webp') }}" alt="{{ $name }} Cover" class="absolute inset-0 w-full h-full object-cover opacity-30">
     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-slate-900/80 pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">

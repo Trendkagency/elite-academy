@@ -57,7 +57,7 @@
                 x-transition:leave-end="opacity-0"
                 class="absolute inset-0 z-10 flex flex-col justify-between"
             >
-                <img src="{{ media_url($s->image, 'images/hero_student.png') }}" alt="{{ $s->title }}" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+                <img src="{{ media_url($s->image, 'images/hero_student.webp') }}" alt="{{ $s->title }}" width="1920" height="1080" {{ $idx === 0 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy" decoding="async"' }} class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -123,7 +123,7 @@
             x-transition:leave-end="opacity-0"
             class="absolute inset-0 z-10 flex flex-col justify-between"
         >
-            <img src="{{ asset('images/hero_student.png') }}" alt="Programming & Tech Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+            <img src="{{ asset('images/hero_student.webp') }}" alt="Programming & Tech Lab" width="1920" height="1080" fetchpriority="high" loading="eager" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -182,7 +182,7 @@
             x-transition:leave-end="opacity-0"
             class="absolute inset-0 z-10 flex flex-col justify-between"
         >
-            <img src="{{ asset('images/course_ai.png') }}" alt="AI Neural Networks Lab" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
+            <img src="{{ asset('images/course_ai.webp') }}" alt="AI Neural Networks Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -241,7 +241,7 @@
             x-transition:leave-end="opacity-0"
             class="absolute inset-0 z-10 flex flex-col justify-between"
         >
-            <img src="{{ asset('images/instructor_male.png') }}" alt="Robotics Engineering Lab" class="absolute inset-0 w-full h-full object-cover">
+            <img src="{{ asset('images/instructor_male.webp') }}" alt="Robotics Engineering Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -300,7 +300,7 @@
             x-transition:leave-end="opacity-0"
             class="absolute inset-0 z-10 flex flex-col justify-between"
         >
-            <img src="{{ asset('images/academy_campus.png') }}" alt="Science Laboratory" class="absolute inset-0 w-full h-full object-cover">
+            <img src="{{ asset('images/academy_campus.webp') }}" alt="Science Laboratory" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">

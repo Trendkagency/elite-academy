@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <?php
     $siteJsonLd = [
@@ -25,8 +27,8 @@
                 "name" => "Elite Academy LMS",
                 "alternateName" => "أكاديمية إيليت التعليمية",
                 "url" => url('/'),
-                "logo" => asset('images/logo.png'),
-                "image" => asset('images/academy_campus.png'),
+                "logo" => asset('images/logo.webp'),
+                "image" => asset('images/academy_campus.webp'),
                 "description" => "Ministry-accredited interactive K-12 educational platform providing live classes, auto-graded assignments, and verified tutoring in Egypt.",
                 "telephone" => "+201000000000",
                 "email" => "support@elite-academy.com",

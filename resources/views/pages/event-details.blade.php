@@ -86,7 +86,7 @@
                 <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-2xs space-y-4">
                     <h2 class="font-heading font-bold text-2xl text-slate-900">Workshop Keynote Leaders</h2>
                     <div class="flex items-center gap-4 pt-2">
-                        <img src="{{ asset('images/instructor_male.png') }}" alt="Marcus Vance" class="w-16 h-16 rounded-2xl object-cover border-2 border-purple-500">
+                        <img src="{{ asset('images/instructor_male.webp') }}" alt="Marcus Vance" class="w-16 h-16 rounded-2xl object-cover border-2 border-purple-500">
                         <div>
                             <h3 class="font-heading font-bold text-lg text-slate-900">Marcus Vance</h3>
                             <p class="text-xs font-semibold text-purple-600">AI Research Lead • Neural Networks Chair</p>

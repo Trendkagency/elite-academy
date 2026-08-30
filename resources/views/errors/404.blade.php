@@ -60,7 +60,7 @@
             <div class="flex items-center justify-center gap-4 mx-auto py-2">
                 {{-- Elite Academy Logo Badge --}}
                 <div class="relative w-24 h-24 bg-white rounded-3xl p-3 shadow-xl border border-slate-200/90 flex items-center justify-center anim-mascot">
-                    <img src="{{ asset('images/logo.png') }}" alt="Elite Academy" class="w-full h-full object-contain">
+                    <img src="{{ asset('images/logo.webp') }}" alt="Elite Academy" class="w-full h-full object-contain">
                 </div>
 
                 {{-- Expressive Sad Emotion Mascot Badge --}}

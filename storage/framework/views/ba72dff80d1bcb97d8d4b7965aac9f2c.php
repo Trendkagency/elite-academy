@@ -44,7 +44,7 @@
             
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
                 <a href="<?php echo e(route('home')); ?>" class="inline-block">
-                    <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0">
+                    <img src="<?php echo e(asset('images/logo.webp')); ?>" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0">
                 </a>
                 <p class="text-sm text-slate-400 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
                     <?php echo e($tagline); ?>

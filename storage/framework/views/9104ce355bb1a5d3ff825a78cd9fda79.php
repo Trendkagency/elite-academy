@@ -26,7 +26,7 @@
             <div class="flex flex-row items-center gap-4">
                 <div class="w-[40%] shrink-0">
                     <div class="relative rounded-2xl overflow-hidden aspect-[4/5] border border-slate-200 shadow-md">
-                        <img src="<?php echo e(media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.png')); ?>" alt="Elite Academy Campus" class="w-full h-full object-cover">
+                        <img src="<?php echo e(media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp')); ?>" alt="Elite Academy Campus" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-xs"><?php echo e(__('Campus')); ?></span>
                     </div>
@@ -111,7 +111,7 @@
                 <div class="relative max-w-lg lg:max-w-none mx-auto">
                     <div class="relative rounded-[36px] p-3 bg-white border border-slate-200/90 shadow-2xl shadow-slate-900/15 group overflow-hidden card-lift">
                         <div class="relative rounded-[26px] overflow-hidden">
-                            <img src="<?php echo e(media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.png')); ?>" alt="Elite Academy Campus Photography" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out">
+                            <img src="<?php echo e(media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp')); ?>" alt="Elite Academy Campus Photography" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent pointer-events-none"></div>
                             <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold uppercase tracking-wider text-white bg-slate-950/70 px-3 py-1 rounded-full backdrop-blur-xs border border-white/20">
                                 🏫 Campus Life
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="absolute -bottom-6 -right-4 lg:-bottom-8 lg:-right-6 w-40 sm:w-48 h-28 sm:h-32 rounded-2xl overflow-hidden border-2 border-orange-500 shadow-xl z-20 card-lift group">
-                        <img src="<?php echo e(asset('images/course_ai.png')); ?>" alt="AI Neural Research" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="<?php echo e(asset('images/course_ai.webp')); ?>" alt="AI Neural Research" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent pointer-events-none"></div>
                         <span class="absolute bottom-2 left-2.5 text-[9px] font-mono font-bold text-white bg-orange-600/90 px-2 py-0.5 rounded-full backdrop-blur-xs shadow-xs">
                             🧠 AI Research
@@ -128,7 +128,7 @@
                     </div>
 
                     <div class="hidden lg:block absolute top-1/3 -right-6 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-xl z-30 animate-float group">
-                        <img src="<?php echo e(asset('images/instructor_portrait.png')); ?>" alt="Faculty Mentor Session" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <img src="<?php echo e(asset('images/instructor_portrait.webp')); ?>" alt="Faculty Mentor Session" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     </div>
 
                     <div class="absolute bottom-6 left-6 z-30 glass-card bg-white/92 backdrop-blur-md p-4 rounded-2xl border border-white/80 shadow-2xl shadow-slate-950/15 space-y-2 animate-float max-w-xs">

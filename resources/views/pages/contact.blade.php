@@ -5,7 +5,7 @@
     $heroBadge = $contactSettings['hero_badge'] ?? 'STUDENT & PARENT SUPPORT';
     $heroTitle = $contactSettings['hero_title'] ?? 'We Are Always Here To Help';
     $heroSubtitle = $contactSettings['hero_subtitle'] ?? 'Have questions regarding curriculum enrollment, parent progress dashboards, or scheduling a campus visit? Reach out to our dedicated support advisors.';
-    $heroImage = $contactSettings['hero_image'] ?? 'images/academy_campus.png';
+    $heroImage = $contactSettings['hero_image'] ?? 'images/academy_campus.webp';
     $cardTitle = $contactSettings['card_title'] ?? 'Support Desk 24/7';
     $cardSubtitle = $contactSettings['card_subtitle'] ?? 'Direct Academic Assistance';
     $cardIcon = $contactSettings['card_icon'] ?? '🎧';
@@ -67,7 +67,7 @@
 
             <div class="lg:col-span-6 relative">
                 <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white h-[420px] bg-slate-950">
-                    <img src="{{ media_url($heroImage, 'images/academy_campus.png') }}" alt="Campus Support Desk" class="w-full h-full object-cover">
+                    <img src="{{ media_url($heroImage, 'images/academy_campus.webp') }}" alt="Campus Support Desk" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 -left-6 bg-teal-600 text-white p-5 rounded-2xl shadow-2xl flex items-center gap-3">
                     <span class="text-3xl">{{ $cardIcon }}</span>

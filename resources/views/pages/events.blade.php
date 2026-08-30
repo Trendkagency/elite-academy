@@ -16,7 +16,7 @@
         @php
             $events = [
                 [
-                    'image' => 'images/hero_student.png',
+                    'image' => 'images/hero_student.webp',
                     'category' => 'Revision Workshop',
                     'categoryColor' => 'bg-teal-600',
                     'title' => 'Grade 10 Mathematics Live Final Exam Revision',
@@ -27,7 +27,7 @@
                     'route' => route('event-details'),
                 ],
                 [
-                    'image' => 'images/course_ai.png',
+                    'image' => 'images/course_ai.webp',
                     'category' => 'STEM Competition',
                     'categoryColor' => 'bg-orange-600',
                     'title' => 'Annual Robotics & AI Student Hackathon 2026',

@@ -43,7 +43,7 @@
                         $isModel = $a instanceof \App\Models\Article;
                         $slug = $isModel ? $a->slug : 'blog-details';
                         $cardData = [
-                            'image' => $isModel ? $a->featured_image_url : ($a['image'] ?? 'images/hero_student.png'),
+                            'image' => $isModel ? $a->featured_image_url : ($a['image'] ?? 'images/hero_student.webp'),
                             'category' => $isModel ? $a->category : ($a['category'] ?? 'Study Tips'),
                             'categoryColor' => 'bg-teal-600',
                             'title' => $isModel ? $a->title : ($a['title'] ?? 'Article Title'),

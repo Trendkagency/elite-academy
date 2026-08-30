@@ -37,7 +37,7 @@
                     $categoryName = $sub->category ? $sub->category->getLocalizedName() : __('General');
                     $coursesCount = $sub->courses ? $sub->courses->count() : 0;
                     $subjectUrl = route('subject-details', ['slug' => $sub->slug]);
-                    $image = media_url($sub->image, 'images/hero_student.png');
+                    $image = media_url($sub->image, 'images/hero_student.webp');
                 @endphp
                 <div class="anim-subject delay-3 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-slate-950 text-white shadow-lg hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
                     <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">

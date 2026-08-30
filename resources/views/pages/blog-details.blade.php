@@ -9,7 +9,7 @@
     $author = $article?->authorUser?->name ?: 'Dr. Ahmed Hassan';
     $date = $article?->published_at ? $article->published_at->format('M d, Y') : 'Oct 12, 2026';
     $readTime = $article ? ($article->read_time_minutes . ' min read') : '6 min read';
-    $image = $article ? $article->featured_image_url : 'images/hero_student.png';
+    $image = $article ? $article->featured_image_url : 'images/hero_student.webp';
 @endphp
 
 <section class="py-12 bg-slate-900 text-white border-b border-slate-800">
@@ -47,7 +47,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {{-- Featured Image --}}
         <div class="relative w-full h-64 sm:h-96 lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl bg-slate-950">
-            <img src="{{ media_url($image, 'images/course_ai.png') }}" alt="{{ $title }}" class="w-full h-full object-cover">
+            <img src="{{ media_url($image, 'images/course_ai.webp') }}" alt="{{ $title }}" class="w-full h-full object-cover">
         </div>
 
         {{-- Excerpt Callout --}}

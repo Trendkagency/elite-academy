@@ -10,7 +10,7 @@
 <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-2xs hover-lift flex flex-col justify-between group">
     <div>
         <div class="relative h-48 overflow-hidden bg-slate-100">
-            <img src="{{ media_url($image, 'images/course_ai.png') }}" alt="{{ $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <img src="{{ media_url($image, 'images/course_ai.webp') }}" alt="{{ $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             <span class="absolute top-4 left-4 {{ $categoryBg }} text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">{{ $category }}</span>
             @if($isEnrolled)
                 <span class="absolute top-4 right-4 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1">
@@ -28,7 +28,7 @@
         </div>
         <div class="p-6 space-y-3">
             <div class="flex items-center gap-2">
-                <img src="{{ media_url($instructorPhoto, 'images/instructor_portrait.png') }}" alt="{{ $instructor }}" class="w-7 h-7 rounded-full object-cover border {{ $instructorBorder }}">
+                <img src="{{ media_url($instructorPhoto, 'images/instructor_portrait.webp') }}" alt="{{ $instructor }}" class="w-7 h-7 rounded-full object-cover border {{ $instructorBorder }}">
                 <span class="text-xs font-bold text-slate-900">{{ $instructor }}</span>
             </div>
             <h3 class="font-heading font-bold text-xl text-slate-900 group-hover:text-teal-600 transition-colors">

@@ -67,7 +67,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[90px] lg:h-[100px] flex items-center justify-between gap-2 lg:gap-4">
         {{-- Logo (Significantly Increased Size) --}}
         <a href="{{ route('home') }}" class="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-xl transition-all duration-300 shrink-0 py-1" aria-label="Elite Academy Homepage">
-            <img src="{{ asset('images/logo.png') }}" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105">
+            <img src="{{ asset('images/logo.webp') }}" alt="Elite Academy Logo" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105">
         </a>
 
         {{-- Desktop Navigation Links --}}
@@ -140,7 +140,7 @@
 <div class="fixed top-0 right-0 bottom-0 w-[300px] bg-white z-50 shadow-2xl flex flex-col justify-between p-6 transform translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out rtl:right-auto rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 md:hidden">
     <div class="space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <img src="{{ asset('images/logo.png') }}" alt="Elite Academy Logo" class="h-14 sm:h-16 w-auto object-contain">
+            <img src="{{ asset('images/logo.webp') }}" alt="Elite Academy Logo" class="h-14 sm:h-16 w-auto object-contain">
             <label for="mobile-drawer-toggle" class="p-2 text-slate-500 hover:text-slate-900 rounded-xl cursor-pointer font-bold text-lg">
                 ✕
             </label>

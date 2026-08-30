@@ -61,11 +61,11 @@
                         $slug = $isModel ? $c->slug : 'course-details';
                         $courseId = $isModel ? $c->id : null;
                         $cardData = [
-                            'image' => $isModel ? ($c->image ?: 'images/course_ai.png') : ($c['image'] ?? 'images/course_ai.png'),
+                            'image' => $isModel ? ($c->image ?: 'images/course_ai.webp') : ($c['image'] ?? 'images/course_ai.webp'),
                             'category' => $isModel ? ($c->subject?->name ?: ($isArabic ? 'العلوم' : 'Science')) : ($c['category'] ?? ($isArabic ? 'العلوم' : 'Science')),
                             'categoryBg' => 'bg-teal-600',
                             'instructor' => $isModel ? ($c->teacher?->user?->name ?: ($isArabic ? 'أستاذ المادة' : 'Dr. Teacher')) : ($c['instructor'] ?? ($isArabic ? 'أستاذ المادة' : 'Dr. Teacher')),
-                            'instructorPhoto' => 'images/instructor_portrait.png',
+                            'instructorPhoto' => 'images/instructor_portrait.webp',
                             'instructorBorder' => 'border-teal-500',
                             'title' => $isModel ? $c->title : ($c['title'] ?? 'Course Title'),
                             'description' => $isModel ? ($c->description ?: ($isArabic ? 'مقرر تعليمي تفاعلي شامل للمرحلة الثانوية.' : 'Interactive curriculum with hands-on labs.')) : ($c['description'] ?? 'Course description'),

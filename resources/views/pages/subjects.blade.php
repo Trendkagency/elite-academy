@@ -24,7 +24,7 @@
                         $isModel = $s instanceof \App\Models\Subject;
                         $slug = $isModel ? $s->slug : 'subject-details';
                         $cardData = [
-                            'image' => $isModel ? ($s->image ?: 'images/course_ai.png') : ($s['img'] ?? 'images/course_ai.png'),
+                            'image' => $isModel ? ($s->image ?: 'images/course_ai.webp') : ($s['img'] ?? 'images/course_ai.webp'),
                             'grade' => $isModel ? ($s->category?->name ?: 'General Curriculum') : ($s['grade'] ?? 'General Curriculum'),
                             'badgeColor' => 'bg-teal-600',
                             'name' => $isModel ? $s->name : ($s['name'] ?? 'Subject Name'),

@@ -61,7 +61,7 @@
 
             <div class="lg:col-span-5 relative">
                 <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white h-[420px] bg-slate-950">
-                    <img src="{{ asset('images/academy_campus.png') }}" alt="Elite Academy Campus" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/academy_campus.webp') }}" alt="Elite Academy Campus" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 -left-6 bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-2xl">
                     <p class="font-heading font-black text-xl text-teal-400">ACCREDITED ACADEMY</p>

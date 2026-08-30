@@ -98,7 +98,8 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="image" href="<?php echo e(asset('images/hero_student.webp')); ?>" type="image/webp" fetchpriority="high">
 
     <style>
         :root {
@@ -307,8 +308,9 @@
         <button id="back-to-top" aria-label="Back to top">↑</button>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <script src="<?php echo e(asset('js/scroll-reveal.js')); ?>"></script>
-    <script src="<?php echo e(asset('js/toast.js')); ?>?v=<?php echo e(time()); ?>"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <script defer src="<?php echo e(asset('js/scroll-reveal.js')); ?>"></script>
+    <script defer src="<?php echo e(asset('js/toast.js')); ?>?v=<?php echo e(time()); ?>"></script>
     <?php
         $flashToasts = array_filter([
             'success' => session('success'),
