@@ -1,8 +1,8 @@
 @use('App\Models\SiteSetting')
 {{-- About Elite Academy Preview Section --}}
 <section class="py-16 md:py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden">
-    <div class="absolute top-1/2 -left-24 w-[36rem] h-[36rem] bg-teal-400/12 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
-    <div class="absolute bottom-10 right-0 w-[32rem] h-[32rem] bg-orange-400/10 rounded-full blur-3xl pointer-events-none -z-10 animate-float"></div>
+    <div class="absolute top-1/2 -left-24 w-[36rem] h-[36rem] bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
+    <div class="absolute bottom-10 right-0 w-[32rem] h-[32rem] bg-orange-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -61,7 +61,7 @@
         <div class="hidden md:grid md:grid-cols-12 md:gap-10 lg:gap-16 md:items-center">
             <div class="md:col-span-6 flex flex-col space-y-6 lg:space-y-8">
                 <div class="space-y-3 sm:space-y-4">
-                    <span class="anim-about delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+                    <span class="anim-about delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
                         {{ SiteSetting::getLocalized('about_badge', 'REDEFINING EDUCATION') }}
                     </span>
                     <h2 class="anim-about delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
@@ -118,11 +118,11 @@
                         </span>
                     </div>
 
-                    <div class="hidden lg:block absolute top-1/3 -right-6 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-xl z-30 animate-float group">
+                    <div class="hidden lg:block absolute top-1/3 -right-6 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-xl z-30 group">
                         <img src="{{ asset('images/instructor_portrait_128.webp') }}" alt="Faculty Mentor Session" width="80" height="80" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" decoding="async">
                     </div>
 
-                    <div class="absolute bottom-6 left-6 z-30 glass-card bg-white/92 backdrop-blur-md p-4 rounded-2xl border border-white/80 shadow-2xl shadow-slate-950/15 space-y-2 animate-float max-w-xs">
+                    <div class="absolute bottom-6 left-6 z-30 glass-card bg-white/92 backdrop-blur-md p-4 rounded-2xl border border-white/80 shadow-2xl shadow-slate-950/15 space-y-2 max-w-xs">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-xl bg-teal-100/90 text-teal-700 flex items-center justify-center font-extrabold text-sm icon-rotate flex-shrink-0 shadow-xs">
                                 ⭐

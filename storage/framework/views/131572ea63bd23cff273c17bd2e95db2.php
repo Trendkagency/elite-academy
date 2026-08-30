@@ -98,10 +98,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
-    </noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
 
     <style>
         :root {
@@ -150,6 +147,7 @@
             transition: transform 0.25s ease;
         }
     </style>
+    <link rel="preload" as="style" href="<?php echo e(asset('dist/output.css')); ?>?v=2.2.0">
     <link rel="stylesheet" href="<?php echo e(asset('dist/output.css')); ?>?v=2.2.0">
     <?php echo $__env->yieldPushContent('head'); ?>
     <?php echo $__env->make('partials.inp-optimizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -179,8 +177,7 @@
         <button id="back-to-top" aria-label="Back to top">↑</button>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <script src="<?php echo e(asset('js/scroll-reveal.js')); ?>?v=2.2.0" defer></script>
-    <script src="<?php echo e(asset('js/toast.js')); ?>?v=2.2.0" defer></script>
+    <script src="<?php echo e(asset('js/app.min.js')); ?>?v=2.2.0" defer></script>
     <?php
         $flashToasts = array_filter([
             'success' => session('success'),
@@ -383,16 +380,14 @@
 
             window.copyFcmTokenToClipboard = function() {
                 const input = document.getElementById('userFcmTokenInput');
-                if (input && input.value) {
+                if (input && input.value && navigator.clipboard) {
                     navigator.clipboard.writeText(input.value).then(() => {
                         if (window.Toast) {
                             window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم نسخ رمز FCM للحافظة!' : 'FCM Token copied to clipboard!', 15, 512) ?>);
                         }
                     }).catch(() => {
-                        input.select();
-                        document.execCommand('copy');
                         if (window.Toast) {
-                            window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم نسخ رمز FCM للحافظة!' : 'FCM Token copied to clipboard!', 15, 512) ?>);
+                            window.Toast.error(<?php echo json_encode(app()->getLocale() === 'ar' ? 'فشل نسخ الرمز' : 'Failed to copy token', 15, 512) ?>);
                         }
                     });
                 }

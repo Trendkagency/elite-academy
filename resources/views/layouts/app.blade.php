@@ -97,10 +97,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
-    </noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
 
     <style>
         :root {
@@ -149,6 +146,7 @@
             transition: transform 0.25s ease;
         }
     </style>
+    <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v=2.2.0">
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v=2.2.0">
     @stack('head')
     @include('partials.inp-optimizer')
@@ -178,8 +176,7 @@
         <button id="back-to-top" aria-label="Back to top">↑</button>
     @endif
 
-    <script src="{{ asset('js/scroll-reveal.js') }}?v=2.2.0" defer></script>
-    <script src="{{ asset('js/toast.js') }}?v=2.2.0" defer></script>
+    <script src="{{ asset('js/app.min.js') }}?v=2.2.0" defer></script>
     @php
         $flashToasts = array_filter([
             'success' => session('success'),
@@ -378,16 +375,14 @@
 
             window.copyFcmTokenToClipboard = function() {
                 const input = document.getElementById('userFcmTokenInput');
-                if (input && input.value) {
+                if (input && input.value && navigator.clipboard) {
                     navigator.clipboard.writeText(input.value).then(() => {
                         if (window.Toast) {
                             window.Toast.success(@json(app()->getLocale() === 'ar' ? 'تم نسخ رمز FCM للحافظة!' : 'FCM Token copied to clipboard!'));
                         }
                     }).catch(() => {
-                        input.select();
-                        document.execCommand('copy');
                         if (window.Toast) {
-                            window.Toast.success(@json(app()->getLocale() === 'ar' ? 'تم نسخ رمز FCM للحافظة!' : 'FCM Token copied to clipboard!'));
+                            window.Toast.error(@json(app()->getLocale() === 'ar' ? 'فشل نسخ الرمز' : 'Failed to copy token'));
                         }
                     });
                 }

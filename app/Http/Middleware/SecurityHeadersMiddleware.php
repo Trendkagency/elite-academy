@@ -35,6 +35,10 @@ class SecurityHeadersMiddleware
             "frame-ancestors 'self'",
         ];
 
+        if ($request->isSecure()) {
+            $csp[] = "upgrade-insecure-requests";
+        }
+
         $response->headers->set('Content-Security-Policy', implode('; ', $csp), false);
 
         // 2. Strict-Transport-Security (HSTS - 2 years)

@@ -5,7 +5,7 @@
         {{-- Featured Mentors Header --}}
         <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div class="space-y-3">
-                <span class="anim-projects delay-1 inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 animate-badge-pulse">
+                <span class="anim-projects delay-1 inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
                     {{ __('FACULTY') }}
                 </span>
                 <h2 class="anim-projects delay-2 font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -17,23 +17,28 @@
 
         {{-- Mentor Slider Carousel (Dynamic from DB) --}}
         @php
-            $dbTeachers = \Illuminate\Support\Facades\Schema::hasTable('teacher_profiles')
-                ? \App\Models\TeacherProfile::with('user')->get()
-                : collect();
+            $mentors = \Illuminate\Support\Facades\Cache::remember('home_featured_mentors_list', 3600, function () {
+                try {
+                    $dbTeachers = \App\Models\TeacherProfile::with('user')->take(6)->get();
+                    if ($dbTeachers->isNotEmpty()) {
+                        return $dbTeachers->map(fn($t) => [
+                            'name' => $t->user?->name ?: 'Teacher Profile',
+                            'title' => $t->specialization ?: 'Senior Academic Mentor',
+                            'dept' => 'Faculty',
+                            'badgeBg' => 'bg-teal-600',
+                            'textColor' => 'group-hover:text-teal-300',
+                            'meta' => ($t->years_experience ?: 5) . '+ Yrs Exp • Active Educator',
+                            'photo' => 'images/instructor_portrait.webp',
+                        ])->all();
+                    }
+                } catch (\Throwable $e) {}
 
-            $mentors = $dbTeachers->count() > 0 ? $dbTeachers->map(fn($t) => [
-                'name' => $t->user?->name ?: 'Teacher Profile',
-                'title' => $t->specialization ?: 'Senior Academic Mentor',
-                'dept' => 'Faculty',
-                'badgeBg' => 'bg-teal-600',
-                'textColor' => 'group-hover:text-teal-300',
-                'meta' => ($t->years_experience ?: 5) . '+ Yrs Exp • Active Educator',
-                'photo' => 'images/instructor_portrait.webp',
-            ]) : [
-                ['name' => 'Dr. Ahmed Hassan', 'title' => 'Senior AI & Systems Researcher', 'dept' => 'Programming', 'badgeBg' => 'bg-teal-600', 'textColor' => 'group-hover:text-teal-300', 'meta' => '15+ Yrs Exp • 1,400+ Students • PhD - MIT', 'photo' => 'images/instructor_portrait.webp'],
-                ['name' => 'Sarah Mohamed', 'title' => 'Deep Learning Lead Architect', 'dept' => 'Artificial Intelligence', 'badgeBg' => 'bg-purple-600', 'textColor' => 'group-hover:text-purple-300', 'meta' => '12+ Yrs Exp • 1,100+ Students • MSc - Stanford', 'photo' => 'images/instructor_female.webp'],
-                ['name' => 'Omar Khaled', 'title' => 'Robotics & Autonomous Systems Specialist', 'dept' => 'Robotics', 'badgeBg' => 'bg-orange-600', 'textColor' => 'group-hover:text-orange-300', 'meta' => '10+ Yrs Exp • 950+ Students • PhD - Cambridge', 'photo' => 'images/instructor_male.webp'],
-            ];
+                return [
+                    ['name' => 'Dr. Ahmed Hassan', 'title' => 'Senior AI & Systems Researcher', 'dept' => 'Programming', 'badgeBg' => 'bg-teal-600', 'textColor' => 'group-hover:text-teal-300', 'meta' => '15+ Yrs Exp • 1,400+ Students • PhD - MIT', 'photo' => 'images/instructor_portrait.webp'],
+                    ['name' => 'Sarah Mohamed', 'title' => 'Deep Learning Lead Architect', 'dept' => 'Artificial Intelligence', 'badgeBg' => 'bg-purple-600', 'textColor' => 'group-hover:text-purple-300', 'meta' => '12+ Yrs Exp • 1,100+ Students • MSc - Stanford', 'photo' => 'images/instructor_female.webp'],
+                    ['name' => 'Omar Khaled', 'title' => 'Robotics & Autonomous Systems Specialist', 'dept' => 'Robotics', 'badgeBg' => 'bg-orange-600', 'textColor' => 'group-hover:text-orange-300', 'meta' => '10+ Yrs Exp • 950+ Students • PhD - Cambridge', 'photo' => 'images/instructor_male.webp'],
+                ];
+            });
         @endphp
 
         <div class="carousel-container no-scrollbar">

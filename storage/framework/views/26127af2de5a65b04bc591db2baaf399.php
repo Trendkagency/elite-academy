@@ -30,7 +30,7 @@
                     <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($s->track_label): ?>
                             <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
-                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
                                 <span><?php echo e($s->getLocalizedTrackLabel()); ?></span>
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -91,7 +91,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
                         <span><?php echo e(SiteSetting::getLocalized('landing_hero_badge', '🚀 EGYPT’S #1 ACADEMIC PLATFORM')); ?></span>
                     </div>
 
@@ -146,7 +146,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
                         <span>🧠 <?php echo e(__('Artificial Intelligence Track')); ?></span>
                     </div>
 
@@ -201,7 +201,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
                         <span>🤖 <?php echo e(__('Robotics Track')); ?></span>
                     </div>
 
@@ -256,7 +256,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
                         <span>🔬 <?php echo e(__('Science & Math Track')); ?></span>
                     </div>
 
@@ -332,90 +332,4 @@
 </section>
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const section = document.getElementById('hero-slider-section');
-    if (!section) return;
-
-    const slides = Array.from(section.querySelectorAll('.hero-slide'));
-    const dots = Array.from(section.querySelectorAll('.hero-dot'));
-    const numEl = document.getElementById('hero-active-slide-num');
-    const progressEl = document.getElementById('hero-progress-bar');
-    const total = slides.length;
-    if (total <= 1) return;
-
-    let active = 0;
-    let timer = null;
-
-    function renderSlide(nextIdx) {
-        if (nextIdx === active) return;
-        const currentSlide = slides[active];
-        const nextSlide = slides[nextIdx];
-
-        if (currentSlide) {
-            currentSlide.classList.remove('opacity-100', 'z-10', 'block');
-            currentSlide.classList.add('opacity-0', 'z-0', 'pointer-events-none');
-            setTimeout(() => {
-                currentSlide.classList.add('hidden');
-            }, 700);
-        }
-
-        if (nextSlide) {
-            nextSlide.classList.remove('hidden', 'opacity-0', 'z-0', 'pointer-events-none');
-            nextSlide.classList.add('block', 'z-10');
-            requestAnimationFrame(() => {
-                nextSlide.classList.add('opacity-100');
-            });
-        }
-
-        dots.forEach((dot, idx) => {
-            if (idx === nextIdx) {
-                dot.className = 'hero-dot h-3 rounded-full transition-all duration-300 cursor-pointer bg-teal-400 w-7';
-            } else {
-                dot.className = 'hero-dot h-3 rounded-full transition-all duration-300 cursor-pointer bg-white/30 w-3 hover:bg-white/70';
-            }
-        });
-
-        if (numEl) {
-            numEl.textContent = String(nextIdx + 1).padStart(2, '0');
-        }
-        if (progressEl) {
-            progressEl.style.width = (((nextIdx + 1) / total) * 100) + '%';
-        }
-
-        active = nextIdx;
-    }
-
-    function next() {
-        renderSlide((active + 1) % total);
-    }
-
-    function prev() {
-        renderSlide((active - 1 + total) % total);
-    }
-
-    function goTo(index) {
-        renderSlide(index);
-    }
-
-    function startTimer() {
-        stopTimer();
-        timer = setInterval(next, 7000);
-    }
-
-    function stopTimer() {
-        if (timer) {
-            clearInterval(timer);
-            timer = null;
-        }
-    }
-
-    window.heroSlider = { next, prev, goTo, start: startTimer, stop: stopTimer };
-
-    section.addEventListener('mouseenter', stopTimer, { passive: true });
-    section.addEventListener('mouseleave', startTimer, { passive: true });
-
-    startTimer();
-});
-</script>
 <?php /**PATH C:\laragon\www\elite-academy\resources\views/pages/home/hero-slider.blade.php ENDPATH**/ ?>

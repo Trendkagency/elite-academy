@@ -1,6 +1,5 @@
-
 <section class="py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/80">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[25rem] bg-teal-400/10 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[25rem] bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
 

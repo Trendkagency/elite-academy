@@ -6,16 +6,16 @@
 
 <section class="py-20 md:py-28 bg-gradient-to-br from-teal-950 via-slate-900 to-teal-950 text-white relative overflow-hidden">
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ctaBg): ?>
-        <img src="<?php echo e(media_url($ctaBg)); ?>" alt="CTA Background" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
+        <img src="<?php echo e(media_url($ctaBg)); ?>" alt="CTA Background" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" loading="lazy" decoding="async">
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
-    <div class="absolute -top-16 left-1/4 w-[32rem] h-[32rem] bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
-    <div class="absolute -bottom-16 right-1/4 w-[32rem] h-[32rem] bg-orange-500/15 rounded-full blur-3xl pointer-events-none animate-float"></div>
+    <div class="absolute -top-16 left-1/4 w-[32rem] h-[32rem] bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="absolute -bottom-16 right-1/4 w-[32rem] h-[32rem] bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8 relative z-10">
 
-        <span class="inline-block text-xs sm:text-sm font-mono font-extrabold uppercase tracking-widest text-teal-300 bg-teal-900/80 px-4 py-2 rounded-full border border-teal-500/30 shadow-lg animate-badge-pulse">
+        <span class="inline-block text-xs sm:text-sm font-mono font-extrabold uppercase tracking-widest text-teal-300 bg-teal-900/80 px-4 py-2 rounded-full border border-teal-500/30 shadow-lg">
             🚀 <?php echo e(__('Ready To Start Learning?')); ?>
 
         </span>
