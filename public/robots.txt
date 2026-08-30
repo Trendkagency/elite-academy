@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /ajax/
+Sitemap: https://elite-academy.com/sitemap.xml
+
