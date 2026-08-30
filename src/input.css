@@ -586,7 +586,6 @@ html {
   -webkit-backface-visibility: hidden;
 }
 
-<<<<<<< HEAD
 .sr-h {
   transform: translateY(24px);
 }
@@ -638,11 +637,6 @@ html {
   opacity: 1 !important;
   transform: none !important;
 }
-=======
-/* ============================================ */
-/* SMOOTH BODY BASE                            */
-/* ============================================ */
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
 
 /* ============================================ */
 /* MOBILE DESIGN SYSTEM & TOUCH SPECIFICATIONS  */

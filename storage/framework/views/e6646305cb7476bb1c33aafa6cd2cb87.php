@@ -1,14 +1,9 @@
-
-
 <?php $__env->startSection('content'); ?>
 <?php
     $siteJsonLd = [
         "@context" => "https://schema.org",
-        "@type" => "BreadcrumbList",
-        "@id" => url('/') . "/#breadcrumb",
-        "itemListElement" => [
+        "@graph" => [
             [
-<<<<<<< HEAD
                 "@type" => "WebSite",
                 "@id" => url('/') . "/#website",
                 "url" => url('/'),
@@ -40,15 +35,6 @@
                     "streetAddress" => "Academic Center Tower, New Cairo",
                     "addressLocality" => "Cairo",
                     "addressCountry" => "EG"
-                ],
-                "contactPoint" => [
-                    [
-                        "@type" => "ContactPoint",
-                        "telephone" => "+201000000000",
-                        "contactType" => "customer service",
-                        "availableLanguage" => ["Arabic", "English"],
-                        "areaServed" => "EG"
-                    ]
                 ],
                 "aggregateRating" => [
                     "@type" => "AggregateRating",
@@ -130,12 +116,6 @@
                         ]
                     ]
                 ]
-=======
-                "@type" => "ListItem",
-                "position" => 1,
-                "name" => app()->getLocale() === 'ar' ? 'الرئيسية' : 'Home',
-                "item" => url('/')
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             ]
         ]
     ];

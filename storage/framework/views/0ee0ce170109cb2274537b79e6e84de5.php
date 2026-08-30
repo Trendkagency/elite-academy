@@ -38,13 +38,8 @@
                 <div class="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-24 h-24 sm:w-48 sm:h-48 bg-teal-400/20 rounded-full blur-xl pointer-events-none -z-10"></div>
                 <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/15 rounded-full blur-xl pointer-events-none -z-10"></div>
 
-<<<<<<< HEAD
                 <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white animate-float">
-                    <img src="<?php echo e(asset('images/hero_student.webp')); ?>" alt="Why Students Choose Elite Academy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-=======
-                <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white">
                     <img src="<?php echo e(asset('images/hero_student.webp')); ?>" alt="Why Students Choose Elite Academy" width="500" height="625" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             </div>

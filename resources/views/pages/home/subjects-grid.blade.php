@@ -34,12 +34,6 @@
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5 md:gap-8">
             @foreach ($dbSubjects as $sub)
                 @php
-<<<<<<< HEAD
-                    $categoryName = $sub->category ? $sub->category->getLocalizedName() : __('General');
-                    $coursesCount = $sub->courses ? $sub->courses->count() : 0;
-                    $subjectUrl = route('subject-details', ['slug' => $sub->slug]);
-                    $image = media_url($sub->image, 'images/hero_student.webp');
-=======
                     $isModel = is_object($sub) && $sub instanceof \App\Models\Subject;
                     $subjectName = $isModel ? $sub->getLocalizedName() : (is_array($sub) ? ($sub['name'] ?? __('Subject')) : (string) $sub);
                     
@@ -62,7 +56,6 @@
                     
                     $rawImage = $isModel ? $sub->image : (is_array($sub) ? ($sub['image'] ?? null) : null);
                     $image = media_url($rawImage, 'images/hero_student.webp');
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 @endphp
                 <div class="anim-subject delay-3 sr-card aspect-[4/5] md:aspect-auto md:h-[520px] rounded-[24px] bg-slate-950 text-white shadow-lg hover:shadow-2xl card-lift flex flex-col justify-between overflow-hidden group transition-all duration-300 relative active:scale-[0.98]">
                     <div class="absolute inset-0 md:relative md:h-[338px] overflow-hidden bg-slate-950">

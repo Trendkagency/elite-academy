@@ -23,11 +23,7 @@
                 data-slide-index="<?php echo e($idx); ?>"
                 class="hero-slide absolute inset-0 <?php echo e($idx === 0 ? 'opacity-100 z-10 block' : 'opacity-0 z-0 hidden pointer-events-none'); ?> transition-opacity duration-700 ease-out flex flex-col justify-between"
             >
-<<<<<<< HEAD
                 <img src="<?php echo e(media_url($s->image, 'images/hero_student.webp')); ?>" alt="<?php echo e($s->title); ?>" width="1920" height="1080" <?php echo e($idx === 0 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy" decoding="async"'); ?> class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
-=======
-                <img src="<?php echo e(media_url($s->image, 'images/hero_student.webp')); ?>" alt="<?php echo e($s->title); ?>" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" <?php echo e($idx === 0 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy" decoding="async"'); ?>>
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -89,11 +85,7 @@
             data-slide-index="0"
             class="hero-slide absolute inset-0 opacity-100 z-10 block transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
-<<<<<<< HEAD
             <img src="<?php echo e(asset('images/hero_student.webp')); ?>" alt="Programming & Tech Lab" width="1920" height="1080" fetchpriority="high" loading="eager" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
-=======
-            <img src="<?php echo e(asset('images/hero_student.webp')); ?>" alt="Programming & Tech Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" loading="eager">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -148,11 +140,7 @@
             data-slide-index="1"
             class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
-<<<<<<< HEAD
             <img src="<?php echo e(asset('images/course_ai.webp')); ?>" alt="AI Neural Networks Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover animate-ken-burns">
-=======
-            <img src="<?php echo e(asset('images/course_ai.webp')); ?>" alt="AI Neural Networks Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -207,11 +195,7 @@
             data-slide-index="2"
             class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
-<<<<<<< HEAD
             <img src="<?php echo e(asset('images/instructor_male.webp')); ?>" alt="Robotics Engineering Lab" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
-=======
-            <img src="<?php echo e(asset('images/instructor_male.webp')); ?>" alt="Robotics Engineering Lab" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">
@@ -266,11 +250,7 @@
             data-slide-index="3"
             class="hero-slide absolute inset-0 opacity-0 z-0 hidden pointer-events-none transition-opacity duration-700 ease-out flex flex-col justify-between"
         >
-<<<<<<< HEAD
             <img src="<?php echo e(asset('images/academy_campus.webp')); ?>" alt="Science Laboratory" width="1920" height="1080" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
-=======
-            <img src="<?php echo e(asset('images/academy_campus.webp')); ?>" alt="Science Laboratory" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/30"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-20 relative z-20 flex flex-col lg:grid lg:grid-cols-12 gap-6 items-center text-center lg:text-left">

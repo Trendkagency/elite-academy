@@ -97,12 +97,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<<<<<<< HEAD
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="{{ asset('images/hero_student.webp') }}" type="image/webp" fetchpriority="high">
-=======
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 
     <style>
         :root {
@@ -181,13 +176,9 @@
         <button id="back-to-top" aria-label="Back to top">↑</button>
     @endif
 
-<<<<<<< HEAD
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <script defer src="{{ asset('js/scroll-reveal.js') }}"></script>
     <script defer src="{{ asset('js/toast.js') }}?v={{ time() }}"></script>
-=======
-    <script src="{{ asset('js/app.min.js') }}?v=2.2.0" defer></script>
->>>>>>> f41ff34d4a05c9f714f7c0c0a30c0717447e9f57
     @php
         $flashToasts = array_filter([
             'success' => session('success'),
