@@ -50,7 +50,8 @@ class StudentProfileForm
                         Select::make('grade_level_id')
                             ->relationship('gradeLevel', 'name')
                             ->label('Grade Level')
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         TextInput::make('school_name')
                             ->label('School Name')

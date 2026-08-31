@@ -25,15 +25,18 @@ class CourseForm
                         Select::make('subject_id')
                             ->relationship('subject', 'name')
                             ->searchable()
+                            ->preload()
                             ->required(),
                         Select::make('grade_level_id')
                             ->relationship('gradeLevel', 'name')
                             ->searchable()
+                            ->preload()
                             ->nullable(),
                         Select::make('teacher_id')
                             ->relationship('teacher')
                             ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: $record->title ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
                             ->searchable()
+                            ->preload()
                             ->required(),
                         TextInput::make('title')
                             ->required()

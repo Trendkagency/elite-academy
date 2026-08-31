@@ -52,6 +52,7 @@ class EditStudentProfile extends EditRecord
                         ->label('Select Package Plan Template')
                         ->options(fn () => PackageTemplate::where('is_active', true)->pluck('name', 'id')->toArray())
                         ->searchable()
+                        ->preload()
                         ->nullable()
                         ->helperText('Select a pre-defined template or leave empty for custom package.'),
                     TextInput::make('total_sessions')

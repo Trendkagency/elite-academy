@@ -47,6 +47,19 @@ class AppServiceProvider extends ServiceProvider
             Gate::define($permission, fn (\App\Models\User $user) => $user->hasPermission($permission));
         }
 
+        // Global Filament Configuration: Preload options for all Select components, filters, and columns
+        \Filament\Forms\Components\Select::configureUsing(function (\Filament\Forms\Components\Select $select): void {
+            $select->preload();
+        });
+
+        \Filament\Tables\Filters\SelectFilter::configureUsing(function (\Filament\Tables\Filters\SelectFilter $filter): void {
+            $filter->preload();
+        });
+
+        \Filament\Tables\Columns\SelectColumn::configureUsing(function (\Filament\Tables\Columns\SelectColumn $column): void {
+            $column->preloadOptions();
+        });
+
         if (! $this->app->runningInConsole() && $this->app->bound('request')) {
             $req = request();
             if (

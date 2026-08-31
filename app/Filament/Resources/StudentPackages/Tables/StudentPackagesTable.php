@@ -129,6 +129,8 @@ class StudentPackagesTable
                                             }
                                         }
                                     })
+                                    ->searchable()
+                                    ->preload()
                                     ->nullable()
                                     ->native(false)
                                     ->helperText('Selecting a template auto-fills the session count below.'),
