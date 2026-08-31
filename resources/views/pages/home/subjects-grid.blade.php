@@ -1,22 +1,22 @@
-{{-- Subjects Showcase Grid Section --}}
-<section class="py-20 md:py-28 bg-white border-y border-slate-200/80 relative">
+{{-- Subjects Showcase Grid Section (Section: Light Background) --}}
+<section class="py-20 md:py-28 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 border-y border-slate-200/80 dark:border-slate-800/80 relative transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         {{-- 2-Column Section Header --}}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
             <div class="space-y-3 max-w-xl">
-                <span class="anim-subject delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
+                <span class="anim-subject delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 dark:text-teal-400 font-extrabold bg-teal-50 dark:bg-teal-950/60 px-3.5 py-1.5 rounded-full border border-teal-200/80 dark:border-teal-800/80">
                     {{ __('OUR SUBJECTS') }}
                 </span>
-                <h2 class="anim-subject delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                <h2 class="anim-subject delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                     {{ \App\Models\SiteSetting::getLocalized('subjects_title', __('Explore Specialized Subjects & Programs')) }}
                 </h2>
             </div>
 
-            <div class="hidden md:block w-px h-16 bg-slate-200/80 mx-2 flex-shrink-0"></div>
+            <div class="hidden md:block w-px h-16 bg-slate-200/80 dark:bg-slate-800 mx-2 flex-shrink-0"></div>
 
             <div class="max-w-md my-auto">
-                <p class="text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
+                <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base font-medium leading-relaxed">
                     {{ \App\Models\SiteSetting::getLocalized('subjects_subtitle', __('Cutting-edge curriculum designed by industry experts and academic researchers.')) }}
                 </p>
             </div>

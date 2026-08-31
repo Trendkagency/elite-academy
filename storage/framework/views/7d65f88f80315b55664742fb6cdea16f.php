@@ -1,26 +1,27 @@
-<section class="py-24 lg:py-32 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/80">
+
+<section class="py-24 lg:py-32 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 relative overflow-hidden border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200">
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[25rem] bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
 
         
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-slate-200/60">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-slate-200/60 dark:border-slate-800">
             <div class="space-y-3 max-w-xl">
-                <span class="anim-testimonials delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-4 py-1.5 rounded-full border border-teal-200/80 shadow-xs">
+                <span class="anim-testimonials delay-1 sr-h inline-block text-xs font-mono uppercase tracking-widest text-teal-600 dark:text-teal-400 font-extrabold bg-teal-50 dark:bg-teal-950/60 px-4 py-1.5 rounded-full border border-teal-200/80 dark:border-teal-800/80 shadow-xs">
                     <?php echo e(__('TESTIMONIALS')); ?>
 
                 </span>
-                <h2 class="anim-testimonials delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                <h2 class="anim-testimonials delay-2 sr-h font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                     <?php echo e(\App\Models\SiteSetting::getLocalized('testimonials_title', __('What Our Students & Parents Say.'))); ?>
 
                 </h2>
             </div>
 
             <div class="flex items-center gap-4">
-                <span class="text-xs font-mono text-slate-500 font-medium hidden sm:inline">&larr; <?php echo e(__('Swipe Reviews')); ?> &rarr;</span>
+                <span class="text-xs font-mono text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">&larr; <?php echo e(__('Swipe Reviews')); ?> &rarr;</span>
                 <div class="flex items-center gap-2">
-                    <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&larr;</button>
-                    <button class="w-10 h-10 rounded-full bg-white border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-teal-600 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&rarr;</button>
+                    <button class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&larr;</button>
+                    <button class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-300 transition-all duration-300 active:scale-95 cursor-pointer">&rarr;</button>
                 </div>
             </div>
         </div>

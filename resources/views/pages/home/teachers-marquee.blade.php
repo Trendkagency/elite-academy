@@ -1,18 +1,18 @@
-{{-- Featured Mentors Showcase Section --}}
-<section class="py-16 md:py-24 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/80">
+{{-- Featured Mentors Showcase Section (Section: Deep Dark Background) --}}
+<section class="py-16 md:py-24 bg-slate-950 text-white relative overflow-hidden border-y border-slate-800/80 transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
         {{-- Featured Mentors Header --}}
         <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div class="space-y-3">
-                <span class="anim-projects delay-1 inline-block text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80">
+                <span class="anim-projects delay-1 inline-block text-xs font-mono uppercase tracking-widest text-teal-300 font-extrabold bg-teal-950/80 px-3.5 py-1.5 rounded-full border border-teal-500/40">
                     {{ __('FACULTY') }}
                 </span>
-                <h2 class="anim-projects delay-2 font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 class="anim-projects delay-2 font-heading text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                     {{ \App\Models\SiteSetting::getLocalized('teachers_title', __('Meet Our Featured Mentors.')) }}
                 </h2>
             </div>
-            <span class="text-xs font-mono text-slate-500 font-medium">&larr; {{ __('Swipe Teachers') }} &rarr;</span>
+            <span class="text-xs font-mono text-slate-400 font-medium">&larr; {{ __('Swipe Teachers') }} &rarr;</span>
         </div>
 
         {{-- Mentor Slider Carousel (Dynamic from DB) --}}

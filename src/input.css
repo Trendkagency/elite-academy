@@ -849,6 +849,77 @@ body.page-exit {
   opacity: 1 !important;
 }
 
+/* ==========================================================================
+   🌙 Comprehensive Dark Mode System & Tokens
+   ========================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0B0F19 !important;
+  color: #F1F5F9 !important;
+}
+
+html.dark main {
+  background-color: #0B0F19 !important;
+}
+
+html.dark header.is-scrolled {
+  background-color: rgba(15, 23, 42, 0.94) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.dark select,
+html.dark textarea {
+  background-color: #1E293B;
+  color: #F1F5F9;
+  border-color: #334155;
+}
+
+html.dark select option {
+  background-color: #0F172A;
+  color: #F1F5F9;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B;
+}
+
+html.dark .glass-card {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #F1F5F9;
+}
+
+html.dark .card-lift:hover,
+html.dark .teacher-card-glow:hover {
+  box-shadow: 0 28px 50px -12px rgba(0, 0, 0, 0.65);
+}
+
+html.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background-size: 200% 100%;
+}
+
+/* Accessibility: Reduced Motion Support (WCAG 2.2 Standard) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
 
 
 

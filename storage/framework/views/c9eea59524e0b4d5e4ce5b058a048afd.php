@@ -42,18 +42,19 @@
     ];
 ?>
 
-<section id="faq-section" class="py-16 md:py-24 bg-white border-t border-slate-200/80" itemscope itemtype="https://schema.org/FAQPage">
+
+<section id="faq-section" class="py-16 md:py-24 bg-slate-950 text-white border-y border-slate-800/80 transition-colors duration-200" itemscope itemtype="https://schema.org/FAQPage">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="text-center space-y-4 max-w-3xl mx-auto">
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200/80">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-teal-950/80 text-teal-300 border border-teal-500/40">
                 <span>💬</span> <?php echo e($isAr ? 'مركز الأسئلة الشائعة والمعلومات' : 'Frequently Asked Questions'); ?>
 
             </span>
-            <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">
+            <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
                 <?php echo e($isAr ? 'كل ما تحتاج معرفته عن منصة إيليت التعليمية' : 'Everything You Need to Know About Elite Academy'); ?>
 
             </h2>
-            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
                 <?php echo e($isAr 
                     ? 'إجابات شاملة وموثقة حول البث المباشر، تصحيح الواجبات، أدوات أولياء الأمور، والشهادات المعتمدة.' 
                     : 'Clear, authoritative answers regarding our live stream tech, auto-graded assignments, parent monitoring, and accredited tracks.'); ?>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] text-slate-900 antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -18,6 +18,21 @@
     <link rel="alternate" hreflang="ar" href="{{ url()->current() }}">
     <link rel="alternate" hreflang="en" href="{{ url()->current() }}">
     <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
+
+    {{-- Instant Anti-Flicker Dark/Light Theme Initialization --}}
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'dark' || (!theme && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     {{-- Open Graph / Facebook Meta Tags --}}
     <meta property="og:site_name" content="Elite Academy | أكاديمية إيليت">
@@ -115,11 +130,15 @@
             font-family: var(--font-sans) !important;
         }
         html, body {
-            background-color: #FAFAF9 !important;
+            background-color: #FAFAF9;
             color: #0F172A;
             margin: 0;
             padding: 0;
             min-height: 100vh;
+        }
+        html.dark, html.dark body {
+            background-color: #0B0F19 !important;
+            color: #F1F5F9 !important;
         }
 
         /* Essential Micro-Interactions without Forced Layer Proliferation */
@@ -143,15 +162,28 @@
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            transition: transform 0.25s ease;
+            transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        }
+        html.dark .glass-card {
+            background: rgba(15, 23, 42, 0.92) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #F1F5F9;
         }
     </style>
-    <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v=2.2.0">
-    <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v=2.2.0">
+    <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
     @stack('head')
     @include('partials.inp-optimizer')
 </head>
-<body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] text-slate-900 selection:bg-teal-100 selection:text-teal-900 flex flex-col min-h-screen m-0 p-0">
+<body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-teal-500/20 selection:text-teal-400 flex flex-col min-h-screen m-0 p-0 transition-colors duration-200">
+
+    {{-- Accessible Skip to Content Link --}}
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-teal-600 focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-white">
+        {{ app()->getLocale() === 'ar' ? 'التخطي إلى المحتوى الرئيسي' : 'Skip to main content' }}
+    </a>
+
+    {{-- Screen Reader Live Announcement Region --}}
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     {{-- Scroll Progress Bar --}}
     @if(!request()->boolean('iframe'))
@@ -163,7 +195,7 @@
         @include('partials.navbar')
     @endif
 
-    <main class="flex-grow w-full bg-[#FAFAF9] min-h-[60vh]">
+    <main id="main-content" class="flex-grow w-full bg-[#FAFAF9] dark:bg-[#0B0F19] min-h-[60vh]" tabindex="-1">
         @yield('content')
     </main>
 
@@ -173,8 +205,57 @@
 
     {{-- Back to Top Button --}}
     @if(!request()->boolean('iframe'))
-        <button id="back-to-top" aria-label="Back to top">↑</button>
+        <button id="back-to-top" aria-label="{{ app()->getLocale() === 'ar' ? 'الرجوع إلى أعلى الصفحة' : 'Back to top' }}">↑</button>
     @endif
+
+    <script>
+        function announceA11y(message) {
+            const announcer = document.getElementById('a11y-announcer');
+            if (announcer) {
+                announcer.textContent = '';
+                setTimeout(() => { announcer.textContent = message; }, 50);
+            }
+        }
+
+        function updateThemeUI(isDark, shouldAnnounce = false) {
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
+            const labelText = isDark ? (isAr ? 'الوضع النهاري' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode');
+            const actionText = isDark ? (isAr ? 'تفعيل الوضع النهاري' : 'Switch to Light Mode') : (isAr ? 'تفعيل الوضع الليلي' : 'Switch to Dark Mode');
+
+            document.querySelectorAll('.theme-toggle-icon').forEach(function(el) {
+                el.textContent = isDark ? '☀️' : '🌙';
+            });
+            document.querySelectorAll('.theme-toggle-label').forEach(function(el) {
+                el.textContent = labelText;
+            });
+            document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
+                btn.setAttribute('aria-label', actionText);
+                btn.setAttribute('title', actionText);
+            });
+
+            if (shouldAnnounce) {
+                const announcement = isDark 
+                    ? (isAr ? 'تم تفعيل الوضع الليلي بنجاح' : 'Dark mode activated') 
+                    : (isAr ? 'تم تفعيل الوضع النهاري بنجاح' : 'Light mode activated');
+                announceA11y(announcement);
+            }
+        }
+
+        window.toggleTheme = function() {
+            var isDark = document.documentElement.classList.toggle('dark');
+            var newTheme = isDark ? 'dark' : 'light';
+            try {
+                localStorage.setItem('theme', newTheme);
+            } catch(e) {}
+            updateThemeUI(isDark, true);
+            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: newTheme } }));
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var isDark = document.documentElement.classList.contains('dark');
+            updateThemeUI(isDark, false);
+        });
+    </script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <script defer src="{{ asset('js/scroll-reveal.js') }}"></script>

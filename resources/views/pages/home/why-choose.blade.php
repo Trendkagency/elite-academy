@@ -22,8 +22,8 @@
     ];
 @endphp
 
-{{-- Why Choose Elite Academy Section --}}
-<section class="py-12 sm:py-20 lg:py-28 bg-[#FAFAF9] relative overflow-hidden border-b border-slate-200/70">
+{{-- Why Choose Elite Academy Section (Section: Light Background) --}}
+<section class="py-12 sm:py-20 lg:py-28 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 relative overflow-hidden border-b border-slate-200/70 dark:border-slate-800/80 transition-colors duration-200">
     {{-- Ambient Backdrop Blurs --}}
     <div class="absolute top-1/3 -left-20 w-72 h-72 sm:w-[30rem] sm:h-[30rem] bg-teal-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
     <div class="absolute bottom-10 right-0 w-64 h-64 sm:w-[28rem] sm:h-[28rem] bg-orange-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
@@ -38,7 +38,7 @@
                 <div class="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-24 h-24 sm:w-48 sm:h-48 bg-teal-400/20 rounded-full blur-xl pointer-events-none -z-10"></div>
                 <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/15 rounded-full blur-xl pointer-events-none -z-10"></div>
 
-                <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white animate-float">
+                <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white dark:border-slate-800 animate-float">
                     <img src="{{ asset('images/hero_student.webp') }}" alt="Why Students Choose Elite Academy" width="500" height="625" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
                 </div>
@@ -48,25 +48,25 @@
             <div class="flex-1 space-y-3 sm:space-y-6">
 
                 <div class="space-y-1.5 sm:space-y-3">
-                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 font-extrabold bg-teal-50 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80">{{ $badge }}</span>
+                    <span class="inline-block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-teal-600 dark:text-teal-400 font-extrabold bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-teal-200/80 dark:border-teal-800/80">{{ $badge }}</span>
 
-                    <h2 class="font-heading font-black text-base sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 tracking-tight leading-tight">
+                    <h2 class="font-heading font-black text-base sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 dark:text-white tracking-tight leading-tight">
                         {{ $title }}
                     </h2>
 
-                    <p class="text-slate-600 text-xs sm:text-base font-medium leading-relaxed line-clamp-2">{{ $subtitle }}</p>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-base font-medium leading-relaxed line-clamp-2">{{ $subtitle }}</p>
                 </div>
 
                 {{-- Feature Rows --}}
                 <div class="space-y-2 sm:space-y-4 pt-1 sm:pt-2" data-stagger>
                     @foreach ($features as $feature)
                         <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
-                            <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 text-slate-900 group-hover:text-teal-600 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs">
+                            <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 dark:bg-slate-800 text-slate-900 dark:text-teal-300 group-hover:text-teal-600 dark:group-hover:text-teal-300 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs border border-teal-100 dark:border-slate-700">
                                 {{ $feature['icon'] }}
                             </div>
                             <div class="min-w-0">
-                                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 group-hover:text-teal-600 transition-colors leading-tight truncate">{{ $feature['title'] }}</h3>
-                                <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">{{ $feature['desc'] }}</p>
+                                <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight truncate">{{ $feature['title'] }}</h3>
+                                <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{{ $feature['desc'] }}</p>
                             </div>
                         </div>
                     @endforeach
