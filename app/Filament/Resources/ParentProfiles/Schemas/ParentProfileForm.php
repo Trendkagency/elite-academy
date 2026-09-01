@@ -26,8 +26,17 @@ class ParentProfileForm
                                 name: 'user',
                                 modifyQueryUsing: function (Builder $query, ?Model $record, ?string $operation) {
                                     return $query->where(function (Builder $q) use ($record, $operation) {
+                                        // Exclude Admins, Teachers, and Students
+                                        $q->whereDoesntHave('adminProfile')
+                                          ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu'])
+                                          ->whereDoesntHave('teacherProfile')
+                                          ->whereDoesntHave('studentProfile');
+
                                         if ($operation === 'edit' && $record?->user_id) {
-                                            $q->whereDoesntHave('parentProfile')->orWhere('id', $record->user_id);
+                                            $q->where(function ($subQ) use ($record) {
+                                                $subQ->whereDoesntHave('parentProfile')
+                                                     ->orWhere('id', $record->user_id);
+                                            });
                                         } else {
                                             $q->whereDoesntHave('parentProfile');
                                         }
@@ -36,7 +45,7 @@ class ParentProfileForm
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Parent User Account')
-                            ->helperText('Select an existing account without a parent profile, or click (+) to register a new parent directly.')
+                            ->helperText('Select an existing parent account, or click (+) to register a new parent directly.')
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
@@ -87,6 +96,9 @@ class ParentProfileForm
                             ->relationship(
                                 name: 'students',
                                 modifyQueryUsing: fn (Builder $query) => $query->whereHas('studentProfile')
+                                    ->whereDoesntHave('teacherProfile')
+                                    ->whereDoesntHave('adminProfile')
+                                    ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu'])
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Linked Children / Students (Select & Manage)')

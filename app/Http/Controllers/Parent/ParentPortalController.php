@@ -29,12 +29,7 @@ class ParentPortalController extends Controller
         $linkedStudents = [];
         if ($user) {
             $linkedStudentUserIds = DB::table('parent_student')
-                ->where(function ($q) use ($user, $parentProfile) {
-                    $q->where('parent_user_id', $user->id);
-                    if ($parentProfile) {
-                        $q->orWhere('parent_user_id', $parentProfile->id);
-                    }
-                })
+                ->where('parent_user_id', $user->id)
                 ->pluck('student_user_id');
 
             $linkedStudents = StudentProfile::whereIn('user_id', $linkedStudentUserIds)
@@ -52,17 +47,11 @@ class ParentPortalController extends Controller
     public function studentProgress(int $studentUserId): JsonResponse
     {
         $user = auth()->user();
-        $parentProfile = $user ? ParentProfile::where('user_id', $user->id)->first() : null;
 
         // Strict Privacy Rule: Parent can ONLY view their own linked children!
         if (! $user->isAdmin()) {
             $isLinked = DB::table('parent_student')
-                ->where(function ($q) use ($user, $parentProfile) {
-                    $q->where('parent_user_id', $user->id);
-                    if ($parentProfile) {
-                        $q->orWhere('parent_user_id', $parentProfile->id);
-                    }
-                })
+                ->where('parent_user_id', $user->id)
                 ->where('student_user_id', $studentUserId)
                 ->exists();
 
@@ -224,12 +213,7 @@ class ParentPortalController extends Controller
 
         // Check if already linked
         $alreadyLinked = DB::table('parent_student')
-            ->where(function ($q) use ($user, $parentProfile) {
-                $q->where('parent_user_id', $user->id);
-                if ($parentProfile) {
-                    $q->orWhere('parent_user_id', $parentProfile->id);
-                }
-            })
+            ->where('parent_user_id', $user->id)
             ->where('student_user_id', $studentUser->id)
             ->exists();
 
@@ -249,15 +233,6 @@ class ParentPortalController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        if ($parentProfile) {
-            DB::table('parent_student')->insertOrIgnore([
-                'parent_user_id' => $parentProfile->id,
-                'student_user_id' => $studentUser->id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
 
         // Update student profile parent link
         $studentProfile = StudentProfile::where('user_id', $studentUser->id)->first();

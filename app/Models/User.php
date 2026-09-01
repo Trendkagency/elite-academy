@@ -109,6 +109,13 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(ParentProfile::class);
     }
 
+    public function children(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_user_id', 'student_user_id')
+            ->withPivot('relationship')
+            ->withTimestamps();
+    }
+
     public function isAdmin(): bool
     {
         if ($this->email === 'admin@elite-academy.com') {

@@ -32,8 +32,17 @@ class TeacherProfileForm
                                 name: 'user',
                                 modifyQueryUsing: function (Builder $query, ?Model $record, ?string $operation) {
                                     return $query->where(function (Builder $q) use ($record, $operation) {
+                                        // Exclude Admins, Students, and Parents
+                                        $q->whereDoesntHave('adminProfile')
+                                          ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu'])
+                                          ->whereDoesntHave('studentProfile')
+                                          ->whereDoesntHave('parentProfile');
+
                                         if ($operation === 'edit' && $record?->user_id) {
-                                            $q->whereDoesntHave('teacherProfile')->orWhere('id', $record->user_id);
+                                            $q->where(function ($subQ) use ($record) {
+                                                $subQ->whereDoesntHave('teacherProfile')
+                                                     ->orWhere('id', $record->user_id);
+                                            });
                                         } else {
                                             $q->whereDoesntHave('teacherProfile');
                                         }
@@ -42,7 +51,7 @@ class TeacherProfileForm
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Teacher Account User')
-                            ->helperText('Select an existing account without a teacher profile, or click (+) to create a new user account directly.')
+                            ->helperText('Select an existing teacher account, or click (+) to create a new teacher account directly.')
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
