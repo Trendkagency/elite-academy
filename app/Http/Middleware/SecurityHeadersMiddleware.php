@@ -23,11 +23,11 @@ class SecurityHeadersMiddleware
         // 1. Content-Security-Policy
         $csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://apis.google.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://*.gstatic.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://apis.google.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net",
             "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:",
             "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com",
+            "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.google.com https://fonts.googleapis.com https://fonts.gstatic.com https://www.gstatic.com https://*.gstatic.com",
             "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
             "object-src 'none'",
             "base-uri 'self'",

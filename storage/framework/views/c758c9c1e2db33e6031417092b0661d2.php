@@ -116,22 +116,32 @@
 
             <?php elseif($role === 'parent'): ?>
                 <!-- Parent Navigation -->
-                <a href="#children" onclick="switchParentSection('children')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#section-children" onclick="switchParentSection('children')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="children">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">👨‍👩‍👧</span>
                     <span><?php echo e(__('Your Linked Children')); ?></span>
                 </a>
 
-                <a href="#progress" onclick="switchParentSection('progress')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#section-progress" onclick="switchParentSection('progress')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="progress">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📈</span>
                     <span><?php echo e(__('Academic Performance & Grades')); ?></span>
                 </a>
 
-                <a href="#attendance" onclick="switchParentSection('attendance')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#section-courses" onclick="switchParentSection('courses')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="courses">
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📚</span>
+                    <span><?php echo e(__('Enrolled Courses & Curriculum')); ?></span>
+                </a>
+
+                <a href="#section-assignments" onclick="switchParentSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="assignments">
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📝</span>
+                    <span><?php echo e(__('Graded Assignments & Feedback')); ?></span>
+                </a>
+
+                <a href="#section-attendance" onclick="switchParentSection('attendance')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="attendance">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">🕒</span>
                     <span><?php echo e(__('Attendance & Session Records')); ?></span>
                 </a>
 
-                <button type="button" onclick="document.getElementById('linkChildModal').classList.remove('hidden')" class="w-full text-<?php echo e($isAr ? 'right' : 'left'); ?> flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-amber-950/60 hover:text-amber-300 text-amber-400 cursor-pointer">
+                <button type="button" onclick="openLinkChildModal()" class="w-full text-<?php echo e($isAr ? 'right' : 'left'); ?> flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-amber-950/60 hover:text-amber-300 text-amber-400 cursor-pointer">
                     <span class="text-lg group-hover:scale-110 transition-transform">➕</span>
                     <span><?php echo e(__('Link New Child Account')); ?></span>
                 </button>

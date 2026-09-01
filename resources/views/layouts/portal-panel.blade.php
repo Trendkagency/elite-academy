@@ -1,25 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] text-slate-900 antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="theme-color" content="#0F172A">
+    <meta name="theme-color" content="#0D9488">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     <link rel="shortcut icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     <title>{{ $pageTitle ?? 'Elite Academy Portal' }}</title>
 
-    {{-- Instant Anti-Flicker Dark/Light Theme Initialization --}}
+    {{-- Enforce Pure Light Mode --}}
     <script>
         (function() {
             try {
-                var theme = localStorage.getItem('theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (theme === 'dark' || (!theme && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                localStorage.removeItem('theme');
+                document.documentElement.classList.remove('dark');
             } catch (e) {}
         })();
     </script>
@@ -52,10 +47,6 @@
             padding: 0;
             min-height: 100vh;
         }
-        html.dark, html.dark body {
-            background-color: #0B0F19 !important;
-            color: #F1F5F9 !important;
-        }
 
         .btn-lift {
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -71,11 +62,6 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
-        }
-        html.dark .glass-card {
-            background: rgba(15, 23, 42, 0.92) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            color: #F1F5F9;
         }
 
         /* ─── Robust Desktop & Mobile Sidebar Engine ─── */
@@ -275,11 +261,6 @@
                 }
             } catch(e) {}
         })();
-
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
 
         // Global Toast Notification Helper
         window.Toast = {

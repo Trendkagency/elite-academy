@@ -186,7 +186,7 @@
         </div>
 
         
-        <div id="progressResult" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+        <div id="section-progress" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6 scroll-mt-28">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                     <h3 id="selectedStudentName" class="font-heading font-black text-2xl text-slate-900"><?php echo e(__('Student Academic Overview')); ?></h3>
@@ -257,64 +257,24 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php if(count($linkedStudents) > 0): ?>
         loadStudentProgress(<?php echo e($linkedStudents->first()->user_id); ?>);
     <?php endif; ?>
-
-    // Dynamic Navbar Active Link Observer & Hash Highlight
-    function updateActiveNavbarLink(targetHash) {
-        const navLinks = document.querySelectorAll('header nav a');
-        navLinks.forEach(link => {
-            const href = link.getAttribute('href') || '';
-            const isActive = targetHash && href.includes(targetHash);
-            
-            if (isActive) {
-                link.className = 'px-2 py-1 lg:px-3 lg:py-2 rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 text-teal-700 font-extrabold bg-teal-50/90 border border-teal-200/80 shadow-xs';
-            } else if (href.includes('#section-')) {
-                link.className = 'px-2 py-1 lg:px-3 lg:py-2 rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 text-slate-800 font-bold hover:text-teal-600 hover:bg-slate-100/90';
-            }
-        });
-    }
-
-    function scrollToTarget() {
-        const hash = window.location.hash.replace('#', '');
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        const targetId = hash || (tab ? `section-${tab}` : null);
-
-        if (targetId) {
-            updateActiveNavbarLink(targetId);
-            const el = document.getElementById(targetId);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-    }
-
-    setTimeout(scrollToTarget, 500);
-    window.addEventListener('hashchange', scrollToTarget);
-
-    // Intersection Observer to update Navbar active state on scroll
-    const sections = document.querySelectorAll('[id^="section-"]');
-    if ('IntersectionObserver' in window && sections.length > 0) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    updateActiveNavbarLink(entry.target.id);
-                }
-            });
-        }, { threshold: 0.3 });
-
-        sections.forEach(sec => observer.observe(sec));
-    }
 });
 
 function openLinkChildModal() {
-    document.getElementById('linkChildModal').classList.remove('hidden');
-    document.getElementById('phone_or_email').focus();
+    const modal = document.getElementById('linkChildModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const input = document.getElementById('phone_or_email');
+        if (input) input.focus();
+    }
 }
 
 function closeLinkChildModal() {
-    document.getElementById('linkChildModal').classList.add('hidden');
-    document.getElementById('linkChildFeedback').classList.add('hidden');
-    document.getElementById('linkChildForm').reset();
+    const modal = document.getElementById('linkChildModal');
+    if (modal) modal.classList.add('hidden');
+    const feedback = document.getElementById('linkChildFeedback');
+    if (feedback) feedback.classList.add('hidden');
+    const form = document.getElementById('linkChildForm');
+    if (form) form.reset();
 }
 
 async function handleLinkChildSubmit(e) {
@@ -390,83 +350,136 @@ async function loadStudentProgress(studentId) {
         const isAr = "<?php echo e(app()->getLocale()); ?>" === "ar";
         const todayStr = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US');
 
-        nameEl.textContent = isAr ? `تقرير الأداء الأكاديمي للطالب: ${data.student.name}` : `Academic Performance Report: ${data.student.name}`;
-        metaEl.textContent = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school}`;
+        nameEl.textContent = isAr ? `تقرير الأداء الأكاديمي الشامل: ${data.student.name}` : `Comprehensive Academic Performance Report: ${data.student.name}`;
+        metaEl.textContent = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school} • ${data.student.phone ? ('📞 ' + data.student.phone) : ''}`;
         pkgBadge.textContent = `💳 ${data.package.name} (${data.package.remaining_sessions} ${isAr ? 'حصص متبقية' : 'sessions remaining'})`;
-        attBadge.textContent = `🎯 ${isAr ? 'الحضور والغياب' : 'Attendance'}: ${data.attendance.rate}`;
+        attBadge.textContent = `🎯 ${isAr ? 'نسبة الحضور' : 'Attendance'}: ${data.attendance.rate}`;
 
-        const pct = Math.round((data.package.remaining_sessions / data.package.total_sessions) * 100);
+        const pkgPct = Math.round((data.package.remaining_sessions / data.package.total_sessions) * 100);
 
         let html = `
             
             <div class="print-official-header hidden flex justify-between items-center pb-4 mb-4 border-b-2 border-teal-600">
                 <div class="space-y-1">
                     <h2 class="font-heading font-black text-xl text-teal-950">أكاديمية إيليت — ELITE ACADEMY</h2>
-                    <p class="text-xs font-mono text-slate-600">${isAr ? 'كشف تقرير الأداء الأكاديمي الرسمي للطالب' : 'Official Student Academic Performance Report'}</p>
+                    <p class="text-xs font-mono text-slate-600">${isAr ? 'كشف تقرير الأداء الأكاديمي الرسمي والمتابعة الشاملة' : 'Official Student Academic Performance & Monitoring Report'}</p>
                 </div>
                 <div class="print-watermark-stamp text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-300">
                     ✔ ${isAr ? 'مستند معتمد' : 'Verified Report'} — ${todayStr}
                 </div>
             </div>
 
+            
             <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs font-semibold text-amber-900 flex items-center justify-between flex-wrap gap-2 no-print">
-                <span>🔒 ${isAr ? 'هذا التقرير مخصص للمتابعة والقراءة فقط لولي الأمر. لا يمكنك تعديل التقييمات أو دفع المصروفات من هذه الشاشة.' : 'Strict Read-Only Parent Monitoring Mode. You cannot edit grades or payments.'}</span>
-                <button type="button" onclick="window.print()" class="px-3.5 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 text-xs font-mono rounded-xl font-bold border border-amber-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs">
-                    🖨 ${isAr ? 'طباعة التقرير الرسمي' : 'Print Official Certificate'}
+                <div class="flex items-center gap-2">
+                    <span class="text-base">🔒</span>
+                    <span>${isAr ? 'لوحة المتابعة الأكاديمية الرسمية لولي الأمر (محدثة لحظياً بروابط مباشرة مع سجلات المعلمين والدروس).' : 'Official Parent Academic Monitoring Dashboard (Synced in real-time with teacher gradebooks and lecture logs).'}</span>
+                </div>
+                <button type="button" onclick="window.print()" class="btn-lift px-4 py-2 bg-slate-900 hover:bg-teal-600 text-white text-xs font-mono rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md">
+                    <span>🖨️</span> ${isAr ? 'طباعة التقرير والشهادة' : 'Print Official Certificate'}
                 </button>
             </div>
 
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 
-                <div id="section-package" class="p-6 bg-teal-50 rounded-3xl border border-teal-200/80 space-y-3 shadow-sm scroll-mt-28">
+                <div class="p-5 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-3xl border border-teal-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-teal-800">
-                        <span>💳 ${isAr ? 'الباقة ورصيد الحصص المتبقية' : 'Active Package & Session Credits'}</span>
-                        <span class="bg-teal-200 text-teal-900 px-2 py-0.5 rounded-md">${data.package.status}</span>
+                        <span>🌟 ${isAr ? 'المعدل العام للدرجات' : 'Overall Academic GPA'}</span>
+                        <span class="bg-teal-200 text-teal-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.average_grade >= 85 ? (isAr ? 'ممتاز' : 'Excellent') : (isAr ? 'جيد جداً' : 'Good')}</span>
                     </div>
-                    <div>
-                        <p class="font-black text-2xl text-teal-950">${data.package.remaining_sessions} ${isAr ? 'حصة متبقية' : 'sessions remaining'}</p>
-                        <p class="text-xs text-teal-700 font-medium">${data.package.name}</p>
-                    </div>
-                    <div class="space-y-1 pt-1">
-                        <div class="flex justify-between text-[11px] font-mono text-teal-700 font-bold">
-                            <span>${isAr ? 'المستخدم' : 'Used'}: ${data.package.used_sessions}/${data.package.total_sessions}</span>
-                            <span>${pct}% ${isAr ? 'متبقي' : 'left'}</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-teal-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-teal-600 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
+                    <p class="font-heading font-black text-3xl text-teal-950">${data.average_grade}%</p>
+                    <p class="text-[11px] font-mono text-teal-700 font-semibold leading-relaxed">
+                        ${isAr ? 'متوسط درجات جميع الواجبات والاختبارات المنجزة' : 'Average score across all graded homework & exams'}
+                    </p>
                 </div>
 
                 
-                <div id="section-attendance" class="p-6 bg-emerald-50 rounded-3xl border border-emerald-200/80 space-y-3 shadow-sm scroll-mt-28">
+                <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border border-emerald-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-emerald-800">
-                        <span>🎯 ${isAr ? 'مؤشر الحضور والغياب' : 'Attendance & Absence Index'}</span>
-                        <span class="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-md">${data.attendance.rate}</span>
+                        <span>🎯 ${isAr ? 'نسبة حضور البث المباشر' : 'Live Stream Attendance'}</span>
+                        <span class="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.attendance.rate}</span>
                     </div>
-                    <div>
-                        <p class="font-black text-2xl text-emerald-950">${data.attendance.rate} ${isAr ? 'نسبة الحضور' : 'Attendance Rate'}</p>
-                        <p class="text-xs text-emerald-700 font-medium">${data.attendance.attended_count} ${isAr ? 'حصة حضور' : 'attended'} • ${data.attendance.absences_count} ${isAr ? 'غياب' : 'absences'}</p>
-                    </div>
-                    <div class="pt-1 text-[11px] font-mono text-emerald-700 font-semibold">
-                        ✔ ${isAr ? 'يلتزم الطالب بمواعيد البث المباشر بانتظام' : 'Student consistently attends live sessions'}
-                    </div>
+                    <p class="font-heading font-black text-3xl text-emerald-950">${data.attendance.rate}</p>
+                    <p class="text-[11px] font-mono text-emerald-700 font-semibold leading-relaxed">
+                        ${data.attendance.attended_count} ${isAr ? 'حصة حضور' : 'attended'} • ${data.attendance.absences_count} ${isAr ? 'غياب' : 'absent'}
+                    </p>
                 </div>
 
                 
-                <div class="p-6 bg-blue-50 rounded-3xl border border-blue-200/80 space-y-3 shadow-sm">
-                    <div class="flex justify-between items-center text-xs font-mono font-bold text-blue-800">
-                        <span>📅 ${isAr ? 'الحصص القادمة' : 'Upcoming Sessions'}</span>
-                        <span class="bg-blue-200 text-blue-900 px-2 py-0.5 rounded-md">${data.upcoming_sessions.length}</span>
+                <div class="p-5 bg-gradient-to-br from-indigo-50 to-slate-50 rounded-3xl border border-indigo-200/80 space-y-2 shadow-xs">
+                    <div class="flex justify-between items-center text-xs font-mono font-bold text-indigo-800">
+                        <span>📝 ${isAr ? 'الواجبات والتسليمات' : 'Assignments & MSQs'}</span>
+                        <span class="bg-indigo-200 text-indigo-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.submissions_count} ${isAr ? 'تسليم' : 'done'}</span>
                     </div>
-                    <div>
-                        <p class="font-black text-2xl text-blue-950">${data.upcoming_sessions.length} ${isAr ? 'حصص قادمة معتمدة' : 'upcoming sessions'}</p>
-                        <p class="text-xs text-blue-700 font-medium">${isAr ? 'جدول البث المباشر المعتمد' : 'Scheduled live stream sessions'}</p>
+                    <p class="font-heading font-black text-3xl text-indigo-950">${data.submissions_count}</p>
+                    <p class="text-[11px] font-mono text-indigo-700 font-semibold leading-relaxed">
+                        ${isAr ? 'تم تسليمها وتصحيحها ومراجعتها بنجاح' : 'Submitted, graded and reviewed by mentors'}
+                    </p>
+                </div>
+
+                
+                <div class="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border border-amber-200/80 space-y-2 shadow-xs">
+                    <div class="flex justify-between items-center text-xs font-mono font-bold text-amber-800">
+                        <span>💳 ${isAr ? 'رصيد الحصص المتبقية' : 'Session Credits'}</span>
+                        <span class="bg-amber-200 text-amber-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold capitalize">${data.package.status}</span>
                     </div>
-                    <div class="pt-1 text-[11px] font-mono text-blue-700 font-semibold">
-                        🔔 ${isAr ? 'تنبيهات البث تظهر للطالب في حسابه' : 'Session notifications sent to student dashboard'}
+                    <p class="font-heading font-black text-3xl text-amber-950">${data.package.remaining_sessions} <span class="text-xs font-mono font-bold text-amber-800">${isAr ? 'حصة متبقية' : 'left'}</span></p>
+                    <div class="space-y-1 pt-0.5">
+                        <div class="flex justify-between text-[10px] font-mono text-amber-800 font-bold">
+                            <span>${isAr ? 'المستخدم' : 'Used'}: ${data.package.used_sessions}/${data.package.total_sessions}</span>
+                            <span>${pkgPct}%</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-amber-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-600 rounded-full transition-all duration-500" style="width: ${pkgPct}%"></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            
+            <div id="section-courses" class="space-y-4 pt-4 scroll-mt-28">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
+                        <span>📚</span> ${isAr ? 'المقررات الدراسية ونسب إنجاز المنهج' : 'Enrolled Courses & Curriculum Completion'}
+                    </h4>
+                    <span class="text-xs font-mono font-bold bg-teal-100 text-teal-800 px-3 py-1 rounded-full border border-teal-200">
+                        ${data.courses ? data.courses.length : 0} ${isAr ? 'كورسات مسجلة' : 'Active Courses'}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        `;
+
+        if (data.courses && data.courses.length > 0) {
+            data.courses.forEach(c => {
+                html += `
+                    <div class="p-5 bg-slate-50 hover:bg-white rounded-3xl border border-slate-200/90 shadow-xs transition-all space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="bg-teal-600 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">${c.subject}</span>
+                            <span class="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">${c.progress_pct}% ${isAr ? 'إنجاز' : 'Completed'}</span>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-base text-slate-900 leading-snug">${c.title}</h5>
+                            <p class="text-xs font-mono text-slate-500 mt-0.5">👨‍🏫 ${isAr ? 'المحاضر' : 'Instructor'}: <strong>${c.teacher}</strong></p>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-500" style="width: ${Math.max(8, c.progress_pct)}%"></div>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-mono text-slate-500">
+                                <span>📹 ${c.completed_sessions} ${isAr ? 'من أصل' : 'of'} ${c.total_sessions} ${isAr ? 'دروس مكتملة' : 'modules finished'}</span>
+                                <span>📅 ${isAr ? 'مشترك منذ' : 'Enrolled'}: ${c.enrolled_at || todayStr}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html += `<div class="col-span-2 p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs font-mono text-slate-500 text-center">${isAr ? 'لا توجد كورسات مسجلة لهذا الطالب حالياً.' : 'No active course enrollments found.'}</div>`;
+        }
+
+        html += `
                 </div>
             </div>
 
@@ -474,27 +487,41 @@ async function loadStudentProgress(studentId) {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
 
                 
-                <div id="section-sessions" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
-                    <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
-                        <span>📅</span> ${isAr ? 'الحصص القادمة ومواعيد البث المباشر' : 'Upcoming Live Stream Sessions'}
-                    </h4>
-                    <div class="space-y-3">
+                <div id="section-assignments" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
+                            <span>📝</span> ${isAr ? 'سجل درجات الواجبات وتقييم المدرس' : 'Graded Assignment History & Feedback'}
+                        </h4>
+                        <span class="text-xs font-mono font-bold text-slate-500">${data.submissions.length} ${isAr ? 'واجب' : 'records'}</span>
+                    </div>
+                    <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
         `;
 
-        if (data.upcoming_sessions.length > 0) {
-            data.upcoming_sessions.forEach(s => {
+        if (data.submissions.length > 0) {
+            data.submissions.forEach(s => {
+                const isPassed = s.is_passed;
+                const badgeBg = isPassed ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300';
                 html += `
-                    <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
-                        <div class="flex justify-between items-center gap-2">
-                            <span class="font-bold text-sm text-slate-900">${s.title}</span>
-                            <span class="text-[11px] font-mono font-extrabold bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-0.5 rounded-lg whitespace-nowrap">${s.scheduled_at}</span>
+                    <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <span class="font-bold text-xs text-slate-900 leading-snug block">${s.assignment_title}</span>
+                                <span class="text-[11px] font-mono text-teal-700 font-semibold">${s.course_title} • 👨‍🏫 ${s.teacher_name}</span>
+                            </div>
+                            <span class="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl border ${badgeBg} whitespace-nowrap">${s.grade}</span>
                         </div>
-                        <p class="text-xs font-mono text-slate-500">${isAr ? 'المدرس' : 'Teacher'}: ${s.teacher_name} • ${isAr ? 'المادة' : 'Subject'}: ${s.subject_name}</p>
+                        <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono text-slate-700 border border-slate-100 leading-relaxed">
+                            💬 <strong class="text-slate-900">${isAr ? 'ملاحظة المعلم' : 'Feedback'}:</strong> ${s.teacher_notes}
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 pt-0.5">
+                            <span>📅 ${isAr ? 'تاريخ التسليم' : 'Submitted'}: ${s.submitted_at}</span>
+                            <span class="font-bold ${isPassed ? 'text-emerald-700' : 'text-rose-700'}">● ${isPassed ? (isAr ? 'اجتياز بنجاح' : 'Passed') : (isAr ? 'يحتاج تحسين' : 'Needs Work')}</span>
+                        </div>
                     </div>
                 `;
             });
         } else {
-            html += `<div class="p-4 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">${isAr ? 'لا توجد حصص قادمة حالياً.' : 'No upcoming sessions scheduled.'}</div>`;
+            html += `<div class="p-4 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">${isAr ? 'لا توجد واجبات مسجلة بعد.' : 'No homework submissions recorded.'}</div>`;
         }
 
         html += `
@@ -502,27 +529,47 @@ async function loadStudentProgress(studentId) {
                 </div>
 
                 
-                <div id="section-assignments" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
-                    <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
-                        <span>📝</span> ${isAr ? 'الواجبات والتسليمات والدرجات' : 'Homework Submissions & Grades'}
-                    </h4>
-                    <div class="space-y-3">
+                <div id="section-attendance" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
+                            <span>🟢</span> ${isAr ? 'سجل حضور البث المباشر والحصص القادمة' : 'Live Stream Attendance Log & Upcoming'}
+                        </h4>
+                        <span class="text-xs font-mono font-bold text-slate-500">${data.attendance.logs ? data.attendance.logs.length : 0} ${isAr ? 'جلسات مسجلة' : 'sessions'}</span>
+                    </div>
+                    <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
         `;
 
-        if (data.submissions.length > 0) {
-            data.submissions.forEach(s => {
+        if (data.upcoming_sessions && data.upcoming_sessions.length > 0) {
+            data.upcoming_sessions.forEach(s => {
                 html += `
-                    <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
+                    <div class="p-3.5 bg-blue-50/80 rounded-2xl border border-blue-200 shadow-2xs space-y-1">
                         <div class="flex justify-between items-center gap-2">
-                            <span class="font-bold text-sm text-slate-900">${s.assignment_title}</span>
-                            <span class="text-[11px] font-mono font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-lg whitespace-nowrap">${s.grade}</span>
+                            <span class="font-bold text-xs text-blue-950 flex items-center gap-1"><span>🟢</span> ${s.title}</span>
+                            <span class="text-[10px] font-mono font-extrabold bg-blue-200 text-blue-900 px-2 py-0.5 rounded-lg whitespace-nowrap">${s.scheduled_at}</span>
                         </div>
-                        <p class="text-xs font-mono text-slate-500">${isAr ? 'تاريخ التسليم' : 'Submitted At'}: ${s.submitted_at}</p>
+                        <p class="text-[11px] font-mono text-blue-800">${s.subject_name} • 👨‍🏫 ${s.teacher_name}</p>
                     </div>
                 `;
             });
-        } else {
-            html += `<div class="p-4 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">${isAr ? 'لا توجد تسليمات واجبات مسجلة.' : 'No homework submissions recorded.'}</div>`;
+        }
+
+        if (data.attendance.logs && data.attendance.logs.length > 0) {
+            data.attendance.logs.forEach(att => {
+                html += `
+                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">${att.session_title}</span>
+                            <span class="text-[10px] font-mono font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">${isAr ? 'حضور مؤكد ✓' : 'Attended ✓'}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                            <span>👨‍🏫 ${att.teacher} (${att.subject})</span>
+                            <span>⏱️ ${att.duration_minutes} ${isAr ? 'دقيقة' : 'mins'} • 📅 ${att.joined_at}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } else if (!data.upcoming_sessions || data.upcoming_sessions.length === 0) {
+            html += `<div class="p-4 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">${isAr ? 'لا توجد سجلات حضور حالياً.' : 'No attendance logs recorded.'}</div>`;
         }
 
         html += `
@@ -531,9 +578,9 @@ async function loadStudentProgress(studentId) {
             </div>
 
             
-            <div class="space-y-4 pt-6 border-t border-slate-100">
-                <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
-                    <span>🔔</span> ${isAr ? 'الإشعارات والتنبيهات الأكاديمية الخاصة بالابن' : 'Student Academic Notifications & Alerts'}
+            <div id="section-notifications" class="space-y-4 pt-6 border-t border-slate-100 scroll-mt-28">
+                <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
+                    <span>🔔</span> ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         `;
@@ -571,20 +618,20 @@ async function loadStudentProgress(studentId) {
 }
 
 function switchParentSection(sectionId) {
-    let target = null;
-    if (sectionId === 'children') target = document.getElementById('section-children');
-    else if (sectionId === 'progress') target = document.getElementById('section-progress');
-    else if (sectionId === 'attendance') target = document.getElementById('section-progress');
+    const cleanId = sectionId.replace('section-', '');
+    let target = document.getElementById('section-' + cleanId) || document.getElementById(cleanId);
 
     if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
     document.querySelectorAll('.portal-nav-item').forEach(item => {
         item.classList.remove('active');
-        if (item.getAttribute('href') === `#${sectionId}`) {
+        if (item.getAttribute('data-section') === cleanId || item.getAttribute('href') === `#section-${cleanId}` || item.getAttribute('href') === `#${cleanId}`) {
             item.classList.add('active');
         }
     });
+
     // Only close drawer on mobile screen (< 1024px)
     if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
         togglePortalSidebar(false);

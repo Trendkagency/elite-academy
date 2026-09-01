@@ -23,13 +23,8 @@
     <script>
         (function() {
             try {
-                var theme = localStorage.getItem('theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (theme === 'dark' || (!theme && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                localStorage.removeItem('theme');
+                document.documentElement.classList.remove('dark');
             } catch (e) {}
         })();
     </script>
@@ -108,8 +103,11 @@
 
     </script>
 
-    <link rel="preload" as="image" href="<?php echo e(asset('images/hero_student.webp')); ?>" type="image/webp" fetchpriority="high">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(request()->routeIs('home') || request()->is('/')): ?>
+        <link rel="preload" as="image" href="<?php echo e(asset('images/hero_student.webp')); ?>" type="image/webp" fetchpriority="high">
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <link rel="preload" as="image" href="<?php echo e(asset('images/logo_500.webp')); ?>" type="image/webp">
+    <?php echo $__env->yieldPushContent('head_preloads'); ?>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -218,45 +216,6 @@
                 setTimeout(() => { announcer.textContent = message; }, 50);
             }
         }
-
-        function updateThemeUI(isDark, shouldAnnounce = false) {
-            const isAr = "<?php echo e(app()->getLocale()); ?>" === 'ar';
-            const labelText = isDark ? (isAr ? 'الوضع النهاري' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode');
-            const actionText = isDark ? (isAr ? 'تفعيل الوضع النهاري' : 'Switch to Light Mode') : (isAr ? 'تفعيل الوضع الليلي' : 'Switch to Dark Mode');
-
-            document.querySelectorAll('.theme-toggle-icon').forEach(function(el) {
-                el.textContent = isDark ? '☀️' : '🌙';
-            });
-            document.querySelectorAll('.theme-toggle-label').forEach(function(el) {
-                el.textContent = labelText;
-            });
-            document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
-                btn.setAttribute('aria-label', actionText);
-                btn.setAttribute('title', actionText);
-            });
-
-            if (shouldAnnounce) {
-                const announcement = isDark 
-                    ? (isAr ? 'تم تفعيل الوضع الليلي بنجاح' : 'Dark mode activated') 
-                    : (isAr ? 'تم تفعيل الوضع النهاري بنجاح' : 'Light mode activated');
-                announceA11y(announcement);
-            }
-        }
-
-        window.toggleTheme = function() {
-            var isDark = document.documentElement.classList.toggle('dark');
-            var newTheme = isDark ? 'dark' : 'light';
-            try {
-                localStorage.setItem('theme', newTheme);
-            } catch(e) {}
-            updateThemeUI(isDark, true);
-            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: newTheme } }));
-        };
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var isDark = document.documentElement.classList.contains('dark');
-            updateThemeUI(isDark, false);
-        });
     </script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>

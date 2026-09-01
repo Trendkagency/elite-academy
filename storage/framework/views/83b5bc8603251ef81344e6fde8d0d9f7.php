@@ -83,12 +83,6 @@
 
         </a>
 
-        <!-- Dark / Light Mode Toggle Button -->
-        <button type="button" onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs" title="Toggle Dark/Light Mode">
-            <span class="dark:hidden text-sm">🌙</span>
-            <span class="hidden dark:inline text-sm">☀️</span>
-        </button>
-
         <!-- User Profile Pill & Dropdown -->
         <div class="relative" x-data="{ open: false }" @click.away="open = false">
             <button @click="open = !open" type="button" class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-teal-500/50 transition-all shadow-xs cursor-pointer">

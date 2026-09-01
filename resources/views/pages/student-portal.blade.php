@@ -45,26 +45,12 @@
 
             {{-- Quick Action Buttons --}}
             <div class="flex flex-wrap items-center gap-3">
-                <button id="btn30sTestPush" onclick="trigger30SecTestPush()" class="btn-lift px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-500/20 cursor-pointer flex items-center gap-2 transition-all">
-                    <span>🚀</span> {{ __('Start 30s FCM Test Push') }}
-                </button>
                 <button onclick="document.getElementById('excuseModal').classList.remove('hidden')" class="btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
                     <span>📄</span> {{ __('app.portal.submit_excuse') }}
                 </button>
                 <button onclick="document.getElementById('homeworkExceptionModal').classList.remove('hidden')" class="btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
                     <span>📋</span> {{ __('app.portal.submit_exception') }}
                 </button>
-            </div>
-        </div>
-
-        {{-- 30-Second Test Push Active Countdown Banner --}}
-        <div id="testPushTimerBanner" class="hidden p-4 bg-slate-900 text-white rounded-2xl border border-teal-500/40 shadow-xl flex items-center justify-between text-xs font-mono">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-teal-400 animate-ping"></span>
-                <span>🔔 {{ app()->getLocale() === 'ar' ? 'اختبار الإشعارات المباشرة شغال (FCM Web Push Test Active)' : 'FCM Web Push Test Active' }}</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <span id="testPushCountdown" class="font-bold text-teal-300 text-sm">Dispatched in: 30s</span>
             </div>
         </div>
     </div>
@@ -1008,98 +994,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-let testPushInterval = null;
-
-async function trigger30SecTestPush() {
-    const btn = document.getElementById('btn30sTestPush');
-    const banner = document.getElementById('testPushTimerBanner');
-    const countdownEl = document.getElementById('testPushCountdown');
-
-    if (btn) {
-        btn.disabled = true;
-        btn.classList.add('opacity-60', 'cursor-not-allowed');
-    }
-
-    try {
-        const res = await fetch("{{ route('ajax.notifications.test-push') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                'Accept': 'application/json'
-            }
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-            if (window.Toast) window.Toast.error(data.message || 'Failed to initialize test push');
-            if (btn) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-60', 'cursor-not-allowed');
-            }
-            return;
-        }
-
-        if (banner) banner.classList.remove('hidden');
-        let remaining = 30;
-        if (countdownEl) countdownEl.textContent = `Dispatched in: 30s`;
-
-        if (testPushInterval) clearInterval(testPushInterval);
-
-        testPushInterval = setInterval(() => {
-            remaining--;
-            if (remaining <= 0) {
-                clearInterval(testPushInterval);
-                if (banner) banner.classList.add('hidden');
-                if (btn) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-60', 'cursor-not-allowed');
-                }
-
-                // Trigger Web Push / Notification sound & Toast
-                if (window.Toast && data.notification) {
-                    window.Toast.success(data.notification.body, data.notification.title);
-                }
-
-                // Request Browser Notification Permission if granted
-                if ('Notification' in window && Notification.permission === 'granted' && data.notification) {
-                    new Notification(data.notification.title, {
-                        body: data.notification.body,
-                        icon: '/images/logo.webp'
-                    });
-                } else if ('Notification' in window && Notification.permission !== 'denied') {
-                    Notification.requestPermission();
-                }
-
-                // Append new notification card to feed
-                const feed = document.getElementById('notificationsFeedContainer');
-                if (feed && data.notification) {
-                    const card = document.createElement('div');
-                    card.className = 'p-4 bg-teal-50 rounded-2xl border border-teal-200/90 space-y-1.5 shadow-md animate-bounce';
-                    card.innerHTML = `
-                        <div class="flex justify-between items-center text-[11px] font-mono font-bold">
-                            <span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200">🔔 Real-Time FCM Alert</span>
-                            <span class="text-slate-400 font-normal">Just now</span>
-                        </div>
-                        <h4 class="font-bold text-xs text-slate-900 leading-snug">${data.notification.title}</h4>
-                        <p class="text-xs text-slate-600 leading-relaxed font-mono">${data.notification.body}</p>
-                    `;
-                    feed.prepend(card);
-                }
-            } else {
-                if (countdownEl) countdownEl.textContent = `Dispatched in: ${remaining}s`;
-            }
-        }, 1000);
-
-    } catch (err) {
-        if (window.Toast) window.Toast.error('Network error starting 30s test push');
-        if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('opacity-60', 'cursor-not-allowed');
-        }
-    }
-}
-
 // ─────────────────────────────────────────────────────────────────────────
 // Real-Time AJAX Notifications Pagination (No Page Refresh)
 // ─────────────────────────────────────────────────────────────────────────
@@ -1540,6 +1434,7 @@ function switchPortalSection(sectionId) {
         if (item.getAttribute('href') === `#${sectionId}`) {
             item.classList.add('active');
         }
+    });
     // Only close sidebar drawer on mobile/tablet screens (< 1024px)
     if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
         togglePortalSidebar(false);
