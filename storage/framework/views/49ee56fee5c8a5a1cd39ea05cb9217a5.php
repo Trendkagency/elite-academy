@@ -1,7 +1,5 @@
-@extends('layouts.portal-panel')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-{{-- Specialized Print CSS Styling --}}
 <style>
 @media print {
     /* Hide all web UI chrome, navigation, headers, footers, modals, & buttons */
@@ -69,117 +67,129 @@
 }
 </style>
 
-{{-- Parent Portal Header --}}
+
 <section id="overview" class="rounded-3xl py-8 md:py-10 px-6 md:px-8 bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white border border-slate-800 shadow-xl no-print">
     <div class="space-y-4">
-        @include('components.breadcrumb', [
+        <?php echo $__env->make('components.breadcrumb', [
             'items' => [
                 ['label' => __('navbar.home'), 'route' => 'home'],
                 ['label' => __('navbar.parent_portal')],
             ]
-        ])
+        ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2">
                 <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3.5 py-1.5 rounded-full border border-teal-800/80 shadow-xs">
-                    👨‍👧‍👦 {{ __('PARENT DASHBOARD • ACADEMIC MONITORING') }}
+                    👨‍👧‍👦 <?php echo e(__('PARENT DASHBOARD • ACADEMIC MONITORING')); ?>
+
                 </span>
                 <h1 class="font-heading text-3xl sm:text-4xl font-black text-white tracking-tight">
-                    {{ __('Parent Portal: Student Academic Dashboard') }}
+                    <?php echo e(__('Parent Portal: Student Academic Dashboard')); ?>
+
                 </h1>
                 <p class="text-slate-300 text-sm font-mono max-w-2xl">
-                    {{ __('Monitor your children’s live stream classes, attendance records, homework submissions, active packages, and credit usage in real-time.') }}
+                    <?php echo e(__('Monitor your children’s live stream classes, attendance records, homework submissions, active packages, and credit usage in real-time.')); ?>
+
                 </p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3">
                 <button type="button" onclick="openLinkChildModal()" class="btn-lift px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs rounded-2xl shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span>➕</span> {{ __('Link New Child by Phone') }}
+                    <span>➕</span> <?php echo e(__('Link New Child by Phone')); ?>
+
                 </button>
 
-                @php
+                <?php
                     $whatsappNumber = \App\Models\SiteSetting::get('owner_whatsapp', '+201000000000');
                     $cleanWhatsapp = preg_replace('/[^0-9]/', '', $whatsappNumber);
-                @endphp
-                <a href="https://wa.me/{{ $cleanWhatsapp }}?text={{ urlencode(__('Hello Elite Academy Admin, I am a parent inquiring about package renewal.')) }}" target="_blank" class="btn-lift px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl border border-emerald-400/40 shadow-sm flex items-center gap-2">
-                    <span>💬</span> {{ __('WhatsApp Payment & Renewal') }}
+                ?>
+                <a href="https://wa.me/<?php echo e($cleanWhatsapp); ?>?text=<?php echo e(urlencode(__('Hello Elite Academy Admin, I am a parent inquiring about package renewal.'))); ?>" target="_blank" class="btn-lift px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl border border-emerald-400/40 shadow-sm flex items-center gap-2">
+                    <span>💬</span> <?php echo e(__('WhatsApp Payment & Renewal')); ?>
+
                 </a>
 
                 <div class="inline-flex items-center gap-2 bg-amber-500/20 px-3.5 py-2 rounded-2xl border border-amber-500/30 text-xs font-mono text-amber-300 font-bold">
                     <span>🔒</span>
-                    <span>{{ __('Read-Only Monitoring') }}</span>
+                    <span><?php echo e(__('Read-Only Monitoring')); ?></span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-{{-- Main Dashboard Body --}}
+
 <div class="space-y-8">
 
-    {{-- Section 1: Children Selector Grid --}}
+    
     <div id="section-children" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6 scroll-mt-28 no-print">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
                 <div>
                     <h2 class="font-heading font-black text-2xl text-slate-900 flex items-center gap-2.5">
-                        <span>👨‍👩‍👧‍👦</span> {{ __('Your Linked Children') }}
+                        <span>👨‍👩‍👧‍👦</span> <?php echo e(__('Your Linked Children')); ?>
+
                     </h2>
-                    <p class="text-xs font-mono text-slate-500 mt-1">{{ __('Select a child to inspect detailed academic performance, package & attendance.') }}</p>
+                    <p class="text-xs font-mono text-slate-500 mt-1"><?php echo e(__('Select a child to inspect detailed academic performance, package & attendance.')); ?></p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span id="linkedCountBadge" class="text-xs font-mono font-extrabold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full border border-teal-200">
-                        {{ count($linkedStudents) }} {{ __('Children Linked') }}
+                        <?php echo e(count($linkedStudents)); ?> <?php echo e(__('Children Linked')); ?>
+
                     </span>
                     <button type="button" onclick="openLinkChildModal()" class="text-xs font-bold font-mono text-teal-600 hover:text-teal-700 underline">
-                        + {{ __('Link New Child') }}
+                        + <?php echo e(__('Link New Child')); ?>
+
                     </button>
                 </div>
             </div>
 
             <div id="linkedChildrenGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                @forelse($linkedStudents as $st)
-                    <div id="child-card-{{ $st->user_id }}" onclick="loadStudentProgress({{ $st->user_id }})" class="child-card cursor-pointer bg-slate-50 hover:bg-teal-50/60 transition-all duration-300 rounded-2xl p-6 border-2 border-slate-200 hover:border-teal-500 shadow-sm space-y-4 group">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $linkedStudents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $st): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                    <div id="child-card-<?php echo e($st->user_id); ?>" onclick="loadStudentProgress(<?php echo e($st->user_id); ?>)" class="child-card cursor-pointer bg-slate-50 hover:bg-teal-50/60 transition-all duration-300 rounded-2xl p-6 border-2 border-slate-200 hover:border-teal-500 shadow-sm space-y-4 group">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-xl bg-teal-600 text-white font-heading font-black text-xl flex items-center justify-center shadow-md">
-                                {{ mb_substr($st->user?->name ?: 'S', 0, 1) }}
+                                <?php echo e(mb_substr($st->user?->name ?: 'S', 0, 1)); ?>
+
                             </div>
                             <div>
-                                <h3 class="font-bold text-base text-slate-900 group-hover:text-teal-700 transition-colors">{{ $st->user?->name }}</h3>
+                                <h3 class="font-bold text-base text-slate-900 group-hover:text-teal-700 transition-colors"><?php echo e($st->user?->name); ?></h3>
                                 <span class="text-[11px] font-mono font-bold bg-teal-100 text-teal-800 px-2.5 py-0.5 rounded-md">
-                                    {{ $st->gradeLevel?->name ?: __('Grade Level') }}
+                                    <?php echo e($st->gradeLevel?->name ?: __('Grade Level')); ?>
+
                                 </span>
                             </div>
                         </div>
 
                         <div class="text-xs font-mono text-slate-500 space-y-1 pt-2 border-t border-slate-200/60">
-                            <p class="truncate">🏫 {{ $st->school_name ?: __('Elite STEM Academy') }}</p>
-                            <p class="text-teal-600 font-bold">✔ {{ __('Independent Student Account') }}</p>
+                            <p class="truncate">🏫 <?php echo e($st->school_name ?: __('Elite STEM Academy')); ?></p>
+                            <p class="text-teal-600 font-bold">✔ <?php echo e(__('Independent Student Account')); ?></p>
                         </div>
 
                         <button type="button" class="w-full py-2 bg-white group-hover:bg-teal-600 group-hover:text-white text-slate-800 rounded-xl text-xs font-bold font-mono border border-slate-200 transition-all shadow-xs">
-                            {{ __('Inspect Child Dashboard') }} &rarr;
+                            <?php echo e(__('Inspect Child Dashboard')); ?> &rarr;
                         </button>
                     </div>
-                @empty
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <div id="emptyChildrenBox" class="col-span-3 text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 text-slate-500 space-y-3">
                         <div class="text-4xl">👨‍👩‍👧‍👦</div>
-                        <h3 class="font-bold text-base text-slate-800">{{ __('No Linked Children Found') }}</h3>
+                        <h3 class="font-bold text-base text-slate-800"><?php echo e(__('No Linked Children Found')); ?></h3>
                         <p class="text-xs font-mono text-slate-500 max-w-md mx-auto">
-                            {{ __('Link your child by entering their registered phone number or email address.') }}
+                            <?php echo e(__('Link your child by entering their registered phone number or email address.')); ?>
+
                         </p>
                         <button type="button" onclick="openLinkChildModal()" class="btn-lift px-5 py-2.5 bg-teal-600 text-white font-bold text-xs rounded-xl shadow-md">
-                            ➕ {{ __('Link Child Account Now') }}
+                            ➕ <?php echo e(__('Link Child Account Now')); ?>
+
                         </button>
                     </div>
-                @endforelse
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 
-        {{-- Section 2: Selected Child Detailed Performance Panel --}}
+        
         <div id="progressResult" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
-                    <h3 id="selectedStudentName" class="font-heading font-black text-2xl text-slate-900">{{ __('Student Academic Overview') }}</h3>
+                    <h3 id="selectedStudentName" class="font-heading font-black text-2xl text-slate-900"><?php echo e(__('Student Academic Overview')); ?></h3>
                     <p id="selectedStudentMeta" class="text-xs font-mono text-teal-600 font-bold mt-0.5"></p>
                 </div>
                 <div class="flex items-center gap-3 no-print">
@@ -189,21 +199,21 @@
             </div>
 
             <div id="progressContent" class="space-y-6">
-                @if(count($linkedStudents) === 0)
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($linkedStudents) === 0): ?>
                     <div class="p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
-                        <p class="text-sm font-bold text-slate-700">{{ __('Please link a child account above using their phone number to view academic reports.') }}</p>
-                        <button type="button" onclick="openLinkChildModal()" class="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold">➕ {{ __('Link Child Account') }}</button>
+                        <p class="text-sm font-bold text-slate-700"><?php echo e(__('Please link a child account above using their phone number to view academic reports.')); ?></p>
+                        <button type="button" onclick="openLinkChildModal()" class="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold">➕ <?php echo e(__('Link Child Account')); ?></button>
                     </div>
-                @else
-                    <div class="p-8 text-center text-xs font-mono text-slate-500 font-bold">{{ __('Loading student progress metrics...') }}</div>
-                @endif
+                <?php else: ?>
+                    <div class="p-8 text-center text-xs font-mono text-slate-500 font-bold"><?php echo e(__('Loading student progress metrics...')); ?></div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 
     </div>
 </section>
 
-{{-- Link New Child Modal --}}
+
 <div id="linkChildModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 hidden no-print">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-6 relative anim-lift">
         <button type="button" onclick="closeLinkChildModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
@@ -212,16 +222,17 @@
             <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl font-bold border border-teal-200">
                 🔗
             </div>
-            <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Link New Child Account') }}</h3>
+            <h3 class="font-heading font-black text-xl text-slate-900"><?php echo e(__('Link New Child Account')); ?></h3>
             <p class="text-xs text-slate-500 font-medium">
-                {{ __('Enter the phone number or registered email address of your student to link their account for monitoring.') }}
+                <?php echo e(__('Enter the phone number or registered email address of your student to link their account for monitoring.')); ?>
+
             </p>
         </div>
 
         <form id="linkChildForm" onsubmit="handleLinkChildSubmit(event)" class="space-y-4">
-            @csrf
+            <?php echo csrf_field(); ?>
             <div class="space-y-1">
-                <label class="block text-xs font-mono font-extrabold text-slate-600 uppercase">{{ __('Student Phone Number or Email') }}</label>
+                <label class="block text-xs font-mono font-extrabold text-slate-600 uppercase"><?php echo e(__('Student Phone Number or Email')); ?></label>
                 <input type="text" id="phone_or_email" name="phone_or_email" required placeholder="e.g. 01012345678 or student@email.com" class="w-full h-11 bg-slate-50 border border-slate-300 rounded-xl px-4 text-sm font-semibold text-slate-900 focus:outline-teal-600">
             </div>
 
@@ -229,10 +240,12 @@
 
             <div class="pt-2 flex items-center justify-end gap-3">
                 <button type="button" onclick="closeLinkChildModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200">
-                    {{ __('Cancel') }}
+                    <?php echo e(__('Cancel')); ?>
+
                 </button>
                 <button type="submit" id="linkSubmitBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-teal-600/20">
-                    {{ __('Link Child Account') }}
+                    <?php echo e(__('Link Child Account')); ?>
+
                 </button>
             </div>
         </form>
@@ -241,9 +254,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    @if(count($linkedStudents) > 0)
-        loadStudentProgress({{ $linkedStudents->first()->user_id }});
-    @endif
+    <?php if(count($linkedStudents) > 0): ?>
+        loadStudentProgress(<?php echo e($linkedStudents->first()->user_id); ?>);
+    <?php endif; ?>
 
     // Dynamic Navbar Active Link Observer & Hash Highlight
     function updateActiveNavbarLink(targetHash) {
@@ -315,11 +328,11 @@ async function handleLinkChildSubmit(e) {
     feedback.classList.add('hidden');
 
     try {
-        const res = await fetch("{{ route('ajax.parent.link-child') }}", {
+        const res = await fetch("<?php echo e(route('ajax.parent.link-child')); ?>", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ phone_or_email: input })
@@ -343,7 +356,7 @@ async function handleLinkChildSubmit(e) {
         feedback.textContent = 'Network error. Please try again.';
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "{{ __('Link Child Account') }}";
+        submitBtn.textContent = "<?php echo e(__('Link Child Account')); ?>";
     }
 }
 
@@ -360,10 +373,10 @@ async function loadStudentProgress(studentId) {
         activeCard.classList.add('ring-4', 'ring-teal-500/40', 'border-teal-500', 'bg-teal-50/40');
     }
 
-    content.innerHTML = '<div class="p-8 text-center text-xs font-mono text-slate-500 font-bold">{{ __("Loading student progress metrics...") }}</div>';
+    content.innerHTML = '<div class="p-8 text-center text-xs font-mono text-slate-500 font-bold"><?php echo e(__("Loading student progress metrics...")); ?></div>';
 
     try {
-        const baseUrl = "{{ url('/ajax/parent/student') }}";
+        const baseUrl = "<?php echo e(url('/ajax/parent/student')); ?>";
         const res = await fetch(`${baseUrl}/${studentId}/progress`, {
             headers: { 'Accept': 'application/json' }
         });
@@ -374,7 +387,7 @@ async function loadStudentProgress(studentId) {
             return;
         }
 
-        const isAr = "{{ app()->getLocale() }}" === "ar";
+        const isAr = "<?php echo e(app()->getLocale()); ?>" === "ar";
         const todayStr = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US');
 
         nameEl.textContent = isAr ? `تقرير الأداء الأكاديمي للطالب: ${data.student.name}` : `Academic Performance Report: ${data.student.name}`;
@@ -385,7 +398,7 @@ async function loadStudentProgress(studentId) {
         const pct = Math.round((data.package.remaining_sessions / data.package.total_sessions) * 100);
 
         let html = `
-            {{-- Official Print Report Header --}}
+            
             <div class="print-official-header hidden flex justify-between items-center pb-4 mb-4 border-b-2 border-teal-600">
                 <div class="space-y-1">
                     <h2 class="font-heading font-black text-xl text-teal-950">أكاديمية إيليت — ELITE ACADEMY</h2>
@@ -403,9 +416,9 @@ async function loadStudentProgress(studentId) {
                 </button>
             </div>
 
-            {{-- Metric Summary Grid --}}
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {{-- Package & Remaining Sessions Card --}}
+                
                 <div id="section-package" class="p-6 bg-teal-50 rounded-3xl border border-teal-200/80 space-y-3 shadow-sm scroll-mt-28">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-teal-800">
                         <span>💳 ${isAr ? 'الباقة ورصيد الحصص المتبقية' : 'Active Package & Session Credits'}</span>
@@ -426,7 +439,7 @@ async function loadStudentProgress(studentId) {
                     </div>
                 </div>
 
-                {{-- Attendance Card --}}
+                
                 <div id="section-attendance" class="p-6 bg-emerald-50 rounded-3xl border border-emerald-200/80 space-y-3 shadow-sm scroll-mt-28">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-emerald-800">
                         <span>🎯 ${isAr ? 'مؤشر الحضور والغياب' : 'Attendance & Absence Index'}</span>
@@ -441,7 +454,7 @@ async function loadStudentProgress(studentId) {
                     </div>
                 </div>
 
-                {{-- Upcoming Sessions Summary Card --}}
+                
                 <div class="p-6 bg-blue-50 rounded-3xl border border-blue-200/80 space-y-3 shadow-sm">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-blue-800">
                         <span>📅 ${isAr ? 'الحصص القادمة' : 'Upcoming Sessions'}</span>
@@ -457,10 +470,10 @@ async function loadStudentProgress(studentId) {
                 </div>
             </div>
 
-            {{-- 2 Columns: Upcoming Sessions & Homework Submissions --}}
+            
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
 
-                {{-- Upcoming Sessions Column --}}
+                
                 <div id="section-sessions" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
                     <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
                         <span>📅</span> ${isAr ? 'الحصص القادمة ومواعيد البث المباشر' : 'Upcoming Live Stream Sessions'}
@@ -488,7 +501,7 @@ async function loadStudentProgress(studentId) {
                     </div>
                 </div>
 
-                {{-- Homework Submissions Column --}}
+                
                 <div id="section-assignments" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
                     <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
                         <span>📝</span> ${isAr ? 'الواجبات والتسليمات والدرجات' : 'Homework Submissions & Grades'}
@@ -517,7 +530,7 @@ async function loadStudentProgress(studentId) {
                 </div>
             </div>
 
-            {{-- Academic Notifications Section --}}
+            
             <div class="space-y-4 pt-6 border-t border-slate-100">
                 <h4 class="font-bold text-sm text-slate-900 uppercase tracking-wider font-mono flex items-center gap-2">
                     <span>🔔</span> ${isAr ? 'الإشعارات والتنبيهات الأكاديمية الخاصة بالابن' : 'Student Academic Notifications & Alerts'}
@@ -578,4 +591,6 @@ function switchParentSection(sectionId) {
     }
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.portal-panel', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\elite-academy\resources\views/pages/parent-portal.blade.php ENDPATH**/ ?>

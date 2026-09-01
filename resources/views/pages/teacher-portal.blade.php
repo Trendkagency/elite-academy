@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.portal-panel')
 
 @section('content')
 @php
@@ -8,8 +8,7 @@
     $activeTabKey = in_array($activeTab ?? 'overview', ['overview', 'sessions', 'assignments', 'attendance', 'students', 'notifications']) ? ($activeTab ?? 'overview') : 'overview';
 @endphp
 
-<section class="py-10 md:py-16 bg-[#FAFAF9] min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+<div class="space-y-8">
 
         {{-- Header & Faculty Greeting Banner --}}
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -1119,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function switchTeacherTab(tabKey) {
     document.querySelectorAll('.teacher-tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.teacher-tab-btn').forEach(btn => {
-        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-md');
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-md', 'active');
         btn.classList.add('text-slate-700', 'hover:bg-slate-100');
     });
 
@@ -1129,6 +1128,18 @@ function switchTeacherTab(tabKey) {
     if (activeBtn) {
         activeBtn.classList.remove('text-slate-700', 'hover:bg-slate-100');
         activeBtn.classList.add('bg-teal-600', 'text-white', 'shadow-md');
+    }
+
+    document.querySelectorAll('#portalSidebar .teacher-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabKey) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Only close drawer on mobile screen (< 1024px)
+    if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
+        togglePortalSidebar(false);
     }
 }
 
