@@ -15,7 +15,12 @@ class ExceptionRequestForm
         return $schema
             ->components([
                 Select::make('student_user_id')
-                    ->relationship('studentUser', 'name')
+                    ->relationship(
+                        name: 'studentUser',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
                     ->label('Student')
                     ->searchable()
                     ->preload()

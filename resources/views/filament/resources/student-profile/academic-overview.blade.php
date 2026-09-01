@@ -1,7 +1,10 @@
 @php
     $studentProfile = $getRecord();
-    $studentUser = $studentProfile?->user;
-    $studentUserId = $studentProfile?->user_id;
+    if (! $studentProfile) {
+        return;
+    }
+    $studentUser = $studentProfile->user;
+    $studentUserId = $studentProfile->user_id;
 
     $activePackage = \App\Models\StudentPackage::where('student_user_id', $studentUserId)->where('status', 'active')->first();
     $parents = \App\Models\ParentProfile::whereHas('students', fn($q) => $q->where('student_user_id', $studentUserId))->with('user')->get();
