@@ -116,7 +116,15 @@
                         </div>
                         <div>
                             <span class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">Time remaining</span>
-                            <span id="quizTimer" class="font-mono font-black text-slate-900 text-base sm:text-lg">00 : 30 : 00</span>
+                            @php
+                                $dispRemaining = $remainingSeconds ?? 1800;
+                                $dispHrs = floor($dispRemaining / 3600);
+                                $dispMins = floor(($dispRemaining % 3600) / 60);
+                                $dispSecs = $dispRemaining % 60;
+                            @endphp
+                            <span id="quizTimer" class="font-mono font-black text-slate-900 text-base sm:text-lg">
+                                {{ sprintf('%02d : %02d : %02d', $dispHrs, $dispMins, $dispSecs) }}
+                            </span>
                         </div>
                     </div>
 
@@ -277,7 +285,9 @@
 window.currentStep = {{ $currentStepIndex ?? 0 }};
 window.totalSteps = {{ count($assignment->questions) }};
 window.durationMinutes = {{ $assignment->duration_minutes ?? 30 }};
-window.timerSeconds = {{ $remainingSeconds ?? 1800 }};
+window.serverRemainingSeconds = {{ $remainingSeconds ?? 1800 }};
+window.examDeadline = Date.now() + (window.serverRemainingSeconds * 1000);
+window.timerSeconds = window.serverRemainingSeconds;
 window.assignmentId = {{ $assignment->id }};
 window.savedAnswers = @json($savedAnswers ?? []);
 
@@ -627,18 +637,64 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Timer (00:30:00 Format)
-    setInterval(() => {
-        if (window.timerSeconds <= 0) return;
-        window.timerSeconds--;
-        const hrs = Math.floor(window.timerSeconds / 3600);
-        const mins = Math.floor((window.timerSeconds % 3600) / 60);
-        const secs = Math.floor(window.timerSeconds % 60);
+    // Precise Real-Time Timer Synchronizer based on Server Authoritative Deadline
+    function updateQuizTimerDisplay() {
+        const remainingMs = Math.max(0, window.examDeadline - Date.now());
+        const totalSecs = Math.floor(remainingMs / 1000);
+        window.timerSeconds = totalSecs;
+
+        const hrs = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = Math.floor(totalSecs % 60);
         const timerEl = document.getElementById('quizTimer');
         if (timerEl) {
             timerEl.textContent = `${String(hrs).padStart(2, '0')} : ${String(mins).padStart(2, '0')} : ${String(secs).padStart(2, '0')}`;
+            
+            // Visual alert when under 3 minutes
+            if (totalSecs <= 180 && totalSecs > 0) {
+                timerEl.classList.add('text-rose-600', 'animate-pulse');
+                timerEl.classList.remove('text-slate-900');
+            }
         }
-    }, 1000);
+
+        if (totalSecs <= 0) {
+            if (window.quizTimerInterval) {
+                clearInterval(window.quizTimerInterval);
+                window.quizTimerInterval = null;
+            }
+            handleQuizTimeExpired();
+        }
+    }
+
+    function handleQuizTimeExpired() {
+        if (window.isTimeExpiredHandled) return;
+        window.isTimeExpiredHandled = true;
+
+        if (window.Toast) {
+            window.Toast.error(
+                "{{ app()->getLocale() === 'ar' ? '⚠️ انتهى الوقت المحدد للواجب! يتم الآن إرسال إجاباتك وتقييمها تلقائياً...' : '⚠️ Time is up! Submitting and evaluating your answers automatically...' }}",
+                "{{ app()->getLocale() === 'ar' ? 'انتهى الوقت' : 'Time Expired' }}"
+            );
+        }
+
+        const quizForm = document.getElementById('eliteQuizForm');
+        if (quizForm) {
+            const submitBtn = document.getElementById('submitQuizBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Auto-submitting...';
+            }
+            if (typeof quizForm.requestSubmit === 'function') {
+                quizForm.requestSubmit();
+            } else {
+                quizForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        }
+    }
+
+    // Run immediately on render to guarantee 0-delay display and start ticker
+    updateQuizTimerDisplay();
+    window.quizTimerInterval = setInterval(updateQuizTimerDisplay, 1000);
 
     // Restore pre-saved draft answers from server
     window.restoreSavedAnswers();

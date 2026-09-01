@@ -98,8 +98,12 @@ class SubmissionController extends Controller
 
                 // Server-Authoritative Timer Calculation
                 $startedAt = $previousSubmission->started_at ?: $previousSubmission->created_at ?: now();
-                $durationSeconds = ($assignment->duration_minutes ?? 30) * 60;
-                $elapsedSeconds = (int) abs(now()->diffInSeconds($startedAt));
+                if (is_string($startedAt)) {
+                    $startedAt = \Carbon\Carbon::parse($startedAt);
+                }
+                $durationMinutes = (int) ($assignment->duration_minutes ?: 30);
+                $durationSeconds = $durationMinutes * 60;
+                $elapsedSeconds = max(0, (int) $startedAt->diffInSeconds(now(), false));
                 $remainingSeconds = max(0, $durationSeconds - $elapsedSeconds);
                 $currentStepIndex = (int) ($previousSubmission->current_step_index ?? 0);
             }
