@@ -74,18 +74,43 @@ class StudentPortalController extends Controller
             ->values() : collect();
 
         $submissions = $user ? AssignmentSubmission::where('student_user_id', $user->id)
-            ->with(['assignment.course', 'assignment.session', 'assignment.liveSession', 'answers'])
+            ->with([
+                'assignment.course.subject',
+                'assignment.course.teacher.user',
+                'assignment.session',
+                'assignment.liveSession.subject',
+                'assignment.liveSession.teacherProfile.user',
+                'answers'
+            ])
             ->orderBy('created_at', 'desc')
             ->get() : collect();
 
-        $submittedAssignmentIds = $submissions->pluck('assignment_id')->filter()->toArray();
+        // Completed Submissions (Evaluated / Finalized)
+        $completedSubmissions = $submissions->filter(function ($s) {
+            return in_array($s->status, [\App\Enums\SubmissionStatus::COMPLETED, \App\Enums\SubmissionStatus::SUBMITTED, \App\Enums\SubmissionStatus::REVIEWED])
+                || ! is_null($s->submitted_at);
+        });
 
-        $availableAssignments = \App\Models\Assignment::with(['questions.options', 'course', 'session', 'liveSession'])
+        // In Progress Submissions (Drafts started by student)
+        $inProgressSubmissions = $submissions->filter(function ($s) {
+            return $s->status === \App\Enums\SubmissionStatus::IN_PROGRESS && is_null($s->submitted_at);
+        })->keyBy('assignment_id');
+
+        $completedAssignmentIds = $completedSubmissions->pluck('assignment_id')->filter()->toArray();
+
+        $availableAssignments = \App\Models\Assignment::with([
+                'questions.options',
+                'course.subject',
+                'course.teacher.user',
+                'session',
+                'liveSession.subject',
+                'liveSession.teacherProfile.user'
+            ])
             ->where('status', 'published')
             ->where(function ($q) {
                 $q->whereNull('start_at')->orWhere('start_at', '<=', now());
             })
-            ->whereNotIn('id', $submittedAssignmentIds)
+            ->whereNotIn('id', $completedAssignmentIds)
             ->where(function ($q) use ($enrollments, $upcomingSessions) {
                 $courseIds = $enrollments->pluck('course_id')->filter()->toArray();
                 $sessionIds = $upcomingSessions->pluck('id')->filter()->toArray();
@@ -97,6 +122,8 @@ class StudentPortalController extends Controller
             ->orderBy('due_at', 'asc')
             ->get()
             ->reject(fn ($a) => $a->isExpired());
+
+        $filterCourses = $enrollments->map(fn($e) => $e->course)->filter()->unique('id')->values();
 
         $exceptions = $user ? ExceptionRequest::where('student_user_id', $user->id)
             ->with('liveSession')
@@ -224,8 +251,11 @@ class StudentPortalController extends Controller
             'enrollments'            => $enrollments,
             'enrollmentCards'        => $enrollmentCards,
             'enrolledCoursesDataMap' => $enrolledCoursesDataMap,
-            'submissions'            => $submissions,
+            'submissions'            => $completedSubmissions,
+            'completedSubmissions'   => $completedSubmissions,
+            'inProgressSubmissions'  => $inProgressSubmissions,
             'availableAssignments'   => $availableAssignments,
+            'filterCourses'          => $filterCourses,
             'exceptions'             => $exceptions,
             'userNotifications'      => $userNotifications,
             // KPI cards

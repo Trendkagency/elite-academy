@@ -329,35 +329,63 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📝</span> <?php echo e(app()->getLocale() === 'ar' ? 'قسم الواجبات التفاعلية غير المجابة (Pending MSQs)' : 'Pending MSQ Assignment Department'); ?>
+                                <span>📝</span> <?php echo e(app()->getLocale() === 'ar' ? 'قسم الواجبات والاختبارات التفاعلية (Assignments & Quizzes)' : 'Assignments & MSQ Quizzes Department'); ?>
 
                             </h2>
-                            <p class="text-xs font-mono text-slate-500 mt-1"><?php echo e(app()->getLocale() === 'ar' ? 'تظهر هنا فقط الواجبات التي لم تقم بإجابتها بعد. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows only unsubmitted assignments. Once answered, assignments move to submission history.'); ?></p>
+                            <p class="text-xs font-mono text-slate-500 mt-1"><?php echo e(app()->getLocale() === 'ar' ? 'تظهر هنا الواجبات المتاحة والمستمرة لجميع الكورسات المشترك بها. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows available and in-progress assignments for all your enrolled courses. Answered assignments move to submission history.'); ?></p>
                         </div>
                         <span class="text-xs font-mono font-extrabold bg-teal-100 text-teal-900 px-3.5 py-1.5 rounded-full border border-teal-200 self-start sm:self-auto shadow-2xs">
-                            <?php echo e(count($availableAssignments)); ?> <?php echo e(app()->getLocale() === 'ar' ? 'واجبات متبقية' : 'Pending'); ?>
+                            <?php echo e(count($availableAssignments)); ?> <?php echo e(app()->getLocale() === 'ar' ? 'واجبات متاحة' : 'Available'); ?>
 
                         </span>
                     </div>
 
-                    <div class="space-y-4">
+                    
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($filterCourses) && count($filterCourses) > 1): ?>
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <button type="button" onclick="filterAssignmentsByCourse('all')" class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer" data-course="all">
+                                <?php echo e(app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses'); ?> (<?php echo e(count($availableAssignments)); ?>)
+                            </button>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $filterCourses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                                <?php
+                                    $cCount = $availableAssignments->where('course_id', $fc->id)->count();
+                                ?>
+                                <button type="button" onclick="filterAssignmentsByCourse(<?php echo e($fc->id); ?>)" class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer" data-course="<?php echo e($fc->id); ?>">
+                                    <?php echo e($fc->title); ?> (<?php echo e($cCount); ?>)
+                                </button>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                    <div id="availableAssignmentsContainer" class="space-y-4">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $availableAssignments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $assign): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
-                            <div class="p-6 bg-gradient-to-br from-teal-50/70 via-emerald-50/30 to-white rounded-3xl border border-teal-200/80 space-y-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                            <?php
+                                $isInProgress = isset($inProgressSubmissions[$assign->id]);
+                                $courseTitle = $assign->course?->title ?: ($assign->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Course Domain'));
+                                $sessionTitle = $assign->session?->title ?: ($assign->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
+                            ?>
+                            <div class="available-assign-card p-6 bg-gradient-to-br from-teal-50/70 via-emerald-50/30 to-white rounded-3xl border border-teal-200/80 space-y-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all" data-course-id="<?php echo e($assign->course_id ?? 0); ?>">
                                 
                                 
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-teal-100/80 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 <?php echo e($assign->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس الفيزياء الكهربية' : 'Course Domain')); ?>
+                                            📚 <?php echo e($courseTitle); ?>
 
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200/80 px-3 py-0.5 rounded-full">
-                                            📺 <?php echo e($assign->session?->title ?: ($assign->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'))); ?>
+                                            📺 <?php echo e($sessionTitle); ?>
 
                                         </span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isInProgress): ?>
+                                            <span class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold text-[10px] animate-pulse">
+                                                ⚡ <?php echo e(app()->getLocale() === 'ar' ? 'قيد الحل حالياً' : 'In Progress'); ?>
+
+                                            </span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                     <span class="text-teal-700 font-bold bg-teal-100/60 px-2.5 py-0.5 rounded-md">
-                                        ⏱️ <?php echo e($assign->time_limit_minutes ?: 30); ?> <?php echo e(app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Evaluation'); ?>
+                                        ⏱️ <?php echo e($assign->duration_minutes ?: 30); ?> <?php echo e(app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Duration'); ?>
 
                                     </span>
                                 </div>
@@ -365,13 +393,16 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-[10px] font-mono font-bold uppercase bg-teal-700 text-white px-2 py-0.5 rounded">MSQ Evaluation</span>
+                                            <span class="text-[10px] font-mono font-bold uppercase <?php echo e($isInProgress ? 'bg-amber-600' : 'bg-teal-700'); ?> text-white px-2 py-0.5 rounded">
+                                                <?php echo e($isInProgress ? 'Active Attempt' : 'MSQ Evaluation'); ?>
+
+                                            </span>
                                             <h3 class="font-bold text-base text-slate-900"><?php echo e($assign->title); ?></h3>
                                         </div>
                                         <p class="text-xs text-slate-600 font-mono leading-relaxed"><?php echo e($assign->description ?: (app()->getLocale() === 'ar' ? 'واجب تقييمي تفاعلي لغلق فجوات الدرس والتأكد من الفهم الكامل.' : 'Interactive MSQ assignment to verify lesson mastery.')); ?></p>
                                     </div>
                                     <span class="text-xs font-mono font-extrabold text-slate-800 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs self-start sm:self-auto">
-                                        🎯 Total: <?php echo e(number_format($assign->total_points, 1)); ?> pts
+                                        🎯 <?php echo e(app()->getLocale() === 'ar' ? 'درجة النجاح:' : 'Pass Mark:'); ?> <?php echo e(number_format($assign->passing_score ?? 70, 0)); ?>%
                                     </span>
                                 </div>
 
@@ -388,10 +419,16 @@
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <a href="<?php echo e(route('student.assignment.take', ['id' => $assign->id])); ?>" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-black rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
-                                            <span>⚡</span> <?php echo e(app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ'); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isInProgress): ?>
+                                            <a href="<?php echo e(route('student.assignment.take', ['id' => $assign->id])); ?>" class="btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
+                                                <span>⚡</span> <?php echo e(app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment'); ?> &rarr;
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?php echo e(route('student.assignment.take', ['id' => $assign->id])); ?>" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
+                                                <span>⚡</span> <?php echo e(app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ'); ?>
 
-                                        </a>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <button onclick="openMsqAssignmentModal(<?php echo e($assign->id); ?>)" class="btn-lift px-4 py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs border border-slate-300 shadow-2xs cursor-pointer">
                                             <?php echo e(app()->getLocale() === 'ar' ? 'معاينة سريعة 👁️' : 'Quick Preview 👁️'); ?>
 
@@ -524,7 +561,7 @@
                                 <span>📜</span> <?php echo e(app()->getLocale() === 'ar' ? 'سجل تسليمات الواجبات والدرجات (Submissions History)' : 'Assignment Submission History & Graded Evaluation'); ?>
 
                             </h2>
-                            <p class="text-xs font-mono text-slate-500 mt-1"><?php echo e(app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments with course, session context, and evaluated scores.'); ?></p>
+                            <p class="text-xs font-mono text-slate-500 mt-1"><?php echo e(app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها لجميع الكورسات مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments across all your enrolled courses with evaluated scores.'); ?></p>
                         </div>
                         <span class="text-xs font-mono font-extrabold bg-slate-100 text-slate-800 px-3.5 py-1.5 rounded-full border border-slate-200 self-start sm:self-auto shadow-2xs">
                             <?php echo e(count($submissions)); ?> <?php echo e(app()->getLocale() === 'ar' ? 'تسليمات سابقة' : 'Submitted'); ?>
@@ -532,19 +569,41 @@
                         </span>
                     </div>
 
-                    <div class="space-y-4">
+                    
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($filterCourses) && count($filterCourses) > 1): ?>
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <button type="button" onclick="filterSubmissionsByCourse('all')" class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer" data-course="all">
+                                <?php echo e(app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses'); ?> (<?php echo e(count($submissions)); ?>)
+                            </button>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $filterCourses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                                <?php
+                                    $sCount = $submissions->filter(fn($s) => ($s->assignment?->course_id == $fc->id || $s->assignment?->liveSession?->course_id == $fc->id))->count();
+                                ?>
+                                <button type="button" onclick="filterSubmissionsByCourse(<?php echo e($fc->id); ?>)" class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer" data-course="<?php echo e($fc->id); ?>">
+                                    <?php echo e($fc->title); ?> (<?php echo e($sCount); ?>)
+                                </button>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                    <div id="submissionsContainer" class="space-y-4">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sub): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
-                            <div class="p-6 bg-slate-50/90 hover:bg-slate-100/80 rounded-3xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+                            <?php
+                                $subCourseId = $sub->assignment?->course_id ?: ($sub->assignment?->liveSession?->course_id ?: 0);
+                                $subCourseTitle = $sub->assignment?->course?->title ?: ($sub->assignment?->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Subject Course'));
+                                $subSessionTitle = $sub->assignment?->session?->title ?: ($sub->assignment?->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
+                            ?>
+                            <div class="submission-record-card p-6 bg-slate-50/90 hover:bg-slate-100/80 rounded-3xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5" data-course-id="<?php echo e($subCourseId); ?>">
                                 
                                 
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 <?php echo e($sub->assignment?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Subject Course')); ?>
+                                            📚 <?php echo e($subCourseTitle); ?>
 
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200 px-3 py-0.5 rounded-full">
-                                            📺 <?php echo e($sub->assignment?->session?->title ?: ($sub->assignment?->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'))); ?>
+                                            📺 <?php echo e($subSessionTitle); ?>
 
                                         </span>
                                     </div>
@@ -1544,11 +1603,46 @@ function switchPortalSection(sectionId) {
         if (item.getAttribute('href') === `#${sectionId}`) {
             item.classList.add('active');
         }
-    });
     // Only close sidebar drawer on mobile/tablet screens (< 1024px)
     if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
         togglePortalSidebar(false);
     }
+}
+
+function filterAssignmentsByCourse(courseId) {
+    document.querySelectorAll('.assign-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        if (btn.getAttribute('data-course') == courseId) {
+            btn.classList.remove('bg-slate-100', 'text-slate-700');
+            btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
+        }
+    });
+    document.querySelectorAll('.available-assign-card').forEach(card => {
+        if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterSubmissionsByCourse(courseId) {
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        if (btn.getAttribute('data-course') == courseId) {
+            btn.classList.remove('bg-slate-100', 'text-slate-700');
+            btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
+        }
+    });
+    document.querySelectorAll('.submission-record-card').forEach(card => {
+        if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
 }
 
 if (document.readyState === 'loading') {

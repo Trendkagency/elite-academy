@@ -302,49 +302,78 @@
                     </div>
                 </div>
 
-                {{-- 2. Pending MSQ Assignments Department (Unsubmitted Only) --}}
+                {{-- 2. Pending & In-Progress MSQ Assignments Department --}}
                 <div id="assignments" class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-2 scroll-mt-28">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📝</span> {{ app()->getLocale() === 'ar' ? 'قسم الواجبات التفاعلية غير المجابة (Pending MSQs)' : 'Pending MSQ Assignment Department' }}
+                                <span>📝</span> {{ app()->getLocale() === 'ar' ? 'قسم الواجبات والاختبارات التفاعلية (Assignments & Quizzes)' : 'Assignments & MSQ Quizzes Department' }}
                             </h2>
-                            <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا فقط الواجبات التي لم تقم بإجابتها بعد. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows only unsubmitted assignments. Once answered, assignments move to submission history.' }}</p>
+                            <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا الواجبات المتاحة والمستمرة لجميع الكورسات المشترك بها. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows available and in-progress assignments for all your enrolled courses. Answered assignments move to submission history.' }}</p>
                         </div>
                         <span class="text-xs font-mono font-extrabold bg-teal-100 text-teal-900 px-3.5 py-1.5 rounded-full border border-teal-200 self-start sm:self-auto shadow-2xs">
-                            {{ count($availableAssignments) }} {{ app()->getLocale() === 'ar' ? 'واجبات متبقية' : 'Pending' }}
+                            {{ count($availableAssignments) }} {{ app()->getLocale() === 'ar' ? 'واجبات متاحة' : 'Available' }}
                         </span>
                     </div>
 
-                    <div class="space-y-4">
+                    {{-- Course Filter Tabs for Assignments --}}
+                    @if(isset($filterCourses) && count($filterCourses) > 1)
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <button type="button" onclick="filterAssignmentsByCourse('all')" class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer" data-course="all">
+                                {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }} ({{ count($availableAssignments) }})
+                            </button>
+                            @foreach($filterCourses as $fc)
+                                @php
+                                    $cCount = $availableAssignments->where('course_id', $fc->id)->count();
+                                @endphp
+                                <button type="button" onclick="filterAssignmentsByCourse({{ $fc->id }})" class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer" data-course="{{ $fc->id }}">
+                                    {{ $fc->title }} ({{ $cCount }})
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <div id="availableAssignmentsContainer" class="space-y-4">
                         @forelse($availableAssignments as $assign)
-                            <div class="p-6 bg-gradient-to-br from-teal-50/70 via-emerald-50/30 to-white rounded-3xl border border-teal-200/80 space-y-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                            @php
+                                $isInProgress = isset($inProgressSubmissions[$assign->id]);
+                                $courseTitle = $assign->course?->title ?: ($assign->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Course Domain'));
+                                $sessionTitle = $assign->session?->title ?: ($assign->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
+                            @endphp
+                            <div class="available-assign-card p-6 bg-gradient-to-br from-teal-50/70 via-emerald-50/30 to-white rounded-3xl border border-teal-200/80 space-y-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all" data-course-id="{{ $assign->course_id ?? 0 }}">
                                 
                                 {{-- Course & Session Context Badges --}}
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-teal-100/80 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 {{ $assign->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس الفيزياء الكهربية' : 'Course Domain') }}
+                                            📚 {{ $courseTitle }}
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200/80 px-3 py-0.5 rounded-full">
-                                            📺 {{ $assign->session?->title ?: ($assign->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session')) }}
+                                            📺 {{ $sessionTitle }}
                                         </span>
+                                        @if($isInProgress)
+                                            <span class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold text-[10px] animate-pulse">
+                                                ⚡ {{ app()->getLocale() === 'ar' ? 'قيد الحل حالياً' : 'In Progress' }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <span class="text-teal-700 font-bold bg-teal-100/60 px-2.5 py-0.5 rounded-md">
-                                        ⏱️ {{ $assign->time_limit_minutes ?: 30 }} {{ app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Evaluation' }}
+                                        ⏱️ {{ $assign->duration_minutes ?: 30 }} {{ app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Duration' }}
                                     </span>
                                 </div>
 
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-[10px] font-mono font-bold uppercase bg-teal-700 text-white px-2 py-0.5 rounded">MSQ Evaluation</span>
+                                            <span class="text-[10px] font-mono font-bold uppercase {{ $isInProgress ? 'bg-amber-600' : 'bg-teal-700' }} text-white px-2 py-0.5 rounded">
+                                                {{ $isInProgress ? 'Active Attempt' : 'MSQ Evaluation' }}
+                                            </span>
                                             <h3 class="font-bold text-base text-slate-900">{{ $assign->title }}</h3>
                                         </div>
                                         <p class="text-xs text-slate-600 font-mono leading-relaxed">{{ $assign->description ?: (app()->getLocale() === 'ar' ? 'واجب تقييمي تفاعلي لغلق فجوات الدرس والتأكد من الفهم الكامل.' : 'Interactive MSQ assignment to verify lesson mastery.') }}</p>
                                     </div>
                                     <span class="text-xs font-mono font-extrabold text-slate-800 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs self-start sm:self-auto">
-                                        🎯 Total: {{ number_format($assign->total_points, 1) }} pts
+                                        🎯 {{ app()->getLocale() === 'ar' ? 'درجة النجاح:' : 'Pass Mark:' }} {{ number_format($assign->passing_score ?? 70, 0) }}%
                                     </span>
                                 </div>
 
@@ -359,9 +388,15 @@
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-black rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
-                                            <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
-                                        </a>
+                                        @if($isInProgress)
+                                            <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
+                                                <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment' }} &rarr;
+                                            </a>
+                                        @else
+                                            <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
+                                                <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
+                                            </a>
+                                        @endif
                                         <button onclick="openMsqAssignmentModal({{ $assign->id }})" class="btn-lift px-4 py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs border border-slate-300 shadow-2xs cursor-pointer">
                                             {{ app()->getLocale() === 'ar' ? 'معاينة سريعة 👁️' : 'Quick Preview 👁️' }}
                                         </button>
@@ -481,25 +516,47 @@
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
                                 <span>📜</span> {{ app()->getLocale() === 'ar' ? 'سجل تسليمات الواجبات والدرجات (Submissions History)' : 'Assignment Submission History & Graded Evaluation' }}
                             </h2>
-                            <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments with course, session context, and evaluated scores.' }}</p>
+                            <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها لجميع الكورسات مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments across all your enrolled courses with evaluated scores.' }}</p>
                         </div>
                         <span class="text-xs font-mono font-extrabold bg-slate-100 text-slate-800 px-3.5 py-1.5 rounded-full border border-slate-200 self-start sm:self-auto shadow-2xs">
                             {{ count($submissions) }} {{ app()->getLocale() === 'ar' ? 'تسليمات سابقة' : 'Submitted' }}
                         </span>
                     </div>
 
-                    <div class="space-y-4">
+                    {{-- Course Filter Tabs for Submissions --}}
+                    @if(isset($filterCourses) && count($filterCourses) > 1)
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <button type="button" onclick="filterSubmissionsByCourse('all')" class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer" data-course="all">
+                                {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }} ({{ count($submissions) }})
+                            </button>
+                            @foreach($filterCourses as $fc)
+                                @php
+                                    $sCount = $submissions->filter(fn($s) => ($s->assignment?->course_id == $fc->id || $s->assignment?->liveSession?->course_id == $fc->id))->count();
+                                @endphp
+                                <button type="button" onclick="filterSubmissionsByCourse({{ $fc->id }})" class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer" data-course="{{ $fc->id }}">
+                                    {{ $fc->title }} ({{ $sCount }})
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <div id="submissionsContainer" class="space-y-4">
                         @forelse($submissions as $sub)
-                            <div class="p-6 bg-slate-50/90 hover:bg-slate-100/80 rounded-3xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+                            @php
+                                $subCourseId = $sub->assignment?->course_id ?: ($sub->assignment?->liveSession?->course_id ?: 0);
+                                $subCourseTitle = $sub->assignment?->course?->title ?: ($sub->assignment?->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Subject Course'));
+                                $subSessionTitle = $sub->assignment?->session?->title ?: ($sub->assignment?->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
+                            @endphp
+                            <div class="submission-record-card p-6 bg-slate-50/90 hover:bg-slate-100/80 rounded-3xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5" data-course-id="{{ $subCourseId }}">
                                 
                                 {{-- Course & Session Context Header --}}
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 {{ $sub->assignment?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Subject Course') }}
+                                            📚 {{ $subCourseTitle }}
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200 px-3 py-0.5 rounded-full">
-                                            📺 {{ $sub->assignment?->session?->title ?: ($sub->assignment?->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session')) }}
+                                            📺 {{ $subSessionTitle }}
                                         </span>
                                     </div>
                                     <span class="text-slate-500">
@@ -1483,11 +1540,46 @@ function switchPortalSection(sectionId) {
         if (item.getAttribute('href') === `#${sectionId}`) {
             item.classList.add('active');
         }
-    });
     // Only close sidebar drawer on mobile/tablet screens (< 1024px)
     if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
         togglePortalSidebar(false);
     }
+}
+
+function filterAssignmentsByCourse(courseId) {
+    document.querySelectorAll('.assign-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        if (btn.getAttribute('data-course') == courseId) {
+            btn.classList.remove('bg-slate-100', 'text-slate-700');
+            btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
+        }
+    });
+    document.querySelectorAll('.available-assign-card').forEach(card => {
+        if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterSubmissionsByCourse(courseId) {
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        if (btn.getAttribute('data-course') == courseId) {
+            btn.classList.remove('bg-slate-100', 'text-slate-700');
+            btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
+        }
+    });
+    document.querySelectorAll('.submission-record-card').forEach(card => {
+        if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
 }
 
 if (document.readyState === 'loading') {

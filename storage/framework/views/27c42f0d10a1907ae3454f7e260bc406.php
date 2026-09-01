@@ -709,37 +709,57 @@
 
 
 <div id="createAssignmentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-heading font-black text-xl text-slate-900"><?php echo e(__('Publish New Assignment')); ?></h3>
-            <button type="button" onclick="closeModal('createAssignmentModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            <div>
+                <h3 class="font-heading font-black text-xl text-slate-900"><?php echo e(__('Publish New Assignment & Quiz')); ?></h3>
+                <p class="text-xs text-slate-500 font-mono mt-0.5"><?php echo e(__('Create homework assignments or interactive MSQ quizzes for your students.')); ?></p>
+            </div>
+            <button type="button" onclick="closeModal('createAssignmentModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
         </div>
 
-        <form id="createAssignmentForm" action="<?php echo e(route('ajax.teacher.assignments.create')); ?>" method="POST" class="space-y-4">
+        <form id="createAssignmentForm" action="<?php echo e(route('ajax.teacher.assignments.create')); ?>" method="POST" class="space-y-5">
             <?php echo csrf_field(); ?>
-            <div>
-                <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Select Course')); ?></label>
-                <select name="course_id" required class="input-mobile bg-white">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
-                        <option value="<?php echo e($c->id); ?>"><?php echo e($c->title); ?></option>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                </select>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Target Course')); ?> *</label>
+                    <select name="course_id" required class="input-mobile bg-white">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                            <option value="<?php echo e($c->id); ?>"><?php echo e($c->title); ?></option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Live Session (Optional)')); ?></label>
+                    <select name="live_session_id" class="input-mobile bg-white">
+                        <option value=""><?php echo e(__('None / General Course Assignment')); ?></option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($allSessions)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $allSessions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                                <option value="<?php echo e($s->id); ?>">Session #<?php echo e($s->id); ?> — <?php echo e($s->title ?? $s->course?->title ?? 'Live Session'); ?></option>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </select>
+                </div>
             </div>
 
             <div>
-                <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Assignment Title')); ?></label>
-                <input type="text" name="title" placeholder="e.g. Kirchhoff's Laws Practice Worksheet" required class="input-mobile">
+                <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Assignment Title')); ?> *</label>
+                <input type="text" name="title" placeholder="e.g. Session #3 Electricity & Kirchhoff Quiz" required class="input-mobile">
             </div>
 
             <div>
                 <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Instructions / Description')); ?></label>
-                <textarea name="description" rows="3" placeholder="Solve all questions and upload work or text response..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-teal-600"></textarea>
+                <textarea name="description" rows="2" placeholder="Provide instructions, formulas or guidelines for students..." class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-teal-600 font-mono"></textarea>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Submission Deadline')); ?></label>
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Submission Deadline')); ?> *</label>
                     <input type="datetime-local" name="due_at" required class="input-mobile">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Timer (Minutes)')); ?> *</label>
+                    <input type="number" name="duration_minutes" value="30" min="5" max="300" required class="input-mobile">
                 </div>
                 <div>
                     <label class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5"><?php echo e(__('Passing Score (%)')); ?></label>
@@ -747,10 +767,32 @@
                 </div>
             </div>
 
+            
+            <div class="border-t border-slate-200/80 pt-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-heading font-black text-sm text-slate-900 flex items-center gap-1.5">
+                            <span>❓</span> <?php echo e(__('Interactive MSQ Questions (Optional)')); ?>
+
+                        </h4>
+                        <p class="text-[11px] font-mono text-slate-500"><?php echo e(__('Add multiple-choice questions for instant server-side auto-grading.')); ?></p>
+                    </div>
+                    <button type="button" onclick="addTeacherQuestion()" class="btn-lift px-3.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl font-extrabold text-xs border border-teal-200/80 flex items-center gap-1 cursor-pointer">
+                        <span>➕</span> <?php echo e(__('Add Question')); ?>
+
+                    </button>
+                </div>
+
+                <div id="teacherQuestionsContainer" class="space-y-4">
+                    
+                </div>
+            </div>
+
             <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
-                <button type="button" onclick="closeModal('createAssignmentModal')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"><?php echo e(__('Cancel')); ?></button>
-                <button type="submit" class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md">
-                    <?php echo e(__('Publish Assignment')); ?> &rarr;
+                <button type="button" onclick="closeModal('createAssignmentModal')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"><?php echo e(__('Cancel')); ?></button>
+                <button type="submit" class="btn-lift px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
+                    <span>🚀</span> <?php echo e(__('Publish Assignment')); ?>
+
                 </button>
             </div>
         </form>
@@ -1278,6 +1320,57 @@ function bindAjaxForm(formId, onSuccess) {
             showTeacherToast('Network connection error', false);
         }
     });
+}
+
+let teacherQuestionCount = 0;
+
+function addTeacherQuestion() {
+    const container = document.getElementById('teacherQuestionsContainer');
+    if (!container) return;
+
+    const qIdx = teacherQuestionCount++;
+    const isAr = <?php echo json_encode(app()->getLocale() === 'ar', 15, 512) ?>;
+
+    const html = `
+    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 relative" id="teacherQCard_${qIdx}">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-extrabold text-teal-900 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">
+                ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
+            </span>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1 text-xs font-mono">
+                    <span class="text-slate-500">${isAr ? 'الدرجة:' : 'Pts:'}</span>
+                    <input type="number" step="0.5" name="questions[${qIdx}][points]" value="1" min="0.5" class="w-14 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-center">
+                </div>
+                <button type="button" onclick="removeTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer">
+                    ✕ ${isAr ? 'حذف' : 'Remove'}
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600"></textarea>
+        </div>
+
+        <div class="space-y-2 pt-1 border-t border-slate-200/60">
+            <p class="text-[10px] font-mono text-slate-500 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${[0, 1, 2, 3].map(optIdx => `
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                        <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
+                        <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function removeTeacherQuestion(qIdx) {
+    const el = document.getElementById('teacherQCard_' + qIdx);
+    if (el) el.remove();
 }
 
 function showTeacherToast(message, isSuccess) {

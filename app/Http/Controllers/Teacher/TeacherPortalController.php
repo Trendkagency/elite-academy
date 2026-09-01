@@ -386,7 +386,14 @@ class TeacherPortalController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_at' => 'required|date',
+            'duration_minutes' => 'nullable|integer|min:5|max:300',
             'passing_score' => 'nullable|numeric|min:0|max:100',
+            'questions' => 'nullable|array',
+            'questions.*.question_text' => 'required_with:questions|string|max:1000',
+            'questions.*.points' => 'nullable|numeric|min:0.1',
+            'questions.*.correct_index' => 'nullable|integer|min:0|max:10',
+            'questions.*.options' => 'nullable|array|min:2',
+            'questions.*.options.*' => 'nullable|string|max:500',
         ]);
 
         $course = Course::findOrFail($validated['course_id']);
@@ -400,10 +407,43 @@ class TeacherPortalController extends Controller
             'live_session_id' => $validated['live_session_id'] ?? null,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'duration_minutes' => (int) ($validated['duration_minutes'] ?? 30),
             'due_at' => Carbon::parse($validated['due_at']),
             'status' => 'published',
             'passing_score' => (float) ($validated['passing_score'] ?? 70.0),
         ]);
+
+        // Process questions if provided
+        if (! empty($validated['questions']) && is_array($validated['questions'])) {
+            foreach ($validated['questions'] as $qIdx => $qData) {
+                if (empty($qData['question_text'])) continue;
+
+                $qPoints = (float) ($qData['points'] ?? 1.0);
+                $correctIndex = isset($qData['correct_index']) ? (int) $qData['correct_index'] : 0;
+
+                $question = \App\Models\AssignmentQuestion::create([
+                    'assignment_id' => $assignment->id,
+                    'question_text' => $qData['question_text'],
+                    'question_type' => 'text',
+                    'points' => $qPoints,
+                    'sort_order' => $qIdx + 1,
+                    'is_multiple_choice' => false,
+                ]);
+
+                if (! empty($qData['options']) && is_array($qData['options'])) {
+                    foreach ($qData['options'] as $optIdx => $optText) {
+                        if (trim((string)$optText) === '') continue;
+
+                        \App\Models\AssignmentQuestionOption::create([
+                            'question_id' => $question->id,
+                            'option_text' => trim($optText),
+                            'sort_order' => $optIdx + 1,
+                            'is_correct' => ($optIdx === $correctIndex),
+                        ]);
+                    }
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
