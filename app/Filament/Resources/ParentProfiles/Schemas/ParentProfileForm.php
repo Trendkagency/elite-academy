@@ -24,7 +24,7 @@ class ParentProfileForm
                         Select::make('user_id')
                             ->relationship(
                                 name: 'user',
-                                modifyQueryUsing: function (Builder $query, ?Model $record, string $operation) {
+                                modifyQueryUsing: function (Builder $query, ?Model $record, ?string $operation) {
                                     return $query->where(function (Builder $q) use ($record, $operation) {
                                         if ($operation === 'edit' && $record?->user_id) {
                                             $q->whereDoesntHave('parentProfile')->orWhere('id', $record->user_id);
@@ -36,10 +36,53 @@ class ParentProfileForm
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Parent User Account')
+                            ->helperText('Select an existing account without a parent profile, or click (+) to register a new parent directly.')
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
-                            ->unique(ParentProfile::class, 'user_id', ignoreRecord: true),
+                            ->unique(ParentProfile::class, 'user_id', ignoreRecord: true)
+                            ->createOptionForm([
+                                \Filament\Forms\Components\TextInput::make('name')
+                                    ->label('Parent Full Name')
+                                    ->placeholder('e.g. Mahmoud Ali')
+                                    ->required()
+                                    ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('email')
+                                    ->label('Email Address')
+                                    ->email()
+                                    ->placeholder('parent@elite-academy.com')
+                                    ->required()
+                                    ->unique(\App\Models\User::class, 'email')
+                                    ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('phone')
+                                    ->label('Phone Number')
+                                    ->tel()
+                                    ->placeholder('+201000000000')
+                                    ->unique(\App\Models\User::class, 'phone')
+                                    ->maxLength(30),
+                                \Filament\Forms\Components\TextInput::make('password')
+                                    ->label('Account Password')
+                                    ->password()
+                                    ->revealable()
+                                    ->default('Password123!')
+                                    ->helperText('Default temporary password. The parent can change it later.')
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('status')
+                                    ->label('Account Approval Status')
+                                    ->options([
+                                        'approved' => '✅ Approved (مقبول)',
+                                        'pending' => '⏳ Pending Approval (قيد المراجعة)',
+                                    ])
+                                    ->default('approved')
+                                    ->required(),
+                            ])
+                            ->createOptionAction(fn ($action) => $action
+                                ->modalHeading('Register & Link New Parent Account')
+                                ->modalDescription('Create a new parent user account and attach it to this parent profile.')
+                                ->modalSubmitActionLabel('Create Account')
+                                ->modalWidth('lg')
+                            ),
                         Select::make('students')
                             ->relationship(
                                 name: 'students',

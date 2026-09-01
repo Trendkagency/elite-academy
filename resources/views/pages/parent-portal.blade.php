@@ -82,7 +82,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2">
                 <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3.5 py-1.5 rounded-full border border-teal-800/80 shadow-xs">
-                    👨‍gsub👨‍👧‍👦 {{ __('PARENT DASHBOARD • ACADEMIC MONITORING') }}
+                    👨‍👧‍👦 {{ __('PARENT DASHBOARD • ACADEMIC MONITORING') }}
                 </span>
                 <h1 class="font-heading text-3xl sm:text-4xl font-black text-white tracking-tight">
                     {{ __('Parent Portal: Student Academic Dashboard') }}

@@ -29,7 +29,7 @@ class StudentProfileForm
                         Select::make('user_id')
                             ->relationship(
                                 name: 'user',
-                                modifyQueryUsing: function (Builder $query, ?Model $record, string $operation) {
+                                modifyQueryUsing: function (Builder $query, ?Model $record, ?string $operation) {
                                     return $query->where(function (Builder $q) use ($record, $operation) {
                                         if ($operation === 'edit' && $record?->user_id) {
                                             $q->whereDoesntHave('studentProfile')->orWhere('id', $record->user_id);
@@ -41,10 +41,53 @@ class StudentProfileForm
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Student Account User')
+                            ->helperText('Select an existing account without a student profile, or click (+) to register a new student directly.')
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
                             ->unique(StudentProfile::class, 'user_id', ignoreRecord: true)
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Student Full Name')
+                                    ->placeholder('e.g. Youssef Ahmed')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('email')
+                                    ->label('Email Address')
+                                    ->email()
+                                    ->placeholder('student@elite-academy.com')
+                                    ->required()
+                                    ->unique(User::class, 'email')
+                                    ->maxLength(255),
+                                TextInput::make('phone')
+                                    ->label('Phone Number')
+                                    ->tel()
+                                    ->placeholder('+201000000000')
+                                    ->unique(User::class, 'phone')
+                                    ->maxLength(30),
+                                TextInput::make('password')
+                                    ->label('Account Password')
+                                    ->password()
+                                    ->revealable()
+                                    ->default('Password123!')
+                                    ->helperText('Default temporary password. The student can change it later.')
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('status')
+                                    ->label('Account Approval Status')
+                                    ->options([
+                                        'approved' => '✅ Approved (مقبول)',
+                                        'pending' => '⏳ Pending Approval (قيد المراجعة)',
+                                    ])
+                                    ->default('approved')
+                                    ->required(),
+                            ])
+                            ->createOptionAction(fn ($action) => $action
+                                ->modalHeading('Register & Link New Student Account')
+                                ->modalDescription('Create a new student user account and instantly attach it to this academic profile.')
+                                ->modalSubmitActionLabel('Create Account')
+                                ->modalWidth('lg')
+                            )
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
