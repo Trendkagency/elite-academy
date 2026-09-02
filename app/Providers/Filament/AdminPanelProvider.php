@@ -28,9 +28,20 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Elite Academy')
+            ->brandLogo(asset('images/logo_500.webp'))
+            ->brandLogoHeight('2.6rem')
+            ->favicon(asset('images/logo_500.webp'))
             ->darkMode(true)
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Teal,
+                'gray' => Color::Slate,
+                'amber' => Color::Amber,
+                'success' => Color::Emerald,
+                'info' => Color::Cyan,
+                'danger' => Color::Rose,
+                'warning' => Color::Orange,
             ])
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
