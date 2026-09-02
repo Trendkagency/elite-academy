@@ -13,6 +13,7 @@ use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
 use App\Models\LiveSession;
 use App\Models\StudentProfile;
+use App\Models\StudentSession;
 use App\Models\Subject;
 use App\Models\TeacherProfile;
 use App\Models\User;
@@ -508,9 +509,33 @@ class TeacherPortalController extends Controller
             'attendance.*.status' => 'required|in:present,absent,late,excused',
         ]);
 
+        $primaryStatus = null;
+        $hasPresent = false;
+
         foreach ($validated['attendance'] as $record) {
             $studentUserId = (int) $record['student_user_id'];
             $status = $record['status'];
+
+            // Persist per-student session attendance state
+            StudentSession::updateOrCreate(
+                [
+                    'student_user_id' => $studentUserId,
+                    'live_session_id' => $session->id,
+                ],
+                [
+                    'attendance_status' => $status,
+                    'session_status' => 'completed',
+                    'completed_at' => now(),
+                ]
+            );
+
+            if (in_array($status, ['present', 'late'], true)) {
+                $hasPresent = true;
+            }
+
+            if ((int) $session->student_user_id === $studentUserId) {
+                $primaryStatus = in_array($status, ['present', 'absent', 'excused'], true) ? $status : 'present';
+            }
 
             if ($status === 'absent') {
                 $studentUser = User::find($studentUserId);
@@ -520,8 +545,12 @@ class TeacherPortalController extends Controller
             }
         }
 
+        $sessionAttendanceStatus = $session->student_user_id
+            ? ($primaryStatus ?: 'present')
+            : ($hasPresent ? 'present' : 'absent');
+
         $session->update([
-            'attendance_status' => 'recorded',
+            'attendance_status' => $sessionAttendanceStatus,
             'status' => 'completed',
         ]);
 
@@ -550,17 +579,45 @@ class TeacherPortalController extends Controller
             ->orWhereIn('course_id', $courses)
             ->pluck('id')->toArray();
 
-        // 1. Attendance Records
-        $attendanceRecords = LiveSession::where('teacher_profile_id', $teacherProfile->id)
+        // 1. Attendance Records (Combine direct live sessions and student session records)
+        $directSessions = LiveSession::where('teacher_profile_id', $teacherProfile->id)
             ->where('student_user_id', $studentUserId)
             ->orderBy('scheduled_at', 'desc')
-            ->get()
-            ->map(fn ($s) => [
+            ->get();
+
+        $studentSessionRecords = StudentSession::where('student_user_id', $studentUserId)
+            ->whereHas('liveSession', fn ($q) => $q->where('teacher_profile_id', $teacherProfile->id))
+            ->with('liveSession')
+            ->get();
+
+        $attendanceRecords = collect();
+
+        foreach ($directSessions as $s) {
+            $attendanceRecords->push([
                 'id' => $s->id,
                 'title' => $s->title ?: 'Live Session',
                 'date' => $s->effective_start_at ? $s->effective_start_at->format('Y-m-d h:i A') : 'Scheduled',
                 'status' => $s->attendance_status ?: 'pending',
+                'timestamp' => $s->effective_start_at?->timestamp ?? 0,
             ]);
+        }
+
+        foreach ($studentSessionRecords as $ss) {
+            if ($ss->liveSession && ! $attendanceRecords->contains('id', $ss->liveSession->id)) {
+                $attendanceRecords->push([
+                    'id' => $ss->liveSession->id,
+                    'title' => $ss->liveSession->title ?: 'Live Session',
+                    'date' => $ss->liveSession->effective_start_at ? $ss->liveSession->effective_start_at->format('Y-m-d h:i A') : 'Scheduled',
+                    'status' => $ss->attendance_status ?: 'pending',
+                    'timestamp' => $ss->liveSession->effective_start_at?->timestamp ?? 0,
+                ]);
+            }
+        }
+
+        $attendanceRecords = $attendanceRecords->sortByDesc('timestamp')->values()->map(function ($item) {
+            unset($item['timestamp']);
+            return $item;
+        });
 
         // 2. Submissions Records
         $submissions = AssignmentSubmission::where('student_user_id', $studentUserId)
