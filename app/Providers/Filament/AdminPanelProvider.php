@@ -80,6 +80,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 \App\Http\Middleware\SetLocale::class,
+                \App\Http\Middleware\EnsureAdminAccountExists::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
