@@ -14,41 +14,50 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureAdminAccountExists
 {
     /**
-     * Handle an incoming request to Filament Admin panel.
-     * Ensure at least one system admin account exists; if not, create the default admin account.
+     * Handle an incoming request to Web / Filament Admin panel.
+     * Ensure standard admin accounts (admin@elite.edu & admin@elite-academy.com) exist with AdminProfile.
      */
     public function handle(Request $request, Closure $next): Response
     {
         try {
             if (Schema::hasTable('users') && Schema::hasTable('admin_profiles')) {
-                $hasAdmin = User::whereHas('adminProfile')
-                    ->orWhere('email', 'admin@elite-academy.com')
-                    ->orWhere('email', 'admin@elite.edu')
-                    ->orWhere('email', config('app.admin_email', env('ADMIN_DEFAULT_EMAIL', 'admin@elite-academy.com')))
-                    ->exists();
+                $defaultAdmins = [
+                    [
+                        'email' => 'admin@elite.edu',
+                        'name' => 'المدير العام — System Admin',
+                        'phone' => '+201000000001',
+                        'password' => 'password',
+                    ],
+                    [
+                        'email' => 'admin@elite-academy.com',
+                        'name' => 'System Administrator',
+                        'phone' => '+201000000002',
+                        'password' => 'password',
+                    ],
+                ];
 
-                if (! $hasAdmin) {
-                    $email = env('ADMIN_DEFAULT_EMAIL', 'admin@elite-academy.com');
-                    $password = env('ADMIN_DEFAULT_PASSWORD', 'password');
-                    $name = env('ADMIN_DEFAULT_NAME', 'System Administrator');
-                    $phone = env('ADMIN_DEFAULT_PHONE', '+201000000001');
-
-                    $admin = User::firstOrCreate(
-                        ['email' => $email],
+                foreach ($defaultAdmins as $adminData) {
+                    $user = User::firstOrCreate(
+                        ['email' => $adminData['email']],
                         [
-                            'name' => $name,
-                            'phone' => $phone,
-                            'password' => Hash::make($password),
+                            'name' => $adminData['name'],
+                            'phone' => $adminData['phone'],
+                            'password' => Hash::make($adminData['password']),
                             'status' => AccountStatus::APPROVED,
                             'email_verified_at' => now(),
                         ]
                     );
 
-                    AdminProfile::firstOrCreate(['user_id' => $admin->id]);
+                    // Ensure status is approved & has AdminProfile
+                    if ($user->status !== AccountStatus::APPROVED && $user->status !== 'approved') {
+                        $user->update(['status' => AccountStatus::APPROVED]);
+                    }
+
+                    AdminProfile::firstOrCreate(['user_id' => $user->id]);
                 }
             }
         } catch (\Throwable $e) {
-            // Silently log database errors (e.g. during early initialization)
+            // Silently log errors
             report($e);
         }
 

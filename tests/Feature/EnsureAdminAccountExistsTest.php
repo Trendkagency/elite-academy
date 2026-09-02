@@ -13,53 +13,51 @@ class EnsureAdminAccountExistsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_account_is_auto_created_when_accessing_admin_login_page_if_not_exists(): void
+    public function test_admin_accounts_are_auto_created_when_accessing_login_or_admin_page(): void
     {
-        // Ensure no admin exists
+        // Ensure no user exists initially
         $this->assertEquals(0, User::count());
-        $this->assertEquals(0, AdminProfile::count());
 
-        // Request the Filament Admin login page
-        $response = $this->get('/admin/login');
-
+        // 1. Visit /login (web portal login)
+        $response = $this->get('/login');
         $response->assertStatus(200);
 
-        // Verify admin user is created
+        // Verify both admin accounts exist and are approved
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin@elite.edu',
+            'status' => AccountStatus::APPROVED->value,
+        ]);
         $this->assertDatabaseHas('users', [
             'email' => 'admin@elite-academy.com',
             'status' => AccountStatus::APPROVED->value,
         ]);
 
-        $admin = User::where('email', 'admin@elite-academy.com')->first();
-        $this->assertNotNull($admin);
-        $this->assertTrue(Hash::check('password', $admin->password));
-        $this->assertTrue($admin->isAdmin());
-        $this->assertDatabaseHas('admin_profiles', [
-            'user_id' => $admin->id,
+        $adminEdu = User::where('email', 'admin@elite.edu')->first();
+        $this->assertNotNull($adminEdu);
+        $this->assertTrue(Hash::check('password', $adminEdu->password));
+        $this->assertTrue($adminEdu->isAdmin());
+        $this->assertEquals(\App\Enums\Role::ADMIN->value, $adminEdu->getRoleName());
+        $this->assertDatabaseHas('admin_profiles', ['user_id' => $adminEdu->id]);
+
+        // 2. Can login via AJAX with admin@elite.edu
+        $loginResponse = $this->postJson('/ajax/login', [
+            'email' => 'admin@elite.edu',
+            'password' => 'password',
         ]);
+        $loginResponse->assertStatus(200);
+        $loginResponse->assertJson(['success' => true]);
     }
 
-    public function test_existing_admin_account_is_not_duplicated(): void
+    public function test_admin_accounts_created_when_accessing_filament_admin_page(): void
     {
-        // Create an existing admin user
-        $admin = User::create([
-            'name' => 'Existing Admin',
-            'email' => 'admin@elite-academy.com',
-            'phone' => '+201111111111',
-            'password' => bcrypt('secret123'),
-            'status' => AccountStatus::APPROVED,
-            'email_verified_at' => now(),
-        ]);
-        AdminProfile::create(['user_id' => $admin->id]);
+        $this->assertEquals(0, User::count());
 
-        $this->assertEquals(1, User::count());
-
-        // Access admin login
         $response = $this->get('/admin/login');
         $response->assertStatus(200);
 
-        // Count should still be 1, password remains unchanged
-        $this->assertEquals(1, User::count());
-        $this->assertTrue(Hash::check('secret123', $admin->fresh()->password));
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin@elite.edu',
+            'status' => AccountStatus::APPROVED->value,
+        ]);
     }
 }

@@ -118,7 +118,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        if ($this->email === 'admin@elite-academy.com') {
+        if (in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
             return true;
         }
 
