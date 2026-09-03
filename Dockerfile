@@ -1,42 +1,19 @@
 # syntax=docker/dockerfile:1
 # =========================================================
-#  Dockerfile بديل لـ Nixpacks - Laravel + Filament v3
-#  nginx + php-fpm + queue worker + scheduler عبر supervisor
+# Dockerfile بديل لـ Nixpacks - Laravel + Filament v3
+# nginx + php-fpm + queue worker + scheduler عبر supervisor
 # =========================================================
 
-# ---------- Stage 1: Composer dependencies ----------
-FROM composer:2 AS composer_build
-WORKDIR /app
+FROM php:8.4-fpm-alpine
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_PROCESS_TIMEOUT=600
-
-# نسخ ملفات composer بس الأول عشان الـ layer caching
-COPY composer.json composer.lock ./
-
-RUN composer config process-timeout 600 \
-    && composer install \
-        --no-dev \
-        --no-scripts \
-        --no-autoloader \
-        --prefer-source \
-        --ignore-platform-reqs \
-        --no-interaction
-
-COPY . .
-RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
-
-
-# ---------- Stage 3: Production image ----------
-FROM php:8.4-fpm-alpine AS production
-
-# حزم النظام: nginx + supervisor + مكتبات الـ PHP extensions
+# حزم النظام: nginx + supervisor + bash + curl + git + unzip + مكتبات الـ PHP extensions
 RUN apk add --no-cache \
         nginx \
         supervisor \
         bash \
         curl \
+        git \
+        unzip \
         libzip \
         libpng \
         freetype \
@@ -62,13 +39,34 @@ RUN apk add --no-cache \
     && apk del --no-cache \
         libzip-dev libpng-dev freetype-dev jpeg-dev icu-dev oniguruma-dev
 
+# تثبيت Composer مباشرة من صورته الرسمية
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 
-# انسخ الكود + الـ vendor من المراحل السابقة فقط
-COPY --chown=www-data:www-data . .
-COPY --from=composer_build --chown=www-data:www-data /app/vendor ./vendor
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_PROCESS_TIMEOUT=600
 
-# تنظيف ملفات مش محتاجينها في production
+# 1. نسخ ملفات composer أولاً للاستفادة من الـ Docker layer caching
+COPY composer.json composer.lock ./
+
+RUN composer config process-timeout 600 \
+    && composer install \
+        --no-dev \
+        --no-scripts \
+        --no-autoloader \
+        --prefer-dist \
+        --ignore-platform-reqs \
+        --no-interaction
+
+# 2. نسخ كود المشروع بالكامل
+COPY --chown=www-data:www-data . .
+
+# 3. إنشاء الـ autoloader المحسن
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
+
+# 4. تنظيف ملفات التطوير وغير المطلوبة في الـ Production
 RUN rm -rf \
         tests \
         .git \
@@ -78,11 +76,11 @@ RUN rm -rf \
         node_modules \
     && composer clear-cache 2>/dev/null || true
 
-# صلاحيات الكتابة اللازمة لـ Laravel
+# 5. صلاحيات المجلدات اللازمة لـ Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# ملفات إعداد nginx / php-fpm / supervisor
+# 6. ملفات إعداد nginx / php-fpm / supervisor
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/zz-custom.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
