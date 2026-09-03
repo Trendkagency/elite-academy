@@ -49,10 +49,13 @@ class TeacherProfile extends Model implements HasMedia
     public function getPhotoUrlAttribute(): string
     {
         if ($this->hasMedia('photo')) {
-            return $this->getFirstMediaUrl('photo');
+            $url = $this->getFirstMediaUrl('photo');
+            if (! empty($url)) {
+                return $url;
+            }
         }
 
-        return $this->photo ?: 'images/hero_student.png';
+        return $this->photo ?: 'images/instructor_portrait.webp';
     }
 
     public function user(): BelongsTo

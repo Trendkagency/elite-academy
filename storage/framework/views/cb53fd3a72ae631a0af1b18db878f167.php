@@ -1,18 +1,9 @@
 
 <?php
     $isAr = app()->getLocale() === 'ar';
-    $mentors = \Illuminate\Support\Facades\Cache::remember('home_featured_mentors_list', 600, function () {
+    $mentors = \Illuminate\Support\Facades\Cache::remember('home_featured_mentors_list', 3600, function () {
         try {
-            $query = \App\Models\TeacherProfile::with(['user', 'subjects', 'media'])
-                ->where('is_public', true)
-                ->orderByDesc('is_featured')
-                ->take(12);
-
-            $dbTeachers = $query->get();
-            if ($dbTeachers->isEmpty()) {
-                $dbTeachers = \App\Models\TeacherProfile::with(['user', 'subjects', 'media'])->take(8)->get();
-            }
-
+            $dbTeachers = \App\Models\TeacherProfile::with(['user', 'subjects'])->take(8)->get();
             if ($dbTeachers->isNotEmpty()) {
                 return $dbTeachers->map(fn($t) => [
                     'name' => $t->user?->name ?: 'Teacher Profile',
@@ -77,7 +68,7 @@
                     $profileUrl = !empty($m['slug']) ? route('teacher-profile', ['slug' => $m['slug']]) : route('teacher-profile');
                 ?>
                 <div class="teacher-slide-card w-[300px] sm:w-[380px] lg:w-[420px] shrink-0 h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800/90 relative group card-lift transition-all duration-500 snap-center bg-slate-900" data-slide-index="<?php echo e($index); ?>">
-                    <img src="<?php echo e(media_url($m['photo'], 'images/instructor_portrait.webp')); ?>" alt="<?php echo e($m['name']); ?>" width="420" height="440" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+                    <img src="<?php echo e(media_url($m['photo'], 'images/instructor_portrait.webp')); ?>" onerror="this.onerror=null;this.src='<?php echo e(asset('images/instructor_portrait.webp')); ?>';" alt="<?php echo e($m['name']); ?>" width="420" height="440" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none"></div>
 
                     

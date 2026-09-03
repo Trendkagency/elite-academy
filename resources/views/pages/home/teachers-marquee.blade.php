@@ -63,7 +63,7 @@
                     $profileUrl = !empty($m['slug']) ? route('teacher-profile', ['slug' => $m['slug']]) : route('teacher-profile');
                 @endphp
                 <div class="teacher-slide-card w-[300px] sm:w-[380px] lg:w-[420px] shrink-0 h-[440px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800/90 relative group card-lift transition-all duration-500 snap-center bg-slate-900" data-slide-index="{{ $index }}">
-                    <img src="{{ media_url($m['photo'], 'images/instructor_portrait.webp') }}" alt="{{ $m['name'] }}" width="420" height="440" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+                    <img src="{{ media_url($m['photo'], 'images/instructor_portrait.webp') }}" onerror="this.onerror=null;this.src='{{ asset('images/instructor_portrait.webp') }}';" alt="{{ $m['name'] }}" width="420" height="440" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none"></div>
 
                     {{-- Dept Badge --}}

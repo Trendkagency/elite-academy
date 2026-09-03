@@ -12,7 +12,7 @@
         <div class="p-6 space-y-4">
             <div class="flex items-center gap-4">
                 <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 border-2 border-teal-500/20 group-hover:border-teal-500 transition-colors flex-shrink-0">
-                    <img src="{{ media_url($photo, 'images/instructor_portrait.webp') }}" alt="{{ $name }}" class="w-full h-full object-cover">
+                    <img src="{{ media_url($photo, 'images/instructor_portrait.webp') }}" onerror="this.onerror=null;this.src='{{ asset('images/instructor_portrait.webp') }}';" alt="{{ $name }}" class="w-full h-full object-cover">
                 </div>
                 <div class="space-y-1">
                     <span class="inline-block text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200">
