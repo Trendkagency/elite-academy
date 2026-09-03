@@ -25,6 +25,16 @@ class AppServiceProvider extends ServiceProvider
         if (file_exists(app_path('helpers.php'))) {
             require_once app_path('helpers.php');
         }
+
+        if (
+            $this->app->environment('production', 'staging') ||
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+            str_starts_with((string) config('app.url'), 'https://') ||
+            env('FORCE_HTTPS', true)
+        ) {
+            URL::forceScheme('https');
+        }
     }
 
     /**

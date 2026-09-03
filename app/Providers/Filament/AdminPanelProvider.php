@@ -29,9 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Elite Academy')
-            ->brandLogo(asset('images/logo_500.webp'))
+            ->brandLogo(fn () => request()->isSecure() || app()->environment('production', 'staging') || str_starts_with((string) config('app.url'), 'https://') ? secure_asset('images/logo_500.webp') : asset('images/logo_500.webp'))
             ->brandLogoHeight('2.6rem')
-            ->favicon(asset('images/logo_500.webp'))
+            ->favicon(fn () => request()->isSecure() || app()->environment('production', 'staging') || str_starts_with((string) config('app.url'), 'https://') ? secure_asset('images/logo_500.webp') : asset('images/logo_500.webp'))
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop()
             ->colors([

@@ -21,6 +21,8 @@ class ArticlesTable
             ->columns([
                 SpatieMediaLibraryImageColumn::make('featured_image')
                     ->collection('featured_image')
+                    ->disk('public')
+                    ->visibility('public')
                     ->label('Image'),
                 TextColumn::make('title')
                     ->searchable()

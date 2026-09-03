@@ -42,6 +42,7 @@ class TeacherProfile extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('photo')
+            ->useDisk('public')
             ->singleFile();
     }
 

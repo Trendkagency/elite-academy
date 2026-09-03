@@ -250,6 +250,39 @@ Route::get('/sitemap.xml', function () {
     ]);
 })->name('sitemap');
 
+// Resilient Storage Fallback Route: Serves files directly if public/storage symlink is not followed
+Route::get('storage/{path}', function (string $path) {
+    // 1. Check if the file exists in storage/app/public/
+    $publicPath = storage_path('app/public/' . $path);
+    if (file_exists($publicPath) && ! is_dir($publicPath)) {
+        return response()->file($publicPath, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    // 2. Check if the file was uploaded to storage/app/private/ (e.g. legacy uploads)
+    $privatePath = storage_path('app/private/' . $path);
+    if (file_exists($privatePath) && ! is_dir($privatePath)) {
+        // Auto-migrate file to public storage folder for future direct web server serving
+        @mkdir(dirname($publicPath), 0755, true);
+        @copy($privatePath, $publicPath);
+
+        return response()->file($privatePath, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    // 3. Check directly under storage/app/
+    $appPath = storage_path('app/' . $path);
+    if (file_exists($appPath) && ! is_dir($appPath)) {
+        return response()->file($appPath, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    abort(404, __('Resource not found'));
+})->where('path', '.*')->name('storage.fallback');
+
 // System Fallback Route for Undefined Paths -> Animated 404 Page
 Route::fallback(function () {
     abort(404, __('The page or resource you are looking for does not exist'));

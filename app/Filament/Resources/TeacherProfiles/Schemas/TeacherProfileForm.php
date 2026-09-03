@@ -170,7 +170,10 @@ class TeacherProfileForm
                     ->components([
                         SpatieMediaLibraryFileUpload::make('photo')
                             ->collection('photo')
+                            ->disk('public')
+                            ->visibility('public')
                             ->image()
+                            ->imageEditor()
                             ->label('Teacher Photo Upload (Spatie Media)'),
                     ]),
             ]);

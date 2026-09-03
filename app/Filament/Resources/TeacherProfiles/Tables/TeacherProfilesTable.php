@@ -21,6 +21,8 @@ class TeacherProfilesTable
             ->columns([
                 SpatieMediaLibraryImageColumn::make('photo')
                     ->collection('photo')
+                    ->disk('public')
+                    ->visibility('public')
                     ->circular()
                     ->label('Photo'),
                 TextColumn::make('user.name')

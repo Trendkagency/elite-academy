@@ -33,7 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => (app()->runningInConsole() || ! request() ? rtrim(env('APP_URL', 'http://localhost'), '/') : (request()->schemeAndHttpHost() . request()->getBaseUrl())) . '/storage',
+            'url' => (app()->runningInConsole() || ! request()
+                ? rtrim(env('ASSET_URL', env('APP_URL', 'http://localhost')), '/') . '/storage'
+                : ((request()->isSecure() || app()->environment('production', 'staging') || str_starts_with((string) env('APP_URL'), 'https://') ? 'https://' : request()->getScheme() . '://') . request()->getHttpHost() . request()->getBaseUrl()) . '/storage'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

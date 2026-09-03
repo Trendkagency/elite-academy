@@ -46,7 +46,10 @@ class ArticleForm
                     ->columnSpanFull(),
                 SpatieMediaLibraryFileUpload::make('featured_image')
                     ->collection('featured_image')
+                    ->disk('public')
+                    ->visibility('public')
                     ->image()
+                    ->imageEditor()
                     ->label('Featured Image Upload (Spatie Media)'),
                 TextInput::make('read_time_minutes')
                     ->required()
