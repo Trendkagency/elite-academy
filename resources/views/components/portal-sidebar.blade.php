@@ -5,10 +5,10 @@
     $isAr = $locale === 'ar';
 
     $roleBadgeText = match($role) {
-        'teacher' => __('app.faculty_portal', ['default' => 'Faculty Portal']),
-        'parent'  => __('app.parent_portal', ['default' => 'Parent Portal']),
-        'admin'   => __('app.admin_portal', ['default' => 'Admin Panel']),
-        default   => __('app.student_portal', ['default' => 'Student Portal']),
+        'teacher' => __('app.teacher_portal'),
+        'parent'  => __('app.parent_portal'),
+        'admin'   => __('app.admin_portal'),
+        default   => __('app.student_portal'),
     };
 
     $roleIcon = match($role) {
@@ -99,17 +99,17 @@
 
                 <a href="#assignments" onclick="switchTeacherTab('assignments')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="assignments">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📝</span>
-                    <span>{{ __('Assignments Management') }}</span>
+                    <span>{{ __('Assignments & Quizzes') }}</span>
                 </a>
 
                 <a href="#attendance" onclick="switchTeacherTab('attendance')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="attendance">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">👥</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📋</span>
                     <span>{{ __('Student Attendance Sheets') }}</span>
                 </a>
 
                 <a href="#students" onclick="switchTeacherTab('students')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="students">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">🎓</span>
-                    <span>{{ __('Student Submissions') }}</span>
+                    <span>{{ __('My Students') }}</span>
                 </a>
 
             @elseif($role === 'parent')

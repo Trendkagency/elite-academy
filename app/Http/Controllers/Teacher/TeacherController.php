@@ -12,10 +12,6 @@ class TeacherController extends Controller
 {
     public function index(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        if (auth()->check() && auth()->user()->isTeacher()) {
-            return redirect()->route('teacher-portal');
-        }
-
         $subjectFilter = $request->query('subject');
         $searchQuery = $request->query('q');
 

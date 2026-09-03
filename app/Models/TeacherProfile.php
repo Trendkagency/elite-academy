@@ -73,4 +73,9 @@ class TeacherProfile extends Model implements HasMedia
     {
         return $this->belongsToMany(GradeLevel::class, 'teacher_grade_level');
     }
+
+    public function educationalNotes(): HasMany
+    {
+        return $this->hasMany(StudentEducationalNote::class, 'teacher_profile_id');
+    }
 }

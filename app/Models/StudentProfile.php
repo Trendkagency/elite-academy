@@ -36,7 +36,7 @@ class StudentProfile extends Model
 
     public function enrollments(): HasMany
     {
-        return $this->hasMany(CourseEnrollment::class);
+        return $this->hasMany(CourseEnrollment::class, 'student_user_id', 'user_id');
     }
 
     public function sessionProgress(): HasMany
@@ -51,6 +51,6 @@ class StudentProfile extends Model
 
     public function submissions(): HasMany
     {
-        return $this->hasMany(AssignmentSubmission::class);
+        return $this->hasMany(AssignmentSubmission::class, 'student_user_id', 'user_id');
     }
 }

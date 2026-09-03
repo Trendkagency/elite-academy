@@ -237,6 +237,11 @@ class StudentPortalController extends Controller
             ? $userNotifications->currentPage() : 1;
         $notifLastPage     = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
             ? $userNotifications->lastPage() : 1;
+        $teacherNotes = $user ? \App\Models\StudentEducationalNote::where('student_user_id', $user->id)
+            ->with(['teacherProfile.user', 'teacherProfile.subjects'])
+            ->orderBy('created_at', 'desc')
+            ->get() : collect();
+
         $totalAlertsCount  = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
             ? $userNotifications->total() : count($userNotifications);
 
@@ -257,6 +262,7 @@ class StudentPortalController extends Controller
             'availableAssignments'   => $availableAssignments,
             'filterCourses'          => $filterCourses,
             'exceptions'             => $exceptions,
+            'teacherNotes'           => $teacherNotes,
             'userNotifications'      => $userNotifications,
             // KPI cards
             'attendedSessions'       => $attendedSessions,

@@ -28,7 +28,7 @@ class StudentProfilePolicy
             return (int) $studentProfile->parent_user_id === (int) $user->id;
         }
 
-        // Teacher viewing student enrolled in their courses
+        // Teacher viewing student enrolled in their courses or in their live sessions
         if ($user->isTeacher()) {
             if (! $user->hasPermission(PermissionsRegistry::STUDENTS_VIEW)) {
                 return false;
@@ -39,12 +39,25 @@ class StudentProfilePolicy
                 return false;
             }
 
-            return \App\Models\CourseEnrollment::where('student_user_id', $studentProfile->user_id)
+            $isEnrolledInCourse = \App\Models\CourseEnrollment::where('student_user_id', $studentProfile->user_id)
                 ->whereHas('course', function ($q) use ($teacherProfile) {
                     $q->where('teacher_id', $teacherProfile->id);
                 })->exists();
+
+            if ($isEnrolledInCourse) {
+                return true;
+            }
+
+            return \App\Models\LiveSession::where('teacher_profile_id', $teacherProfile->id)
+                ->where('student_user_id', $studentProfile->user_id)
+                ->exists();
         }
 
         return false;
+    }
+
+    public function addNote(User $user, StudentProfile $studentProfile): bool
+    {
+        return $this->view($user, $studentProfile);
     }
 }

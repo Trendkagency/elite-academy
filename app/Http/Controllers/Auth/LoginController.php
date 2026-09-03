@@ -41,11 +41,31 @@ class LoginController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
+        $email = trim(strtolower($credentials['email']));
+        $credentials['email'] = $email;
 
+        // Check if user with this email exists
+        $userExists = \App\Models\User::where('email', $email)->exists();
+        if (! $userExists) {
+            return response()->json([
+                'success' => false,
+                'field'   => 'email',
+                'message' => __('app.auth.email_not_found'),
+                'errors'  => [
+                    'email' => [__('app.auth.email_not_found')],
+                ],
+            ], 422);
+        }
+
+        // Attempt authentication with password
         if (! auth()->attempt($credentials, $request->boolean('remember'))) {
             return response()->json([
                 'success' => false,
-                'message' => __('app.auth.invalid_credentials')
+                'field'   => 'password',
+                'message' => __('app.auth.password_incorrect'),
+                'errors'  => [
+                    'password' => [__('app.auth.password_incorrect')],
+                ],
             ], 401);
         }
 

@@ -33,4 +33,9 @@ class CourseSessionProgress extends Model
     {
         return $this->belongsTo(CourseSession::class, 'course_session_id');
     }
+
+    public function getIsCompletedAttribute(): bool
+    {
+        return $this->status === SessionProgressStatus::COMPLETED || ! is_null($this->completed_at);
+    }
 }

@@ -582,6 +582,42 @@ class FcmNotificationService
         return $this->sendNotification($user, 'ADMIN_APPROVAL_ALERT', $title, $body, route('student-portal'));
     }
 
+    /**
+     * 10. إشعار إضافة ملاحظة تربوية / توجيه أكاديمي من المعلم للطالب
+     */
+    public function notifyStudentEducationalNote(\App\Models\StudentEducationalNote $note): ?UserNotification
+    {
+        $studentUser = $note->studentUser ?: User::find($note->student_user_id);
+        if (! $studentUser) {
+            return null;
+        }
+
+        $teacherName = $note->teacherProfile?->user?->name ?: __('Academic Teacher');
+        $categoryLabel = match($note->category) {
+            'academic' => app()->getLocale() === 'ar' ? 'أكاديمية' : 'Academic',
+            'homework' => app()->getLocale() === 'ar' ? 'حول الواجبات' : 'Homework',
+            'participation' => app()->getLocale() === 'ar' ? 'حول المشاركة والتفاعل' : 'Participation',
+            'behavior' => app()->getLocale() === 'ar' ? 'حول السلوك والانضباط' : 'Behavior',
+            default => app()->getLocale() === 'ar' ? 'توجيهية عامة' : 'General Guidance',
+        };
+
+        $title = app()->getLocale() === 'ar'
+            ? "💬 ملاحظة جديدة من المعلم ({$teacherName})"
+            : "💬 New Teacher Note from ({$teacherName})";
+
+        $body = app()->getLocale() === 'ar'
+            ? "أضاف المعلم {$teacherName} ملاحظة {$categoryLabel}: \"{$note->note}\""
+            : "Teacher {$teacherName} added a {$categoryLabel} note: \"{$note->note}\"";
+
+        return $this->sendNotification(
+            $studentUser,
+            'TEACHER_NOTE_ADDED',
+            $title,
+            $body,
+            route('student-portal') . '#teacher-notes'
+        );
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Internal Dispatch Methods
     // ─────────────────────────────────────────────────────────────────────────

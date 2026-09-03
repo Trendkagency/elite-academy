@@ -25,4 +25,18 @@ class RegisterRequest extends FormRequest
             'subject_ids.*' => ['integer', 'exists:subjects,id'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => __('app.auth.name_required'),
+            'email.required' => __('app.auth.invalid_email_format'),
+            'email.email' => __('app.auth.invalid_email_format'),
+            'email.unique' => __('app.auth.email_already_registered'),
+            'phone.required' => __('app.auth.invalid_phone_format'),
+            'phone.unique' => __('app.auth.phone_already_registered'),
+            'password.required' => __('app.auth.password_min_length'),
+            'password.min' => __('app.auth.password_min_length'),
+        ];
+    }
 }

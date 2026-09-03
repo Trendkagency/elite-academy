@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ValidationController;
 use App\Http\Controllers\Course\CourseController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Session\SessionController;
@@ -19,7 +20,7 @@ Route::get('/lang/{locale}', function (string $locale) {
         cookie()->queue(cookie()->forever('elite_locale', $locale));
     }
 
-    return redirect()->back();
+    return redirect()->back(fallback: route('home'));
 })->name('lang.switch');
 
 Route::middleware(SetLocale::class)->group(function () {
@@ -27,16 +28,14 @@ Route::middleware(SetLocale::class)->group(function () {
     // 1. Static & Public Pages
     Route::get('/', [PageController::class, 'show'])->defaults('page', 'home')->name('home');
     Route::get('/about', [\App\Http\Controllers\Cms\AboutController::class, 'show'])->name('about');
-    // Public Catalog Pages (Redirect Teachers to Teacher Portal)
-    Route::middleware([\App\Http\Middleware\RedirectTeacherToPortal::class])->group(function () {
-        Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
-        Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
-        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
-        Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
+    // Public Catalog Pages (Open to All Users)
+    Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
+    Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
+    Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
+    Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
 
-        Route::get('/courses', [CourseController::class, 'index'])->name('courses');
-        Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
-    });
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses');
+    Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
 
     Route::redirect('/instructors', '/teachers');
     Route::get('/instructor-profile/{slug}', function (string $slug) {
@@ -58,6 +57,11 @@ Route::middleware(SetLocale::class)->group(function () {
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/ajax/register', [RegisterController::class, 'register'])->middleware('throttle:register')->name('ajax.register');
+
+    // Real-Time Auth Field Validation Endpoints
+    Route::post('/ajax/validate/check-email-exists', [ValidationController::class, 'checkEmailExists'])->middleware('throttle:ajax_interactive')->name('ajax.validate.email-exists');
+    Route::post('/ajax/validate/check-email-available', [ValidationController::class, 'checkEmailAvailable'])->middleware('throttle:ajax_interactive')->name('ajax.validate.email-available');
+    Route::post('/ajax/validate/check-phone-available', [ValidationController::class, 'checkPhoneAvailable'])->middleware('throttle:ajax_interactive')->name('ajax.validate.phone-available');
 
     // 3. Media & Stream Routes
     Route::get('/ajax/secure-video/token/{course}', [\App\Http\Controllers\SecureVideoController::class, 'generateToken'])->name('ajax.secure-video.token');
@@ -110,16 +114,23 @@ Route::middleware(SetLocale::class)->group(function () {
         // Teacher Role Protected Domain Routes (Strict Security & Authorization)
         Route::middleware([\App\Http\Middleware\EnsureTeacherRole::class])->group(function () {
             Route::get('/teacher-portal', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'index'])->name('teacher-portal');
+            Route::post('/ajax/teacher/recurring-schedules/preview', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'previewRecurringSchedule'])->middleware('throttle:strict_actions')->name('ajax.teacher.recurring.preview');
+            Route::post('/ajax/teacher/recurring-schedules/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createRecurringSchedule'])->middleware('throttle:strict_actions')->name('ajax.teacher.recurring.create');
             Route::post('/ajax/teacher/sessions/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.create');
+            Route::post('/ajax/teacher/sessions/{id}/override', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateSessionOverride'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.override');
             Route::post('/ajax/teacher/sessions/{id}/update', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.update');
             Route::post('/ajax/teacher/sessions/{id}/link', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'updateMeetingLink'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.link');
             Route::post('/ajax/teacher/sessions/{id}/reschedule', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'rescheduleSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.reschedule');
             Route::post('/ajax/teacher/sessions/{id}/cancel', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'cancelSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.cancel');
+            Route::get('/ajax/teacher/calendar-feed', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getCalendarEvents'])->name('ajax.teacher.calendar.feed');
             Route::post('/ajax/teacher/assignments/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createAssignment'])->middleware('throttle:strict_actions')->name('ajax.teacher.assignments.create');
             Route::get('/ajax/teacher/submissions/{submissionId}/review-details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSubmissionReview'])->name('ajax.teacher.submissions.review-details');
             Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->middleware('throttle:strict_actions')->name('ajax.teacher.submissions.review');
             Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->middleware('throttle:strict_actions')->name('ajax.teacher.attendance.mark');
+            Route::get('/ajax/teacher/sessions/{sessionId}/attendance-roster', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSessionAttendanceRoster'])->name('ajax.teacher.sessions.attendance-roster');
             Route::get('/ajax/teacher/students/{studentUserId}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentDetails'])->name('ajax.teacher.students.details');
+            Route::get('/teacher/students/{studentUserId}', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'showStudentProfile'])->name('teacher.students.show');
+            Route::post('/ajax/teacher/students/{studentUserId}/notes', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'storeStudentNote'])->middleware('throttle:strict_actions')->name('ajax.teacher.students.notes.create');
         });
 
         // FCM Notifications, Deadline Reminders & 30s Test Push

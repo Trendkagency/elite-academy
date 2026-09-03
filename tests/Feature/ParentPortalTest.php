@@ -118,9 +118,6 @@ class ParentPortalTest extends TestCase
                 'total_sessions' => 12,
                 'used_sessions' => 4,
             ],
-            'attendance' => [
-                'rate' => '93%',
-            ],
         ]);
 
         $json = $response->json();

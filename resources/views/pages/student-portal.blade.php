@@ -653,6 +653,60 @@
                     }, 8000);
                 </script>
 
+                {{-- Teacher Pedagogical Notes Section --}}
+                <div id="teacher-notes" class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
+                            <span>💬</span> {{ app()->getLocale() === 'ar' ? 'ملاحظات المعلمين والتوجيه الأكاديمي' : 'Teacher Notes & Pedagogical Feedback' }}
+                        </h3>
+                        <span class="px-2.5 py-1 bg-teal-50 text-teal-800 border border-teal-200/80 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
+                            {{ count($teacherNotes) }} {{ app()->getLocale() === 'ar' ? 'ملاحظات' : 'Notes' }}
+                        </span>
+                    </div>
+
+                    <div class="space-y-3.5">
+                        @forelse($teacherNotes as $n)
+                            @php
+                                $catConfig = match($n->category) {
+                                    'academic' => ['label' => (app()->getLocale() === 'ar' ? 'أكاديمي' : 'Academic'), 'bg' => 'bg-teal-50 text-teal-800 border-teal-200'],
+                                    'homework' => ['label' => (app()->getLocale() === 'ar' ? 'الواجبات' : 'Homework'), 'bg' => 'bg-blue-50 text-blue-800 border-blue-200'],
+                                    'participation' => ['label' => (app()->getLocale() === 'ar' ? 'المشاركة' : 'Participation'), 'bg' => 'bg-purple-50 text-purple-800 border-purple-200'],
+                                    'behavior' => ['label' => (app()->getLocale() === 'ar' ? 'السلوك والانضباط' : 'Behavior'), 'bg' => 'bg-amber-50 text-amber-800 border-amber-200'],
+                                    default => ['label' => (app()->getLocale() === 'ar' ? 'توجيه عام' : 'General'), 'bg' => 'bg-slate-100 text-slate-800 border-slate-200'],
+                                };
+                            @endphp
+                            <div class="p-4 sm:p-5 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                            {{ mb_substr($n->teacherProfile?->user?->name ?? 'T', 0, 1) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-900 truncate">{{ $n->teacherProfile?->user?->name ?: __('Academic Teacher') }}</p>
+                                            <p class="text-[10px] font-mono text-slate-500 truncate">{{ $n->teacherProfile?->subjects?->pluck('name')->join(', ') ?: 'Elite Academy Faculty' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-full border {{ $catConfig['bg'] }}">
+                                            {{ $catConfig['label'] }}
+                                        </span>
+                                        <span class="text-[10px] font-mono text-slate-400">{{ $n->created_at ? $n->created_at->diffForHumans() : '' }}</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white rounded-xl border border-slate-200/60 text-xs font-mono text-slate-800 leading-relaxed">
+                                    {{ $n->note }}
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+                                <div class="text-2xl">💬</div>
+                                <p class="text-xs font-semibold text-slate-700">{{ app()->getLocale() === 'ar' ? 'لا توجد ملاحظات مسجلة لك من المعلمين حتى الآن.' : 'No pedagogical notes recorded by your teachers yet.' }}</p>
+                                <p class="text-[10px] font-mono text-slate-400">{{ app()->getLocale() === 'ar' ? 'ستظهر هنا أي ملاحظات أو توجيهات أكاديمية يرسلها معلموك.' : 'Any feedback or guidance from your instructors will appear here.' }}</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
                 {{-- Submitted Exceptions List --}}
                 <div id="exceptions" class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">

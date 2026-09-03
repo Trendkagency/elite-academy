@@ -116,6 +116,11 @@ class User extends Authenticatable implements FilamentUser
             ->withTimestamps();
     }
 
+    public function studentEducationalNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudentEducationalNote::class, 'student_user_id');
+    }
+
     public function isAdmin(): bool
     {
         if (in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {

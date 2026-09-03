@@ -22,6 +22,13 @@ class LiveSession extends Model
         'subject_id',
         'course_id',
         'course_session_id',
+        'recurring_schedule_id',
+        'is_override',
+        'override_reason',
+        'cancellation_reason',
+        'lifecycle_state',
+        'reminders_sent',
+        'teacher_notes',
         'scheduled_at',
         'start_at',
         'end_at',
@@ -39,6 +46,8 @@ class LiveSession extends Model
         'end_at' => 'datetime',
         'duration_minutes' => 'integer',
         'is_free_demo' => 'boolean',
+        'is_override' => 'boolean',
+        'reminders_sent' => 'array',
     ];
 
     protected static function boot(): void
@@ -97,6 +106,16 @@ class LiveSession extends Model
     public function studentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_user_id');
+    }
+
+    public function recurringSchedule(): BelongsTo
+    {
+        return $this->belongsTo(RecurringSchedule::class, 'recurring_schedule_id');
+    }
+
+    public function auditLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SessionAuditLog::class, 'live_session_id');
     }
 
     public function student(): BelongsTo

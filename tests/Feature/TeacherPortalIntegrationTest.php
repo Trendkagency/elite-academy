@@ -222,6 +222,11 @@ class TeacherPortalIntegrationTest extends TestCase
             'status' => AccountStatus::APPROVED,
         ]);
         \App\Models\StudentProfile::create(['user_id' => $studentUser->id, 'school_name' => 'MIT Prep']);
+        \App\Models\CourseEnrollment::create([
+            'course_id' => $this->course->id,
+            'student_user_id' => $studentUser->id,
+            'status' => 'active',
+        ]);
 
         $response = $this->actingAs($this->teacherUser)
             ->getJson("/ajax/teacher/students/{$studentUser->id}/details");

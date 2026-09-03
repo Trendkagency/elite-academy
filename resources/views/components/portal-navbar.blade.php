@@ -24,11 +24,11 @@
                 <span>/</span>
                 <span class="text-teal-600 dark:text-teal-400 font-bold">
                     @if($role === 'teacher')
-                        {{ __('app.faculty_portal', ['default' => 'Teacher Portal']) }}
+                        {{ __('app.teacher_portal') }}
                     @elseif($role === 'parent')
-                        {{ __('app.parent_portal', ['default' => 'Parent Portal']) }}
+                        {{ __('app.parent_portal') }}
                     @else
-                        {{ __('app.student_portal', ['default' => 'Student Portal']) }}
+                        {{ __('app.student_portal') }}
                     @endif
                 </span>
             </div>
