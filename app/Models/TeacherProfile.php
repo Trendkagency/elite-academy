@@ -49,10 +49,28 @@ class TeacherProfile extends Model implements HasMedia
     public function getPhotoUrlAttribute(): string
     {
         if ($this->hasMedia('photo')) {
-            return $this->getFirstMediaUrl('photo');
+            $mediaUrl = $this->getFirstMediaUrl('photo');
+            if (! empty($mediaUrl)) {
+                return $mediaUrl;
+            }
         }
 
-        return $this->photo ?: 'images/hero_student.png';
+        if (! empty($this->photo)) {
+            return $this->photo;
+        }
+
+        return 'images/instructor_portrait.webp';
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('home_featured_mentors_list');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('home_featured_mentors_list');
+        });
     }
 
     public function user(): BelongsTo
