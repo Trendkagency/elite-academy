@@ -1,9 +1,18 @@
 
 <?php
     $isAr = app()->getLocale() === 'ar';
-    $mentors = \Illuminate\Support\Facades\Cache::remember('home_featured_mentors_list', 3600, function () {
+    $mentors = \Illuminate\Support\Facades\Cache::remember('home_featured_mentors_list', 600, function () {
         try {
-            $dbTeachers = \App\Models\TeacherProfile::with(['user', 'subjects'])->take(8)->get();
+            $query = \App\Models\TeacherProfile::with(['user', 'subjects', 'media'])
+                ->where('is_public', true)
+                ->orderByDesc('is_featured')
+                ->take(12);
+
+            $dbTeachers = $query->get();
+            if ($dbTeachers->isEmpty()) {
+                $dbTeachers = \App\Models\TeacherProfile::with(['user', 'subjects', 'media'])->take(8)->get();
+            }
+
             if ($dbTeachers->isNotEmpty()) {
                 return $dbTeachers->map(fn($t) => [
                     'name' => $t->user?->name ?: 'Teacher Profile',
