@@ -82,7 +82,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2">
                 <span class="inline-block text-xs font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3.5 py-1.5 rounded-full border border-teal-800/80 shadow-xs">
-                    👨‍👧‍👦 {{ __('PARENT DASHBOARD • ACADEMIC MONITORING') }}
+                    <i class="fa-solid fa-people-roof"></i> {{ __('PARENT DASHBOARD • ACADEMIC MONITORING') }}
                 </span>
                 <h1 class="font-heading text-3xl sm:text-4xl font-black text-white tracking-tight">
                     {{ __('Parent Portal: Student Academic Dashboard') }}
@@ -94,7 +94,7 @@
             
             <div class="flex flex-wrap items-center gap-3">
                 <button type="button" onclick="openLinkChildModal()" class="btn-lift px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs rounded-2xl shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span>➕</span> {{ __('Link New Child by Phone') }}
+                    <span><i class="fa-solid fa-plus"></i></span> {{ __('Link New Child by Phone') }}
                 </button>
 
                 @php
@@ -102,11 +102,11 @@
                     $cleanWhatsapp = preg_replace('/[^0-9]/', '', $whatsappNumber);
                 @endphp
                 <a href="https://wa.me/{{ $cleanWhatsapp }}?text={{ urlencode(__('Hello Elite Academy Admin, I am a parent inquiring about package renewal.')) }}" target="_blank" class="btn-lift px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl border border-emerald-400/40 shadow-sm flex items-center gap-2">
-                    <span>💬</span> {{ __('WhatsApp Payment & Renewal') }}
+                    <span><i class="fa-solid fa-comments"></i></span> {{ __('WhatsApp Payment & Renewal') }}
                 </a>
 
                 <div class="inline-flex items-center gap-2 bg-amber-500/20 px-3.5 py-2 rounded-2xl border border-amber-500/30 text-xs font-mono text-amber-300 font-bold">
-                    <span>🔒</span>
+                    <span><i class="fa-solid fa-lock"></i></span>
                     <span>{{ __('Read-Only Monitoring') }}</span>
                 </div>
             </div>
@@ -122,7 +122,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
                 <div>
                     <h2 class="font-heading font-black text-2xl text-slate-900 flex items-center gap-2.5">
-                        <span>👨‍👩‍👧‍👦</span> {{ __('Your Linked Children') }}
+                        <span><i class="fa-solid fa-people-roof"></i>‍<i class="fa-solid fa-child"></i></span> {{ __('Your Linked Children') }}
                     </h2>
                     <p class="text-xs font-mono text-slate-500 mt-1">{{ __('Select a child to inspect detailed academic performance, package & attendance.') }}</p>
                 </div>
@@ -152,8 +152,8 @@
                         </div>
 
                         <div class="text-xs font-mono text-slate-500 space-y-1 pt-2 border-t border-slate-200/60">
-                            <p class="truncate">🏫 {{ $st->school_name ?: __('Elite STEM Academy') }}</p>
-                            <p class="text-teal-600 font-bold">✔ {{ __('Independent Student Account') }}</p>
+                            <p class="truncate"><i class="fa-solid fa-school"></i> {{ $st->school_name ?: __('Elite STEM Academy') }}</p>
+                            <p class="text-teal-600 font-bold"><i class="fa-solid fa-check"></i> {{ __('Independent Student Account') }}</p>
                         </div>
 
                         <button type="button" class="w-full py-2 bg-white group-hover:bg-teal-600 group-hover:text-white text-slate-800 rounded-xl text-xs font-bold font-mono border border-slate-200 transition-all shadow-xs">
@@ -162,13 +162,13 @@
                     </div>
                 @empty
                     <div id="emptyChildrenBox" class="col-span-3 text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 text-slate-500 space-y-3">
-                        <div class="text-4xl">👨‍👩‍👧‍👦</div>
+                        <div class="text-4xl"><i class="fa-solid fa-people-roof"></i>‍<i class="fa-solid fa-child"></i></div>
                         <h3 class="font-bold text-base text-slate-800">{{ __('No Linked Children Found') }}</h3>
                         <p class="text-xs font-mono text-slate-500 max-w-md mx-auto">
                             {{ __('Link your child by entering their registered phone number or email address.') }}
                         </p>
                         <button type="button" onclick="openLinkChildModal()" class="btn-lift px-5 py-2.5 bg-teal-600 text-white font-bold text-xs rounded-xl shadow-md">
-                            ➕ {{ __('Link Child Account Now') }}
+                            <i class="fa-solid fa-plus"></i> {{ __('Link Child Account Now') }}
                         </button>
                     </div>
                 @endforelse
@@ -192,7 +192,7 @@
                 @if(count($linkedStudents) === 0)
                     <div class="p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
                         <p class="text-sm font-bold text-slate-700">{{ __('Please link a child account above using their phone number to view academic reports.') }}</p>
-                        <button type="button" onclick="openLinkChildModal()" class="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold">➕ {{ __('Link Child Account') }}</button>
+                        <button type="button" onclick="openLinkChildModal()" class="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-plus"></i> {{ __('Link Child Account') }}</button>
                     </div>
                 @else
                     <div class="p-8 text-center text-xs font-mono text-slate-500 font-bold">{{ __('Loading student progress metrics...') }}</div>
@@ -206,11 +206,11 @@
 {{-- Link New Child Modal --}}
 <div id="linkChildModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 hidden no-print">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-6 relative anim-lift">
-        <button type="button" onclick="closeLinkChildModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+        <button type="button" onclick="closeLinkChildModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
 
         <div class="space-y-2">
             <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl font-bold border border-teal-200">
-                🔗
+                <i class="fa-solid fa-link"></i>
             </div>
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Link New Child Account') }}</h3>
             <p class="text-xs text-slate-500 font-medium">
@@ -338,9 +338,9 @@ async function loadStudentProgress(studentId) {
         const todayStr = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US');
 
         nameEl.textContent = isAr ? `تقرير الأداء الأكاديمي الشامل: ${data.student.name}` : `Comprehensive Academic Performance Report: ${data.student.name}`;
-        metaEl.textContent = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school} • ${data.student.phone ? ('📞 ' + data.student.phone) : ''}`;
-        pkgBadge.textContent = `💳 ${data.package.name} (${data.package.remaining_sessions} ${isAr ? 'حصص متبقية' : 'sessions remaining'})`;
-        attBadge.textContent = `🎯 ${isAr ? 'نسبة الحضور' : 'Attendance'}: ${data.attendance.rate}`;
+        metaEl.textContent = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school} • ${data.student.phone ? ('<i class="fa-solid fa-phone"></i> ' + data.student.phone) : ''}`;
+        pkgBadge.textContent = `<i class="fa-solid fa-credit-card"></i> ${data.package.name} (${data.package.remaining_sessions} ${isAr ? 'حصص متبقية' : 'sessions remaining'})`;
+        attBadge.textContent = `<i class="fa-solid fa-bullseye"></i> ${isAr ? 'نسبة الحضور' : 'Attendance'}: ${data.attendance.rate}`;
 
         const pkgPct = Math.round((data.package.remaining_sessions / data.package.total_sessions) * 100);
 
@@ -352,18 +352,18 @@ async function loadStudentProgress(studentId) {
                     <p class="text-xs font-mono text-slate-600">${isAr ? 'كشف تقرير الأداء الأكاديمي الرسمي والمتابعة الشاملة' : 'Official Student Academic Performance & Monitoring Report'}</p>
                 </div>
                 <div class="print-watermark-stamp text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-300">
-                    ✔ ${isAr ? 'مستند معتمد' : 'Verified Report'} — ${todayStr}
+                    <i class="fa-solid fa-check"></i> ${isAr ? 'مستند معتمد' : 'Verified Report'} — ${todayStr}
                 </div>
             </div>
 
             {{-- Security & Official Print Header --}}
             <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs font-semibold text-amber-900 flex items-center justify-between flex-wrap gap-2 no-print">
                 <div class="flex items-center gap-2">
-                    <span class="text-base">🔒</span>
+                    <span class="text-base"><i class="fa-solid fa-lock"></i></span>
                     <span>${isAr ? 'لوحة المتابعة الأكاديمية الرسمية لولي الأمر (محدثة لحظياً بروابط مباشرة مع سجلات المعلمين والدروس).' : 'Official Parent Academic Monitoring Dashboard (Synced in real-time with teacher gradebooks and lecture logs).'}</span>
                 </div>
                 <button type="button" onclick="window.print()" class="btn-lift px-4 py-2 bg-slate-900 hover:bg-teal-600 text-white text-xs font-mono rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md">
-                    <span>🖨️</span> ${isAr ? 'طباعة التقرير والشهادة' : 'Print Official Certificate'}
+                    <span><i class="fa-solid fa-print"></i></span> ${isAr ? 'طباعة التقرير والشهادة' : 'Print Official Certificate'}
                 </button>
             </div>
 
@@ -372,7 +372,7 @@ async function loadStudentProgress(studentId) {
                 {{-- 1. Average Academic Grade --}}
                 <div class="p-5 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-3xl border border-teal-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-teal-800">
-                        <span>🌟 ${isAr ? 'المعدل العام للدرجات' : 'Overall Academic GPA'}</span>
+                        <span><i class="fa-solid fa-star text-amber-400"></i> ${isAr ? 'المعدل العام للدرجات' : 'Overall Academic GPA'}</span>
                         <span class="bg-teal-200 text-teal-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.average_grade >= 85 ? (isAr ? 'ممتاز' : 'Excellent') : (isAr ? 'جيد جداً' : 'Good')}</span>
                     </div>
                     <p class="font-heading font-black text-3xl text-teal-950">${data.average_grade}%</p>
@@ -384,7 +384,7 @@ async function loadStudentProgress(studentId) {
                 {{-- 2. Attendance Index --}}
                 <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border border-emerald-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-emerald-800">
-                        <span>🎯 ${isAr ? 'نسبة حضور البث المباشر' : 'Live Stream Attendance'}</span>
+                        <span><i class="fa-solid fa-bullseye"></i> ${isAr ? 'نسبة حضور البث المباشر' : 'Live Stream Attendance'}</span>
                         <span class="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.attendance.rate}</span>
                     </div>
                     <p class="font-heading font-black text-3xl text-emerald-950">${data.attendance.rate}</p>
@@ -396,7 +396,7 @@ async function loadStudentProgress(studentId) {
                 {{-- 3. Homework Submissions Completed --}}
                 <div class="p-5 bg-gradient-to-br from-indigo-50 to-slate-50 rounded-3xl border border-indigo-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-indigo-800">
-                        <span>📝 ${isAr ? 'الواجبات والتسليمات' : 'Assignments & MSQs'}</span>
+                        <span><i class="fa-solid fa-pen-to-square"></i> ${isAr ? 'الواجبات والتسليمات' : 'Assignments & MSQs'}</span>
                         <span class="bg-indigo-200 text-indigo-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold">${data.submissions_count} ${isAr ? 'تسليم' : 'done'}</span>
                     </div>
                     <p class="font-heading font-black text-3xl text-indigo-950">${data.submissions_count}</p>
@@ -408,7 +408,7 @@ async function loadStudentProgress(studentId) {
                 {{-- 4. Active Package & Credits --}}
                 <div class="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border border-amber-200/80 space-y-2 shadow-xs">
                     <div class="flex justify-between items-center text-xs font-mono font-bold text-amber-800">
-                        <span>💳 ${isAr ? 'رصيد الحصص المتبقية' : 'Session Credits'}</span>
+                        <span><i class="fa-solid fa-credit-card"></i> ${isAr ? 'رصيد الحصص المتبقية' : 'Session Credits'}</span>
                         <span class="bg-amber-200 text-amber-900 px-2 py-0.5 rounded-md text-[10px] font-extrabold capitalize">${data.package.status}</span>
                     </div>
                     <p class="font-heading font-black text-3xl text-amber-950">${data.package.remaining_sessions} <span class="text-xs font-mono font-bold text-amber-800">${isAr ? 'حصة متبقية' : 'left'}</span></p>
@@ -428,7 +428,7 @@ async function loadStudentProgress(studentId) {
             <div id="section-courses" class="space-y-4 pt-4 scroll-mt-28">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h4 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
-                        <span>📚</span> ${isAr ? 'المقررات الدراسية ونسب إنجاز المنهج' : 'Enrolled Courses & Curriculum Completion'}
+                        <span><i class="fa-solid fa-book-open"></i></span> ${isAr ? 'المقررات الدراسية ونسب إنجاز المنهج' : 'Enrolled Courses & Curriculum Completion'}
                     </h4>
                     <span class="text-xs font-mono font-bold bg-teal-100 text-teal-800 px-3 py-1 rounded-full border border-teal-200">
                         ${data.courses ? data.courses.length : 0} ${isAr ? 'كورسات مسجلة' : 'Active Courses'}
@@ -448,15 +448,15 @@ async function loadStudentProgress(studentId) {
                         </div>
                         <div>
                             <h5 class="font-bold text-base text-slate-900 leading-snug">${c.title}</h5>
-                            <p class="text-xs font-mono text-slate-500 mt-0.5">👨‍🏫 ${isAr ? 'المحاضر' : 'Instructor'}: <strong>${c.teacher}</strong></p>
+                            <p class="text-xs font-mono text-slate-500 mt-0.5"><i class="fa-solid fa-chalkboard-user"></i> ${isAr ? 'المحاضر' : 'Instructor'}: <strong>${c.teacher}</strong></p>
                         </div>
                         <div class="space-y-1.5 pt-1">
                             <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                                 <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-500" style="width: ${Math.max(8, c.progress_pct)}%"></div>
                             </div>
                             <div class="flex justify-between text-[11px] font-mono text-slate-500">
-                                <span>📹 ${c.completed_sessions} ${isAr ? 'من أصل' : 'of'} ${c.total_sessions} ${isAr ? 'دروس مكتملة' : 'modules finished'}</span>
-                                <span>📅 ${isAr ? 'مشترك منذ' : 'Enrolled'}: ${c.enrolled_at || todayStr}</span>
+                                <span><i class="fa-solid fa-video"></i> ${c.completed_sessions} ${isAr ? 'من أصل' : 'of'} ${c.total_sessions} ${isAr ? 'دروس مكتملة' : 'modules finished'}</span>
+                                <span><i class="fa-solid fa-calendar-days"></i> ${isAr ? 'مشترك منذ' : 'Enrolled'}: ${c.enrolled_at || todayStr}</span>
                             </div>
                         </div>
                     </div>
@@ -477,7 +477,7 @@ async function loadStudentProgress(studentId) {
                 <div id="section-assignments" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                         <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                            <span>📝</span> ${isAr ? 'سجل درجات الواجبات وتقييم المدرس' : 'Graded Assignment History & Feedback'}
+                            <span><i class="fa-solid fa-pen-to-square"></i></span> ${isAr ? 'سجل درجات الواجبات وتقييم المدرس' : 'Graded Assignment History & Feedback'}
                         </h4>
                         <span class="text-xs font-mono font-bold text-slate-500">${data.submissions.length} ${isAr ? 'واجب' : 'records'}</span>
                     </div>
@@ -493,15 +493,15 @@ async function loadStudentProgress(studentId) {
                         <div class="flex justify-between items-start gap-2">
                             <div>
                                 <span class="font-bold text-xs text-slate-900 leading-snug block">${s.assignment_title}</span>
-                                <span class="text-[11px] font-mono text-teal-700 font-semibold">${s.course_title} • 👨‍🏫 ${s.teacher_name}</span>
+                                <span class="text-[11px] font-mono text-teal-700 font-semibold">${s.course_title} • <i class="fa-solid fa-chalkboard-user"></i> ${s.teacher_name}</span>
                             </div>
                             <span class="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl border ${badgeBg} whitespace-nowrap">${s.grade}</span>
                         </div>
                         <div class="p-2.5 bg-slate-50 rounded-xl text-[11px] font-mono text-slate-700 border border-slate-100 leading-relaxed">
-                            💬 <strong class="text-slate-900">${isAr ? 'ملاحظة المعلم' : 'Feedback'}:</strong> ${s.teacher_notes}
+                            <i class="fa-solid fa-comments"></i> <strong class="text-slate-900">${isAr ? 'ملاحظة المعلم' : 'Feedback'}:</strong> ${s.teacher_notes}
                         </div>
                         <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 pt-0.5">
-                            <span>📅 ${isAr ? 'تاريخ التسليم' : 'Submitted'}: ${s.submitted_at}</span>
+                            <span><i class="fa-solid fa-calendar-days"></i> ${isAr ? 'تاريخ التسليم' : 'Submitted'}: ${s.submitted_at}</span>
                             <span class="font-bold ${isPassed ? 'text-emerald-700' : 'text-rose-700'}">● ${isPassed ? (isAr ? 'اجتياز بنجاح' : 'Passed') : (isAr ? 'يحتاج تحسين' : 'Needs Work')}</span>
                         </div>
                     </div>
@@ -519,7 +519,7 @@ async function loadStudentProgress(studentId) {
                 <div id="section-attendance" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                         <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                            <span>🟢</span> ${isAr ? 'سجل حضور البث المباشر والحصص القادمة' : 'Live Stream Attendance Log & Upcoming'}
+                            <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> ${isAr ? 'سجل حضور البث المباشر والحصص القادمة' : 'Live Stream Attendance Log & Upcoming'}
                         </h4>
                         <span class="text-xs font-mono font-bold text-slate-500">${data.attendance.logs ? data.attendance.logs.length : 0} ${isAr ? 'جلسات مسجلة' : 'sessions'}</span>
                     </div>
@@ -531,10 +531,10 @@ async function loadStudentProgress(studentId) {
                 html += `
                     <div class="p-3.5 bg-blue-50/80 rounded-2xl border border-blue-200 shadow-2xs space-y-1">
                         <div class="flex justify-between items-center gap-2">
-                            <span class="font-bold text-xs text-blue-950 flex items-center gap-1"><span>🟢</span> ${s.title}</span>
+                            <span class="font-bold text-xs text-blue-950 flex items-center gap-1"><span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> ${s.title}</span>
                             <span class="text-[10px] font-mono font-extrabold bg-blue-200 text-blue-900 px-2 py-0.5 rounded-lg whitespace-nowrap">${s.scheduled_at}</span>
                         </div>
-                        <p class="text-[11px] font-mono text-blue-800">${s.subject_name} • 👨‍🏫 ${s.teacher_name}</p>
+                        <p class="text-[11px] font-mono text-blue-800">${s.subject_name} • <i class="fa-solid fa-chalkboard-user"></i> ${s.teacher_name}</p>
                     </div>
                 `;
             });
@@ -546,11 +546,11 @@ async function loadStudentProgress(studentId) {
                     <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
                         <div class="flex justify-between items-center gap-2">
                             <span class="font-bold text-xs text-slate-900">${att.session_title}</span>
-                            <span class="text-[10px] font-mono font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">${isAr ? 'حضور مؤكد ✓' : 'Attended ✓'}</span>
+                            <span class="text-[10px] font-mono font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">${isAr ? 'حضور مؤكد <i class="fa-solid fa-check"></i>' : 'Attended <i class="fa-solid fa-check"></i>'}</span>
                         </div>
                         <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
-                            <span>👨‍🏫 ${att.teacher} (${att.subject})</span>
-                            <span>⏱️ ${att.duration_minutes} ${isAr ? 'دقيقة' : 'mins'} • 📅 ${att.joined_at}</span>
+                            <span><i class="fa-solid fa-chalkboard-user"></i> ${att.teacher} (${att.subject})</span>
+                            <span><i class="fa-solid fa-stopwatch"></i> ${att.duration_minutes} ${isAr ? 'دقيقة' : 'mins'} • <i class="fa-solid fa-calendar-days"></i> ${att.joined_at}</span>
                         </div>
                     </div>
                 `;
@@ -567,7 +567,7 @@ async function loadStudentProgress(studentId) {
             {{-- Academic Notifications & Alerts Section --}}
             <div id="section-notifications" class="space-y-4 pt-6 border-t border-slate-100 scroll-mt-28">
                 <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                    <span>🔔</span> ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
+                    <span><i class="fa-solid fa-bell"></i></span> ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         `;

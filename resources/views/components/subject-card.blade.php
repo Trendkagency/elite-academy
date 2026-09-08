@@ -32,8 +32,8 @@
 
         <div class="pt-3 border-t border-slate-100 text-xs font-semibold text-slate-600 space-y-3">
             <div class="flex items-center justify-between font-mono text-[11px]">
-                <span>👨‍🏫 {{ $teachers }}</span>
-                <span>📚 {{ $lessons }}</span>
+                <span><i class="fa-solid fa-chalkboard-user"></i> {{ $teachers }}</span>
+                <span><i class="fa-solid fa-book-open"></i> {{ $lessons }}</span>
             </div>
             <a href="{{ $route }}" class="btn-lift block w-full text-center py-2 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white font-extrabold rounded-xl transition-all">
                 Explore Subject &rarr;

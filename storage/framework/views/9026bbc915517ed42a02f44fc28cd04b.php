@@ -16,7 +16,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8 relative z-10">
 
         <span class="inline-block text-xs sm:text-sm font-mono font-extrabold uppercase tracking-widest text-teal-300 bg-teal-900/80 px-4 py-2 rounded-full border border-teal-500/30 shadow-lg">
-            🚀 <?php echo e(__('Ready To Start Learning?')); ?>
+            <i class="fa-solid fa-rocket"></i> <?php echo e(__('Ready To Start Learning?')); ?>
 
         </span>
 

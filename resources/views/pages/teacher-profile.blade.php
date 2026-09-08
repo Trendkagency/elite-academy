@@ -6,7 +6,7 @@
     $title = $teacher->title ?? 'Senior Professor';
     $specialization = $teacher->specialization ?? 'Secondary Education';
     $bio = $teacher->bio ?: 'Expert instructor with extensive experience preparing secondary students for top academic achievements.';
-    $rating = number_format($teacher->rating_avg ?: 4.9, 1) . ' ★';
+    $rating = number_format($teacher->rating_avg ?: 4.9, 1) . ' <i class="fa-solid fa-star text-amber-400"></i>';
     $studentsCount = number_format($teacher->students_count ?: 100) . '+';
     $yearsExp = ($teacher->years_experience ?: 5) . '+ Years';
     $photo = $teacher->photo_url;
@@ -30,7 +30,7 @@
                     <img src="{{ media_url($photo, 'images/instructor_portrait.webp') }}" onerror="this.onerror=null;this.src='{{ asset('images/instructor_portrait.webp') }}';" alt="{{ $name }}" class="w-full h-full object-cover">
                 </div>
                 <span class="absolute bottom-4 left-4 bg-teal-500 text-slate-950 font-mono font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg">
-                    ✔ Faculty Member
+                    <i class="fa-solid fa-check"></i> Faculty Member
                 </span>
             </div>
 

@@ -30,7 +30,7 @@
 
             {{-- Icon Badge --}}
             <div class="w-24 h-24 mx-auto bg-rose-500/10 text-rose-600 rounded-3xl flex items-center justify-center text-4xl border border-rose-500/20 shadow-inner">
-                ⚠️
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
 
             {{-- Typography --}}
@@ -51,11 +51,11 @@
             {{-- Action Buttons --}}
             <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="{{ $dashUrl }}" class="btn-lift w-full sm:w-auto px-7 py-3.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2">
-                    <span>🏠</span> {{ $dashLabel }}
+                    <span><i class="fa-solid fa-house"></i></span> {{ $dashLabel }}
                 </a>
 
                 <a href="{{ route('contact') }}" class="btn-lift w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-2xl border border-slate-300 transition-all flex items-center justify-center gap-2">
-                    <span>🛠️</span> {{ __('Contact Support') }}
+                    <span><i class="fa-solid fa-screwdriver-wrench"></i></span> {{ __('Contact Support') }}
                 </a>
             </div>
 

@@ -56,7 +56,7 @@
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\App\Models\SiteSetting::get('announcement_enabled') === '1'): ?>
     <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white text-xs font-bold py-2 px-4 text-center border-b border-teal-500/30 flex items-center justify-center gap-2">
-        <span><?php echo e(\App\Models\SiteSetting::get('announcement_text', '🎉 Fall Cohort 2026 Registration is Now Open!')); ?></span>
+        <span><?php echo e(\App\Models\SiteSetting::get('announcement_text', '<i class="fa-solid fa-sparkles text-amber-400"></i> Fall Cohort 2026 Registration is Now Open!')); ?></span>
         <a href="<?php echo e(\App\Models\SiteSetting::get('announcement_link', '/courses')); ?>" class="underline font-extrabold hover:text-teal-300 focus-visible:outline-white" aria-label="Explore Fall 2026 Cohort Registration and Details">
             <?php echo e(app()->getLocale() === 'ar' ? 'تفاصيل التسجيل والاشتراك ←' : 'Explore Cohort Details →'); ?>
 
@@ -86,7 +86,7 @@
         
         <div class="hidden md:flex items-center space-x-1.5 lg:space-x-2.5 rtl:space-x-reverse text-xs font-bold font-sans shrink-0">
             <a href="<?php echo e(route('lang.switch', ['locale' => $otherLocale])); ?>" class="px-2.5 py-1.5 rounded-xl text-slate-700 hover:text-slate-950 bg-slate-100/80 hover:bg-slate-200/80 uppercase border border-slate-200 transition-all font-sans font-bold shadow-xs whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600" aria-label="Switch Language to <?php echo e(strtoupper($otherLocale)); ?>">
-                🌐 <?php echo e(strtoupper($otherLocale)); ?>
+                <i class="fa-solid fa-globe"></i> <?php echo e(strtoupper($otherLocale)); ?>
 
             </a>
 
@@ -96,19 +96,19 @@
 
                 </a>
                 <a href="<?php echo e(route('register')); ?>" class="btn-lift px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20 transition-all font-sans font-extrabold text-xs whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
-                    ✨ <?php echo e($joinText); ?>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <?php echo e($joinText); ?>
 
                 </a>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
                 <a href="<?php echo e($portalUrl); ?>" class="btn-lift px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-md font-sans font-extrabold text-xs flex items-center gap-1.5 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
-                    <span>📊</span> <?php echo e($portalLabel); ?>
+                    <span><i class="fa-solid fa-chart-column"></i></span> <?php echo e($portalLabel); ?>
 
                 </a>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(! $authUser->isAdmin() && ! $authUser->isTeacher() && ! $authUser->isParent()): ?>
                     <a href="<?php echo e(route('student.profile')); ?>" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1 whitespace-nowrap shrink-0 hidden lg:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
-                        <span>👤</span> <?php echo e(app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile'); ?>
+                        <span><i class="fa-solid fa-user"></i></span> <?php echo e(app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile'); ?>
 
                     </a>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -150,7 +150,7 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="160" height="36" class="h-14 sm:h-16 w-auto object-contain" loading="lazy">
             <label for="mobile-drawer-toggle" class="p-2 text-slate-500 hover:text-slate-900 rounded-xl cursor-pointer font-bold text-lg" aria-label="Close Mobile Navigation Menu" role="button" tabindex="0">
-                ✕
+                <i class="fa-solid fa-xmark"></i>
             </label>
         </div>
 
@@ -169,10 +169,10 @@
     <div class="pt-6 border-t border-slate-100 space-y-3">
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->guest()): ?>
             <a href="<?php echo e(route('login')); ?>" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press text-center font-bold text-sm"><?php echo e($loginText); ?></a>
-            <a href="<?php echo e(route('register')); ?>" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm">✨ <?php echo e($joinText); ?></a>
+            <a href="<?php echo e(route('register')); ?>" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> <?php echo e($joinText); ?></a>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
-            <a href="<?php echo e($portalUrl); ?>" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm">📊 <?php echo e(auth()->user()->name); ?> (<?php echo e($portalLabel); ?>)</a>
+            <a href="<?php echo e($portalUrl); ?>" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm"><i class="fa-solid fa-chart-column"></i> <?php echo e(auth()->user()->name); ?> (<?php echo e($portalLabel); ?>)</a>
             <form action="<?php echo e(route('logout')); ?>" method="POST">
                 <?php echo csrf_field(); ?>
                 <button type="submit" class="btn-mobile-lg w-full text-red-600 bg-red-50 hover:bg-red-100 touch-press text-center font-bold text-sm cursor-pointer"><?php echo e(app()->getLocale() === 'ar' ? 'تسجيل الخروج' : 'Log Out'); ?></button>

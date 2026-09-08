@@ -61,7 +61,7 @@
                 <p class="text-xs font-mono text-slate-300 font-semibold">{{ __('Active Students') }}</p>
             </div>
             <div>
-                <p class="font-heading font-black text-3xl text-amber-400">{{ number_format($rating, 1) }} ★</p>
+                <p class="font-heading font-black text-3xl text-amber-400">{{ number_format($rating, 1) }} <i class="fa-solid fa-star text-amber-400"></i></p>
                 <p class="text-xs font-mono text-slate-300 font-semibold">{{ __('Student Rating') }}</p>
             </div>
         </div>
@@ -141,22 +141,22 @@
 
                 <div class="space-y-3 pt-4 border-t border-slate-100 text-sm font-semibold text-slate-700">
                     <div class="flex items-center gap-2 font-mono">
-                        <span class="text-teal-600 font-bold">✓</span> {{ __('Full Term 1 & 2 Access') }}
+                        <span class="text-teal-600 font-bold"><i class="fa-solid fa-check"></i></span> {{ __('Full Term 1 & 2 Access') }}
                     </div>
                     <div class="flex items-center gap-2 font-mono">
-                        <span class="text-teal-600 font-bold">✓</span> {{ __('Direct Mentor Q&A Sessions') }}
+                        <span class="text-teal-600 font-bold"><i class="fa-solid fa-check"></i></span> {{ __('Direct Mentor Q&A Sessions') }}
                     </div>
                     <div class="flex items-center gap-2 font-mono">
-                        <span class="text-teal-600 font-bold">✓</span> {{ __('Ministry Exam Revision Sheets') }}
+                        <span class="text-teal-600 font-bold"><i class="fa-solid fa-check"></i></span> {{ __('Ministry Exam Revision Sheets') }}
                     </div>
                     @if($coursesCount > 0)
                         <div class="flex items-center gap-2 font-mono text-teal-700 font-bold">
-                            <span>✓</span> {{ $coursesCount }} {{ __('Active Accredited Courses') }}
+                            <i class="fa-solid fa-check"></i> {{ $coursesCount }} {{ __('Active Accredited Courses') }}
                         </div>
                     @endif
                     @if($lessonsCount > 0)
                         <div class="flex items-center gap-2 font-mono text-teal-700 font-bold">
-                            <span>✓</span> {{ $lessonsCount }} {{ __('Video Lessons & Labs') }}
+                            <i class="fa-solid fa-check"></i> {{ $lessonsCount }} {{ __('Video Lessons & Labs') }}
                         </div>
                     @endif
                 </div>

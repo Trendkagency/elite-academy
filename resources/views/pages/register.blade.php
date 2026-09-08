@@ -4,7 +4,9 @@
 <section class="py-12 md:py-20 px-4 bg-[#FAFAF9] min-h-[calc(100vh-140px)] flex items-center justify-center">
     <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">🎓</div>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
             <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
                 {{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد' : 'Create an Account' }}
             </h1>
@@ -110,7 +112,7 @@
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="student" checked class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
                         <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">🎓</div>
+                            <i class="fa-solid fa-graduation-cap text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
                             <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'طالب' : 'Student' }}
                             </span>
@@ -121,7 +123,7 @@
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="parent" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
                         <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">👨‍👩‍👧</div>
+                            <i class="fa-solid fa-people-roof text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
                             <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'ولي أمر' : 'Parent' }}
                             </span>
@@ -132,7 +134,7 @@
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="teacher" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
                         <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <div class="text-2xl sm:text-3xl transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110">👨‍🏫</div>
+                            <i class="fa-solid fa-chalkboard-user text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
                             <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'معلم' : 'Teacher' }}
                             </span>
@@ -201,7 +203,7 @@
                         aria-label="Toggle password visibility"
                         class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 p-1 rounded-lg focus:outline-none text-sm transition-colors"
                     >
-                        👁️
+                        <i class="fa-solid fa-eye" id="toggleRegPasswordIcon"></i>
                     </button>
                 </div>
                 {{-- Strength Bar --}}
@@ -213,7 +215,7 @@
 
             <button type="submit" id="submitBtn" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2 flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl transition-all">
                 <span id="btnText">{{ app()->getLocale() === 'ar' ? 'إنشاء الحساب والبدء' : 'Create Account & Start' }}</span>
-                <span id="btnIcon" class="arrow-icon">&rarr;</span>
+                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon"></i>
                 <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -225,8 +227,9 @@
         <div class="pt-6 border-t border-slate-100 text-center">
             <p class="text-xs text-slate-500 font-mono">
                 {{ app()->getLocale() === 'ar' ? 'لديك حساب بالفعل؟' : 'Already have an account?' }}
-                <a href="{{ route('login') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1">
-                    {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة ←' : 'Log In to Portal →' }}
+                <a href="{{ route('login') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Log In to Portal' }}</span>
+                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]"></i>
                 </a>
             </p>
         </div>
@@ -242,7 +245,7 @@ function toggleStudentGrade(val) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const isAr = document.documentElement.lang === 'ar' || document.dir === 'rtl';
+    const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
     const form = document.getElementById('registerForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
@@ -273,17 +276,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordStrengthContainer = document.getElementById('password-strength-container');
     const passwordStrengthBar = document.getElementById('password-strength-bar');
     const toggleRegPasswordBtn = document.getElementById('toggleRegPasswordBtn');
+    const toggleRegPasswordIcon = document.getElementById('toggleRegPasswordIcon');
 
     const checkEmailUrl = "{{ route('ajax.validate.email-available') }}";
     const checkPhoneUrl = "{{ route('ajax.validate.phone-available') }}";
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
     // Toggle Password Visibility
-    if (toggleRegPasswordBtn && passwordInput) {
+    if (toggleRegPasswordBtn && passwordInput && toggleRegPasswordIcon) {
         toggleRegPasswordBtn.addEventListener('click', function () {
             const isPassword = passwordInput.type === 'password';
             passwordInput.type = isPassword ? 'text' : 'password';
-            toggleRegPasswordBtn.textContent = isPassword ? '🙈' : '👁️';
+            if (isPassword) {
+                toggleRegPasswordIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                toggleRegPasswordIcon.className = 'fa-solid fa-eye';
+            }
         });
     }
 
@@ -337,10 +345,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (badgeEl) {
             if (state === 'error') {
-                badgeEl.textContent = badgeText || (isAr ? '✕ غير صالح' : '✕ Invalid');
+                badgeEl.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (badgeText || (isAr ? 'غير صالح' : 'Invalid'));
                 badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 block';
             } else if (state === 'success') {
-                badgeEl.textContent = badgeText || (isAr ? '✓ متاح' : '✓ Available');
+                badgeEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' + (badgeText || (isAr ? 'متاح' : 'Available'));
                 badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 block';
             } else {
                 badgeEl.textContent = '';
@@ -356,9 +364,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!val) {
                 setFieldState(nameInput, nameFeedback, nameBadge, 'idle');
             } else if (val.length < 3) {
-                setFieldState(nameInput, nameFeedback, nameBadge, 'error', isAr ? 'يجب أن يكون الاسم 3 أحرف على الأقل' : 'Name must be at least 3 characters', isAr ? '✕ قصير جداً' : '✕ Too short');
+                setFieldState(nameInput, nameFeedback, nameBadge, 'error', isAr ? '{{ __('app.auth.name_required') }}' : 'Name must be at least 3 characters', isAr ? 'قصير جداً' : 'Too short');
             } else {
-                setFieldState(nameInput, nameFeedback, nameBadge, 'success', '', isAr ? '✓ صالح' : '✓ Valid');
+                setFieldState(nameInput, nameFeedback, nameBadge, 'success', '', isAr ? 'صالح' : 'Valid');
             }
         });
     }
@@ -380,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!isValidEmailSyntax(email)) {
-            setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address', isAr ? '✕ غير صحيح' : '✕ Invalid');
+            setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter a valid email address', isAr ? 'غير صحيح' : 'Invalid');
             return false;
         }
 
@@ -404,10 +412,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emailSpinner) emailSpinner.classList.add('hidden');
 
             if (data.available) {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'success', data.message || (isAr ? 'البريد متاح وجاهز للاستخدام' : 'Email is available'), isAr ? '✓ متاح' : '✓ Available');
+                setFieldState(emailInput, emailFeedback, emailBadge, 'success', data.message || (isAr ? '{{ __('app.auth.email_available') }}' : 'Email is available'), isAr ? 'متاح' : 'Available');
                 return true;
             } else {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.message || (isAr ? 'هذا البريد الإلكتروني مسجل مسبقاً' : 'This email is already registered'), isAr ? '✕ مسجل مسبقاً' : '✕ Taken');
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.message || (isAr ? '{{ __('app.auth.email_already_registered') }}' : 'This email is already registered'), isAr ? 'مسجل مسبقاً' : 'Taken');
                 return false;
             }
         } catch (err) {
@@ -449,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (phone.length < 7) {
-            setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', isAr ? 'يرجى إدخال رقم هاتف صحيح (7 أرقام على الأقل)' : 'Please enter a valid phone number (at least 7 digits)', isAr ? '✕ غير صالح' : '✕ Invalid');
+            setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', isAr ? '{{ __('app.auth.invalid_phone_format') }}' : 'Please enter a valid phone number (at least 7 digits)', isAr ? 'غير صالح' : 'Invalid');
             return false;
         }
 
@@ -473,10 +481,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (phoneSpinner) phoneSpinner.classList.add('hidden');
 
             if (data.available) {
-                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'success', data.message || (isAr ? 'رقم الهاتف متاح وجاهز' : 'Phone is available'), isAr ? '✓ متاح' : '✓ Available');
+                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'success', data.message || (isAr ? '{{ __('app.auth.phone_available') }}' : 'Phone is available'), isAr ? 'متاح' : 'Available');
                 return true;
             } else {
-                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', data.message || (isAr ? 'رقم الهاتف مسجل مسبقاً' : 'This phone number is already registered'), isAr ? '✕ مسجل مسبقاً' : '✕ Taken');
+                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', data.message || (isAr ? '{{ __('app.auth.phone_already_registered') }}' : 'This phone number is already registered'), isAr ? 'مسجل مسبقاً' : 'Taken');
                 return false;
             }
         } catch (err) {
@@ -527,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (/[A-Z]/.test(val) || /[^A-Za-z0-9]/.test(val)) score += 1;
 
             if (val.length < 8) {
-                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? 'يجب ألا تقل كلمة المرور عن 8 أحرف' : 'Password must be at least 8 characters');
+                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? '{{ __('app.auth.password_min_length') }}' : 'Password must be at least 8 characters');
                 passwordStrengthBar.style.width = '25%';
                 passwordStrengthBar.className = 'h-full bg-rose-500';
                 passwordStrengthBadge.textContent = isAr ? 'ضعيفة جداً' : 'Very Weak';
@@ -578,36 +586,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Client-Side Pre-Validation
             if (!name || name.length < 3) {
-                setFieldState(nameInput, nameFeedback, nameBadge, 'error', isAr ? 'يرجى كتابة الاسم بالكامل (3 أحرف على الأقل)' : 'Please enter your full name (minimum 3 characters)');
-                notify(isAr ? 'يرجى كتابة الاسم بالكامل' : 'Please enter your full name', true);
+                setFieldState(nameInput, nameFeedback, nameBadge, 'error', isAr ? '{{ __('app.auth.name_required') }}' : 'Please enter your full name (minimum 3 characters)');
+                notify(isAr ? '{{ __('app.auth.name_required') }}' : 'Please enter your full name', true);
                 nameInput.focus();
                 return;
             }
 
             if (!email || !isValidEmailSyntax(email)) {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address');
-                notify(isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address', true);
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter a valid email address');
+                notify(isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter a valid email address', true);
                 emailInput.focus();
                 return;
             }
 
             if (!phone || phone.length < 7) {
-                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', isAr ? 'يرجى إدخال رقم هاتف صحيح' : 'Please enter a valid phone number');
-                notify(isAr ? 'يرجى إدخال رقم هاتف صحيح' : 'Please enter a valid phone number', true);
+                setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', isAr ? '{{ __('app.auth.invalid_phone_format') }}' : 'Please enter a valid phone number');
+                notify(isAr ? '{{ __('app.auth.invalid_phone_format') }}' : 'Please enter a valid phone number', true);
                 phoneInput.focus();
                 return;
             }
 
             if (userType === 'student' && !gradeLevel) {
-                setFieldState(gradeSelect, gradeFeedback, null, 'error', isAr ? 'يرجى اختيار الصف الدراسي' : 'Please select a grade level');
-                notify(isAr ? 'يرجى تحديد الصف الدراسي للطالب' : 'Please select a grade level for student registration', true);
+                setFieldState(gradeSelect, gradeFeedback, null, 'error', isAr ? '{{ __('app.auth.grade_level_required') }}' : 'Please select a grade level');
+                notify(isAr ? '{{ __('app.auth.grade_level_required') }}' : 'Please select a grade level for student registration', true);
                 if (gradeSelect) gradeSelect.focus();
                 return;
             }
 
             if (!password || password.length < 8) {
-                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? 'يجب ألا تقل كلمة المرور عن 8 أحرف' : 'Password must be at least 8 characters');
-                notify(isAr ? 'يجب ألا تقل كلمة المرور عن 8 أحرف' : 'Password must be at least 8 characters', true);
+                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? '{{ __('app.auth.password_min_length') }}' : 'Password must be at least 8 characters');
+                notify(isAr ? '{{ __('app.auth.password_min_length') }}' : 'Password must be at least 8 characters', true);
                 passwordInput.focus();
                 return;
             }
@@ -637,8 +645,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Specific field error highlights
                     if (data.errors) {
                         if (data.errors.name) setFieldState(nameInput, nameFeedback, nameBadge, 'error', data.errors.name[0]);
-                        if (data.errors.email) setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.errors.email[0], isAr ? '✕ مسجل مسبقاً' : '✕ Taken');
-                        if (data.errors.phone) setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', data.errors.phone[0], isAr ? '✕ مسجل مسبقاً' : '✕ Taken');
+                        if (data.errors.email) setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.errors.email[0], isAr ? 'مسجل مسبقاً' : 'Taken');
+                        if (data.errors.phone) setFieldState(phoneInput, phoneFeedback, phoneBadge, 'error', data.errors.phone[0], isAr ? 'مسجل مسبقاً' : 'Taken');
                         if (data.errors.password) setFieldState(passwordInput, passwordFeedback, null, 'error', data.errors.password[0]);
                         if (data.errors.grade_level_id) setFieldState(gradeSelect, gradeFeedback, null, 'error', data.errors.grade_level_id[0]);
 
@@ -659,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Success State: Top-Center Success Toast & Smooth Redirect
-                const successMsg = data.message || (isAr ? 'تم إنشاء الحساب بنجاح! جاري التوجيه...' : 'Account created successfully! Redirecting...');
+                const successMsg = data.message || (isAr ? '{{ __('app.auth.registered_success') }}' : 'Account created successfully! Redirecting...');
                 notify(successMsg, false);
 
                 if (btnText) btnText.textContent = isAr ? 'تم بنجاح! جاري التوجيه...' : 'Account Created! Redirecting...';

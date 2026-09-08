@@ -4,7 +4,9 @@
 <section class="py-12 md:py-20 px-4 bg-[#FAFAF9] min-h-[calc(100vh-140px)] flex items-center justify-center">
     <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">🔑</div>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">
+                <i class="fa-solid fa-key"></i>
+            </div>
             <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
                 {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Sign In to Portal' }}
             </h1>
@@ -72,7 +74,7 @@
                         aria-label="Toggle password visibility"
                         class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 p-1 rounded-lg focus:outline-none text-sm transition-colors"
                     >
-                        👁️
+                        <i class="fa-solid fa-eye" id="togglePasswordIcon"></i>
                     </button>
                 </div>
                 <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
@@ -87,7 +89,7 @@
 
             <button type="submit" id="submitBtn" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2 flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl transition-all">
                 <span id="btnText">{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In to Portal' }}</span>
-                <span id="btnIcon" class="arrow-icon">&rarr;</span>
+                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon"></i>
                 <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -99,8 +101,9 @@
         <div class="pt-6 border-t border-slate-100 text-center">
             <p class="text-xs text-slate-500 font-mono">
                 {{ app()->getLocale() === 'ar' ? 'ليس لديك حساب حتى الآن؟' : "Don't have an account yet?" }}
-                <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1">
-                    {{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد ←' : 'Create an Account &rarr;' }}
+                <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span>{{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد' : 'Create an Account' }}</span>
+                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]"></i>
                 </a>
             </p>
         </div>
@@ -109,7 +112,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const isAr = document.documentElement.lang === 'ar' || document.dir === 'rtl';
+    const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
     const form = document.getElementById('signinForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
@@ -125,16 +128,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordInput = document.getElementById('login-password');
     const passwordFeedback = document.getElementById('password-feedback');
     const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
 
     const checkEmailUrl = "{{ route('ajax.validate.email-exists') }}";
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
     // Toggle Password Visibility
-    if (togglePasswordBtn && passwordInput) {
+    if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
         togglePasswordBtn.addEventListener('click', function () {
             const isPassword = passwordInput.type === 'password';
             passwordInput.type = isPassword ? 'text' : 'password';
-            togglePasswordBtn.textContent = isPassword ? '🙈' : '👁️';
+            if (isPassword) {
+                togglePasswordIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                togglePasswordIcon.className = 'fa-solid fa-eye';
+            }
         });
     }
 
@@ -171,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 feedbackEl.className = 'text-[11px] font-semibold text-rose-600 block';
             }
             if (badgeEl) {
-                badgeEl.textContent = isAr ? '✕ غير مسجل' : '✕ Not found';
+                badgeEl.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (isAr ? 'غير مسجل' : 'Not found');
                 badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 block';
             }
         } else if (state === 'success') {
@@ -181,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 feedbackEl.className = 'text-[11px] font-semibold text-emerald-600 block';
             }
             if (badgeEl) {
-                badgeEl.textContent = isAr ? '✓ حساب موجود' : '✓ Verified';
+                badgeEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' + (isAr ? 'حساب موجود' : 'Verified');
                 badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 block';
             }
         } else {
@@ -214,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!isValidEmailSyntax(email)) {
-            setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address');
+            setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter a valid email address');
             return false;
         }
 
@@ -238,10 +246,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emailSpinner) emailSpinner.classList.add('hidden');
 
             if (data.exists) {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'success', data.message || (isAr ? 'تم العثور على الحساب' : 'Account verified'));
+                setFieldState(emailInput, emailFeedback, emailBadge, 'success', data.message || (isAr ? '{{ __('app.auth.email_exists') }}' : 'Account verified'));
                 return true;
             } else {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.message || (isAr ? 'هذا البريد الإلكتروني غير مسجل لدينا' : 'This email is not registered in our system'));
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.message || (isAr ? '{{ __('app.auth.email_not_found') }}' : 'This email is not registered in our system'));
                 return false;
             }
         } catch (err) {
@@ -291,22 +299,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Client-Side Pre-Validation
             if (!email) {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? 'البريد الإلكتروني مطلوب' : 'Email is required');
-                notify(isAr ? 'يرجى إدخال البريد الإلكتروني' : 'Please enter your email address', true);
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Email is required');
+                notify(isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter your email address', true);
                 emailInput.focus();
                 return;
             }
 
             if (!isValidEmailSyntax(email)) {
-                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address');
-                notify(isAr ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format', true);
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Please enter a valid email address');
+                notify(isAr ? '{{ __('app.auth.invalid_email_format') }}' : 'Invalid email format', true);
                 emailInput.focus();
                 return;
             }
 
             if (!password) {
-                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? 'كلمة المرور مطلوبة' : 'Password is required');
-                notify(isAr ? 'يرجى إدخال كلمة المرور' : 'Please enter your password', true);
+                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? '{{ __('app.auth.password_min_length') }}' : 'Password is required');
+                notify(isAr ? '{{ __('app.auth.password_min_length') }}' : 'Please enter your password', true);
                 passwordInput.focus();
                 return;
             }
@@ -331,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    let errMsg = data.message || (isAr ? 'البيانات المدخلة غير صحيحة.' : 'Login failed. Please check your credentials.');
+                    let errMsg = data.message || (isAr ? '{{ __('app.auth.invalid_credentials') }}' : 'Login failed. Please check your credentials.');
                     
                     // Field specific feedback
                     if (data.field === 'email' || (data.errors && data.errors.email)) {
@@ -365,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setFieldState(emailInput, emailFeedback, emailBadge, 'success');
                 setFieldState(passwordInput, passwordFeedback, null, 'success');
                 
-                const successMsg = data.message || (isAr ? 'تم تسجيل الدخول بنجاح! جاري التوجيه...' : 'Login successful! Redirecting...');
+                const successMsg = data.message || (isAr ? '{{ __('app.auth.login_success') }}' : 'Login successful! Redirecting...');
                 notify(successMsg, false);
 
                 if (btnText) btnText.textContent = isAr ? 'تم بنجاح! جاري التوجيه...' : 'Success! Redirecting...';

@@ -152,7 +152,7 @@
 
         <div class="text-center max-w-3xl mx-auto space-y-4 pt-4">
             <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/40">
-                <span>💡</span> {{ $isAr ? 'المركز المعرفي والمساعدة الشاملة' : 'Knowledge Base & Support Hub' }}
+                <span><i class="fa-solid fa-lightbulb"></i></span> {{ $isAr ? 'المركز المعرفي والمساعدة الشاملة' : 'Knowledge Base & Support Hub' }}
             </span>
             <h1 class="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
                 {{ $isAr ? 'كيف يمكننا مساعدتك اليوم؟' : 'Frequently Asked Questions' }}
@@ -198,7 +198,7 @@
                 </p>
             </div>
             <a href="{{ route('contact') }}" class="btn-lift px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-md transition-all">
-                ✉️ {{ $isAr ? 'إرسال استفسار للدعم' : 'Submit Support Ticket' }}
+                <i class="fa-solid fa-envelope"></i> {{ $isAr ? 'إرسال استفسار للدعم' : 'Submit Support Ticket' }}
             </a>
         </div>
     </div>

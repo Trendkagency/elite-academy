@@ -70,7 +70,7 @@
     <div class="container">
         <div class="header">
             <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy" class="logo">
-            <h1 class="title">{{ app()->getLocale() === 'ar' ? "مرحباً بك يا {$user->name} في أكاديمية إيليت! 🎓" : "Welcome, {$user->name}, to Elite Academy! 🎓" }}</h1>
+            <h1 class="title">{{ app()->getLocale() === 'ar' ? "مرحباً بك يا {$user->name} في أكاديمية إيليت! <i class="fa-solid fa-graduation-cap"></i>" : "Welcome, {$user->name}, to Elite Academy! <i class="fa-solid fa-graduation-cap"></i>" }}</h1>
         </div>
 
         <div class="body-text">

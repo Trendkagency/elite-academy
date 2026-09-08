@@ -30,7 +30,7 @@
             </span>
         </div>
         <span class="text-[11px] font-mono bg-teal-950/90 text-teal-300 px-3 py-1 rounded-full border border-teal-500/30 font-bold shadow-xs">
-            ⚡ {{ $isArabic ? 'حصّة تفاعلية' : 'Upcoming Session' }}
+            <i class="fa-solid fa-bolt"></i> {{ $isArabic ? 'حصّة تفاعلية' : 'Upcoming Session' }}
         </span>
     </div>
 
@@ -41,7 +41,7 @@
         </h3>
         @if($sessionTitle)
             <p class="text-xs font-bold text-teal-400 flex items-center gap-1.5 pt-0.5">
-                <span>📌 {{ $sessionTitle }}</span>
+                <span><i class="fa-solid fa-thumbtack"></i> {{ $sessionTitle }}</span>
             </p>
         @else
             <p class="text-xs text-slate-300 leading-relaxed">{{ $subtitle }}</p>
@@ -88,7 +88,7 @@
         <div id="countdown-live-alert" class="hidden text-center py-4 px-4 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl space-y-2">
             <div class="inline-flex items-center gap-2 text-emerald-400 font-bold text-sm">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>{{ $isArabic ? 'البث المباشر يعمل الآن! 🔴' : 'LIVE STREAM IS ACTIVE NOW! 🔴' }}</span>
+                <span>{{ $isArabic ? 'البث المباشر يعمل الآن! <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' : 'LIVE STREAM IS ACTIVE NOW! <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' }}</span>
             </div>
             <p class="text-xs text-slate-200 font-medium">
                 {{ $isArabic ? 'انقر أدناه للانضمام فوراً إلى القاعة التفاعلية.' : 'Click below to join the interactive live session immediately.' }}

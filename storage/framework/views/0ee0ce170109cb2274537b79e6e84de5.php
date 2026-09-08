@@ -10,15 +10,15 @@
     
     $features = $customItems ? array_map(function($item) use ($locale) {
         return [
-            'icon' => '✨',
+            'icon' => '<i class="fa-solid fa-wand-magic-sparkles"></i>',
             'title' => ($locale === 'ar' ? ($item['title_ar'] ?? null) : null) ?: ($item['title_en'] ?? ''),
             'desc' => ($locale === 'ar' ? ($item['desc_ar'] ?? null) : null) ?: ($item['desc_en'] ?? ''),
         ];
     }, $customItems) : [
-        ['icon' => '🎓', 'title' => __('250+ Courses'), 'desc' => __('Industry-recognized curriculum.')],
-        ['icon' => '👨‍🏫', 'title' => __('Expert Teachers'), 'desc' => __('Learn from experienced educators.')],
-        ['icon' => '🌍', 'title' => __('International Certificates'), 'desc' => __('Recognized academic credentials.')],
-        ['icon' => '🛠', 'title' => __('Practical Learning'), 'desc' => __('Hands-on projects and labs.')],
+        ['icon' => '<i class="fa-solid fa-graduation-cap"></i>', 'title' => __('250+ Courses'), 'desc' => __('Industry-recognized curriculum.')],
+        ['icon' => '<i class="fa-solid fa-chalkboard-user"></i>', 'title' => __('Expert Teachers'), 'desc' => __('Learn from experienced educators.')],
+        ['icon' => '<i class="fa-solid fa-earth-americas"></i>', 'title' => __('International Certificates'), 'desc' => __('Recognized academic credentials.')],
+        ['icon' => '<i class="fa-solid fa-screwdriver-wrench"></i>', 'title' => __('Practical Learning'), 'desc' => __('Hands-on projects and labs.')],
     ];
 ?>
 

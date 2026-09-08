@@ -256,12 +256,12 @@
             }
 
             const iconMap = {
-                success: "✓",
-                error: "✕",
-                warning: "!",
-                info: "ℹ"
+                success: '<i class="fa-solid fa-circle-check"></i>',
+                error: '<i class="fa-solid fa-circle-xmark"></i>',
+                warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+                info: '<i class="fa-solid fa-circle-info"></i>'
             };
-            const icon = iconMap[type] || "ℹ";
+            const icon = iconMap[type] || '<i class="fa-solid fa-circle-info"></i>';
 
             let msgHtml = message;
             if (Array.isArray(message)) {
@@ -274,7 +274,7 @@
                     <div class="toast-title">${defaultTitle}</div>
                     <div class="toast-message">${msgHtml}</div>
                 </div>
-                <button type="button" class="toast-close-btn" aria-label="Close">&times;</button>
+                <button type="button" class="toast-close-btn" aria-label="Close"><i class="fa-solid fa-xmark text-xs"></i></button>
                 <div class="toast-progress-bar" style="animation: toastProgress ${duration}ms linear forwards;"></div>
             `;
 

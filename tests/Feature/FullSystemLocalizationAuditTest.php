@@ -226,4 +226,64 @@ class FullSystemLocalizationAuditTest extends TestCase
             $this->assertNotEmpty($view503);
         }
     }
+
+    public function test_login_ajax_validation_in_arabic_and_english(): void
+    {
+        // Arabic Login Validation (Non-existent user)
+        $resAr = $this->withSession(['locale' => 'ar'])->postJson(route('ajax.login'), [
+            'email' => 'nonexistent@elite.test',
+            'password' => 'secret123',
+        ]);
+        $resAr->assertStatus(422);
+        $this->assertStringContainsString('غير مسجل', $resAr->json('message'));
+
+        // English Login Validation (Non-existent user)
+        $resEn = $this->withSession(['locale' => 'en'])->postJson(route('ajax.login'), [
+            'email' => 'nonexistent@elite.test',
+            'password' => 'secret123',
+        ]);
+        $resEn->assertStatus(422);
+        $this->assertStringContainsString('not registered', $resEn->json('message'));
+    }
+
+    public function test_register_ajax_validation_in_arabic_and_english(): void
+    {
+        // Arabic Register Validation
+        $resAr = $this->withSession(['locale' => 'ar'])->postJson(route('ajax.register'), [
+            'name' => '',
+            'email' => 'invalid-email',
+            'password' => '123',
+            'phone' => '',
+        ]);
+        $resAr->assertStatus(422);
+        $resAr->assertJsonStructure(['message', 'errors']);
+
+        // English Register Validation
+        $resEn = $this->withSession(['locale' => 'en'])->postJson(route('ajax.register'), [
+            'name' => '',
+            'email' => 'invalid-email',
+            'password' => '123',
+            'phone' => '',
+        ]);
+        $resEn->assertStatus(422);
+        $resEn->assertJsonStructure(['message', 'errors']);
+    }
+
+    public function test_validation_endpoints_translate_in_arabic_and_english(): void
+    {
+        // Arabic Email Check
+        $resAr = $this->withSession(['locale' => 'ar'])->postJson(route('ajax.validate.email-available'), [
+            'email' => 'newuser@elite.test',
+        ]);
+        $resAr->assertStatus(200);
+        $this->assertStringContainsString('متاح', $resAr->json('message'));
+
+        // English Email Check
+        $resEn = $this->withSession(['locale' => 'en'])->postJson(route('ajax.validate.email-available'), [
+            'email' => 'newuser@elite.test',
+        ]);
+        $resEn->assertStatus(200);
+        $this->assertStringContainsString('available', $resEn->json('message'));
+    }
 }
+

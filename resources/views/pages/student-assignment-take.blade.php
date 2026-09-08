@@ -112,7 +112,7 @@
                 <div class="flex items-center justify-between border-b border-slate-100 pb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200/80 flex items-center justify-center text-teal-700 text-xl shadow-xs">
-                            🕒
+                            <i class="fa-solid fa-clock"></i>
                         </div>
                         <div>
                             <span class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">Time remaining</span>
@@ -244,7 +244,7 @@
         
         {{-- Passed/Failed Icon Badge --}}
         <div id="resultIconBadge" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md border-4">
-            🎉
+            <i class="fa-solid fa-sparkles text-amber-400"></i>
         </div>
 
         <div class="space-y-2">
@@ -522,7 +522,7 @@ window.navigateStep = function(direction) {
         if (!window.isStepAnswered(window.currentStep)) {
             if (window.Toast) {
                 window.Toast.warning(
-                    "{{ app()->getLocale() === 'ar' ? '⚠️ يرجى اختيار إجابة للسؤال الحالي أولاً قبل الانتقال للسؤال التالي.' : '⚠️ Please select an answer for the current question before advancing.' }}",
+                    "{{ app()->getLocale() === 'ar' ? '<i class="fa-solid fa-triangle-exclamation"></i> يرجى اختيار إجابة للسؤال الحالي أولاً قبل الانتقال للسؤال التالي.' : '<i class="fa-solid fa-triangle-exclamation"></i> Please select an answer for the current question before advancing.' }}",
                     "{{ app()->getLocale() === 'ar' ? 'إجابة السؤال مطلوبة' : 'Answer Required' }}"
                 );
             }
@@ -549,7 +549,7 @@ window.jumpToStep = function(targetStepIdx) {
             if (!window.isStepAnswered(i)) {
                 if (window.Toast) {
                     window.Toast.warning(
-                        `{{ app()->getLocale() === 'ar' ? '⚠️ يرجى إجابة السؤال رقم (' : '⚠️ Please answer question #' }}${i + 1}{{ app()->getLocale() === 'ar' ? ') أولاً قبل الانتقال لأسئلة لاحقة.' : ' first before skipping ahead.' }}`,
+                        `{{ app()->getLocale() === 'ar' ? '<i class="fa-solid fa-triangle-exclamation"></i> يرجى إجابة السؤال رقم (' : '<i class="fa-solid fa-triangle-exclamation"></i> Please answer question #' }}${i + 1}{{ app()->getLocale() === 'ar' ? ') أولاً قبل الانتقال لأسئلة لاحقة.' : ' first before skipping ahead.' }}`,
                         "{{ app()->getLocale() === 'ar' ? 'إجابة السؤال مطلوبة' : 'Answer Required' }}"
                     );
                 }
@@ -579,14 +579,14 @@ window.showResultModal = function(data) {
     if (!modal) return;
 
     if (data.is_passed) {
-        badge.textContent = '🎉';
+        badge.innerHTML = '<i class="fa-solid fa-sparkles text-amber-400"></i>';
         badge.className = 'w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md border-4 bg-emerald-50 text-emerald-600 border-emerald-300';
-        title.textContent = 'Passed Successfully! ✓';
+        title.innerHTML = 'Passed Successfully! <i class="fa-solid fa-check ms-1"></i>';
         title.className = 'font-heading font-black text-2xl text-emerald-700';
     } else {
-        badge.textContent = '⚠️';
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         badge.className = 'w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md border-4 bg-rose-50 text-rose-600 border-rose-300';
-        title.textContent = 'Did Not Pass ✕';
+        title.innerHTML = 'Did Not Pass <i class="fa-solid fa-xmark ms-1"></i>';
         title.className = 'font-heading font-black text-2xl text-rose-700';
     }
 
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (window.Toast) {
             window.Toast.error(
-                "{{ app()->getLocale() === 'ar' ? '⚠️ انتهى الوقت المحدد للواجب! يتم الآن إرسال إجاباتك وتقييمها تلقائياً...' : '⚠️ Time is up! Submitting and evaluating your answers automatically...' }}",
+                "{{ app()->getLocale() === 'ar' ? '<i class="fa-solid fa-triangle-exclamation"></i> انتهى الوقت المحدد للواجب! يتم الآن إرسال إجاباتك وتقييمها تلقائياً...' : '<i class="fa-solid fa-triangle-exclamation"></i> Time is up! Submitting and evaluating your answers automatically...' }}",
                 "{{ app()->getLocale() === 'ar' ? 'انتهى الوقت' : 'Time Expired' }}"
             );
         }
@@ -731,9 +731,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (window.Toast) {
                     if (data.is_passed) {
-                        window.Toast.success(`Score: ${data.percentage}% (PASSED ✓)`, 'Assignment Complete!');
+                        window.Toast.success(`Score: ${data.percentage}% (PASSED)`, 'Assignment Complete!');
                     } else {
-                        window.Toast.error(`Score: ${data.percentage}% (FAILED ✕)`, 'Assignment Result');
+                        window.Toast.error(`Score: ${data.percentage}% (FAILED)`, 'Assignment Result');
                     }
                 }
 
@@ -742,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Results Evaluated ✓';
+                    submitBtn.innerHTML = 'Results Evaluated <i class="fa-solid fa-check ms-1"></i>';
                 }
             } catch (err) {
                 if (window.Toast) window.Toast.error('Network error during evaluation submission.');

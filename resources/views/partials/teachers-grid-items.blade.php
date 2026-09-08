@@ -4,7 +4,7 @@
         $name = $t->user->name ?? 'Dr. Instructor';
         $title = $t->title ?? __('Senior Professor');
         $specialization = $t->specialization ?? __('Secondary Education');
-        $rating = number_format($t->rating_avg ?: 4.9, 1) . ' ★';
+        $rating = number_format($t->rating_avg ?: 4.9, 1) . ' <i class="fa-solid fa-star text-amber-400"></i>';
         $studentsCount = number_format($t->students_count ?: 100) . ' ' . __('Students');
         $slug = $t->slug ?: $t->id;
     @endphp
@@ -49,7 +49,7 @@
     </div>
 @empty
     <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-        <div class="text-4xl mb-3">👨‍🏫</div>
+        <div class="text-4xl mb-3"><i class="fa-solid fa-chalkboard-user"></i></div>
         <h3 class="font-bold text-lg text-slate-800">{{ __('No Teachers Found') }}</h3>
         <p class="text-xs text-slate-500 mt-1 mb-4">{{ __('Try clearing filters or search term to see all faculty members.') }}</p>
         <a href="{{ route('teachers') }}" class="btn-lift inline-block px-5 py-2.5 bg-teal-600 text-white rounded-xl text-xs font-bold">

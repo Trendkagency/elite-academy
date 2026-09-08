@@ -21,7 +21,7 @@
                     <label class="block text-xs font-mono font-extrabold text-slate-500 uppercase tracking-wider">{{ __('Search Teacher') }}</label>
                     <div class="relative">
                         <input type="text" id="teacher-search-input" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search teacher by name, title, or specialization...') }}" class="w-full h-11 bg-[#FAFAF9] border border-slate-200 rounded-xl px-4 text-sm font-semibold text-slate-800 focus:outline-teal-600">
-                        <span id="search-spinner" class="hidden absolute right-3 top-3 text-slate-400 text-xs animate-spin">⏳</span>
+                        <span id="search-spinner" class="hidden absolute right-3 top-3 text-slate-400 text-xs animate-spin"><i class="fa-solid fa-hourglass-half"></i></span>
                     </div>
                 </div>
 
@@ -80,7 +80,7 @@
             {{-- Loading Spinner Overlay --}}
             <div id="teachers-loading-overlay" class="hidden absolute inset-0 bg-white/70 backdrop-blur-xs z-10 flex items-center justify-center rounded-3xl transition-opacity">
                 <div class="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl font-mono text-xs font-bold flex items-center gap-3">
-                    <span class="animate-spin text-teal-400">⏳</span> {{ __('Updating Teachers Directory...') }}
+                    <span class="animate-spin text-teal-400"><i class="fa-solid fa-hourglass-half"></i></span> {{ __('Updating Teachers Directory...') }}
                 </div>
             </div>
 

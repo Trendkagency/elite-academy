@@ -34,13 +34,13 @@
                     $statusColor = $isFree ? 'bg-teal-500 text-white ring-4 ring-teal-100' : ($idx === 1 ? 'bg-orange-500 text-white ring-4 ring-orange-100' : 'bg-slate-300 text-slate-700');
                     
                     if ($isFree) {
-                        $badgeText = app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية ✓' : 'Unlocked / Free Demo ✓';
+                        $badgeText = app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية <i class="fa-solid fa-check"></i>' : 'Unlocked / Free Demo <i class="fa-solid fa-check"></i>';
                         $badgeBg = 'bg-teal-100 text-teal-800 border-teal-200';
                     } elseif ($idx === 1) {
-                        $badgeText = app()->getLocale() === 'ar' ? 'الحصة الحالية ⏳' : 'Current Session ⏳';
+                        $badgeText = app()->getLocale() === 'ar' ? 'الحصة الحالية <i class="fa-solid fa-hourglass-half"></i>' : 'Current Session <i class="fa-solid fa-hourglass-half"></i>';
                         $badgeBg = 'bg-orange-100 text-orange-800 border-orange-200';
                     } else {
-                        $badgeText = app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك 🔒' : 'Locked / Package Required 🔒';
+                        $badgeText = app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك <i class="fa-solid fa-lock"></i>' : 'Locked / Package Required <i class="fa-solid fa-lock"></i>';
                         $badgeBg = 'bg-slate-100 text-slate-600 border-slate-200';
                     }
                 @endphp
@@ -65,14 +65,14 @@
                         </p>
 
                         <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-200/60 text-[11px] font-mono text-slate-500">
-                            <span>⏱️ {{ $s->duration_minutes ?: 60 }} Mins Duration</span>
+                            <span><i class="fa-solid fa-stopwatch"></i> {{ $s->duration_minutes ?: 60 }} Mins Duration</span>
                             @if($isFree)
                                 <span class="text-emerald-700 font-bold">▶ {{ app()->getLocale() === 'ar' ? 'حصة تجريبية متوفرة' : 'Free Sample Included' }}</span>
                             @else
-                                <span class="text-rose-700 font-bold">🔒 {{ app()->getLocale() === 'ar' ? 'باستخدام باقة الاشتراك' : 'Subscription Required' }}</span>
+                                <span class="text-rose-700 font-bold"><i class="fa-solid fa-lock"></i> {{ app()->getLocale() === 'ar' ? 'باستخدام باقة الاشتراك' : 'Subscription Required' }}</span>
                             @endif
                             @if($hasAssignment)
-                                <span class="text-rose-700 font-bold">📝 {{ app()->getLocale() === 'ar' ? 'الواجب إجباري' : 'Homework Mandatory' }}</span>
+                                <span class="text-rose-700 font-bold"><i class="fa-solid fa-pen-to-square"></i> {{ app()->getLocale() === 'ar' ? 'الواجب إجباري' : 'Homework Mandatory' }}</span>
                             @endif
                         </div>
                     </div>
@@ -89,11 +89,11 @@
                         <h4 class="font-bold text-base text-slate-900">Module 1: Orientation & Foundations</h4>
                         @if($hasFreeDemo)
                             <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                                {{ app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية ✓' : 'Unlocked / Free Demo ✓' }}
+                                {{ app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية <i class="fa-solid fa-check"></i>' : 'Unlocked / Free Demo <i class="fa-solid fa-check"></i>' }}
                             </span>
                         @else
                             <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                                {{ app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك 🔒' : 'Locked / Package Required 🔒' }}
+                                {{ app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك <i class="fa-solid fa-lock"></i>' : 'Locked / Package Required <i class="fa-solid fa-lock"></i>' }}
                             </span>
                         @endif
                     </div>
@@ -111,7 +111,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h4 class="font-bold text-base text-slate-900">Module 2: Advanced Core Architecture</h4>
                         <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
-                            {{ app()->getLocale() === 'ar' ? 'الحصة الحالية ⏳' : 'Current In Progress ⏳' }}
+                            {{ app()->getLocale() === 'ar' ? 'الحصة الحالية <i class="fa-solid fa-hourglass-half"></i>' : 'Current In Progress <i class="fa-solid fa-hourglass-half"></i>' }}
                         </span>
                     </div>
                     <p class="text-xs text-slate-600 leading-relaxed">
@@ -128,7 +128,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h4 class="font-bold text-base text-slate-900">Module 3: Final Certification & Capstone</h4>
                         <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                            {{ app()->getLocale() === 'ar' ? 'قريباً 🔒' : 'Upcoming 🔒' }}
+                            {{ app()->getLocale() === 'ar' ? 'قريباً <i class="fa-solid fa-lock"></i>' : 'Upcoming <i class="fa-solid fa-lock"></i>' }}
                         </span>
                     </div>
                     <p class="text-xs text-slate-600 leading-relaxed">

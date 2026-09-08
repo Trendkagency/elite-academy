@@ -126,7 +126,7 @@
             <div class="flex items-center gap-3">
                 <span class="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">{{ $cSubject }}</span>
                 @if($isEnrolled ?? false)
-                    <span class="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">✓ Enrolled Course</span>
+                    <span class="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full"><i class="fa-solid fa-check"></i> Enrolled Course</span>
                 @else
                     <span class="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">▶ Free Demo Available</span>
                 @endif
@@ -141,10 +141,10 @@
             </p>
 
             <div class="flex flex-wrap items-center gap-6 pt-4 text-xs font-medium text-slate-300">
-                <span>⏱️ Duration: 16 Weeks</span>
-                <span>👥 Teacher: {{ $cTeacher }}</span>
-                <span>⭐ Rating: 4.9/5</span>
-                <span>🏆 Accredited Certification</span>
+                <span><i class="fa-solid fa-stopwatch"></i> Duration: 16 Weeks</span>
+                <span><i class="fa-solid fa-users"></i> Teacher: {{ $cTeacher }}</span>
+                <span><i class="fa-solid fa-star text-amber-400"></i> Rating: 4.9/5</span>
+                <span><i class="fa-solid fa-trophy"></i> Accredited Certification</span>
             </div>
         </div>
     </div>
@@ -223,11 +223,11 @@
                     @auth
                         @if($isEnrolled ?? false)
                             <a href="{{ route('student-portal') }}" class="btn-lift w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">
-                                {{ app()->getLocale() === 'ar' ? 'مشترك في هذا الكورس ✓ — الذهاب لبوابة الطالب ←' : 'Enrolled Course ✓ — Go to Student Portal &rarr;' }}
+                                {{ app()->getLocale() === 'ar' ? 'مشترك في هذا الكورس <i class="fa-solid fa-check"></i> — الذهاب لبوابة الطالب ←' : 'Enrolled Course <i class="fa-solid fa-check"></i> — Go to Student Portal &rarr;' }}
                             </a>
                         @else
                             <button id="btnEnroll" class="w-full text-center py-3.5 px-6 font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md transition-all cursor-pointer">
-                                {{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}
+                                {{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن <i class="fa-solid fa-rocket"></i>' : 'Enroll in Course Now <i class="fa-solid fa-rocket"></i>' }}
                             </button>
                         @endif
                     @else
@@ -288,15 +288,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (data.success) {
                 const portalUrl = "{{ route('student-portal') }}";
-                const linkText = "{{ app()->getLocale() === 'ar' ? 'تم التسجيل بنجاح ✓ — الذهاب لبوابة الطالب ←' : 'Enrolled Successfully ✓ — Go to Student Portal &rarr;' }}";
+                const linkText = "{{ app()->getLocale() === 'ar' ? 'تم التسجيل بنجاح <i class="fa-solid fa-check"></i> — الذهاب لبوابة الطالب ←' : 'Enrolled Successfully <i class="fa-solid fa-check"></i> — Go to Student Portal &rarr;' }}";
                 btn.outerHTML = `<a href="${portalUrl}" class="btn-lift w-full inline-block text-center py-3.5 px-6 font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all">${linkText}</a>`;
             } else {
                 btn.disabled = false;
-                btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}";
+                btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن <i class="fa-solid fa-rocket"></i>' : 'Enroll in Course Now <i class="fa-solid fa-rocket"></i>' }}";
             }
         } catch (e) {
             btn.disabled = false;
-            btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن 🚀' : 'Enroll in Course Now 🚀' }}";
+            btn.textContent = "{{ app()->getLocale() === 'ar' ? 'التسجيل في الكورس الآن <i class="fa-solid fa-rocket"></i>' : 'Enroll in Course Now <i class="fa-solid fa-rocket"></i>' }}";
             alertBox.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
             alertBox.textContent = 'Network error. Please try again.';
             alertBox.classList.remove('hidden');

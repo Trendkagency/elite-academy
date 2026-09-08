@@ -61,7 +61,7 @@
                 @endforeach
             @else
                 <div class="text-center py-12 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                    <div class="text-4xl mb-3">📰</div>
+                    <div class="text-4xl mb-3"><i class="fa-solid fa-newspaper"></i></div>
                     <h3 class="font-bold text-lg text-slate-800">No Articles Found for Selected Category</h3>
                     <p class="text-xs text-slate-500 mt-1 mb-4">Try selecting "All Articles" or check back soon for new publications.</p>
                     <a href="{{ route('blog') }}" class="btn-lift inline-block px-5 py-2.5 bg-teal-600 text-white rounded-xl text-xs font-bold">

@@ -8,7 +8,7 @@
     $heroImage = $contactSettings['hero_image'] ?? 'images/academy_campus.webp';
     $cardTitle = $contactSettings['card_title'] ?? 'Support Desk 24/7';
     $cardSubtitle = $contactSettings['card_subtitle'] ?? 'Direct Academic Assistance';
-    $cardIcon = $contactSettings['card_icon'] ?? '🎧';
+    $cardIcon = $contactSettings['card_icon'] ?? '<i class="fa-solid fa-headset"></i>';
     $phone = $contactSettings['phone'] ?? '+20 100 123 4567';
     $whatsapp = $contactSettings['whatsapp'] ?? '+20 100 123 4568';
     $email = $contactSettings['email'] ?? 'support@elite-academy.edu.eg';

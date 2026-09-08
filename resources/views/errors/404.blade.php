@@ -65,9 +65,9 @@
 
                 {{-- Expressive Sad Emotion Mascot Badge --}}
                 <div class="relative w-20 h-20 bg-rose-50/90 rounded-3xl border border-rose-200/90 shadow-lg flex items-center justify-center text-4xl anim-mascot" style="animation-delay: 0.6s;">
-                    🥺
+                    <i class="fa-solid fa-face-frown"></i>
                     {{-- Tear Drop Pulse Badge --}}
-                    <span class="absolute -bottom-1 -right-1 text-sm anim-tear">💧</span>
+                    <span class="absolute -bottom-1 -right-1 text-sm anim-tear"><i class="fa-solid fa-droplet"></i></span>
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
                 </h1>
 
                 <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
-                    <span>{{ __('Oh no! Page Not Found') }}</span> 😔
+                    <span>{{ __('Oh no! Page Not Found') }}</span> <i class="fa-solid fa-face-frown"></i>
                 </h2>
 
                 <p class="text-slate-600 text-sm sm:text-base font-medium leading-relaxed max-w-lg mx-auto dir-auto" style="unicode-bidi: plaintext;">
@@ -97,7 +97,7 @@
             {{-- Action Buttons --}}
             <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="{{ $dashUrl }}" class="btn-lift w-full sm:w-auto px-7 py-3.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2">
-                    <span>🏠</span> {{ $dashLabel }}
+                    <span><i class="fa-solid fa-house"></i></span> {{ $dashLabel }}
                 </a>
 
                 <button type="button" onclick="window.history.back()" class="btn-lift w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-2xl border border-slate-300 transition-all flex items-center justify-center gap-2 cursor-pointer">

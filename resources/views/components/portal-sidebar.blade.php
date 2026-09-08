@@ -12,10 +12,10 @@
     };
 
     $roleIcon = match($role) {
-        'teacher' => '👨‍🏫',
-        'parent'  => '👨‍👩‍👧',
-        'admin'   => '⚡',
-        default   => '🎓',
+        'teacher' => '<i class="fa-solid fa-chalkboard-user"></i>',
+        'parent'  => '<i class="fa-solid fa-people-roof"></i>',
+        'admin'   => '<i class="fa-solid fa-bolt"></i>',
+        default   => '<i class="fa-solid fa-graduation-cap"></i>',
     };
 @endphp
 
@@ -61,86 +61,86 @@
             @if($role === 'student')
                 <!-- Student Navigation -->
                 <a href="#overview" onclick="switchPortalSection('overview')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📊</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
                     <span>{{ __('app.portal.welcome_back') }} & {{ __('Overview') }}</span>
                 </a>
 
                 <a href="#liveSessions" onclick="switchPortalSection('liveSessions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">🎥</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-video"></i></span>
                     <span>{{ __('app.portal.upcoming_sessions') }}</span>
                 </a>
 
                 <a href="#assignments" onclick="switchPortalSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📝</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
                     <span>{{ __('Assignments & Tests') }}</span>
                 </a>
 
                 <a href="#packages" onclick="switchPortalSection('packages')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">💳</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-credit-card"></i></span>
                     <span>{{ __('app.portal.current_package') }} & {{ __('Credits') }}</span>
                 </a>
 
                 <a href="#exceptions" onclick="switchPortalSection('exceptions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📜</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scroll"></i></span>
                     <span>{{ __('Excuses & Exceptions') }}</span>
                 </a>
 
             @elseif($role === 'teacher')
                 <!-- Teacher Navigation -->
                 <a href="#overview" onclick="switchTeacherTab('overview')" class="teacher-tab-btn active portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="overview">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📊</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
                     <span>{{ __('Faculty Overview') }}</span>
                 </a>
 
                 <a href="#sessions" onclick="switchTeacherTab('sessions')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="sessions">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📅</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-days"></i></span>
                     <span>{{ __('Teaching Schedule & Rooms') }}</span>
                 </a>
 
                 <a href="#assignments" onclick="switchTeacherTab('assignments')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="assignments">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📝</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
                     <span>{{ __('Assignments & Quizzes') }}</span>
                 </a>
 
                 <a href="#attendance" onclick="switchTeacherTab('attendance')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="attendance">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📋</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clipboard-list"></i></span>
                     <span>{{ __('Student Attendance Sheets') }}</span>
                 </a>
 
                 <a href="#students" onclick="switchTeacherTab('students')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="students">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">🎓</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-graduation-cap"></i></span>
                     <span>{{ __('My Students') }}</span>
                 </a>
 
             @elseif($role === 'parent')
                 <!-- Parent Navigation -->
                 <a href="#section-children" onclick="switchParentSection('children')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="children">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">👨‍👩‍👧</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-people-roof"></i></span>
                     <span>{{ __('Your Linked Children') }}</span>
                 </a>
 
                 <a href="#section-progress" onclick="switchParentSection('progress')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="progress">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📈</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-line"></i></span>
                     <span>{{ __('Academic Performance & Grades') }}</span>
                 </a>
 
                 <a href="#section-courses" onclick="switchParentSection('courses')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="courses">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📚</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open"></i></span>
                     <span>{{ __('Enrolled Courses & Curriculum') }}</span>
                 </a>
 
                 <a href="#section-assignments" onclick="switchParentSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="assignments">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">📝</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
                     <span>{{ __('Graded Assignments & Feedback') }}</span>
                 </a>
 
                 <a href="#section-attendance" onclick="switchParentSection('attendance')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="attendance">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform">🕒</span>
+                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clock"></i></span>
                     <span>{{ __('Attendance & Session Records') }}</span>
                 </a>
 
                 <button type="button" onclick="openLinkChildModal()" class="w-full text-{{ $isAr ? 'right' : 'left' }} flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-amber-950/60 hover:text-amber-300 text-amber-400 cursor-pointer">
-                    <span class="text-lg group-hover:scale-110 transition-transform">➕</span>
+                    <span class="text-lg group-hover:scale-110 transition-transform"><i class="fa-solid fa-plus"></i></span>
                     <span>{{ __('Link New Child Account') }}</span>
                 </button>
             @endif
@@ -154,18 +154,18 @@
 
             @if($user && $user->isAdmin())
                 <a href="/admin" class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 transition-all">
-                    <span class="text-base">⚡</span>
+                    <span class="text-base"><i class="fa-solid fa-bolt"></i></span>
                     <span>{{ __('Admin Panel (Filament)') }}</span>
                 </a>
             @endif
 
             <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-                <span class="text-base">🏠</span>
+                <span class="text-base"><i class="fa-solid fa-house"></i></span>
                 <span>{{ __('navbar.home') }}</span>
             </a>
 
             <a href="{{ route('courses') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-                <span class="text-base">📚</span>
+                <span class="text-base"><i class="fa-solid fa-book-open"></i></span>
                 <span>{{ __('navbar.courses') }}</span>
             </a>
         </div>

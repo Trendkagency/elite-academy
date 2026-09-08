@@ -28,7 +28,7 @@
         {{-- Glassmorphism Security Badge Card --}}
         <div class="bg-white/95 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-2xl space-y-6 relative overflow-hidden">
             <div class="w-24 h-24 mx-auto bg-rose-500/10 text-rose-600 rounded-3xl flex items-center justify-center text-4xl border border-rose-500/20 shadow-inner">
-                🔒
+                <i class="fa-solid fa-lock"></i>
             </div>
 
             <div class="space-y-3">
@@ -49,7 +49,7 @@
                     <span>←</span> {{ __('Go Back') }}
                 </button>
                 <a href="{{ $dashUrl }}" class="btn-lift w-full sm:w-auto px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2">
-                    <span>📊</span> {{ $dashLabel }}
+                    <span><i class="fa-solid fa-chart-column"></i></span> {{ $dashLabel }}
                 </a>
             </div>
         </div>

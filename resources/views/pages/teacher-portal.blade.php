@@ -15,13 +15,13 @@
         <div class="space-y-3 relative z-10 max-w-2xl">
             <div class="flex items-center gap-3 flex-wrap">
                 <span class="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-xs">
-                    👨‍🏫 {{ $teacherProfile->title ?: __('Faculty Instructor') }}
+                    <i class="fa-solid fa-chalkboard-user"></i> {{ $teacherProfile->title ?: __('Faculty Instructor') }}
                 </span>
                 <span class="px-3.5 py-1 rounded-full text-xs font-mono font-semibold bg-white/10 text-slate-200">
-                    ⭐ {{ number_format($teacherProfile->rating_avg ?: 4.9, 1) }} {{ __('Rating') }}
+                    <i class="fa-solid fa-star text-amber-400"></i> {{ number_format($teacherProfile->rating_avg ?: 4.9, 1) }} {{ __('Rating') }}
                 </span>
                 <span class="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    📚 {{ $courses->count() }} {{ __('Active Courses') }}
+                    <i class="fa-solid fa-book-open"></i> {{ $courses->count() }} {{ __('Active Courses') }}
                 </span>
             </div>
             <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
@@ -35,13 +35,13 @@
         {{-- Quick Action Launchers in Header --}}
         <div class="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
             <button type="button" onclick="switchTeacherTab('students')" class="btn-lift px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs sm:text-sm rounded-2xl border border-slate-600 shadow-md flex items-center gap-2 cursor-pointer transition-all">
-                <span>🎓</span> {{ __('My Students') }}
+                <span><i class="fa-solid fa-graduation-cap"></i></span> {{ __('My Students') }}
             </button>
             <button type="button" onclick="openCreateSessionModal()" class="btn-lift px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-teal-600/30 flex items-center gap-2 cursor-pointer transition-all">
-                <span>➕</span> {{ __('Schedule Session') }}
+                <span><i class="fa-solid fa-plus"></i></span> {{ __('Schedule Session') }}
             </button>
             <button type="button" onclick="openCreateAssignmentModal()" class="btn-lift px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center gap-2 cursor-pointer transition-all">
-                <span>📝</span> {{ __('Publish Assignment') }}
+                <span><i class="fa-solid fa-pen-to-square"></i></span> {{ __('Publish Assignment') }}
             </button>
         </div>
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -56,7 +56,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('Today Sessions') }}</span>
-                <span class="text-lg">📅</span>
+                <span class="text-lg"><i class="fa-solid fa-calendar-days"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 js-counter" data-target="{{ $todaySessionsCount }}">0</p>
             <p class="text-[11px] text-slate-500 font-semibold">{{ __('Scheduled today') }}</p>
@@ -66,7 +66,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('Upcoming') }}</span>
-                <span class="text-lg">⏳</span>
+                <span class="text-lg"><i class="fa-solid fa-hourglass-half"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-blue-600 js-counter" data-target="{{ $upcomingSessionsCount }}">0</p>
             <p class="text-[11px] text-slate-500 font-semibold">{{ __('Future cohorts') }}</p>
@@ -76,7 +76,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1 cursor-pointer hover:border-teal-400" onclick="switchTeacherTab('students')">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('My Students') }}</span>
-                <span class="text-lg">🎓</span>
+                <span class="text-lg"><i class="fa-solid fa-graduation-cap"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 js-counter" data-target="{{ $assignedStudentsCount }}">0</p>
             <p class="text-[11px] text-teal-600 font-semibold flex items-center gap-1">{{ __('View roster →') }}</p>
@@ -86,7 +86,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1 cursor-pointer hover:border-orange-400" onclick="switchTeacherTab('assignments')">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('Need Grading') }}</span>
-                <span class="text-lg">📝</span>
+                <span class="text-lg"><i class="fa-solid fa-pen-to-square"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-orange-500 js-counter" data-target="{{ $pendingAssignmentsCount }}">0</p>
             <p class="text-[11px] text-slate-500 font-semibold">{{ __('Submissions queue') }}</p>
@@ -96,7 +96,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('Submissions') }}</span>
-                <span class="text-lg">📊</span>
+                <span class="text-lg"><i class="fa-solid fa-chart-column"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 js-counter" data-target="{{ $submittedAssignmentsCount }}">0</p>
             <p class="text-[11px] text-slate-500 font-semibold">{{ __('Total handled') }}</p>
@@ -106,7 +106,7 @@
         <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-1">
             <div class="flex items-center justify-between text-slate-400">
                 <span class="text-xs font-mono font-bold uppercase">{{ __('Attendance Rate') }}</span>
-                <span class="text-lg">✅</span>
+                <span class="text-lg"><i class="fa-solid fa-circle-check text-emerald-500"></i></span>
             </div>
             <p class="font-heading font-black text-2xl sm:text-3xl text-emerald-600"><span class="js-counter" data-target="{{ $attendanceRate }}">0</span>%</p>
             <p class="text-[11px] text-slate-500 font-semibold">{{ __('Historical sessions') }}</p>
@@ -116,25 +116,25 @@
     {{-- Teacher Navigation Tabs --}}
     <div class="bg-white p-2 rounded-3xl border border-slate-200/90 shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-thin">
         <button type="button" onclick="switchTeacherTab('overview')" id="tab-btn-overview" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'overview' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }}">
-            📊 {{ __('Overview & Today') }}
+            <i class="fa-solid fa-chart-column"></i> {{ __('Overview & Today') }}
         </button>
         <button type="button" onclick="switchTeacherTab('students')" id="tab-btn-students" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'students' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }}">
-            🎓 {{ __('My Students') }} ({{ $assignedStudentsCount }})
+            <i class="fa-solid fa-graduation-cap"></i> {{ __('My Students') }} ({{ $assignedStudentsCount }})
         </button>
         <button type="button" onclick="switchTeacherTab('sessions')" id="tab-btn-sessions" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'sessions' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }}">
-            📅 {{ __('Sessions & Streams') }}
+            <i class="fa-solid fa-calendar-days"></i> {{ __('Sessions & Streams') }}
         </button>
         <button type="button" onclick="switchTeacherTab('assignments')" id="tab-btn-assignments" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'assignments' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }} relative">
-            📝 {{ __('Assignments & Quizzes') }}
+            <i class="fa-solid fa-pen-to-square"></i> {{ __('Assignments & Quizzes') }}
             @if($pendingAssignmentsCount > 0)
                 <span class="ms-1.5 px-2 py-0.5 text-[10px] bg-orange-500 text-white rounded-full font-mono font-bold">{{ $pendingAssignmentsCount }}</span>
             @endif
         </button>
         <button type="button" onclick="switchTeacherTab('attendance')" id="tab-btn-attendance" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'attendance' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }}">
-            📋 {{ __('Attendance Tracker') }}
+            <i class="fa-solid fa-clipboard-list"></i> {{ __('Attendance Tracker') }}
         </button>
         <button type="button" onclick="switchTeacherTab('notifications')" id="tab-btn-notifications" class="teacher-tab-btn px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all whitespace-nowrap {{ $activeTabKey === 'notifications' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100' }} relative">
-            🔔 {{ __('Notifications') }}
+            <i class="fa-solid fa-bell"></i> {{ __('Notifications') }}
             @if($unreadNotifCount > 0)
                 <span class="ms-1.5 px-2 py-0.5 text-[10px] bg-red-500 text-white rounded-full font-mono font-bold">{{ $unreadNotifCount }}</span>
             @endif
@@ -152,7 +152,7 @@
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
-                                <span>🔴</span> {{ __('Today\'s Teaching Sessions') }}
+                                <span><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i></span> {{ __('Today\'s Teaching Sessions') }}
                             </h2>
                             <p class="text-xs font-mono text-slate-500 mt-1">{{ $todayDateStr }}</p>
                         </div>
@@ -171,7 +171,7 @@
                                                 {{ $session->course?->title ?: __('Course Session') }}
                                             </span>
                                             <span class="text-xs font-mono text-slate-500">
-                                                ⏱️ {{ $session->effective_start_at ? $session->effective_start_at->format('h:i A') : 'Scheduled' }} ({{ $session->duration_minutes }}m)
+                                                <i class="fa-solid fa-stopwatch"></i> {{ $session->effective_start_at ? $session->effective_start_at->format('h:i A') : 'Scheduled' }} ({{ $session->duration_minutes }}m)
                                             </span>
                                         </div>
                                         <h3 class="font-heading font-extrabold text-base text-slate-900 truncate">
@@ -185,15 +185,15 @@
                                     <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
                                         @if($session->meeting_link)
                                             <a href="{{ $session->meeting_link }}" target="_blank" class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5">
-                                                <span>🎥</span> {{ __('Join / Broadcast') }}
+                                                <span><i class="fa-solid fa-video"></i></span> {{ __('Join / Broadcast') }}
                                             </a>
                                         @else
                                             <button type="button" onclick="openMeetingLinkModal({{ $session->id }}, '')" class="btn-lift px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs">
-                                                🔗 {{ __('Add Link') }}
+                                                <i class="fa-solid fa-link"></i> {{ __('Add Link') }}
                                             </button>
                                         @endif
                                         <button type="button" onclick="openAttendanceModal({{ $session->id }}, '{{ addslashes($session->title) }}')" class="btn-lift px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200">
-                                            📋 {{ __('Attendance') }}
+                                            <i class="fa-solid fa-clipboard-list"></i> {{ __('Attendance') }}
                                         </button>
                                     </div>
                                 </div>
@@ -201,7 +201,7 @@
                         </div>
                     @else
                         <div class="text-center py-12 bg-[#FAFAF9] rounded-2xl border border-dashed border-slate-200 space-y-3">
-                            <span class="text-3xl">☕</span>
+                            <span class="text-3xl"><i class="fa-solid fa-mug-hot"></i></span>
                             <p class="text-sm font-semibold text-slate-700">{{ __('No teaching sessions scheduled for today.') }}</p>
                             <button type="button" onclick="openCreateSessionModal()" class="text-xs font-bold text-teal-600 hover:text-teal-700 hover:underline">
                                 + {{ __('Schedule a live session now') }}
@@ -214,7 +214,7 @@
                 <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <h2 class="font-heading text-xl font-black text-slate-900 flex items-center gap-2">
-                            <span>📝</span> {{ __('Pending Grading Queue') }}
+                            <span><i class="fa-solid fa-pen-to-square"></i></span> {{ __('Pending Grading Queue') }}
                         </h2>
                         <span class="px-3 py-1 bg-orange-50 text-orange-700 font-mono text-xs font-bold rounded-full border border-orange-200">
                             {{ $pendingSubmissions->count() }} {{ __('Needs Review') }}
@@ -234,7 +234,7 @@
                                         </p>
                                     </div>
                                     <button type="button" onclick="openGradeModal({{ $sub->id }}, '{{ addslashes($sub->studentUser?->name) }}', '{{ addslashes($sub->assignment?->title) }}', '{{ $sub->score }}', '{{ addslashes($sub->evaluation_notes) }}')" class="btn-lift px-3.5 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl shadow-xs shrink-0">
-                                        ✍️ {{ __('Grade Now') }}
+                                        <i class="fa-solid fa-pen-nib"></i> {{ __('Grade Now') }}
                                     </button>
                                 </div>
                             @endforeach
@@ -304,7 +304,7 @@
                                     </div>
                                     <div class="shrink-0">
                                         <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-teal-50 text-teal-800 border border-teal-200/80 text-xs font-mono font-extrabold rounded-xl shadow-2xs whitespace-nowrap">
-                                            <span>📚</span> {{ $sessionCount }} {{ $sessionLabel }}
+                                            <span><i class="fa-solid fa-book-open"></i></span> {{ $sessionCount }} {{ $sessionLabel }}
                                         </span>
                                     </div>
                                 </div>
@@ -327,7 +327,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                     <h2 class="font-heading text-2xl font-black text-slate-900 flex items-center gap-2">
-                        <span>🎓</span> {{ __('app.teacher.my_students') }}
+                        <span><i class="fa-solid fa-graduation-cap"></i></span> {{ __('app.teacher.my_students') }}
                     </h2>
                     <p class="text-xs font-mono text-slate-500 mt-1">
                         {{ __('Search, filter, and inspect detailed educational profiles for all enrolled learners in your courses.') }}
@@ -351,7 +351,7 @@
                             placeholder="{{ __('app.teacher.search_placeholder') }}" 
                             class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all pe-8"
                         >
-                        <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs">🔍</span>
+                        <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
                     </div>
 
                     {{-- Filter by Course --}}
@@ -438,10 +438,10 @@
                                 {{-- Academic Meta: School & Grade --}}
                                 <div class="text-xs font-mono text-slate-600 space-y-1 pt-1">
                                     <p class="truncate flex items-center gap-1.5">
-                                        <span>🏫</span> {{ $st->school_name ?: __('Elite Academy') }}
+                                        <span><i class="fa-solid fa-school"></i></span> {{ $st->school_name ?: __('Elite Academy') }}
                                     </p>
                                     <p class="truncate flex items-center gap-1.5 text-slate-500">
-                                        <span>🎓</span> {{ $st->gradeLevel?->name ?: __('Secondary Level') }}
+                                        <span><i class="fa-solid fa-graduation-cap"></i></span> {{ $st->gradeLevel?->name ?: __('Secondary Level') }}
                                     </p>
                                 </div>
 
@@ -484,7 +484,7 @@
                                     onclick="openStudentDetailsModal({{ $st->user_id }})" 
                                     class="btn-lift w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all"
                                 >
-                                    <span>🎓</span> {{ __('app.teacher.student_profile') }}
+                                    <span><i class="fa-solid fa-graduation-cap"></i></span> {{ __('app.teacher.student_profile') }}
                                 </button>
                             </div>
                         </div>
@@ -493,7 +493,7 @@
 
                 {{-- Empty Search Result State --}}
                 <div id="studentEmptySearchState" class="hidden text-center py-12 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-2">
-                    <span class="text-3xl">🔍</span>
+                    <span class="text-3xl"><i class="fa-solid fa-magnifying-glass"></i></span>
                     <p class="text-sm font-semibold text-slate-700">{{ __('app.teacher.no_students_found') }}</p>
                     <button type="button" onclick="resetStudentFilters()" class="text-xs text-teal-600 font-bold hover:underline">
                         {{ __('app.teacher.all_courses') }}
@@ -515,16 +515,16 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                     <h2 class="font-heading text-2xl font-black text-slate-900 flex items-center gap-2">
-                        <span>📅</span> {{ __('Live Teaching Schedule & Meeting Links') }}
+                        <span><i class="fa-solid fa-calendar-days"></i></span> {{ __('Live Teaching Schedule & Meeting Links') }}
                     </h2>
                     <p class="text-xs font-mono text-slate-500 mt-1">{{ __('Manage your live sessions, recurring cohorts, update broadcast URLs, and reschedule classes.') }}</p>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap">
                     <button type="button" onclick="openCreateRecurringModal()" class="btn-lift px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
-                        <span>🔄</span> {{ __('Create Recurring Schedule') }}
+                        <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Create Recurring Schedule') }}
                     </button>
                     <button type="button" onclick="openCreateSessionModal()" class="btn-lift px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
-                        <span>➕</span> {{ __('Schedule Single Session') }}
+                        <span><i class="fa-solid fa-plus"></i></span> {{ __('Schedule Single Session') }}
                     </button>
                 </div>
             </div>
@@ -550,12 +550,12 @@
                                                 <p class="font-extrabold text-slate-900 text-xs sm:text-sm">{{ $session->title ?: __('Live Class Session') }}</p>
                                                 @if($session->recurring_schedule_id)
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200">
-                                                        <span>🔄</span> {{ __('Recurring') }}
+                                                        <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Recurring') }}
                                                     </span>
                                                 @endif
                                                 @if($session->is_override)
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                                        <span>⚠️</span> {{ __('Override') }}
+                                                        <span><i class="fa-solid fa-triangle-exclamation"></i></span> {{ __('Override') }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -587,17 +587,17 @@
                                     </td>
                                     <td class="py-4 px-4 text-right rtl:text-left space-x-1 rtl:space-x-reverse whitespace-nowrap">
                                         <button type="button" onclick="openEditSessionOverrideModal({{ $session->id }}, '{{ addslashes($session->title) }}', '{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}', {{ $session->duration_minutes ?: 60 }}, '{{ addslashes($session->meeting_link ?? '') }}', '{{ addslashes($session->teacher_notes ?? '') }}')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold rounded-lg transition-colors cursor-pointer" title="{{ __('Edit or Override Session') }}">
-                                            ✏️ {{ __('Edit Scope') }}
+                                            <i class="fa-solid fa-pen"></i> {{ __('Edit Scope') }}
                                         </button>
                                         <button type="button" onclick="openMeetingLinkModal({{ $session->id }}, '{{ addslashes($session->meeting_link ?? '') }}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition-colors cursor-pointer">
-                                            🔗 {{ __('Link') }}
+                                            <i class="fa-solid fa-link"></i> {{ __('Link') }}
                                         </button>
                                         <button type="button" onclick="openRescheduleModal({{ $session->id }}, '{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
-                                            🗓️ {{ __('Reschedule') }}
+                                            <i class="fa-solid fa-calendar-days"></i> {{ __('Reschedule') }}
                                         </button>
                                         @if(!in_array($session->status, ['cancelled', 'cancelled_by_teacher']))
                                             <button type="button" onclick="confirmCancelSession({{ $session->id }})" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
-                                                ❌ {{ __('Cancel') }}
+                                                <i class="fa-solid fa-circle-xmark text-rose-500"></i> {{ __('Cancel') }}
                                             </button>
                                         @endif
                                     </td>
@@ -645,15 +645,15 @@
                                 <div class="flex items-center justify-between gap-3 text-xs">
                                     <span class="font-mono font-bold text-teal-700 uppercase truncate flex-1 min-w-0">{{ $assignment->course?->title ?: __('Course') }}</span>
                                     <span class="px-2.5 py-1 bg-teal-50 text-teal-800 border border-teal-200/80 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
-                                        📝 {{ $subCount }} {{ $subLabel }}
+                                        <i class="fa-solid fa-pen-to-square"></i> {{ $subCount }} {{ $subLabel }}
                                     </span>
                                 </div>
                                 <h3 class="font-heading font-black text-base text-slate-900 leading-snug group-hover:text-teal-700 transition-colors">{{ $assignment->title }}</h3>
                                 <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">{{ $assignment->description ?: __('Homework assignment for student revision.') }}</p>
                             </div>
                             <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-mono text-slate-500">
-                                <span class="truncate">📅 {{ __('Due') }}: {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
-                                <span class="font-extrabold text-slate-800 shrink-0 ms-2 bg-slate-100 px-2 py-0.5 rounded-lg">🎯 {{ $assignment->passing_score ?: 70 }}% {{ __('Pass') }}</span>
+                                <span class="truncate"><i class="fa-solid fa-calendar-days"></i> {{ __('Due') }}: {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
+                                <span class="font-extrabold text-slate-800 shrink-0 ms-2 bg-slate-100 px-2 py-0.5 rounded-lg"><i class="fa-solid fa-bullseye"></i> {{ $assignment->passing_score ?: 70 }}% {{ __('Pass') }}</span>
                             </div>
                         </div>
                     @endforeach
@@ -706,7 +706,7 @@
                                     </td>
                                     <td class="py-4 px-4 text-right rtl:text-left">
                                         <button type="button" onclick="openGradeModal({{ $sub->id }}, '{{ addslashes($sub->studentUser?->name) }}', '{{ addslashes($sub->assignment?->title) }}', '{{ $sub->score }}', '{{ addslashes($sub->evaluation_notes) }}')" class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
-                                            🔍 {{ $isReviewed ? __('Review & Grade') : __('Review Submission') }}
+                                            <i class="fa-solid fa-magnifying-glass"></i> {{ $isReviewed ? __('Review & Grade') : __('Review Submission') }}
                                         </button>
                                     </td>
                                 </tr>
@@ -743,7 +743,7 @@
                                     <p class="text-xs text-slate-500 font-mono">{{ $ses->effective_start_at ? $ses->effective_start_at->format('M d, Y h:i A') : '' }}</p>
                                 </div>
                                 <button type="button" onclick="openAttendanceModal({{ $ses->id }}, '{{ addslashes($ses->title) }}')" class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs shrink-0">
-                                    📋 {{ __('Mark') }}
+                                    <i class="fa-solid fa-clipboard-list"></i> {{ __('Mark') }}
                                 </button>
                             </div>
                         @endforeach
@@ -823,10 +823,10 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 <button type="button" onclick="openAddNoteModal()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
-                    <span>✍️</span> {{ __('app.teacher.add_educational_note') }}
+                    <span><i class="fa-solid fa-pen-nib"></i></span> {{ __('app.teacher.add_educational_note') }}
                 </button>
                 <button type="button" onclick="closeModal('studentProfileModal')" class="text-slate-300 hover:text-white font-bold text-xl p-1 cursor-pointer" aria-label="Close">
-                    ✕
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
@@ -834,28 +834,28 @@
         {{-- Educational Profile Sub-Navigation Tabs --}}
         <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-thin">
             <button type="button" onclick="switchSpTab('overview')" id="sp-tab-btn-overview" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap bg-teal-600 text-white shadow-xs">
-                📊 {{ __('Overview') }}
+                <i class="fa-solid fa-chart-column"></i> {{ __('Overview') }}
             </button>
             <button type="button" onclick="switchSpTab('courses')" id="sp-tab-btn-courses" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                📚 {{ __('Courses') }}
+                <i class="fa-solid fa-book-open"></i> {{ __('Courses') }}
             </button>
             <button type="button" onclick="switchSpTab('sessions')" id="sp-tab-btn-sessions" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                📅 {{ __('Sessions') }}
+                <i class="fa-solid fa-calendar-days"></i> {{ __('Sessions') }}
             </button>
             <button type="button" onclick="switchSpTab('attendance')" id="sp-tab-btn-attendance" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                📋 {{ __('Attendance') }}
+                <i class="fa-solid fa-clipboard-list"></i> {{ __('Attendance') }}
             </button>
             <button type="button" onclick="switchSpTab('assignments')" id="sp-tab-btn-assignments" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                📝 {{ __('Assignments') }}
+                <i class="fa-solid fa-pen-to-square"></i> {{ __('Assignments') }}
             </button>
             <button type="button" onclick="switchSpTab('assessments')" id="sp-tab-btn-assessments" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                🎯 {{ __('Assessments') }}
+                <i class="fa-solid fa-bullseye"></i> {{ __('Assessments') }}
             </button>
             <button type="button" onclick="switchSpTab('progress')" id="sp-tab-btn-progress" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                📈 {{ __('Progress') }}
+                <i class="fa-solid fa-chart-line"></i> {{ __('Progress') }}
             </button>
             <button type="button" onclick="switchSpTab('notes')" id="sp-tab-btn-notes" class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
-                💬 {{ __('Notes') }}
+                <i class="fa-solid fa-comments"></i> {{ __('Notes') }}
             </button>
         </div>
 
@@ -896,7 +896,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="p-5 rounded-2xl bg-[#FAFAF9] border border-slate-200 space-y-3">
                         <h4 class="font-heading font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                            <span>🕒</span> {{ __('Recent Live Sessions Attended') }}
+                            <span><i class="fa-solid fa-clock"></i></span> {{ __('Recent Live Sessions Attended') }}
                         </h4>
                         <div id="spOverviewRecentSessions" class="space-y-2 text-xs font-mono">
                             {{-- Populated by JS --}}
@@ -905,7 +905,7 @@
 
                     <div class="p-5 rounded-2xl bg-[#FAFAF9] border border-slate-200 space-y-3">
                         <h4 class="font-heading font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                            <span>📝</span> {{ __('Recent Homework & Submissions') }}
+                            <span><i class="fa-solid fa-pen-to-square"></i></span> {{ __('Recent Homework & Submissions') }}
                         </h4>
                         <div id="spOverviewRecentSubmissions" class="space-y-2 text-xs font-mono">
                             {{-- Populated by JS --}}
@@ -1014,7 +1014,7 @@
     <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.teacher.add_educational_note') }}</h3>
-            <button type="button" onclick="closeModal('addNoteModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('addNoteModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="addNoteForm" class="space-y-4">
@@ -1038,7 +1038,7 @@
                 
                 {{-- Real-time Phone Security Warning Banner --}}
                 <div id="notePhoneWarning" class="hidden mt-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold flex items-center gap-2 animate-pulse">
-                    <span>🛡️</span>
+                    <span><i class="fa-solid fa-shield-halved"></i></span>
                     <span>{{ __('Security Warning: Sharing phone numbers or contact details in educational notes is prohibited.') }}</span>
                 </div>
             </div>
@@ -1060,7 +1060,7 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Schedule New Live Session') }}</h3>
-            <button type="button" onclick="closeModal('createSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            <button type="button" onclick="closeModal('createSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="createSessionForm" action="{{ route('ajax.teacher.sessions.create') }}" method="POST" class="space-y-4">
@@ -1118,11 +1118,11 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
                 <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                    <span>🔄</span> {{ __('Create Recurring Schedule') }}
+                    <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Create Recurring Schedule') }}
                 </h3>
                 <p class="text-xs font-mono text-slate-500 mt-0.5">{{ __('Automatically generate recurring class sessions with conflict detection.') }}</p>
             </div>
-            <button type="button" onclick="closeModal('recurringScheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('recurringScheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="recurringScheduleForm" class="space-y-4">
@@ -1216,7 +1216,7 @@
             {{-- Live Schedule Preview & Conflict Feedback Area --}}
             <div class="pt-2">
                 <button type="button" onclick="previewRecurringDates()" class="btn-lift w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-xl border border-slate-300 flex items-center justify-center gap-2 cursor-pointer transition-all">
-                    <span>🔍</span> {{ __('Preview Generated Sessions & Validate Conflicts') }}
+                    <span><i class="fa-solid fa-magnifying-glass"></i></span> {{ __('Preview Generated Sessions & Validate Conflicts') }}
                 </button>
             </div>
 
@@ -1258,7 +1258,7 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Edit Session & Recurrence Scope') }}</h3>
-            <button type="button" onclick="closeModal('editSessionOverrideModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('editSessionOverrideModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="editSessionOverrideForm" class="space-y-4">
@@ -1338,9 +1338,9 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="font-heading font-black text-xl text-rose-600 flex items-center gap-2">
-                <span>❌</span> {{ __('Cancel Session') }}
+                <span><i class="fa-solid fa-circle-xmark text-rose-500"></i></span> {{ __('Cancel Session') }}
             </h3>
-            <button type="button" onclick="closeModal('cancelSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('cancelSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="cancelSessionForm" class="space-y-4">
@@ -1372,7 +1372,7 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Update Live Stream Link') }}</h3>
-            <button type="button" onclick="closeModal('meetingLinkModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            <button type="button" onclick="closeModal('meetingLinkModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="meetingLinkForm" method="POST" class="space-y-4">
@@ -1400,7 +1400,7 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Reschedule Teaching Session') }}</h3>
-            <button type="button" onclick="closeModal('rescheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            <button type="button" onclick="closeModal('rescheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="rescheduleForm" method="POST" class="space-y-4">
@@ -1435,7 +1435,7 @@
                 <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Publish New Assignment & Quiz') }}</h3>
                 <p class="text-xs text-slate-500 font-mono mt-0.5">{{ __('Create homework assignments or interactive MSQ quizzes for your students.') }}</p>
             </div>
-            <button type="button" onclick="closeModal('createAssignmentModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('createAssignmentModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="createAssignmentForm" action="{{ route('ajax.teacher.assignments.create') }}" method="POST" class="space-y-5">
@@ -1522,13 +1522,13 @@
                 <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Review & Grade Submission') }}</h3>
                 <p id="gradeStudentName" class="text-xs text-teal-600 font-mono font-bold mt-0.5"></p>
             </div>
-            <button type="button" onclick="closeModal('gradeModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('gradeModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         {{-- Question By Question Auto-Correction Breakdown --}}
         <div class="space-y-3">
             <h4 class="font-heading font-black text-sm text-slate-900 flex items-center gap-2">
-                <span>🎯</span> {{ __('Questions Auto-Correction & Student Choices') }}
+                <span><i class="fa-solid fa-bullseye"></i></span> {{ __('Questions Auto-Correction & Student Choices') }}
             </h4>
             <div id="submissionQuestionsContainer" class="space-y-3 max-h-72 overflow-y-auto p-1 scrollbar-thin">
                 {{-- Populated via AJAX --}}
@@ -1569,7 +1569,7 @@
                 <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Record Session Attendance') }}</h3>
                 <p id="attendanceSessionTitle" class="text-xs text-teal-600 font-mono font-bold truncate"></p>
             </div>
-            <button type="button" onclick="closeModal('attendanceModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1">✕</button>
+            <button type="button" onclick="closeModal('attendanceModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         {{-- Quick Bulk Actions & Cohort Header --}}
@@ -1579,10 +1579,10 @@
             </label>
             <div class="flex items-center gap-1.5">
                 <button type="button" onclick="bulkSetAttendance('present')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-lg border border-emerald-200 transition-colors cursor-pointer">
-                    🟢 {{ __('All Present') }}
+                    <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> {{ __('All Present') }}
                 </button>
                 <button type="button" onclick="bulkSetAttendance('absent')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-800 text-[11px] font-bold rounded-lg border border-rose-200 transition-colors cursor-pointer">
-                    🔴 {{ __('All Absent') }}
+                    <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> {{ __('All Absent') }}
                 </button>
             </div>
         </div>
@@ -1636,7 +1636,7 @@ const i18n = {
     graded: @json(__('Graded')),
     pendingReview: @json(__('Pending Review')),
     inProgress: @json(__('In Progress')),
-    passed: @json(__('Passed ✓')),
+    passed: @json(__('Passed <i class="fa-solid fa-check"></i>')),
     failed: @json(__('Needs Improvement')),
 };
 
@@ -1722,7 +1722,7 @@ async function openStudentDetailsModal(studentUserId) {
         document.getElementById('spModalAvatar').textContent = (st.name || 'S').substring(0, 1).toUpperCase();
         document.getElementById('spModalName').textContent = st.name || i18n.studentProfile;
         document.getElementById('spModalCode').textContent = '#' + (st.student_code || 'STU-' + studentUserId);
-        document.getElementById('spModalMeta').textContent = `${st.school || 'Elite Academy'} • ${st.grade || 'Secondary'} • 📧 ${st.email || ''}`;
+        document.getElementById('spModalMeta').textContent = `${st.school || 'Elite Academy'} • ${st.grade || 'Secondary'} • <i class="fa-solid fa-envelope"></i> ${st.email || ''}`;
 
         // 2. Populate Overview KPIs
         document.getElementById('spOverviewAttRate').textContent = `${metrics.attendance_rate || 100}%`;
@@ -1800,10 +1800,10 @@ async function openStudentDetailsModal(studentUserId) {
             let sesHtml = '';
             data.sessions.forEach(s => {
                 const attBadge = s.attendance_status === 'present' 
-                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">🟢 Present</span>'
+                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> Present</span>'
                     : (s.attendance_status === 'late'
-                        ? '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">🟡 Late</span>'
-                        : '<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full font-bold">🔴 Absent</span>');
+                        ? '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold"><i class="fa-solid fa-circle text-amber-500 text-[10px]"></i> Late</span>'
+                        : '<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full font-bold"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> Absent</span>');
                 sesHtml += `<tr class="hover:bg-slate-50">
                     <td class="py-2.5 px-3 font-bold text-slate-900">${s.title}</td>
                     <td class="py-2.5 px-3 text-slate-600">${s.course_title}</td>
@@ -1847,7 +1847,7 @@ async function openStudentDetailsModal(studentUserId) {
                     <td class="py-2.5 px-3 font-mono">${scoreDisplay}</td>
                     <td class="py-2.5 px-3 text-right rtl:text-left">
                         <button type="button" onclick="openGradeModal(${sub.id}, '${st.name ? st.name.replace(/'/g, "\\'") : ''}', '${sub.assignment_title.replace(/'/g, "\\'")}', '${sub.score}', '${sub.evaluation_notes ? sub.evaluation_notes.replace(/'/g, "\\'") : ''}')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-[11px] rounded-lg border border-teal-200">
-                            🔍 Review
+                            <i class="fa-solid fa-magnifying-glass"></i> Review
                         </button>
                     </td>
                 </tr>`;
@@ -1863,9 +1863,9 @@ async function openStudentDetailsModal(studentUserId) {
             let assessHtml = '';
             data.assessments.forEach(ass => {
                 const passBadge = ass.is_passed 
-                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">✓ Passed</span>'
+                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full"><i class="fa-solid fa-check"></i> Passed</span>'
                     : (ass.score !== null 
-                        ? '<span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-[10px] font-bold rounded-full">✕ Retake</span>'
+                        ? '<span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-[10px] font-bold rounded-full"><i class="fa-solid fa-xmark me-1"></i> Retake</span>'
                         : '<span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-full">Pending</span>');
                 assessHtml += `<div class="p-3.5 rounded-2xl bg-[#FAFAF9] border border-slate-200/90 flex items-center justify-between gap-3 text-xs">
                     <div>
@@ -2077,7 +2077,7 @@ async function openAttendanceModal(sessionId, sessionTitle) {
         if (students.length === 0) {
             container.innerHTML = `
                 <div class="py-10 text-center space-y-2">
-                    <span class="text-2xl">👥</span>
+                    <span class="text-2xl"><i class="fa-solid fa-users"></i></span>
                     <p class="text-xs font-semibold text-slate-700">${isArLocale ? 'لا يوجد طلاب مسجلين في هذا الكورس حالياً.' : 'No students enrolled in this course yet.'}</p>
                     <p class="text-[10px] font-mono text-slate-400">${isArLocale ? 'سيظهر الطلاب المسجلون تلقائياً بمجرد اشتراكهم.' : 'Enrolled students will appear here automatically.'}</p>
                 </div>
@@ -2107,10 +2107,10 @@ async function openAttendanceModal(sessionId, sessionTitle) {
                     <input type="hidden" name="attendance[${idx}][student_user_id]" value="${st.id}">
                     <div class="shrink-0">
                         <select name="attendance[${idx}][status]" onchange="onAttendanceStatusChange('${st.name ? st.name.replace(/'/g, "\\'") : ''}', this.value)" class="attendance-status-select bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-teal-600 shadow-2xs cursor-pointer">
-                            <option value="present" ${isPresent ? 'selected' : ''}>🟢 ${isArLocale ? 'حاضر (Present)' : 'Present'}</option>
-                            <option value="late" ${isLate ? 'selected' : ''}>🟡 ${isArLocale ? 'متأخر (Late)' : 'Late'}</option>
-                            <option value="excused" ${isExcused ? 'selected' : ''}>⚪ ${isArLocale ? 'معذور (Excused)' : 'Excused'}</option>
-                            <option value="absent" ${isAbsent ? 'selected' : ''}>🔴 ${isArLocale ? 'غائب (Absent)' : 'Absent'}</option>
+                            <option value="present" ${isPresent ? 'selected' : ''}><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${isArLocale ? 'حاضر (Present)' : 'Present'}</option>
+                            <option value="late" ${isLate ? 'selected' : ''}><i class="fa-solid fa-circle text-amber-500 text-[10px]"></i> ${isArLocale ? 'متأخر (Late)' : 'Late'}</option>
+                            <option value="excused" ${isExcused ? 'selected' : ''}><i class="fa-solid fa-circle text-slate-300 text-[10px]"></i> ${isArLocale ? 'معذور (Excused)' : 'Excused'}</option>
+                            <option value="absent" ${isAbsent ? 'selected' : ''}><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${isArLocale ? 'غائب (Absent)' : 'Absent'}</option>
                         </select>
                     </div>
                 </div>
@@ -2128,22 +2128,22 @@ function onAttendanceStatusChange(studentName, newStatus) {
     const statusMap = {
         present: {
             title: isArLocale ? 'تسجيل حضور' : 'Attendance Check',
-            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ حاضر 🟢` : `Marked (${studentName}) as Present 🟢`,
+            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ حاضر <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>` : `Marked (${studentName}) as Present <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>`,
             type: 'success'
         },
         late: {
             title: isArLocale ? 'تسجيل تأخير' : 'Attendance Check',
-            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ متأخر 🟡` : `Marked (${studentName}) as Late 🟡`,
+            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ متأخر <i class="fa-solid fa-circle text-amber-500 text-[10px]"></i>` : `Marked (${studentName}) as Late <i class="fa-solid fa-circle text-amber-500 text-[10px]"></i>`,
             type: 'warning'
         },
         excused: {
             title: isArLocale ? 'تسجيل عذر' : 'Attendance Check',
-            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ معذور ⚪` : `Marked (${studentName}) as Excused ⚪`,
+            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ معذور <i class="fa-solid fa-circle text-slate-300 text-[10px]"></i>` : `Marked (${studentName}) as Excused <i class="fa-solid fa-circle text-slate-300 text-[10px]"></i>`,
             type: 'info'
         },
         absent: {
             title: isArLocale ? 'تسجيل غياب' : 'Attendance Check',
-            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ غائب 🔴` : `Marked (${studentName}) as Absent 🔴`,
+            msg: isArLocale ? `تم تحديد الطالب (${studentName}) كـ غائب <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>` : `Marked (${studentName}) as Absent <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>`,
             type: 'danger'
         },
     };
@@ -2166,9 +2166,9 @@ function bulkSetAttendance(status) {
 
     if (window.Toast) {
         if (status === 'present') {
-            window.Toast.success(isArLocale ? 'تم تحديد جميع طلاب الجلسة كـ حضور 🟢' : 'All students marked as Present 🟢', isArLocale ? 'تحديث جماعي' : 'Bulk Update', 3000);
+            window.Toast.success(isArLocale ? 'تم تحديد جميع طلاب الجلسة كـ حضور <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>' : 'All students marked as Present <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>', isArLocale ? 'تحديث جماعي' : 'Bulk Update', 3000);
         } else if (status === 'absent') {
-            window.Toast.danger(isArLocale ? 'تم تحديد جميع طلاب الجلسة كـ غياب 🔴' : 'All students marked as Absent 🔴', isArLocale ? 'تحديث جماعي' : 'Bulk Update', 3000);
+            window.Toast.danger(isArLocale ? 'تم تحديد جميع طلاب الجلسة كـ غياب <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' : 'All students marked as Absent <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>', isArLocale ? 'تحديث جماعي' : 'Bulk Update', 3000);
         }
     }
 }
@@ -2216,8 +2216,8 @@ async function openGradeModal(submissionId, studentName, assignmentTitle, curren
             let html = '';
             data.questions.forEach((q, idx) => {
                 const statusBadge = q.is_correct
-                    ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold rounded-full">🟢 ${i18n.correct} (+${q.points_earned}/${q.points} pts)</span>`
-                    : `<span class="px-2 py-0.5 bg-red-100 text-red-800 text-[10px] font-mono font-bold rounded-full">🔴 ${i18n.incorrect} (0/${q.points} pts)</span>`;
+                    ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${i18n.correct} (+${q.points_earned}/${q.points} pts)</span>`
+                    : `<span class="px-2 py-0.5 bg-red-100 text-red-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${i18n.incorrect} (0/${q.points} pts)</span>`;
 
                 let optsHtml = '';
                 q.options.forEach(opt => {
@@ -2285,7 +2285,7 @@ function addTeacherQuestion() {
                     <input type="number" step="0.5" name="questions[${qIdx}][points]" value="1" min="0.5" class="w-14 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-center">
                 </div>
                 <button type="button" onclick="removeTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer">
-                    ✕ ${isAr ? 'حذف' : 'Remove'}
+                    <i class="fa-solid fa-xmark"></i> ${isAr ? 'حذف' : 'Remove'}
                 </button>
             </div>
         </div>
@@ -2453,7 +2453,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         isArLocale 
                             ? 'لا يمكنك إرسال أرقام الهواتف أو وسائل التواصل في الملاحظات التعليمية حرصاً على الأمان والخصوصية' 
                             : 'Security Alert: Sharing phone numbers or contact details in notes is prohibited.',
-                        isArLocale ? 'تنبيه أمان وخصوصية 🛡️' : 'Security Violation'
+                        isArLocale ? 'تنبيه أمان وخصوصية <i class="fa-solid fa-shield-halved"></i>' : 'Security Violation'
                     );
                 }
                 return;
@@ -2463,7 +2463,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const submitBtn = document.getElementById('saveNoteBtn');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = `⏳ ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+                submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
             }
 
             try {
@@ -2488,7 +2488,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     const msg = data.message || (data.errors && data.errors.note ? data.errors.note[0] : 'Failed to save note');
                     if (window.Toast) {
-                        window.Toast.danger(msg, isArLocale ? 'تنبيه أمان 🛡️' : 'Security Alert');
+                        window.Toast.danger(msg, isArLocale ? 'تنبيه أمان <i class="fa-solid fa-shield-halved"></i>' : 'Security Alert');
                     } else {
                         showTeacherToast(msg, false);
                     }
@@ -2532,7 +2532,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const tableBody = document.getElementById('recPreviewTableBody');
 
         if (previewContainer) previewContainer.classList.remove('hidden');
-        if (previewSummary) previewSummary.innerHTML = `⏳ ${isArLocale ? 'جاري فحص المواعيد والتعارضات...' : 'Validating dates and conflicts...'}`;
+        if (previewSummary) previewSummary.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${isArLocale ? 'جاري فحص المواعيد والتعارضات...' : 'Validating dates and conflicts...'}`;
 
         try {
             const res = await fetch('{{ route("ajax.teacher.recurring.preview") }}', {
@@ -2550,7 +2550,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (previewSummary) previewSummary.textContent = errMsg;
                 if (conflictBadge) {
                     conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
-                    conflictBadge.textContent = '❌ Error';
+                    conflictBadge.textContent = '<i class="fa-solid fa-circle-xmark text-rose-500"></i> Error';
                 }
                 return;
             }
@@ -2563,12 +2563,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (data.has_conflicts) {
                 conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 animate-pulse';
-                conflictBadge.textContent = isArLocale ? '⚠️ يوجد تعارض في المواعيد' : '⚠️ Schedule Conflicts Detected';
+                conflictBadge.textContent = isArLocale ? '<i class="fa-solid fa-triangle-exclamation"></i> يوجد تعارض في المواعيد' : '<i class="fa-solid fa-triangle-exclamation"></i> Schedule Conflicts Detected';
                 conflictWarning.classList.remove('hidden');
-                conflictWarning.innerHTML = `<span>⚠️ ${isArLocale ? 'تنبيه: بعض الحصص المقترحة تتعارض مع حصص سابقة لنفس المعلم أو الطالب.' : 'Warning: Some proposed sessions conflict with existing schedules.'}</span>`;
+                conflictWarning.innerHTML = `<span><i class="fa-solid fa-triangle-exclamation"></i> ${isArLocale ? 'تنبيه: بعض الحصص المقترحة تتعارض مع حصص سابقة لنفس المعلم أو الطالب.' : 'Warning: Some proposed sessions conflict with existing schedules.'}</span>`;
             } else {
                 conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-                conflictBadge.textContent = isArLocale ? '✓ المواعيد متاحة بدون تعارض' : '✓ All Slots Available';
+                conflictBadge.textContent = isArLocale ? '<i class="fa-solid fa-check"></i> المواعيد متاحة بدون تعارض' : '<i class="fa-solid fa-check"></i> All Slots Available';
                 conflictWarning.classList.add('hidden');
             }
 
@@ -2579,7 +2579,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td class="py-1.5 px-2 text-slate-500">${d.day_name}</td>
                         <td class="py-1.5 px-2">${d.start_time} - ${d.end_time}</td>
                         <td class="py-1.5 px-2 font-bold ${d.has_conflict ? 'text-rose-600' : 'text-emerald-600'}">
-                            ${d.has_conflict ? '⚠️ ' + (isArLocale ? 'تعارض' : 'Conflict') : '✓ ' + (isArLocale ? 'متاح' : 'Available')}
+                            ${d.has_conflict ? '<i class="fa-solid fa-triangle-exclamation"></i> ' + (isArLocale ? 'تعارض' : 'Conflict') : '<i class="fa-solid fa-check"></i> ' + (isArLocale ? 'متاح' : 'Available')}
                         </td>
                     </tr>
                 `).join('');
@@ -2620,7 +2620,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const submitBtn = document.getElementById('saveRecurringBtn');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = `⏳ ${isArLocale ? 'جاري إنشاء الجدول والحصص...' : 'Generating sessions...'}`;
+                submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${isArLocale ? 'جاري إنشاء الجدول والحصص...' : 'Generating sessions...'}`;
             }
 
             try {
@@ -2660,7 +2660,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const submitBtn = document.getElementById('saveOverrideBtn');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = `⏳ ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+                submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
             }
 
             try {

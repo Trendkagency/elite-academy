@@ -105,7 +105,7 @@
         <article class="prose prose-slate max-w-none space-y-8">
             <header class="space-y-4 border-b border-slate-200 pb-8">
                 <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200">
-                    <span>📖</span> Comprehensive Academic & Platform Guide
+                    <span><i class="fa-solid fa-book-bookmark"></i></span> Comprehensive Academic & Platform Guide
                 </span>
                 <h2 class="font-heading font-black text-3xl sm:text-4xl text-slate-900 tracking-tight">
                     The Complete Architecture of Modern Secondary Tutoring & E-Learning in Egypt

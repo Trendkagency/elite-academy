@@ -121,12 +121,12 @@
 
 <div class="student-overview-wrapper">
     <div class="overview-grid">
-        <!-- 💳 Active Package & Credit Balance -->
+        <!-- <i class="fa-solid fa-credit-card"></i> Active Package & Credit Balance -->
         <div class="overview-card">
             <div class="card-title-bar">
-                <span class="card-title-text">💳 Active Session Package & Credits</span>
+                <span class="card-title-text"><i class="fa-solid fa-credit-card"></i> Active Session Package & Credits</span>
                 @if($activePackage)
-                    <span class="card-badge badge-teal">✅ Active Package</span>
+                    <span class="card-badge badge-teal"><i class="fa-solid fa-circle-check text-emerald-500"></i> Active Package</span>
                 @else
                     <span class="card-badge badge-gray">No Active Package</span>
                 @endif
@@ -158,10 +158,10 @@
             @endif
         </div>
 
-        <!-- 👨‍👩‍👧 Linked Parent Account(s) -->
+        <!-- <i class="fa-solid fa-people-roof"></i> Linked Parent Account(s) -->
         <div class="overview-card">
             <div class="card-title-bar">
-                <span class="card-title-text">👨‍👩‍👧 Linked Parent / Guarding Accounts</span>
+                <span class="card-title-text"><i class="fa-solid fa-people-roof"></i> Linked Parent / Guarding Accounts</span>
                 <span class="card-badge badge-teal">{{ $parents->count() }} Linked</span>
             </div>
 
@@ -171,8 +171,8 @@
                         @php $parentUser = $parent->user; @endphp
                         <div class="list-row">
                             <div>
-                                <div class="list-row-title">👨‍👩‍👧 {{ $parentUser?->name ?? 'Unknown Parent' }}</div>
-                                <div class="list-row-sub">📧 {{ $parentUser?->email ?? 'N/A' }} | 📱 {{ $parentUser?->phone ?? 'N/A' }}</div>
+                                <div class="list-row-title"><i class="fa-solid fa-people-roof"></i> {{ $parentUser?->name ?? 'Unknown Parent' }}</div>
+                                <div class="list-row-sub"><i class="fa-solid fa-envelope"></i> {{ $parentUser?->email ?? 'N/A' }} | <i class="fa-solid fa-mobile-screen"></i> {{ $parentUser?->phone ?? 'N/A' }}</div>
                             </div>
                             <a href="{{ route('filament.admin.resources.parent-profiles.edit', ['record' => $parent->id]) }}" target="_blank" style="font-size: 11px; font-weight: 800; color: #38bdf8; text-decoration: none;">
                                 View ↗
@@ -187,10 +187,10 @@
             @endif
         </div>
 
-        <!-- 📚 Course Enrollments -->
+        <!-- <i class="fa-solid fa-book-open"></i> Course Enrollments -->
         <div class="overview-card">
             <div class="card-title-bar">
-                <span class="card-title-text">📚 Enrolled Courses</span>
+                <span class="card-title-text"><i class="fa-solid fa-book-open"></i> Enrolled Courses</span>
                 <span class="card-badge badge-teal">{{ $enrollments->count() }} Courses</span>
             </div>
 
@@ -202,7 +202,7 @@
                         @endphp
                         <div class="list-row">
                             <div>
-                                <div class="list-row-title">📘 {{ $enrollment->course?->title ?? 'Course' }}</div>
+                                <div class="list-row-title"><i class="fa-solid fa-book"></i> {{ $enrollment->course?->title ?? 'Course' }}</div>
                                 <div class="list-row-sub">Status: {{ ucfirst($eStatus) }} | Date: {{ $enrollment->created_at->format('d M Y') }}</div>
                             </div>
                             <span style="font-size: 11px; font-weight: 800; color: #2dd4bf;">Enrolled</span>
@@ -216,10 +216,10 @@
             @endif
         </div>
 
-        <!-- 📝 Homework Submissions -->
+        <!-- <i class="fa-solid fa-pen-to-square"></i> Homework Submissions -->
         <div class="overview-card">
             <div class="card-title-bar">
-                <span class="card-title-text">📝 Recent Homework Submissions</span>
+                <span class="card-title-text"><i class="fa-solid fa-pen-to-square"></i> Recent Homework Submissions</span>
                 <span class="card-badge badge-teal">{{ $submissions->count() }} Submissions</span>
             </div>
 
@@ -231,7 +231,7 @@
                         @endphp
                         <div class="list-row">
                             <div>
-                                <div class="list-row-title">📝 {{ $sub->assignment?->title ?? 'Assignment' }}</div>
+                                <div class="list-row-title"><i class="fa-solid fa-pen-to-square"></i> {{ $sub->assignment?->title ?? 'Assignment' }}</div>
                                 <div class="list-row-sub">Score: {{ $sub->grade ?? 'Pending Review' }}% | Submitted: {{ $sub->submitted_at ? $sub->submitted_at->format('d M Y') : 'N/A' }}</div>
                             </div>
                             <span style="font-size: 11px; font-weight: 800; color: #fbbf24;">{{ ucfirst($sStatus) }}</span>

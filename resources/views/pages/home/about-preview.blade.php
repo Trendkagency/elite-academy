@@ -31,10 +31,10 @@
 
                 <div class="w-[60%] space-y-3.5">
                     @foreach ([
-                        ['icon' => '🎓', 'title' => __('Expert Mentors'), 'desc' => __('PhD faculty guidance.')],
-                        ['icon' => '💻', 'title' => __('Practical Learning'), 'desc' => __('Hands-on lab projects.')],
-                        ['icon' => '🌍', 'title' => __('Global Certificates'), 'desc' => __('Accredited diplomas.')],
-                        ['icon' => '🚀', 'title' => __('Career Support'), 'desc' => __('Job readiness tracks.')],
+                        ['icon' => '<i class="fa-solid fa-graduation-cap"></i>', 'title' => __('Expert Mentors'), 'desc' => __('PhD faculty guidance.')],
+                        ['icon' => '<i class="fa-solid fa-laptop-code"></i>', 'title' => __('Practical Learning'), 'desc' => __('Hands-on lab projects.')],
+                        ['icon' => '<i class="fa-solid fa-earth-americas"></i>', 'title' => __('Global Certificates'), 'desc' => __('Accredited diplomas.')],
+                        ['icon' => '<i class="fa-solid fa-rocket"></i>', 'title' => __('Career Support'), 'desc' => __('Job readiness tracks.')],
                     ] as $feat)
                         <div class="flex items-start gap-2.5">
                             <div class="w-8 h-8 rounded-lg bg-slate-900 text-teal-300 flex items-center justify-center text-base font-bold shrink-0 border border-slate-800">
@@ -74,10 +74,10 @@
 
                 <div class="anim-about delay-4 sr grid grid-cols-2 gap-4 border-t border-slate-800 pt-6">
                     @foreach ([
-                        ['icon' => '🎓', 'title' => __('Expert Mentors')],
-                        ['icon' => '💻', 'title' => __('Practical Learning')],
-                        ['icon' => '🌍', 'title' => __('Global Certificates')],
-                        ['icon' => '🚀', 'title' => __('Career Support')],
+                        ['icon' => '<i class="fa-solid fa-graduation-cap"></i>', 'title' => __('Expert Mentors')],
+                        ['icon' => '<i class="fa-solid fa-laptop-code"></i>', 'title' => __('Practical Learning')],
+                        ['icon' => '<i class="fa-solid fa-earth-americas"></i>', 'title' => __('Global Certificates')],
+                        ['icon' => '<i class="fa-solid fa-rocket"></i>', 'title' => __('Career Support')],
                     ] as $item)
                         <div class="flex items-center gap-3 group">
                             <div class="w-10 h-10 rounded-xl bg-slate-900 text-teal-300 group-hover:text-teal-200 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0 border border-slate-800">
@@ -105,7 +105,7 @@
                             <img src="{{ media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp') }}" alt="Elite Academy Campus Photography" width="600" height="440" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none"></div>
                             <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold uppercase tracking-wider text-white bg-slate-950/80 px-3 py-1 rounded-full backdrop-blur-xs border border-white/20">
-                                🏫 Campus Life
+                                <i class="fa-solid fa-school"></i> Campus Life
                             </span>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                         <img src="{{ asset('images/course_ai.webp') }}" alt="AI Neural Research" width="192" height="128" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent pointer-events-none"></div>
                         <span class="absolute bottom-2 left-2.5 text-[9px] font-mono font-bold text-white bg-orange-600/90 px-2 py-0.5 rounded-full backdrop-blur-xs shadow-xs">
-                            🧠 AI Research
+                            <i class="fa-solid fa-brain"></i> AI Research
                         </span>
                     </div>
 
@@ -125,7 +125,7 @@
                     <div class="absolute bottom-6 left-6 z-30 bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-2xl shadow-slate-950/60 space-y-2 max-w-xs">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center font-extrabold text-sm icon-rotate flex-shrink-0 shadow-xs border border-teal-500/30">
-                                ⭐
+                                <i class="fa-solid fa-star text-amber-400"></i>
                             </div>
                             <div>
                                 <p class="text-[9px] font-mono uppercase tracking-wider text-slate-400 font-bold">Trusted by</p>
@@ -135,7 +135,7 @@
 
                         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-[11px]">
                             <div>
-                                <p class="text-amber-400 font-extrabold">★★★★★ 4.9</p>
+                                <p class="text-amber-400 font-extrabold"><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i> 4.9</p>
                                 <p class="text-[9px] text-slate-400 font-medium">Verified Rating</p>
                             </div>
                             <div>

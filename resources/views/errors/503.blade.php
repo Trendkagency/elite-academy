@@ -9,7 +9,7 @@
 
             {{-- Icon Badge --}}
             <div class="w-24 h-24 mx-auto bg-teal-500/10 text-teal-600 rounded-3xl flex items-center justify-center text-4xl border border-teal-500/20 shadow-inner animate-pulse">
-                ⚙️
+                <i class="fa-solid fa-gear"></i>
             </div>
 
             {{-- Typography --}}
@@ -30,7 +30,7 @@
             {{-- Action Buttons --}}
             <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button type="button" onclick="window.location.reload()" class="btn-lift w-full sm:w-auto px-7 py-3.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span>🔄</span> {{ __('Check Again') }}
+                    <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Check Again') }}
                 </button>
             </div>
         </div>

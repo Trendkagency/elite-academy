@@ -14,7 +14,7 @@
             <span class="absolute top-4 left-4 {{ $categoryBg }} text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">{{ $category }}</span>
             @if($isEnrolled)
                 <span class="absolute top-4 right-4 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1">
-                    <span>✓</span> {{ $isArabic ? 'مشترك' : 'Enrolled' }}
+                    <i class="fa-solid fa-check"></i> {{ $isArabic ? 'مشترك' : 'Enrolled' }}
                 </span>
             @elseif($hasFreeDemo)
                 <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
@@ -22,7 +22,7 @@
                 </span>
             @else
                 <span class="absolute top-4 right-4 bg-rose-700 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1 shadow-rose-700/20">
-                    <span>🔒</span> {{ $isArabic ? 'باقة مطلوب' : 'Package Required' }}
+                    <span><i class="fa-solid fa-lock"></i></span> {{ $isArabic ? 'باقة مطلوب' : 'Package Required' }}
                 </span>
             @endif
         </div>

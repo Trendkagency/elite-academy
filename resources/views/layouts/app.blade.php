@@ -111,6 +111,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
         :root {
@@ -394,7 +395,7 @@
         <div id="fcm-permission-modal" class="hidden fixed bottom-6 right-6 left-6 sm:left-auto sm:max-w-md bg-slate-900/95 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl border border-slate-700/80 z-50 transition-all duration-300">
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center text-2xl shrink-0">
-                    🔔
+                    <i class="fa-solid fa-bell"></i>
                 </div>
                 <div class="space-y-2 flex-1">
                     <h4 class="font-heading font-bold text-sm sm:text-base text-white">
@@ -405,7 +406,7 @@
                     </p>
                     <div class="flex items-center gap-2 pt-1">
                         <button id="btn-enable-fcm" type="button" class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
-                            <span>✨</span> {{ __('Allow Notifications Now') }}
+                            <span><i class="fa-solid fa-wand-magic-sparkles"></i></span> {{ __('Allow Notifications Now') }}
                         </button>
                         <button id="btn-dismiss-fcm" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-all cursor-pointer">
                             {{ __('Later') }}
@@ -498,7 +499,7 @@
                             messaging.onMessage((payload) => {
                                 const title = (payload.notification && payload.notification.title) ||
                                               (payload.data && payload.data.title) ||
-                                              '🔔 Firebase Push Notification';
+                                              '<i class="fa-solid fa-bell"></i> Firebase Push Notification';
 
                                 const body = (payload.notification && payload.notification.body) ||
                                              (payload.data && payload.data.body) ||
@@ -651,7 +652,7 @@
                                         }).catch(() => {});
 
                                         if (window.Toast) {
-                                            window.Toast.success(document.documentElement.lang === 'ar' ? 'تم تفعيل وتحديث إشعارات الفايبربيس بنجاح! 🔔' : 'Live Firebase Push Notifications Enabled Successfully! 🔔');
+                                            window.Toast.success(document.documentElement.lang === 'ar' ? 'تم تفعيل وتحديث إشعارات الفايبربيس بنجاح! <i class="fa-solid fa-bell"></i>' : 'Live Firebase Push Notifications Enabled Successfully! <i class="fa-solid fa-bell"></i>');
                                         }
                                     } else {
                                         if (window.Toast) window.Toast.warning('No FCM registration token returned by Firebase');

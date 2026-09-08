@@ -21,7 +21,7 @@
                     <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-teal-500/20 border-2 border-teal-300/40">
                         {{ mb_substr(auth()->user()->name ?? 'S', 0, 1) }}
                     </div>
-                    <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold">✓</span>
+                    <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold"><i class="fa-solid fa-check"></i></span>
                 </div>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
@@ -36,9 +36,9 @@
                         {{ __('app.portal.welcome_back') }}، <span class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ auth()->user()->name ?? __('Learner') }}!</span>
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm font-mono flex flex-wrap items-center gap-2 pt-1">
-                        <span>🎓 {{ __('app.portal.grade_level') }}: <strong class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: __('Grade 12 STEM') }}</strong></span>
+                        <span><i class="fa-solid fa-graduation-cap"></i> {{ __('app.portal.grade_level') }}: <strong class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: __('Grade 12 STEM') }}</strong></span>
                         <span class="text-slate-600">•</span>
-                        <span>🏫 {{ __('app.portal.school') }}: <strong class="text-slate-200">{{ $studentProfile?->school_name ?: 'Elite STEM Academy Cairo' }}</strong></span>
+                        <span><i class="fa-solid fa-school"></i> {{ __('app.portal.school') }}: <strong class="text-slate-200">{{ $studentProfile?->school_name ?: 'Elite STEM Academy Cairo' }}</strong></span>
                     </p>
                 </div>
             </div>
@@ -46,10 +46,10 @@
             {{-- Quick Action Buttons --}}
             <div class="flex flex-wrap items-center gap-3">
                 <button onclick="document.getElementById('excuseModal').classList.remove('hidden')" class="btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
-                    <span>📄</span> {{ __('app.portal.submit_excuse') }}
+                    <span><i class="fa-solid fa-file-lines"></i></span> {{ __('app.portal.submit_excuse') }}
                 </button>
                 <button onclick="document.getElementById('homeworkExceptionModal').classList.remove('hidden')" class="btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
-                    <span>📋</span> {{ __('app.portal.submit_exception') }}
+                    <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.submit_exception') }}
                 </button>
             </div>
         </div>
@@ -62,14 +62,14 @@
         @if(! $hasActivePackage)
             <div class="animate-fade-in-up p-6 bg-rose-50/90 border border-rose-200 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-5 text-rose-950 shadow-sm hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-100/90 flex items-center justify-center text-rose-600 text-2xl font-bold shrink-0">💳</div>
+                    <div class="w-12 h-12 rounded-2xl bg-rose-100/90 flex items-center justify-center text-rose-600 text-2xl font-bold shrink-0"><i class="fa-solid fa-credit-card"></i></div>
                     <div class="space-y-1">
                         <h4 class="font-bold text-sm sm:text-base text-rose-950 leading-tight">{{ app()->getLocale() === 'ar' ? 'تنبيه: لا توجد باقة حصص نشطة لديك!' : 'Warning: No Active Package Subscription Found!' }}</h4>
                         <p class="text-xs font-mono text-rose-800 leading-relaxed">{{ app()->getLocale() === 'ar' ? 'يلزم الاشتراك في باقة حصص للتسجيل في الكورسات والدخول للبث المباشر والواجبات التفاعلية.' : 'An active package subscription with available session credits is required to enroll in courses, access live streams, and solve assignments.' }}</p>
                     </div>
                 </div>
                 <a href="{{ route('courses') }}" class="btn-lift px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-md shadow-rose-600/30 whitespace-nowrap flex items-center gap-2 shrink-0">
-                    <span>🛒</span> {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات والباقات الآن' : 'Browse Courses & Packages' }}
+                    <span><i class="fa-solid fa-cart-shopping"></i></span> {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات والباقات الآن' : 'Browse Courses & Packages' }}
                 </a>
             </div>
         @endif
@@ -80,7 +80,7 @@
             <div class="animate-fade-in-up stagger-1 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 {{ $hasActivePackage ? 'border-t-teal-500' : 'border-t-rose-500' }} shadow-sm hover:shadow-xl transition-all space-y-3.5">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-mono font-extrabold {{ $hasActivePackage ? 'text-teal-800 bg-teal-50 border-teal-200/80' : 'text-rose-800 bg-rose-50 border-rose-200/80' }} px-3 py-1 rounded-full border shadow-2xs">{{ __('app.portal.current_package') }}</span>
-                    <div class="w-11 h-11 rounded-2xl {{ $hasActivePackage ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }} flex items-center justify-center text-xl shadow-2xs">💳</div>
+                    <div class="w-11 h-11 rounded-2xl {{ $hasActivePackage ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }} flex items-center justify-center text-xl shadow-2xs"><i class="fa-solid fa-credit-card"></i></div>
                 </div>
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                     @if($hasActivePackage)
@@ -102,7 +102,7 @@
             <div class="animate-fade-in-up stagger-2 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-indigo-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-mono font-extrabold text-indigo-800 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200/80 shadow-2xs">{{ __('app.portal.upcoming_sessions') }}</span>
-                    <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl shadow-2xs">📅</div>
+                    <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl shadow-2xs"><i class="fa-solid fa-calendar-days"></i></div>
                 </div>
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                     {{ count($upcomingSessions) }} <span class="text-base font-bold text-slate-600">{{ app()->getLocale() === 'ar' ? 'حصص معتمدة' : 'Confirmed Sessions' }}</span>
@@ -114,7 +114,7 @@
             <div class="animate-fade-in-up stagger-3 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-emerald-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-mono font-extrabold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 shadow-2xs">{{ __('app.portal.attendance_rate') }}</span>
-                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-2xs">🎯</div>
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-2xs"><i class="fa-solid fa-bullseye"></i></div>
                 </div>
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                     @if($totalSessionCount > 0)
@@ -132,7 +132,7 @@
             <div class="animate-fade-in-up stagger-4 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-amber-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-mono font-extrabold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs">{{ __('app.portal.homework_rate') }}</span>
-                    <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-xl shadow-2xs">📝</div>
+                    <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-xl shadow-2xs"><i class="fa-solid fa-pen-to-square"></i></div>
                 </div>
                 <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                     @if(!is_null($avgScore))
@@ -154,12 +154,12 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📅</span> {{ __('app.portal.upcoming_sessions') }}
+                                <span><i class="fa-solid fa-calendar-days"></i></span> {{ __('app.portal.upcoming_sessions') }}
                             </h2>
                             <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'رابط الحصة التفاعلية يتفعل قبل موعد البث بـ 30 دقيقة بشرط تسليم الواجب أو طلب استثناء.' : 'Stream link activates 30 mins before start time provided homework or exception request is fulfilled.' }}</p>
                         </div>
                         <span class="text-xs font-mono font-bold bg-teal-50 text-teal-800 px-3.5 py-1.5 rounded-full border border-teal-200/80 self-start sm:self-auto shadow-2xs">
-                            🛡️ 30-Min & Prerequisite Rules Active
+                            <i class="fa-solid fa-shield-halved"></i> 30-Min & Prerequisite Rules Active
                         </span>
                     </div>
 
@@ -167,7 +167,7 @@
                         @if(! $hasActivePackage)
                             <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
                                 <div class="flex items-start gap-3">
-                                    <span class="text-2xl leading-none">⚠️</span>
+                                    <span class="text-2xl leading-none"><i class="fa-solid fa-triangle-exclamation"></i></span>
                                     <div>
                                         <h4 class="font-bold text-sm text-amber-900">
                                             {{ app()->getLocale() === 'ar' ? 'تنبيه الحصص التجريبية والباقات:' : 'Demo & Package Subscription Alert:' }}
@@ -180,7 +180,7 @@
                                     </div>
                                 </div>
                                 <a href="{{ route('courses') }}" class="btn-lift px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold font-mono shadow-sm flex items-center gap-1.5 whitespace-nowrap self-stretch sm:self-auto justify-center">
-                                    <span>🛒</span> {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
+                                    <span><i class="fa-solid fa-cart-shopping"></i></span> {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
                                 </a>
                             </div>
                         @endif
@@ -204,19 +204,19 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
                                         <span class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap">
-                                            📅 {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}: {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
+                                            <i class="fa-solid fa-calendar-days"></i> {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}: {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
                                         </span>
                                         @if($startAt && $startAt->isFuture())
                                             <span class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
                                                   data-start-time="{{ $startAt->toIso8601String() }}"
                                                   data-join-time="{{ $joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String() }}">
-                                                <span>⏳</span>
+                                                <span><i class="fa-solid fa-hourglass-half"></i></span>
                                                 <span class="countdown-text">{{ app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...' }}</span>
                                             </span>
                                         @endif
                                         @if($endAt)
                                             <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
-                                                ⏱️ {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}: {{ $endAt->format('h:i A') }}
+                                                <i class="fa-solid fa-stopwatch"></i> {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}: {{ $endAt->format('h:i A') }}
                                             </span>
                                         @endif
                                         @php
@@ -224,7 +224,7 @@
                                         @endphp
                                         @if($halfAt)
                                             <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap" title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
-                                                ⏳ {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}: {{ $halfAt->format('h:i A') }}
+                                                <i class="fa-solid fa-hourglass-half"></i> {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}: {{ $halfAt->format('h:i A') }}
                                             </span>
                                         @endif
                                     </div>
@@ -232,44 +232,44 @@
 
                                 <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
                                     <div class="flex flex-wrap items-center gap-4">
-                                        <span>👨‍🏫 {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}: <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong></span>
-                                        <span>📚 {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}: <strong>{{ $s->subject?->name ?: 'Physics' }}</strong></span>
+                                        <span><i class="fa-solid fa-chalkboard-user"></i> {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}: <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong></span>
+                                        <span><i class="fa-solid fa-book-open"></i> {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}: <strong>{{ $s->subject?->name ?: 'Physics' }}</strong></span>
                                     </div>
 
                                     @if($state === \App\Enums\LiveSessionState::LIVE)
                                         <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}" class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
-                                            <span>🟢</span> {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream' }}
+                                            <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream' }}
                                         </a>
                                     @elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE)
                                         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                             <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs" title="{{ app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time' }}">
-                                                <span>🔒</span>
+                                                <span><i class="fa-solid fa-lock"></i></span>
                                                 <span>{{ app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:' }}</span>
                                                 <span class="text-teal-700 font-extrabold">{{ $joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before') }}</span>
                                             </span>
                                         </div>
                                     @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
                                         <a href="{{ route('courses') }}" class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
-                                            <span>🔒</span> {{ $state->label() }}
+                                            <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
                                         </a>
                                     @elseif($state === \App\Enums\LiveSessionState::ENDED)
                                         <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                            <span>⏹️</span> {{ $state->label() }}
+                                            <span><i class="fa-solid fa-stop"></i>️</span> {{ $state->label() }}
                                         </span>
                                     @elseif($state === \App\Enums\LiveSessionState::PREREQUISITE_REQUIRED)
                                         <span class="text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                            <span>⚠️</span> {{ $state->label() }}
+                                            <span><i class="fa-solid fa-triangle-exclamation"></i></span> {{ $state->label() }}
                                         </span>
                                     @else
                                         <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                            <span>🔒</span> {{ $state->label() }}
+                                            <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
                                         </span>
                                     @endif
                                 </div>
                             </div>
                         @empty
                             <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
-                                <div class="text-4xl">🎓</div>
+                                <div class="text-4xl"><i class="fa-solid fa-graduation-cap"></i></div>
                                 <h3 class="font-bold text-slate-800 text-base">
                                     {{ app()->getLocale() === 'ar' ? 'لا توجد حصص مجانية متوفرة حالياً' : 'No Free Demo Sessions Currently Available' }}
                                 </h3>
@@ -280,7 +280,7 @@
                                 </p>
                                 <div class="pt-2">
                                     <a href="{{ route('courses') }}" class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-indigo-600/20">
-                                        <span>🚀</span> {{ app()->getLocale() === 'ar' ? 'استكشاف الكورسات والباقات المتاحة' : 'Explore Available Courses & Packages' }}
+                                        <span><i class="fa-solid fa-rocket"></i></span> {{ app()->getLocale() === 'ar' ? 'استكشاف الكورسات والباقات المتاحة' : 'Explore Available Courses & Packages' }}
                                     </a>
                                 </div>
                             </div>
@@ -293,7 +293,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📝</span> {{ app()->getLocale() === 'ar' ? 'قسم الواجبات والاختبارات التفاعلية (Assignments & Quizzes)' : 'Assignments & MSQ Quizzes Department' }}
+                                <span><i class="fa-solid fa-pen-to-square"></i></span> {{ app()->getLocale() === 'ar' ? 'قسم الواجبات والاختبارات التفاعلية (Assignments & Quizzes)' : 'Assignments & MSQ Quizzes Department' }}
                             </h2>
                             <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا الواجبات المتاحة والمستمرة لجميع الكورسات المشترك بها. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows available and in-progress assignments for all your enrolled courses. Answered assignments move to submission history.' }}</p>
                         </div>
@@ -332,19 +332,19 @@
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-teal-100/80 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 {{ $courseTitle }}
+                                            <i class="fa-solid fa-book-open"></i> {{ $courseTitle }}
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200/80 px-3 py-0.5 rounded-full">
-                                            📺 {{ $sessionTitle }}
+                                            <i class="fa-solid fa-tv"></i> {{ $sessionTitle }}
                                         </span>
                                         @if($isInProgress)
                                             <span class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold text-[10px] animate-pulse">
-                                                ⚡ {{ app()->getLocale() === 'ar' ? 'قيد الحل حالياً' : 'In Progress' }}
+                                                <i class="fa-solid fa-bolt"></i> {{ app()->getLocale() === 'ar' ? 'قيد الحل حالياً' : 'In Progress' }}
                                             </span>
                                         @endif
                                     </div>
                                     <span class="text-teal-700 font-bold bg-teal-100/60 px-2.5 py-0.5 rounded-md">
-                                        ⏱️ {{ $assign->duration_minutes ?: 30 }} {{ app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Duration' }}
+                                        <i class="fa-solid fa-stopwatch"></i> {{ $assign->duration_minutes ?: 30 }} {{ app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Duration' }}
                                     </span>
                                 </div>
 
@@ -359,39 +359,39 @@
                                         <p class="text-xs text-slate-600 font-mono leading-relaxed">{{ $assign->description ?: (app()->getLocale() === 'ar' ? 'واجب تقييمي تفاعلي لغلق فجوات الدرس والتأكد من الفهم الكامل.' : 'Interactive MSQ assignment to verify lesson mastery.') }}</p>
                                     </div>
                                     <span class="text-xs font-mono font-extrabold text-slate-800 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs self-start sm:self-auto">
-                                        🎯 {{ app()->getLocale() === 'ar' ? 'درجة النجاح:' : 'Pass Mark:' }} {{ number_format($assign->passing_score ?? 70, 0) }}%
+                                        <i class="fa-solid fa-bullseye"></i> {{ app()->getLocale() === 'ar' ? 'درجة النجاح:' : 'Pass Mark:' }} {{ number_format($assign->passing_score ?? 70, 0) }}%
                                     </span>
                                 </div>
 
                                 <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-3 text-slate-600">
                                         <span class="flex items-center gap-1 font-bold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                                            ⏰ {{ app()->getLocale() === 'ar' ? 'الموعد النهائي' : 'Deadline' }}: 
+                                            <i class="fa-solid fa-clock"></i> {{ app()->getLocale() === 'ar' ? 'الموعد النهائي' : 'Deadline' }}: 
                                             {{ $assign->effective_due_at ? $assign->effective_due_at->format('Y-m-d H:i') : '24h Pre-Session' }}
                                         </span>
                                         <span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200 font-bold">
-                                            🔒 {{ app()->getLocale() === 'ar' ? 'محاولة واحدة فقط' : '1 Attempt Only' }}
+                                            <i class="fa-solid fa-lock"></i> {{ app()->getLocale() === 'ar' ? 'محاولة واحدة فقط' : '1 Attempt Only' }}
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         @if($isInProgress)
                                             <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
-                                                <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment' }} &rarr;
+                                                <span><i class="fa-solid fa-bolt"></i></span> {{ app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment' }} &rarr;
                                             </a>
                                         @else
                                             <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}" class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
-                                                <span>⚡</span> {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
+                                                <span><i class="fa-solid fa-bolt"></i></span> {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
                                             </a>
                                         @endif
                                         <button onclick="openMsqAssignmentModal({{ $assign->id }})" class="btn-lift px-4 py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs border border-slate-300 shadow-2xs cursor-pointer">
-                                            {{ app()->getLocale() === 'ar' ? 'معاينة سريعة 👁️' : 'Quick Preview 👁️' }}
+                                            {{ app()->getLocale() === 'ar' ? 'معاينة سريعة <i class="fa-solid fa-eye"></i>' : 'Quick Preview <i class="fa-solid fa-eye"></i>' }}
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         @empty
                             <div class="p-8 bg-emerald-50/70 rounded-3xl border border-emerald-200 text-center space-y-2">
-                                <div class="text-4xl animate-bounce">🎉</div>
+                                <div class="text-4xl animate-bounce"><i class="fa-solid fa-sparkles text-amber-400"></i></div>
                                 <h4 class="font-bold text-lg text-emerald-950">{{ app()->getLocale() === 'ar' ? 'ممتاز! تم حل جميع الواجبات المتاحة بنجاح' : 'All Available Assignments Completed!' }}</h4>
                                 <p class="text-xs font-mono text-emerald-800">{{ app()->getLocale() === 'ar' ? 'لا توجد واجبات معلقة حالياً. يمكن مراجعة النتائج والتفاصيل في قسم السجل أدناه.' : 'No pending assignments remaining. Inspect your scores and evaluations in the submission history below.' }}</p>
                             </div>
@@ -404,7 +404,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📚</span> {{ app()->getLocale() === 'ar' ? 'الكورسات المشترك بها والمنهج التفصيلي' : 'My Enrolled Courses & Detailed Modules' }}
+                                <span><i class="fa-solid fa-book-open"></i></span> {{ app()->getLocale() === 'ar' ? 'الكورسات المشترك بها والمنهج التفصيلي' : 'My Enrolled Courses & Detailed Modules' }}
                             </h2>
                             <p class="text-xs font-mono text-slate-500 mt-1">
                                 {{ app()->getLocale() === 'ar' 
@@ -427,7 +427,7 @@
                                                 {{ $card['subject'] }}
                                             </span>
                                             <span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                                                ✓ {{ app()->getLocale() === 'ar' ? 'مشترك بنجاح' : 'Enrolled' }}
+                                                <i class="fa-solid fa-check"></i> {{ app()->getLocale() === 'ar' ? 'مشترك بنجاح' : 'Enrolled' }}
                                             </span>
                                         </div>
 
@@ -441,7 +441,7 @@
 
                                         <div class="flex items-center gap-2 pt-1 text-xs font-mono text-slate-700">
                                             <img src="{{ asset('images/instructor_portrait.webp') }}" alt="{{ $card['teacher'] }}" class="w-6 h-6 rounded-full object-cover border border-teal-500">
-                                            <span>👨‍🏫 <strong>{{ $card['teacher'] }}</strong></span>
+                                            <span><i class="fa-solid fa-chalkboard-user"></i> <strong>{{ $card['teacher'] }}</strong></span>
                                         </div>
 
                                         {{-- Progress Bar --}}
@@ -458,14 +458,14 @@
 
                                     <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                                         <div class="flex items-center gap-2 text-xs font-mono text-slate-500">
-                                            <span>📹 <strong>{{ $card['recCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'دروس' : 'Lectures' }}</span>
+                                            <span><i class="fa-solid fa-video"></i> <strong>{{ $card['recCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'دروس' : 'Lectures' }}</span>
                                             <span>•</span>
-                                            <span>🟢 <strong>{{ $card['liveCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'بث مباشر' : 'Live Streams' }}</span>
+                                            <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> <strong>{{ $card['liveCount'] }}</strong> {{ app()->getLocale() === 'ar' ? 'بث مباشر' : 'Live Streams' }}</span>
                                         </div>
                                         
                                         <div class="flex items-center gap-2">
                                             <button onclick="openEnrolledCourseModal({{ $card['course']->id }})" class="btn-lift px-4 py-2 bg-slate-900 hover:bg-teal-600 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 cursor-pointer transition-all">
-                                                <span>🔍</span> {{ app()->getLocale() === 'ar' ? 'التفاصيل والحصص' : 'Full Details & Sessions' }}
+                                                <span><i class="fa-solid fa-magnifying-glass"></i></span> {{ app()->getLocale() === 'ar' ? 'التفاصيل والحصص' : 'Full Details & Sessions' }}
                                             </button>
                                             <a href="{{ route('course-details', ['slug' => $card['course']->slug]) }}" class="btn-lift px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-bold border border-teal-200/80 flex items-center gap-1" title="{{ app()->getLocale() === 'ar' ? 'صفحة الكورس' : 'Course Page' }}">
                                                 <span>▶</span>
@@ -477,7 +477,7 @@
                         </div>
                     @else
                         <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
-                            <div class="text-4xl">📚</div>
+                            <div class="text-4xl"><i class="fa-solid fa-book-open"></i></div>
                             <h3 class="font-bold text-slate-800 text-base">
                                 {{ app()->getLocale() === 'ar' ? 'لم تقم بالتسجيل في أي كورس بعد' : 'No Enrolled Courses Yet' }}
                             </h3>
@@ -488,7 +488,7 @@
                             </p>
                             <div class="pt-2">
                                 <a href="{{ route('courses') }}" class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-teal-600/20">
-                                    <span>🚀</span> {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات المتاحة الآن' : 'Browse Available Courses' }}
+                                    <span><i class="fa-solid fa-rocket"></i></span> {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات المتاحة الآن' : 'Browse Available Courses' }}
                                 </a>
                             </div>
                         </div>
@@ -500,7 +500,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                <span>📜</span> {{ app()->getLocale() === 'ar' ? 'سجل تسليمات الواجبات والدرجات (Submissions History)' : 'Assignment Submission History & Graded Evaluation' }}
+                                <span><i class="fa-solid fa-scroll"></i></span> {{ app()->getLocale() === 'ar' ? 'سجل تسليمات الواجبات والدرجات (Submissions History)' : 'Assignment Submission History & Graded Evaluation' }}
                             </h2>
                             <p class="text-xs font-mono text-slate-500 mt-1">{{ app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها لجميع الكورسات مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments across all your enrolled courses with evaluated scores.' }}</p>
                         </div>
@@ -539,14 +539,14 @@
                                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3 text-xs font-mono">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                            📚 {{ $subCourseTitle }}
+                                            <i class="fa-solid fa-book-open"></i> {{ $subCourseTitle }}
                                         </span>
                                         <span class="font-bold text-slate-800 bg-slate-200 px-3 py-0.5 rounded-full">
-                                            📺 {{ $subSessionTitle }}
+                                            <i class="fa-solid fa-tv"></i> {{ $subSessionTitle }}
                                         </span>
                                     </div>
                                     <span class="text-slate-500">
-                                        📅 {{ app()->getLocale() === 'ar' ? 'تاريخ التسليم' : 'Submitted' }}: <strong>{{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Completed' }}</strong>
+                                        <i class="fa-solid fa-calendar-days"></i> {{ app()->getLocale() === 'ar' ? 'تاريخ التسليم' : 'Submitted' }}: <strong>{{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Completed' }}</strong>
                                     </span>
                                 </div>
 
@@ -562,11 +562,11 @@
                                         </span>
                                         @if($sub->isPassed())
                                             <span class="text-xs font-mono font-extrabold bg-emerald-100 text-emerald-900 px-4 py-2 rounded-2xl border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
-                                                <span>✓</span> {{ app()->getLocale() === 'ar' ? 'ناجح' : 'PASSED' }}
+                                                <i class="fa-solid fa-check"></i> {{ app()->getLocale() === 'ar' ? 'ناجح' : 'PASSED' }}
                                             </span>
                                         @else
                                             <span class="text-xs font-mono font-extrabold bg-rose-100 text-rose-900 px-4 py-2 rounded-2xl border border-rose-300 flex items-center gap-1.5 shadow-2xs">
-                                                <span>✕</span> {{ app()->getLocale() === 'ar' ? 'لم يجتاز' : 'FAILED' }}
+                                                <i class="fa-solid fa-xmark"></i> {{ app()->getLocale() === 'ar' ? 'لم يجتاز' : 'FAILED' }}
                                             </span>
                                         @endif
                                     </div>
@@ -589,7 +589,7 @@
                 <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-5">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                            <span>🔔</span> {{ __('app.portal.notifications') }}
+                            <span><i class="fa-solid fa-bell"></i></span> {{ __('app.portal.notifications') }}
                         </h3>
                         <span id="notifTotalAlerts" class="text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/80 shadow-2xs">
                             {{ $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator ? $userNotifications->total() : count($userNotifications) }} Alerts
@@ -601,11 +601,11 @@
                             <div class="p-4 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md transition-all">
                                 <div class="flex justify-between items-center text-[11px] font-mono font-bold">
                                     @if($n->type === 'ASSIGNMENT_DEADLINE_REMINDER')
-                                        <span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200">⏰ Deadline 24h</span>
+                                        <span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200"><i class="fa-solid fa-clock"></i> Deadline 24h</span>
                                     @elseif($n->type === 'ADMIN_APPROVAL_ALERT')
-                                        <span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200">✅ Admin Approved</span>
+                                        <span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200"><i class="fa-solid fa-circle-check text-emerald-500"></i> Admin Approved</span>
                                     @else
-                                        <span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200">🔔 Real-Time FCM Alert</span>
+                                        <span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200"><i class="fa-solid fa-bell"></i> Real-Time FCM Alert</span>
                                     @endif
                                     <span class="text-slate-400 font-normal">{{ $n->created_at ? $n->created_at->diffForHumans() : 'Just now' }}</span>
                                 </div>
@@ -614,7 +614,7 @@
                             </div>
                         @empty
                             <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                                <div class="text-2xl">🔕</div>
+                                <div class="text-2xl"><i class="fa-solid fa-bell-slash"></i></div>
                                 <div>{{ app()->getLocale() === 'ar' ? 'لا توجد إشعارات مسجلة حالياً.' : 'No notifications in feed yet.' }}</div>
                             </div>
                         @endforelse
@@ -657,7 +657,7 @@
                 <div id="teacher-notes" class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                            <span>💬</span> {{ app()->getLocale() === 'ar' ? 'ملاحظات المعلمين والتوجيه الأكاديمي' : 'Teacher Notes & Pedagogical Feedback' }}
+                            <span><i class="fa-solid fa-comments"></i></span> {{ app()->getLocale() === 'ar' ? 'ملاحظات المعلمين والتوجيه الأكاديمي' : 'Teacher Notes & Pedagogical Feedback' }}
                         </h3>
                         <span class="px-2.5 py-1 bg-teal-50 text-teal-800 border border-teal-200/80 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
                             {{ count($teacherNotes) }} {{ app()->getLocale() === 'ar' ? 'ملاحظات' : 'Notes' }}
@@ -699,7 +699,7 @@
                             </div>
                         @empty
                             <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
-                                <div class="text-2xl">💬</div>
+                                <div class="text-2xl"><i class="fa-solid fa-comments"></i></div>
                                 <p class="text-xs font-semibold text-slate-700">{{ app()->getLocale() === 'ar' ? 'لا توجد ملاحظات مسجلة لك من المعلمين حتى الآن.' : 'No pedagogical notes recorded by your teachers yet.' }}</p>
                                 <p class="text-[10px] font-mono text-slate-400">{{ app()->getLocale() === 'ar' ? 'ستظهر هنا أي ملاحظات أو توجيهات أكاديمية يرسلها معلموك.' : 'Any feedback or guidance from your instructors will appear here.' }}</p>
                             </div>
@@ -710,7 +710,7 @@
                 {{-- Submitted Exceptions List --}}
                 <div id="exceptions" class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <span>📋</span> {{ __('app.portal.exceptions_history') }}
+                        <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.exceptions_history') }}
                     </h3>
                     <div class="space-y-3">
                         @forelse($exceptions as $exc)
@@ -727,7 +727,7 @@
                             </div>
                         @empty
                             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                                <div class="text-xl">📋</div>
+                                <div class="text-xl"><i class="fa-solid fa-clipboard-list"></i></div>
                                 <div>{{ app()->getLocale() === 'ar' ? 'لا توجد طلبات استثناء سابقة.' : 'No previous exception requests found.' }}</div>
                             </div>
                         @endforelse
@@ -793,7 +793,7 @@
             <div class="space-y-1.5">
                 <label class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'سبب الاعتذار عن الحصة' : 'Reason for Absence' }}</label>
                 <textarea name="reason" required minlength="10" placeholder="{{ app()->getLocale() === 'ar' ? 'اذكر سبب الغياب بالتفصيل...' : 'Provide detailed absence reason...' }}" class="input-mobile h-24"></textarea>
-                <p class="text-[11px] text-amber-700 font-bold">⚠️ {{ __('app.sessions.excuse_2h_rule') }}</p>
+                <p class="text-[11px] text-amber-700 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> {{ __('app.sessions.excuse_2h_rule') }}</p>
             </div>
 
             <button type="submit" class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press">
@@ -1031,9 +1031,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (window.Toast) {
                     if (data.is_passed) {
-                        window.Toast.success(`Score: ${data.percentage}% (PASSED ✓)`, 'Assignment Completed!');
+                        window.Toast.success(`Score: ${data.percentage}% (PASSED <i class="fa-solid fa-check"></i>)`, 'Assignment Completed!');
                     } else {
-                        window.Toast.error(`Score: ${data.percentage}% (FAILED ✕ - Passing: ${data.passing_score}%)`, 'Assignment Result');
+                        window.Toast.error(`Score: ${data.percentage}% (FAILED <i class="fa-solid fa-xmark"></i> - Passing: ${data.passing_score}%)`, 'Assignment Result');
                     }
                 }
 
@@ -1107,11 +1107,11 @@ async function fetchNotificationsPage(page) {
                     const card = document.createElement('div');
                     card.className = 'p-4 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md transition-all';
                     
-                    let badgeHtml = '<span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200">🔔 Real-Time FCM Alert</span>';
+                    let badgeHtml = '<span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200"><i class="fa-solid fa-bell"></i> Real-Time FCM Alert</span>';
                     if (n.type === 'ASSIGNMENT_DEADLINE_REMINDER') {
-                        badgeHtml = '<span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200">⏰ Deadline 24h</span>';
+                        badgeHtml = '<span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200"><i class="fa-solid fa-clock"></i> Deadline 24h</span>';
                     } else if (n.type === 'ADMIN_APPROVAL_ALERT') {
-                        badgeHtml = '<span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200">✅ Admin Approved</span>';
+                        badgeHtml = '<span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200"><i class="fa-solid fa-circle-check text-emerald-500"></i> Admin Approved</span>';
                     }
 
                     const timeStr = n.created_at ? formatTimeAgo(n.created_at) : 'Just now';
@@ -1129,7 +1129,7 @@ async function fetchNotificationsPage(page) {
             } else {
                 container.innerHTML = `
                     <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                        <div class="text-2xl">🔕</div>
+                        <div class="text-2xl"><i class="fa-solid fa-bell-slash"></i></div>
                         <div>${@json(app()->getLocale() === 'ar' ? 'لا توجد إشعارات مسجلة حالياً.' : 'No notifications in feed yet.')}</div>
                     </div>
                 `;
@@ -1177,13 +1177,13 @@ function escapeHtml(str) {
                 <div class="flex flex-wrap items-center gap-2">
                     <span id="modalCourseSubject" class="bg-teal-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow-xs"></span>
                     <span id="modalCourseGrade" class="bg-slate-800 text-slate-300 text-xs font-mono px-2.5 py-0.5 rounded-full border border-slate-700"></span>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40">✓ {{ app()->getLocale() === 'ar' ? 'مشترك بالنظام' : 'Enrolled' }}</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40"><i class="fa-solid fa-check"></i> {{ app()->getLocale() === 'ar' ? 'مشترك بالنظام' : 'Enrolled' }}</span>
                 </div>
                 <h2 id="modalCourseTitle" class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"></h2>
                 <p id="modalCourseTeacher" class="text-xs font-mono text-teal-300 flex items-center gap-1.5"></p>
             </div>
             <button onclick="closeEnrolledCourseModal()" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition-all cursor-pointer border border-slate-700 shrink-0 relative z-10">
-                ✕
+                <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
@@ -1200,7 +1200,7 @@ function escapeHtml(str) {
             {{-- Tabs / Section Header --}}
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
-                    <span>📺</span> {{ app()->getLocale() === 'ar' ? 'منهج الكورس والحصص التفصيلية' : 'Full Curriculum & Session Modules' }}
+                    <span><i class="fa-solid fa-tv"></i></span> {{ app()->getLocale() === 'ar' ? 'منهج الكورس والحصص التفصيلية' : 'Full Curriculum & Session Modules' }}
                 </h3>
                 <span id="modalTotalSessionsBadge" class="text-xs font-bold bg-teal-100 text-teal-900 px-3 py-1 rounded-full border border-teal-200"></span>
             </div>
@@ -1209,7 +1209,7 @@ function escapeHtml(str) {
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h4 class="font-bold text-xs uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
-                        <span>🟢</span> {{ app()->getLocale() === 'ar' ? 'جدول الحصص والبث المباشر (Live Streams)' : 'Live Stream Schedule' }}
+                        <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> {{ app()->getLocale() === 'ar' ? 'جدول الحصص والبث المباشر (Live Streams)' : 'Live Stream Schedule' }}
                     </h4>
                     <span id="liveSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
                 </div>
@@ -1230,7 +1230,7 @@ function escapeHtml(str) {
             <div class="space-y-3 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between">
                     <h4 class="font-bold text-xs uppercase tracking-wider text-indigo-800 flex items-center gap-1.5">
-                        <span>📹</span> {{ app()->getLocale() === 'ar' ? 'دروس الفيديو والواجبات المنهجية (Recorded Modules & MSQs)' : 'Recorded Modules & Assignments' }}
+                        <span><i class="fa-solid fa-video"></i></span> {{ app()->getLocale() === 'ar' ? 'دروس الفيديو والواجبات المنهجية (Recorded Modules & MSQs)' : 'Recorded Modules & Assignments' }}
                     </h4>
                     <span id="recSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
                 </div>
@@ -1250,7 +1250,7 @@ function escapeHtml(str) {
 
         {{-- Modal Footer --}}
         <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs font-mono text-slate-500 shrink-0">
-            <span>🎓 Elite Academy Certified Curriculum</span>
+            <span><i class="fa-solid fa-graduation-cap"></i> Elite Academy Certified Curriculum</span>
             <button onclick="closeEnrolledCourseModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold cursor-pointer transition-all">
                 {{ app()->getLocale() === 'ar' ? 'إغلاق النافذة' : 'Close' }}
             </button>
@@ -1279,7 +1279,7 @@ function openEnrolledCourseModal(courseId) {
     document.getElementById('modalCourseTitle').textContent = data.title;
     document.getElementById('modalCourseSubject').textContent = data.subject;
     document.getElementById('modalCourseGrade').textContent = data.grade;
-    document.getElementById('modalCourseTeacher').textContent = '👨‍🏫 ' + (data.teacher || 'Dr. Instructor');
+    document.getElementById('modalCourseTeacher').textContent = '<i class="fa-solid fa-chalkboard-user"></i> ' + (data.teacher || 'Dr. Instructor');
     document.getElementById('modalCourseDesc').textContent = data.description;
 
     const liveCount = data.live_sessions ? data.live_sessions.length : 0;
@@ -1327,7 +1327,7 @@ function renderModalLiveSessions() {
         
         let btnHtml = `<span class="text-[11px] font-bold px-3 py-1 rounded-xl bg-slate-200 text-slate-700">${escapeHtml(ls.state_label)}</span>`;
         if (ls.can_join && ls.meeting_link) {
-            btnHtml = `<a href="${escapeHtml(ls.meeting_link)}" target="_blank" class="btn-lift text-[11px] font-bold px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">🟢 Join Stream</a>`;
+            btnHtml = `<a href="${escapeHtml(ls.meeting_link)}" target="_blank" class="btn-lift text-[11px] font-bold px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> Join Stream</a>`;
         }
 
         card.innerHTML = `
@@ -1337,7 +1337,7 @@ function renderModalLiveSessions() {
                     <span class="font-bold text-xs text-slate-900">${escapeHtml(ls.title)}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-[11px] text-slate-500">📅 ${escapeHtml(ls.start_at)}</span>
+                    <span class="text-[11px] text-slate-500"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(ls.start_at)}</span>
                     ${btnHtml}
                 </div>
             </div>
@@ -1395,7 +1395,7 @@ function renderModalRecordedSessions() {
         if (rs.assignments && rs.assignments.length > 0) {
             assignHtml = `<div class="pt-2 border-t border-slate-200/60 flex flex-wrap items-center gap-2">`;
             rs.assignments.forEach(a => {
-                assignHtml += `<a href="${escapeHtml(a.url)}" class="btn-lift inline-flex items-center gap-1 text-[11px] font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2.5 py-1 rounded-lg">📝 ${escapeHtml(a.title)} (${a.points} pts) &rarr;</a>`;
+                assignHtml += `<a href="${escapeHtml(a.url)}" class="btn-lift inline-flex items-center gap-1 text-[11px] font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-pen-to-square"></i> ${escapeHtml(a.title)} (${a.points} pts) &rarr;</a>`;
             });
             assignHtml += `</div>`;
         }
@@ -1409,7 +1409,7 @@ function renderModalRecordedSessions() {
                     </div>
                     ${rs.description ? `<p class="text-[11px] text-slate-600 line-clamp-1">${escapeHtml(rs.description)}</p>` : ''}
                 </div>
-                <span class="text-[11px] text-slate-500 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200">⏱️ ${rs.duration} mins</span>
+                <span class="text-[11px] text-slate-500 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200"><i class="fa-solid fa-stopwatch"></i> ${rs.duration} mins</span>
             </div>
             ${assignHtml}
         `;
@@ -1455,7 +1455,7 @@ function initSessionCountdowns() {
             const diff = startTime - now;
 
             if (diff <= 0) {
-                textEl.textContent = isAr ? 'بدأت الحصة الآن 🔴' : 'Session Live Now 🔴';
+                textEl.textContent = isAr ? 'بدأت الحصة الآن <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' : 'Session Live Now <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>';
                 return;
             }
 

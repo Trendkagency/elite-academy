@@ -27,7 +27,7 @@
                         </div>
                     @endif
                     <button onclick="document.getElementById('avatarInput').click()" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer transition-transform hover:scale-110" title="{{ app()->getLocale() === 'ar' ? 'تغيير الصورة الشخصية' : 'Change Avatar' }}">
-                        📷
+                        <i class="fa-solid fa-camera"></i>
                     </button>
                 </div>
 
@@ -44,9 +44,9 @@
                         {{ $user->name }}
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm font-mono flex flex-wrap items-center gap-3 pt-0.5">
-                        <span>✉️ {{ $user->email }}</span>
+                        <span><i class="fa-solid fa-envelope"></i> {{ $user->email }}</span>
                         <span>•</span>
-                        <span>📱 {{ $user->phone ?: (app()->getLocale() === 'ar' ? 'غير مسجل' : 'Not Provided') }}</span>
+                        <span><i class="fa-solid fa-mobile-screen"></i> {{ $user->phone ?: (app()->getLocale() === 'ar' ? 'غير مسجل' : 'Not Provided') }}</span>
                     </p>
                 </div>
             </div>
@@ -68,7 +68,7 @@
         @if(session('success'))
             <div class="animate-fade-in-up p-5 bg-emerald-50 border border-emerald-200 rounded-3xl flex items-center justify-between text-emerald-950 shadow-sm">
                 <div class="flex items-center gap-3">
-                    <span class="text-xl">✅</span>
+                    <span class="text-xl"><i class="fa-solid fa-circle-check text-emerald-500"></i></span>
                     <span class="font-bold text-xs sm:text-sm font-mono">{{ session('success') }}</span>
                 </div>
             </div>
@@ -77,7 +77,7 @@
         @if($errors->any())
             <div class="animate-fade-in-up p-5 bg-rose-50 border border-rose-200 rounded-3xl space-y-2 text-rose-950 shadow-sm">
                 <div class="flex items-center gap-2 font-bold text-xs sm:text-sm">
-                    <span>⚠️</span>
+                    <span><i class="fa-solid fa-triangle-exclamation"></i></span>
                     <span>{{ app()->getLocale() === 'ar' ? 'يرجى تصحيح الأخطاء التالية:' : 'Please correct the following errors:' }}</span>
                 </div>
                 <ul class="list-disc list-inside text-xs font-mono text-rose-800 space-y-1">
@@ -97,7 +97,7 @@
                 <div class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-1">
                     <div class="border-b border-slate-100 pb-4">
                         <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                            <span>👤</span> {{ app()->getLocale() === 'ar' ? 'البيانات الشخصية والأكاديمية' : 'Personal & Academic Details' }}
+                            <span><i class="fa-solid fa-user"></i></span> {{ app()->getLocale() === 'ar' ? 'البيانات الشخصية والأكاديمية' : 'Personal & Academic Details' }}
                         </h2>
                         <p class="text-xs font-mono text-slate-500 mt-1">
                             {{ app()->getLocale() === 'ar' ? 'قم بتحديث اسمك، رقم الهاتف، المرحلة الدراسية، واسم المدرسة.' : 'Update your name, phone number, grade level, and school information.' }}
@@ -167,7 +167,7 @@
 
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                             <button type="submit" class="btn-lift px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-md shadow-teal-600/30 flex items-center gap-2 cursor-pointer">
-                                <span>💾</span> {{ app()->getLocale() === 'ar' ? 'حفظ التغييرات' : 'Save Profile Details' }}
+                                <span><i class="fa-solid fa-floppy-disk"></i></span> {{ app()->getLocale() === 'ar' ? 'حفظ التغييرات' : 'Save Profile Details' }}
                             </button>
                         </div>
                     </form>
@@ -177,7 +177,7 @@
                 <div class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-2">
                     <div class="border-b border-slate-100 pb-4">
                         <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                            <span>🔒</span> {{ app()->getLocale() === 'ar' ? 'أمان الحساب وكلمة المرور' : 'Account Security & Password' }}
+                            <span><i class="fa-solid fa-lock"></i></span> {{ app()->getLocale() === 'ar' ? 'أمان الحساب وكلمة المرور' : 'Account Security & Password' }}
                         </h2>
                         <p class="text-xs font-mono text-slate-500 mt-1">
                             {{ app()->getLocale() === 'ar' ? 'قم بتغيير كلمة المرور الخاصة بك بحساب الطالب بانتظام لحماية بياناتك.' : 'Update your password regularly to maintain account security.' }}
@@ -214,7 +214,7 @@
 
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                             <button type="submit" class="btn-lift px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-2xl shadow-md cursor-pointer flex items-center gap-2">
-                                <span>🔑</span> {{ app()->getLocale() === 'ar' ? 'تحديث كلمة المرور' : 'Update Password' }}
+                                <span><i class="fa-solid fa-key"></i></span> {{ app()->getLocale() === 'ar' ? 'تحديث كلمة المرور' : 'Update Password' }}
                             </button>
                         </div>
                     </form>
@@ -229,7 +229,7 @@
                 <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-1">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                            <span>💳</span> {{ app()->getLocale() === 'ar' ? 'باقة الحصص النشطة' : 'Active Package' }}
+                            <span><i class="fa-solid fa-credit-card"></i></span> {{ app()->getLocale() === 'ar' ? 'باقة الحصص النشطة' : 'Active Package' }}
                         </h3>
                         @if($activePackage)
                             <span class="text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200 shadow-2xs">
@@ -237,7 +237,7 @@
                             </span>
                         @else
                             <span class="text-xs font-mono font-bold text-rose-800 bg-rose-50 px-3 py-1 rounded-full border border-rose-200 shadow-2xs">
-                                ✕ No Active Package
+                                <i class="fa-solid fa-xmark"></i> No Active Package
                             </span>
                         @endif
                     </div>
@@ -263,8 +263,8 @@
                                 </div>
 
                                 <div class="pt-2 border-t border-teal-200/60 flex items-center justify-between text-[11px] font-mono text-slate-600">
-                                    <span>📅 {{ app()->getLocale() === 'ar' ? 'تاريخ التفعيل' : 'Activated' }}: {{ $activePackage->activated_at ? $activePackage->activated_at->format('Y-m-d') : 'Active' }}</span>
-                                    <span>⏳ {{ app()->getLocale() === 'ar' ? 'تاريخ الانتهاء' : 'Expires' }}: {{ $activePackage->expires_at ? $activePackage->expires_at->format('Y-m-d') : 'No Expiry' }}</span>
+                                    <span><i class="fa-solid fa-calendar-days"></i> {{ app()->getLocale() === 'ar' ? 'تاريخ التفعيل' : 'Activated' }}: {{ $activePackage->activated_at ? $activePackage->activated_at->format('Y-m-d') : 'Active' }}</span>
+                                    <span><i class="fa-solid fa-hourglass-half"></i> {{ app()->getLocale() === 'ar' ? 'تاريخ الانتهاء' : 'Expires' }}: {{ $activePackage->expires_at ? $activePackage->expires_at->format('Y-m-d') : 'No Expiry' }}</span>
                                 </div>
                             </div>
 
@@ -288,15 +288,15 @@
                             @endif
 
                             <a href="{{ route('courses') }}" class="btn-lift w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-bold text-xs shadow-md shadow-teal-600/30 text-center block">
-                                🔄 {{ app()->getLocale() === 'ar' ? 'تجديد أو ترقية الباقة' : 'Renew / Upgrade Package' }}
+                                <i class="fa-solid fa-arrows-rotate"></i> {{ app()->getLocale() === 'ar' ? 'تجديد أو ترقية الباقة' : 'Renew / Upgrade Package' }}
                             </a>
                         </div>
                     @else
                         <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
-                            <div class="text-3xl">💳</div>
+                            <div class="text-3xl"><i class="fa-solid fa-credit-card"></i></div>
                             <p class="text-xs font-mono text-slate-600">{{ app()->getLocale() === 'ar' ? 'لا توجد باقة حصص نشطة مرتبطة بحسابك حالياً.' : 'No active session package linked to your account.' }}</p>
                             <a href="{{ route('courses') }}" class="btn-lift px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-md shadow-rose-600/30 inline-block">
-                                🛒 {{ app()->getLocale() === 'ar' ? 'تصفح الباقات والكورسات' : 'Browse Packages & Courses' }}
+                                <i class="fa-solid fa-cart-shopping"></i> {{ app()->getLocale() === 'ar' ? 'تصفح الباقات والكورسات' : 'Browse Packages & Courses' }}
                             </a>
                         </div>
                     @endif
@@ -305,7 +305,7 @@
                 {{-- Linked Guardian / Parent Info Card --}}
                 <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2">
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <span>👨‍👩‍👦</span> {{ app()->getLocale() === 'ar' ? 'بيانات ولي الأمر المرتبط' : 'Linked Parent / Guardian' }}
+                        <span><i class="fa-solid fa-people-roof"></i></span> {{ app()->getLocale() === 'ar' ? 'بيانات ولي الأمر المرتبط' : 'Linked Parent / Guardian' }}
                     </h3>
 
                     <div class="space-y-3">
@@ -315,11 +315,11 @@
                                     <span class="font-bold text-xs text-slate-900">{{ $parent->name }}</span>
                                     <span class="text-[10px] font-mono font-bold bg-teal-100 text-teal-900 px-2 py-0.5 rounded-full">Linked</span>
                                 </div>
-                                <p class="text-xs font-mono text-slate-500">📱 {{ $parent->phone ?: $parent->email }}</p>
+                                <p class="text-xs font-mono text-slate-500"><i class="fa-solid fa-mobile-screen"></i> {{ $parent->phone ?: $parent->email }}</p>
                             </div>
                         @empty
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs font-mono text-slate-500 text-center space-y-1">
-                                <div>👨‍👩‍👦</div>
+                                <div><i class="fa-solid fa-people-roof"></i></div>
                                 <div>{{ app()->getLocale() === 'ar' ? 'لم يتم ربط حساب ولي أمر بهذا الحساب بعد.' : 'No parent account linked yet.' }}</div>
                             </div>
                         @endforelse

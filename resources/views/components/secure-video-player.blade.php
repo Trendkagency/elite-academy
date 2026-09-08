@@ -33,7 +33,7 @@
          x-cloak
          class="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center gap-4 text-center p-6 transition-all duration-300">
         <div class="w-16 h-16 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-3xl shadow-xl animate-bounce">
-            🔒
+            <i class="fa-solid fa-lock"></i>
         </div>
         <div class="space-y-1 max-w-md">
             <h3 class="font-heading text-lg font-bold text-white">
@@ -112,12 +112,12 @@
                 <div class="flex items-center justify-between text-xs font-mono text-white">
                     <div class="flex items-center gap-3">
                         <button @click="togglePlay()" class="p-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white shadow-md transition-all cursor-pointer font-bold">
-                            <span x-text="isPlaying ? '⏸' : '▶'"></span>
+                            <span x-text="isPlaying ? '<i class="fa-solid fa-pause"></i>' : '▶'"></span>
                         </button>
 
                         <div class="flex items-center gap-2">
                             <button @click="toggleMute()" class="text-slate-300 hover:text-white text-sm cursor-pointer">
-                                <span x-text="isMuted ? '🔇' : '🔊'"></span>
+                                <span x-text="isMuted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>'"></span>
                             </button>
                             <input type="range" min="0" max="1" step="0.1" :value="volume" @input="setVolume($event.target.value)" class="w-16 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-400">
                         </div>
@@ -127,10 +127,10 @@
 
                     <div class="flex items-center gap-3">
                         <span class="text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded-full font-bold">
-                            🛡️ HD Protected Stream
+                            <i class="fa-solid fa-shield-halved"></i> HD Protected Stream
                         </span>
                         <button @click="toggleFullscreen()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all cursor-pointer text-sm">
-                            ⛶
+                            <i class="fa-solid fa-expand"></i>
                         </button>
                     </div>
                 </div>

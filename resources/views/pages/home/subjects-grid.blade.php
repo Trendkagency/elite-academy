@@ -74,7 +74,7 @@
                         </div>
 
                         <div class="hidden md:flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-300 font-medium">
-                            <span>📚 {{ $coursesCount }} {{ __('Courses') }}</span>
+                            <span><i class="fa-solid fa-book-open"></i> {{ $coursesCount }} {{ __('Courses') }}</span>
                             <a href="{{ $subjectUrl }}" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1" aria-label="View curriculum and details for {{ $subjectName }}">
                                 <span>{{ __('View Details') }}</span>
                                 <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>

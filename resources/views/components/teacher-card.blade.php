@@ -4,7 +4,7 @@
      @param string $title — Title / Specialization
      @param string $subject — Subject tag text
      @param string $subjectColor — Subject tag color class (e.g. 'bg-teal-600')
-     @param string $rating — Rating text (e.g. "4.9 ★")
+     @param string $rating — Rating text (e.g. "4.9 <i class="fa-solid fa-star text-amber-400"></i>")
      @param string $students — Students count (e.g. "1.4k Students")
      @param string $route — Profile route URL
 --}}
@@ -35,8 +35,8 @@
 
         <div class="pt-3 border-t border-slate-100 text-xs font-semibold text-slate-600 space-y-3">
             <div class="flex items-center justify-between font-mono text-[11px]">
-                <span>🎓 Verified Mentor</span>
-                <span>👥 {{ $students }}</span>
+                <span><i class="fa-solid fa-graduation-cap"></i> Verified Mentor</span>
+                <span><i class="fa-solid fa-users"></i> {{ $students }}</span>
             </div>
             <a href="{{ $route }}" class="btn-lift block w-full text-center py-2 bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white font-extrabold rounded-xl transition-all">
                 View Profile &rarr;

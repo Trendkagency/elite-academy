@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="hidden md:flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-300 font-medium">
-                            <span>📚 <?php echo e($coursesCount); ?> <?php echo e(__('Courses')); ?></span>
+                            <span><i class="fa-solid fa-book-open"></i> <?php echo e($coursesCount); ?> <?php echo e(__('Courses')); ?></span>
                             <a href="<?php echo e($subjectUrl); ?>" class="text-xs font-extrabold text-teal-300 group-hover:text-teal-200 flex items-center gap-1" aria-label="View curriculum and details for <?php echo e($subjectName); ?>">
                                 <span><?php echo e(__('View Details')); ?></span>
                                 <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>

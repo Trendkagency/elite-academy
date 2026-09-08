@@ -47,7 +47,7 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="text-center space-y-4 max-w-3xl mx-auto">
             <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-teal-950/80 text-teal-300 border border-teal-500/40">
-                <span>💬</span> {{ $isAr ? 'مركز الأسئلة الشائعة والمعلومات' : 'Frequently Asked Questions' }}
+                <span><i class="fa-solid fa-comments"></i></span> {{ $isAr ? 'مركز الأسئلة الشائعة والمعلومات' : 'Frequently Asked Questions' }}
             </span>
             <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
                 {{ $isAr ? 'كل ما تحتاج معرفته عن منصة إيليت التعليمية' : 'Everything You Need to Know About Elite Academy' }}
@@ -79,7 +79,7 @@
                 </p>
             </div>
             <a href="{{ route('contact') }}" class="btn-lift px-6 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-2xl text-xs shadow-lg transition-all">
-                💬 {{ $isAr ? 'تواصل مع الدعم المباشر' : 'Contact Support Team' }}
+                <i class="fa-solid fa-comments"></i> {{ $isAr ? 'تواصل مع الدعم المباشر' : 'Contact Support Team' }}
             </a>
         </div>
     </div>

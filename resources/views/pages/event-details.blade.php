@@ -31,9 +31,9 @@
                 </p>
 
                 <div class="flex flex-wrap items-center gap-6 pt-2 text-xs font-mono text-slate-300">
-                    <span>📍 Location: Main Innovation Lab & Zoom Live</span>
-                    <span>🎟️ Capacity: 50 Students</span>
-                    <span>🔥 Seats Left: 12 Remaining</span>
+                    <span><i class="fa-solid fa-location-dot"></i> Location: Main Innovation Lab & Zoom Live</span>
+                    <span><i class="fa-solid fa-ticket"></i>️ Capacity: 50 Students</span>
+                    <span><i class="fa-solid fa-fire text-amber-500"></i> Seats Left: 12 Remaining</span>
                 </div>
             </div>
 

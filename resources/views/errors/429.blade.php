@@ -29,7 +29,7 @@
         {{-- Glassmorphism DDoS Rate Limiting Shield Card --}}
         <div class="bg-white/95 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-amber-200/90 shadow-2xl space-y-6 relative overflow-hidden">
             <div class="w-24 h-24 mx-auto bg-amber-500/10 text-amber-600 rounded-3xl flex items-center justify-center text-4xl border border-amber-500/20 shadow-inner animate-pulse">
-                🛡️
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
 
             <div class="space-y-3">
@@ -56,10 +56,10 @@
             {{-- Action Buttons --}}
             <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button type="button" onclick="window.location.reload()" class="btn-lift w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-2xl border border-slate-300 transition-all flex items-center justify-center gap-2">
-                    <span>🔄</span> {{ __('Refresh Page') }}
+                    <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Refresh Page') }}
                 </button>
                 <a href="{{ $dashUrl }}" class="btn-lift w-full sm:w-auto px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2">
-                    <span>📊</span> {{ $dashLabel }}
+                    <span><i class="fa-solid fa-chart-column"></i></span> {{ $dashLabel }}
                 </a>
             </div>
         </div>

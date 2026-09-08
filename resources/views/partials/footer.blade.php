@@ -93,10 +93,10 @@
             <div class="space-y-3">
                 <h3 class="font-heading font-extrabold text-sm text-white uppercase tracking-wider">{{ $contactTitle }}</h3>
                 <ul class="space-y-2 text-sm text-slate-300">
-                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📍 <span>{{ $address }}</span></li>
-                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">📞 <span>{{ $phone }}</span></li>
-                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">✉️ <span>{{ $email }}</span></li>
-                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2">🕒 <span>{{ $hours }}</span></li>
+                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2"><i class="fa-solid fa-location-dot"></i> <span>{{ $address }}</span></li>
+                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2"><i class="fa-solid fa-phone"></i> <span>{{ $phone }}</span></li>
+                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2"><i class="fa-solid fa-envelope"></i> <span>{{ $email }}</span></li>
+                    <li class="flex items-center justify-center rtl:sm:justify-start ltr:sm:justify-start gap-2"><i class="fa-solid fa-clock"></i> <span>{{ $hours }}</span></li>
                 </ul>
             </div>
         </div>

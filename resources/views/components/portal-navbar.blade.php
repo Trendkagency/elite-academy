@@ -45,32 +45,32 @@
         @if($role === 'student')
             <div class="hidden md:flex items-center gap-2">
                 <button onclick="document.getElementById('excuseModal')?.classList.remove('hidden')" class="btn-lift px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <span>📄</span> {{ __('app.portal.submit_excuse') }}
+                    <span><i class="fa-solid fa-file-lines"></i></span> {{ __('app.portal.submit_excuse') }}
                 </button>
                 <button onclick="document.getElementById('homeworkExceptionModal')?.classList.remove('hidden')" class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <span>📋</span> {{ __('app.portal.submit_exception') }}
+                    <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.submit_exception') }}
                 </button>
             </div>
         @elseif($role === 'teacher')
             <div class="hidden md:flex items-center gap-2">
                 <button type="button" onclick="openCreateSessionModal()" class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <span>➕</span> {{ __('Schedule New Session') }}
+                    <span><i class="fa-solid fa-plus"></i></span> {{ __('Schedule New Session') }}
                 </button>
             </div>
         @elseif($role === 'parent')
             <div class="hidden md:flex items-center gap-2">
                 <button type="button" onclick="window.print()" class="btn-lift px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <span>🖨️</span> {{ __('Print Academic Report') }}
+                    <span><i class="fa-solid fa-print"></i></span> {{ __('Print Academic Report') }}
                 </button>
                 <button type="button" onclick="document.getElementById('linkChildModal')?.classList.remove('hidden')" class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <span>➕</span> {{ __('Link Child') }}
+                    <span><i class="fa-solid fa-plus"></i></span> {{ __('Link Child') }}
                 </button>
             </div>
         @endif
 
         <!-- Language Switcher -->
         <a href="{{ route('lang.switch', $otherLocale) }}" class="px-3 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs" title="Switch Language">
-            🌐 {{ $isAr ? 'EN' : 'عربي' }}
+            <i class="fa-solid fa-globe"></i> {{ $isAr ? 'EN' : 'عربي' }}
         </a>
 
         <!-- User Profile Pill & Dropdown -->
@@ -106,19 +106,19 @@
 
                 @if($user && $user->isAdmin())
                     <a href="/admin" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors">
-                        <span>⚡</span> {{ __('Admin Panel (Filament)') }}
+                        <span><i class="fa-solid fa-bolt"></i></span> {{ __('Admin Panel (Filament)') }}
                     </a>
                 @endif
 
                 <a href="{{ route('home') }}" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 hover:text-teal-600 transition-colors">
-                    <span>🏠</span> {{ __('navbar.home') }}
+                    <span><i class="fa-solid fa-house"></i></span> {{ __('navbar.home') }}
                 </a>
 
                 <div class="border-t border-slate-100 dark:border-slate-800 mt-1 pt-1">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full text-{{ $isAr ? 'right' : 'left' }} flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer">
-                            <span>🚪</span> {{ __('navbar.logout') }}
+                            <span><i class="fa-solid fa-arrow-right-from-bracket"></i></span> {{ __('navbar.logout') }}
                         </button>
                     </form>
                 </div>

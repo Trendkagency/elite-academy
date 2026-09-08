@@ -386,7 +386,7 @@
 
     @if($students->isEmpty())
         <div class="empty-state">
-            <div class="empty-icon">👨‍👩‍👧</div>
+            <div class="empty-icon"><i class="fa-solid fa-people-roof"></i></div>
             <h3 class="empty-title">لم يتم ربط أي أبناء بولي الأمر بعد</h3>
             <p class="empty-desc">
                 No linked children for this parent profile yet. Select students from the dropdown above to link them.
@@ -427,7 +427,7 @@
                         <!-- Header: Clickable Link to Student Profile -->
                         <div class="child-header">
                             <a href="{{ $studentProfileUrl }}" target="_blank" class="child-info" title="انقر لعرض وإدارة ملف الطالب بالكامل">
-                                <div class="child-avatar">🎓</div>
+                                <div class="child-avatar"><i class="fa-solid fa-graduation-cap"></i></div>
                                 <div>
                                     <h4 class="child-name">
                                         {{ $child->name }} ↗
@@ -438,9 +438,9 @@
 
                             <div>
                                 @if($isApproved)
-                                    <span class="badge-approved">✅ مقبول (Approved)</span>
+                                    <span class="badge-approved"><i class="fa-solid fa-circle-check text-emerald-500"></i> مقبول (Approved)</span>
                                 @else
-                                    <span class="badge-pending">⏳ قيد المراجعة (Pending)</span>
+                                    <span class="badge-pending"><i class="fa-solid fa-hourglass-half"></i> قيد المراجعة (Pending)</span>
                                 @endif
                             </div>
                         </div>
@@ -465,22 +465,22 @@
                         <div class="detail-grid">
                             <div class="detail-item">
                                 <span class="detail-label">البريد / Email</span>
-                                <span class="detail-value" title="{{ $child->email }}">📧 {{ $child->email }}</span>
+                                <span class="detail-value" title="{{ $child->email }}"><i class="fa-solid fa-envelope"></i> {{ $child->email }}</span>
                             </div>
 
                             <div class="detail-item">
                                 <span class="detail-label">الهاتف / Phone</span>
-                                <span class="detail-value" title="{{ $phoneStr }}">📱 {{ $phoneStr }}</span>
+                                <span class="detail-value" title="{{ $phoneStr }}"><i class="fa-solid fa-mobile-screen"></i> {{ $phoneStr }}</span>
                             </div>
 
                             <div class="detail-item">
                                 <span class="detail-label">الصف / Grade</span>
-                                <span class="detail-value detail-value-teal" title="{{ $gradeName }}">🏫 {{ $gradeName }}</span>
+                                <span class="detail-value detail-value-teal" title="{{ $gradeName }}"><i class="fa-solid fa-school"></i> {{ $gradeName }}</span>
                             </div>
 
                             <div class="detail-item">
                                 <span class="detail-label">المدرسة / School</span>
-                                <span class="detail-value" title="{{ $schoolName }}">🏢 {{ $schoolName }}</span>
+                                <span class="detail-value" title="{{ $schoolName }}"><i class="fa-solid fa-building"></i> {{ $schoolName }}</span>
                             </div>
                         </div>
                     </div>
@@ -489,7 +489,7 @@
                     <div>
                         <div class="progress-footer">
                             <div class="progress-header">
-                                <span>💳 رصيد الباقة / Package Balance:</span>
+                                <span><i class="fa-solid fa-credit-card"></i> رصيد الباقة / Package Balance:</span>
                                 @if($activePkg)
                                     <span class="progress-pill">{{ $remaining }} / {{ $total }} Sessions</span>
                                 @else
@@ -507,10 +507,10 @@
                         <!-- Action Buttons Row -->
                         <div class="card-actions-row">
                             <a href="{{ $studentProfileUrl }}" target="_blank" class="action-btn-primary" title="الانتقال لبروفايل الطالب وإدارته بالكامل">
-                                ⚡ <span>إدارة الطالب (Manage Student)</span>
+                                <i class="fa-solid fa-bolt"></i> <span>إدارة الطالب (Manage Student)</span>
                             </a>
                             <a href="{{ $userEditUrl }}" target="_blank" class="action-btn-secondary" title="إدارة حساب المستخدم والصلاحيات">
-                                👤 <span>إدارة الحساب (User Account)</span>
+                                <i class="fa-solid fa-user"></i> <span>إدارة الحساب (User Account)</span>
                             </a>
                         </div>
                     </div>

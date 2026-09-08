@@ -38,7 +38,7 @@
                 @endforeach
             @else
                 <div class="col-span-4 text-center py-12 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                    <div class="text-4xl mb-3">📐</div>
+                    <div class="text-4xl mb-3"><i class="fa-solid fa-ruler-combined"></i></div>
                     <h3 class="font-bold text-lg text-slate-800">No Subjects Active Yet</h3>
                     <p class="text-xs text-slate-500 mt-1">Check back soon as new subjects are being added by administrators.</p>
                 </div>

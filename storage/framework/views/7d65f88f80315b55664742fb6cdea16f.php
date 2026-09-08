@@ -36,7 +36,7 @@
                 'photo' => $t->avatar ?: 'images/instructor_portrait.webp',
                 'name' => $t->name,
                 'course' => $t->getLocalizedCourseName() ?: __('Elite Academic Track'),
-                'badge' => $t->is_verified ? '✔ Verified ' . ucfirst($t->reviewer_type) : ucfirst($t->reviewer_type),
+                'badge' => $t->is_verified ? '<i class="fa-solid fa-check"></i> Verified ' . ucfirst($t->reviewer_type) : ucfirst($t->reviewer_type),
                 'quoteColor' => 'group-hover:text-teal-600',
                 'nameColor' => 'group-hover:text-teal-600',
                 'badgeBg' => 'bg-teal-50 text-teal-700 border-teal-200/80',
@@ -46,7 +46,7 @@
                     'photo' => 'images/hero_student_128.webp',
                     'name' => 'Mariam Al-Mansoor',
                     'course' => 'Full-Stack Programming',
-                    'badge' => '✔ Verified Student',
+                    'badge' => '<i class="fa-solid fa-check"></i> Verified Student',
                     'quoteColor' => 'group-hover:text-teal-600',
                     'nameColor' => 'group-hover:text-teal-600',
                     'badgeBg' => 'bg-teal-50 text-teal-700 border-teal-200/80',
@@ -56,7 +56,7 @@
                     'photo' => 'images/instructor_portrait_128.webp',
                     'name' => 'Kareem El-Sayed',
                     'course' => 'AI & Machine Learning',
-                    'badge' => '✔ Verified Student',
+                    'badge' => '<i class="fa-solid fa-check"></i> Verified Student',
                     'quoteColor' => 'group-hover:text-purple-600',
                     'nameColor' => 'group-hover:text-purple-600',
                     'badgeBg' => 'bg-purple-50 text-purple-700 border-purple-200/80',
@@ -68,7 +68,7 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $testimonials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                 <div class="w-full max-w-[420px] sm:w-[420px] shrink-0 h-[340px] bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl hover:shadow-2xl card-lift flex flex-col justify-between group transition-all duration-500 snap-center">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1 text-amber-400 text-sm">★★★★★</div>
+                        <div class="flex items-center gap-1 text-amber-400 text-sm"><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i></div>
                         <span class="text-4xl font-sans font-black text-slate-300 <?php echo e($t['quoteColor']); ?> transition-colors duration-300 select-none leading-none">"</span>
                     </div>
 
