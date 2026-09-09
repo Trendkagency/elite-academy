@@ -7,7 +7,9 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -54,7 +56,7 @@ class ArticlesTable
             ->filters([
                 SelectFilter::make('category')
                     ->label(__('Filter by Category'))
-                    ->options(fn () => Category::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'name')->toArray()),
+                    ->options(fn() => Category::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'name')->toArray()),
                 TrashedFilter::make(),
             ])
             ->recordActions([
