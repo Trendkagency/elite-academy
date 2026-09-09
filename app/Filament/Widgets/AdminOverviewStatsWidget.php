@@ -19,10 +19,10 @@ class AdminOverviewStatsWidget extends BaseWidget
     protected function getFilters(): ?array
     {
         return [
-            'all' => __('🔍 All System KPIs (12)'),
-            'students' => __('🎓 Students & Members'),
-            'sessions' => __('📅 Live Sessions Analysis'),
-            'financials' => __('💳 Packages & Financials'),
+            'all' => __('All System KPIs (12)'),
+            'students' => __('Students & Members'),
+            'sessions' => __('Live Sessions Analysis'),
+            'financials' => __('Packages & Financials'),
         ];
     }
 

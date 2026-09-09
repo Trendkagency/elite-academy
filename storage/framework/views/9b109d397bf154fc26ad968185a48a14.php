@@ -801,7 +801,7 @@
                     
                     <div class="rpt-print-section" id="section-overview" style="<?php echo e($activeTab !== 'overview' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; color:#6366F1; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-book-bookmark" style="color: #6366F1;"></i>
                                 <?php echo e(__('Assigned Courses & Curriculum Delivery')); ?>
 
@@ -812,7 +812,7 @@
                                     <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;" class="dark:bg-slate-950/60 dark:border-slate-800">
                                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;">
                                             <div>
-                                                <h4 style="font-size: 0.95rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white"><?php echo e($c->title); ?></h4>
+                                                <h4 style="font-size: 0.95rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white"><?php echo e($c->title); ?></h4>
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
                                                     <span class="rpt-badge rpt-badge-info"><?php echo e($c->subject?->name ?? __('General')); ?></span>
                                                     <span style="font-size: 0.75rem; color: #94A3B8;"><?php echo e($c->gradeLevel?->name ?? __('All Grades')); ?></span>
@@ -827,15 +827,15 @@
                                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;" class="dark:border-slate-800">
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;"><?php echo e(__('Sessions')); ?></div>
-                                                <div style="font-weight: 800; color: #0F172A; margin-top: 0.15rem;" class="dark:text-white"><?php echo e($c->sessions_count ?: $c->sessions->count()); ?></div>
+                                                <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;"><?php echo e($c->sessions_count ?: $c->sessions->count()); ?></div>
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;"><?php echo e(__('Students')); ?></div>
-                                                <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;"><?php echo e($c->enrollments->count()); ?></div>
+                                                <div style="font-weight: 800; font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;"><?php echo e($c->enrollments->count()); ?></div>
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;"><?php echo e(__('Price')); ?></div>
-                                                <div style="font-weight: 800; color: #0F172A; margin-top: 0.15rem;" class="dark:text-white"><?php echo e($c->price ? $c->price . ' EGP' : __('Standard')); ?></div>
+                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white"><?php echo e($c->price ? $c->price . ' EGP' : __('Standard')); ?></div>
                                             </div>
                                         </div>
                                     </div>
@@ -853,7 +853,7 @@
                     
                     <div class="rpt-print-section" id="section-sessions" style="<?php echo e($activeTab !== 'sessions' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-video" style="color: #E11D48;"></i>
                                 <?php echo e(__('Conducted & Scheduled Live Sessions')); ?>
 
@@ -874,7 +874,7 @@
                                     <tbody>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $this->liveSessions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sess): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                                             <tr>
-                                                <td style="font-weight: 800; color: #0F172A;" class="dark:text-white">
+                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
                                                     <?php echo e($sess->title); ?>
 
                                                 </td>
@@ -927,7 +927,7 @@
                     
                     <div class="rpt-print-section" id="section-students" style="<?php echo e($activeTab !== 'students' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-user-group" style="color: #0D9488;"></i>
                                 <?php echo e(__('Enrolled Students Roster')); ?>
 
@@ -952,7 +952,7 @@
                                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                                         <img src="<?php echo e($enr->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff'); ?>" alt="<?php echo e($enr->studentUser?->name); ?>" style="width: 2.35rem; height: 2.35rem; min-width: 2.35rem; border-radius: 9999px; object-fit: cover; border: 2px solid #0D9488; flex-shrink: 0;" />
                                                         <div>
-                                                            <div style="font-weight: 800; color: #0F172A; line-height: 1.2;" class="dark:text-white">
+                                                            <div style="font-weight: 800; dark:color:white color:#0F172A line-height: 1.2;" class="dark:text-white">
                                                                 <?php echo e($enr->studentUser?->name ?? __('Student')); ?>
 
                                                             </div>
@@ -1001,7 +1001,7 @@
                     
                     <div class="rpt-print-section" id="section-assignments" style="<?php echo e($activeTab !== 'assignments' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-file-pen" style="color: #9333EA;"></i>
                                 <?php echo e(__('Assignments Created & Grading Log')); ?>
 
@@ -1026,7 +1026,7 @@
                                                 $totalSubs = $a->submissions->count();
                                             ?>
                                             <tr>
-                                                <td style="font-weight: 800; color: #0F172A;" class="dark:text-white">
+                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
                                                     <?php echo e($a->title); ?>
 
                                                 </td>
@@ -1069,7 +1069,7 @@
                     
                     <div class="rpt-print-section" id="section-notes" style="<?php echo e($activeTab !== 'notes' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-clipboard-user" style="color: #0284C7;"></i>
                                 <?php echo e(__('Educational Notes Authored for Students')); ?>
 
@@ -1081,7 +1081,7 @@
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                                             <img src="<?php echo e($note->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0284C7&color=fff'); ?>" alt="<?php echo e($note->studentUser?->name); ?>" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0284C7; flex-shrink: 0;" />
                                             <div>
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">
+                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
                                                     <?php echo e(__('For Student')); ?>: <?php echo e($note->studentUser?->name ?? __('Student')); ?>
 
                                                 </h4>
@@ -1107,7 +1107,7 @@
                     
                     <div class="rpt-print-section" id="section-exceptions" style="<?php echo e($activeTab !== 'exceptions' ? 'display:none;' : ''); ?>">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-envelope-open-text" style="color: #9333EA;"></i>
                                 <?php echo e(__('Student Absence & Exception Requests Handled')); ?>
 
@@ -1119,7 +1119,7 @@
                                         <img src="<?php echo e($exc->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=9333EA&color=fff'); ?>" alt="<?php echo e($exc->studentUser?->name); ?>" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #9333EA; flex-shrink: 0;" />
                                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">
+                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
                                                     <?php echo e($exc->studentUser?->name ?? __('Student')); ?>
 
                                                 </h4>
@@ -1150,7 +1150,7 @@
         <?php else: ?>
             <div style="padding: 3.5rem 1.5rem; text-align: center; background: #FFFFFF; border-radius: 1.5rem; border: 1.5px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                 <i class="fa-solid fa-user-slash" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 0.75rem; display: block;"></i>
-                <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white"><?php echo e(__('No teacher selected')); ?></h3>
+                <h3 style="font-size: 1rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white"><?php echo e(__('No teacher selected')); ?></h3>
                 <p style="font-size: 0.825rem; color: #64748B; margin: 0.35rem 0 0 0;"><?php echo e(__('Please pick a teacher from the dropdown above to view their comprehensive faculty report.')); ?></p>
             </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

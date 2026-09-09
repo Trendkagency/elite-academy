@@ -11,12 +11,12 @@ class CreateStudentPackage extends CreateRecord
 
     public function getTitle(): string
     {
-        return '📦 Assign Package to Student';
+        return __('Assign Package to Student');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Issue a new session package to a student. Select a template to auto-fill credits, or enter custom values.';
+        return __('Issue a new session package to a student. Select a template to auto-fill credits, or enter custom values.');
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -39,6 +39,6 @@ class CreateStudentPackage extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return '✅ Package assigned successfully!';
+        return __('Package assigned successfully!');
     }
 }

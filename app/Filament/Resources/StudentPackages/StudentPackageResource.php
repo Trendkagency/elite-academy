@@ -32,7 +32,7 @@ class StudentPackageResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? '🎟️ باقات اشتراكات الطلاب' : '🎟️ Student Packages';
+        return app()->getLocale() === 'ar' ? 'باقات اشتراكات الطلاب' : 'Student Packages';
     }
 
     public static function getModelLabel(): string

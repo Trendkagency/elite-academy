@@ -31,7 +31,8 @@ class TestimonialsTable
                     ->label(__('Course')),
                 TextColumn::make('rating')
                     ->label(__('Rating'))
-                    ->formatStateUsing(fn (int $state): string => str_repeat('⭐', $state)),
+                    ->html()
+                    ->formatStateUsing(fn (int $state): string => '<span style="color:#f59e0b; font-weight:800; display:inline-flex; align-items:center; gap:4px;">' . $state . '/5 <i class="fa-solid fa-star"></i></span>'),
                 IconColumn::make('is_featured')
                     ->label(__('Featured'))
                     ->boolean(),

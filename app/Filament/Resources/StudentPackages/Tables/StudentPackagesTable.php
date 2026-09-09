@@ -62,59 +62,60 @@ class StudentPackagesTable
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'active'    => 'heroicon-o-check-circle',
+                        'exhausted' => 'heroicon-o-x-circle',
+                        'suspended' => 'heroicon-o-pause-circle',
+                        default     => 'heroicon-o-clock',
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'active'    => 'success',
                         'exhausted' => 'danger',
                         'suspended' => 'gray',
                         default     => 'warning',
                     })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'active'    => '✅ Active',
-                        'exhausted' => '❌ Exhausted',
-                        'suspended' => '🚫 Suspended',
-                        'pending'   => '⏳ Pending',
-                        default     => ucfirst($state),
-                    }),
+                    ->formatStateUsing(fn (string $state) => __(ucfirst($state))),
 
                 TextColumn::make('activated_at')
-                    ->label('Activated')
+                    ->label(__('Activated'))
                     ->date('d M Y')
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('expires_at')
-                    ->label('Expires')
+                    ->label(__('Expires'))
                     ->date('d M Y')
-                    ->placeholder('No Expiry')
+                    ->placeholder(__('No Expiry'))
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : null),
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label(__('Status'))
                     ->options([
-                        'active'    => '✅ Active',
-                        'pending'   => '⏳ Pending',
-                        'exhausted' => '❌ Exhausted',
-                        'suspended' => '🚫 Suspended',
+                        'active'    => __('Active'),
+                        'pending'   => __('Pending'),
+                        'exhausted' => __('Exhausted'),
+                        'suspended' => __('Suspended'),
                     ]),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 // ── Renew Package ────────────────────────────────────────────
                 Action::make('renewPackage')
-                    ->label('🔄 Renew Package')
+                    ->label(__('Renew Package'))
                     ->icon('heroicon-o-arrow-path')
                     ->color('primary')
-                    ->modalHeading(fn ($record) => "Renew Package — {$record->studentUser?->name}")
+                    ->modalHeading(fn ($record) => __('Renew Package') . " — {$record->studentUser?->name}")
                     ->modalDescription(fn ($record) => "Current balance: {$record->remaining_sessions} / {$record->total_sessions} sessions. Renewing will reset credits and re-activate the package.")
                     ->form([
-                        \Filament\Schemas\Components\Section::make('Renewal Plan')
-                            ->description('Choose a package template to auto-fill credits, or enter manually.')
+                        \Filament\Schemas\Components\Section::make(__('Renewal Plan'))
+                            ->description(__('Choose a package template to auto-fill credits, or enter manually.'))
                             ->schema([
                                 Select::make('package_template_id')
-                                    ->label('Package Template (Optional)')
+                                    ->label(__('Package Template (Optional)'))
                                     ->options(fn () => \App\Models\PackageTemplate::where('is_active', true)
                                         ->get()
                                         ->mapWithKeys(fn ($t) => [$t->id => "{$t->name} — {$t->sessions_count} sessions" . ($t->price ? " ({$t->price} SAR)" : '')])
@@ -133,29 +134,29 @@ class StudentPackagesTable
                                     ->preload()
                                     ->nullable()
                                     ->native(false)
-                                    ->helperText('Selecting a template auto-fills the session count below.'),
+                                    ->helperText(__('Selecting a template auto-fills the session count below.')),
 
                                 TextInput::make('new_total_sessions')
-                                    ->label('New Total Session Credits')
+                                    ->label(__('New Total Session Credits'))
                                     ->numeric()
                                     ->minValue(1)
                                     ->required()
                                     ->default(fn ($record) => $record->total_sessions)
                                     ->suffix('sessions')
-                                    ->helperText('This will become the new total AND remaining credits (used resets to 0).'),
+                                    ->helperText(__('This will become the new total AND remaining credits (used resets to 0).')),
                             ]),
 
-                        \Filament\Schemas\Components\Section::make('Validity & Reason')
+                        \Filament\Schemas\Components\Section::make(__('Validity & Reason'))
                             ->columns(2)
                             ->schema([
                                 \Filament\Forms\Components\DateTimePicker::make('new_expires_at')
-                                    ->label('New Expiry Date (Optional)')
+                                    ->label(__('New Expiry Date (Optional)'))
                                     ->nullable()
                                     ->default(fn ($record) => $record->expires_at)
-                                    ->helperText('Leave empty to keep the current expiry.'),
+                                    ->helperText(__('Leave empty to keep the current expiry.')),
 
                                 TextInput::make('renewal_reason')
-                                    ->label('Renewal Reason / Note')
+                                    ->label(__('Renewal Reason / Note'))
                                     ->default('Package Renewal')
                                     ->required()
                                     ->maxLength(200),
@@ -174,7 +175,7 @@ class StudentPackagesTable
                         );
 
                         Notification::make()
-                            ->title("✅ Package renewed for {$record->studentUser?->name}")
+                            ->title(__('Package renewed for :name', ['name' => $record->studentUser?->name]))
                             ->body("{$data['new_total_sessions']} session credits activated. Status: Active.")
                             ->success()
                             ->send();
@@ -182,12 +183,12 @@ class StudentPackagesTable
 
                 // ── Quick: Add Extra Credits ─────────────────────────────────
                 Action::make('addCredits')
-                    ->label('Add Credits')
+                    ->label(__('Add Credits'))
                     ->icon('heroicon-o-plus-circle')
                     ->color('success')
                     ->form([
                         TextInput::make('count')
-                            ->label('Sessions to Add')
+                            ->label(__('Sessions to Add'))
                             ->numeric()
                             ->minValue(1)
                             ->default(5)
@@ -202,24 +203,24 @@ class StudentPackagesTable
                             $record->update(['status' => 'active']);
                         }
                         Notification::make()
-                            ->title("✅ Added {$n} session credits to {$record->studentUser?->name}")
+                            ->title(__('Added :count session credits to :name', ['count' => $n, 'name' => $record->studentUser?->name]))
                             ->success()
                             ->send();
                     }),
 
                 // ── Quick: Change Status ─────────────────────────────────────
                 Action::make('changeStatus')
-                    ->label('Change Status')
+                    ->label(__('Change Status'))
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->form([
                         Select::make('status')
-                            ->label('New Status')
+                            ->label(__('New Status'))
                             ->options([
-                                'active'    => '✅ Active',
-                                'pending'   => '⏳ Pending',
-                                'exhausted' => '❌ Exhausted',
-                                'suspended' => '🚫 Suspended',
+                                'active'    => __('Active'),
+                                'pending'   => __('Pending'),
+                                'exhausted' => __('Exhausted'),
+                                'suspended' => __('Suspended'),
                             ])
                             ->required()
                             ->native(false),
@@ -227,7 +228,7 @@ class StudentPackagesTable
                     ->action(function ($record, array $data) {
                         $record->update(['status' => $data['status']]);
                         Notification::make()
-                            ->title("Package status updated to: {$data['status']}")
+                            ->title(__('Package status updated to: :status', ['status' => $data['status']]))
                             ->success()
                             ->send();
                     }),

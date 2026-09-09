@@ -779,7 +779,7 @@
                     {{-- 1. Assigned Courses Tab --}}
                     <div class="rpt-print-section" id="section-overview" style="{{ $activeTab !== 'overview' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; color:#6366F1; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-book-bookmark" style="color: #6366F1;"></i>
                                 {{ __('Assigned Courses & Curriculum Delivery') }}
                             </h3>
@@ -789,7 +789,7 @@
                                     <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;" class="dark:bg-slate-950/60 dark:border-slate-800">
                                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;">
                                             <div>
-                                                <h4 style="font-size: 0.95rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">{{ $c->title }}</h4>
+                                                <h4 style="font-size: 0.95rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">{{ $c->title }}</h4>
                                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
                                                     <span class="rpt-badge rpt-badge-info">{{ $c->subject?->name ?? __('General') }}</span>
                                                     <span style="font-size: 0.75rem; color: #94A3B8;">{{ $c->gradeLevel?->name ?? __('All Grades') }}</span>
@@ -803,15 +803,15 @@
                                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;" class="dark:border-slate-800">
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Sessions') }}</div>
-                                                <div style="font-weight: 800; color: #0F172A; margin-top: 0.15rem;" class="dark:text-white">{{ $c->sessions_count ?: $c->sessions->count() }}</div>
+                                                <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;">{{ $c->sessions_count ?: $c->sessions->count() }}</div>
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Students') }}</div>
-                                                <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;">{{ $c->enrollments->count() }}</div>
+                                                <div style="font-weight: 800; font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;">{{ $c->enrollments->count() }}</div>
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Price') }}</div>
-                                                <div style="font-weight: 800; color: #0F172A; margin-top: 0.15rem;" class="dark:text-white">{{ $c->price ? $c->price . ' EGP' : __('Standard') }}</div>
+                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->price ? $c->price . ' EGP' : __('Standard') }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -829,7 +829,7 @@
                     {{-- 2. Live Sessions Tab --}}
                     <div class="rpt-print-section" id="section-sessions" style="{{ $activeTab !== 'sessions' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-video" style="color: #E11D48;"></i>
                                 {{ __('Conducted & Scheduled Live Sessions') }}
                             </h3>
@@ -849,7 +849,7 @@
                                     <tbody>
                                         @forelse($this->liveSessions as $sess)
                                             <tr>
-                                                <td style="font-weight: 800; color: #0F172A;" class="dark:text-white">
+                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
                                                     {{ $sess->title }}
                                                 </td>
                                                 <td>{{ $sess->course?->title ?? $sess->subject?->name ?? '-' }}</td>
@@ -898,7 +898,7 @@
                     {{-- 3. Enrolled Students Roster Tab --}}
                     <div class="rpt-print-section" id="section-students" style="{{ $activeTab !== 'students' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-user-group" style="color: #0D9488;"></i>
                                 {{ __('Enrolled Students Roster') }}
                             </h3>
@@ -922,7 +922,7 @@
                                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                                         <img src="{{ $enr->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff' }}" alt="{{ $enr->studentUser?->name }}" style="width: 2.35rem; height: 2.35rem; min-width: 2.35rem; border-radius: 9999px; object-fit: cover; border: 2px solid #0D9488; flex-shrink: 0;" />
                                                         <div>
-                                                            <div style="font-weight: 800; color: #0F172A; line-height: 1.2;" class="dark:text-white">
+                                                            <div style="font-weight: 800; dark:color:white color:#0F172A line-height: 1.2;" class="dark:text-white">
                                                                 {{ $enr->studentUser?->name ?? __('Student') }}
                                                             </div>
                                                             <div style="font-size: 0.7rem; color: #64748B;" class="dark:text-slate-400">
@@ -965,7 +965,7 @@
                     {{-- 4. Assignments & Grading Tab --}}
                     <div class="rpt-print-section" id="section-assignments" style="{{ $activeTab !== 'assignments' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-file-pen" style="color: #9333EA;"></i>
                                 {{ __('Assignments Created & Grading Log') }}
                             </h3>
@@ -989,7 +989,7 @@
                                                 $totalSubs = $a->submissions->count();
                                             @endphp
                                             <tr>
-                                                <td style="font-weight: 800; color: #0F172A;" class="dark:text-white">
+                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
                                                     {{ $a->title }}
                                                 </td>
                                                 <td>{{ $a->course?->title ?? '-' }}</td>
@@ -1027,7 +1027,7 @@
                     {{-- 5. Educational Notes Authored Tab --}}
                     <div class="rpt-print-section" id="section-notes" style="{{ $activeTab !== 'notes' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-clipboard-user" style="color: #0284C7;"></i>
                                 {{ __('Educational Notes Authored for Students') }}
                             </h3>
@@ -1038,7 +1038,7 @@
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                                             <img src="{{ $note->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0284C7&color=fff' }}" alt="{{ $note->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0284C7; flex-shrink: 0;" />
                                             <div>
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">
+                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
                                                     {{ __('For Student') }}: {{ $note->studentUser?->name ?? __('Student') }}
                                                 </h4>
                                                 <div style="font-size: 0.7rem; color: #94A3B8;">{{ $note->studentUser?->email }}</div>
@@ -1062,7 +1062,7 @@
                     {{-- 6. Exception Requests Handled Tab --}}
                     <div class="rpt-print-section" id="section-exceptions" style="{{ $activeTab !== 'exceptions' ? 'display:none;' : '' }}">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
+                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
                                 <i class="fa-solid fa-envelope-open-text" style="color: #9333EA;"></i>
                                 {{ __('Student Absence & Exception Requests Handled') }}
                             </h3>
@@ -1073,7 +1073,7 @@
                                         <img src="{{ $exc->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=9333EA&color=fff' }}" alt="{{ $exc->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #9333EA; flex-shrink: 0;" />
                                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">
+                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
                                                     {{ $exc->studentUser?->name ?? __('Student') }}
                                                 </h4>
                                                 <span class="rpt-badge rpt-badge-info">{{ $exc->liveSession?->title ?? $exc->course?->title ?? __('Session Request') }}</span>
@@ -1101,7 +1101,7 @@
         @else
             <div style="padding: 3.5rem 1.5rem; text-align: center; background: #FFFFFF; border-radius: 1.5rem; border: 1.5px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                 <i class="fa-solid fa-user-slash" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 0.75rem; display: block;"></i>
-                <h3 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0;" class="dark:text-white">{{ __('No teacher selected') }}</h3>
+                <h3 style="font-size: 1rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">{{ __('No teacher selected') }}</h3>
                 <p style="font-size: 0.825rem; color: #64748B; margin: 0.35rem 0 0 0;">{{ __('Please pick a teacher from the dropdown above to view their comprehensive faculty report.') }}</p>
             </div>
         @endif

@@ -56,9 +56,10 @@ class SubjectsTable
                     ->color('success'),
                 TextColumn::make('rating_avg')
                     ->label(__('Rating'))
-                    ->state(fn ($record) => number_format($record->getRatingAvg(), 1) . ' ★')
+                    ->state(fn ($record) => number_format($record->getRatingAvg(), 1))
+                    ->icon('heroicon-s-star')
                     ->badge()
-                    ->color('primary'),
+                    ->color('warning'),
                 TextColumn::make('sort_order')
                     ->label(__('Sort Order'))
                     ->numeric()

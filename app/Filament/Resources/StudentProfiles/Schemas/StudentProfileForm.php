@@ -21,8 +21,9 @@ class StudentProfileForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('👤 Student User Account Credentials & Status')
-                    ->description('Manage student user profile, account status, email, and phone credentials')
+                Section::make(__('Student User Account Credentials & Status'))
+                    ->icon('heroicon-o-user')
+                    ->description(__('Manage student user profile, account status, email, and phone credentials'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
@@ -49,52 +50,52 @@ class StudentProfileForm
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
-                            ->label('Student Account User')
-                            ->helperText('Select an existing student account, or click (+) to register a new student directly.')
+                            ->label(__('Student Account User'))
+                            ->helperText(__('Select an existing student account, or click (+) to register a new student directly.'))
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
                             ->unique(StudentProfile::class, 'user_id', ignoreRecord: true)
                             ->createOptionForm([
                                 TextInput::make('name')
-                                    ->label('Student Full Name')
+                                    ->label(__('Student Full Name'))
                                     ->placeholder('e.g. Youssef Ahmed')
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('email')
-                                    ->label('Email Address')
+                                    ->label(__('Email Address'))
                                     ->email()
                                     ->placeholder('student@elite-academy.com')
                                     ->required()
                                     ->unique(User::class, 'email')
                                     ->maxLength(255),
                                 TextInput::make('phone')
-                                    ->label('Phone Number')
+                                    ->label(__('Phone Number'))
                                     ->tel()
                                     ->placeholder('+201000000000')
                                     ->unique(User::class, 'phone')
                                     ->maxLength(30),
                                 TextInput::make('password')
-                                    ->label('Account Password')
+                                    ->label(__('Account Password'))
                                     ->password()
                                     ->revealable()
                                     ->default('Password123!')
-                                    ->helperText('Default temporary password. The student can change it later.')
+                                    ->helperText(__('Default temporary password. The student can change it later.'))
                                     ->required()
                                     ->maxLength(255),
                                 Select::make('status')
-                                    ->label('Account Approval Status')
+                                    ->label(__('Account Approval Status'))
                                     ->options([
-                                        'approved' => '✅ Approved (مقبول)',
-                                        'pending' => '⏳ Pending Approval (قيد المراجعة)',
+                                        'approved' => __('Approved'),
+                                        'pending' => __('Pending Approval'),
                                     ])
                                     ->default('approved')
                                     ->required(),
                             ])
                             ->createOptionAction(fn ($action) => $action
-                                ->modalHeading('Register & Link New Student Account')
-                                ->modalDescription('Create a new student user account and instantly attach it to this academic profile.')
-                                ->modalSubmitActionLabel('Create Account')
+                                ->modalHeading(__('Register & Link New Student Account'))
+                                ->modalDescription(__('Create a new student user account and instantly attach it to this academic profile.'))
+                                ->modalSubmitActionLabel(__('Create Account'))
                                 ->modalWidth('lg')
                             )
                             ->live()
@@ -108,12 +109,12 @@ class StudentProfileForm
                             }),
 
                         Select::make('user_status')
-                            ->label('Account Approval Status')
+                            ->label(__('Account Approval Status'))
                             ->options([
-                                'pending' => '⏳ Pending Approval (قيد المراجعة)',
-                                'approved' => '✅ Approved (مقبول)',
-                                'rejected' => '❌ Rejected (مرفوض)',
-                                'suspended' => '🚫 Suspended (معلق)',
+                                'pending' => __('Pending Approval'),
+                                'approved' => __('Approved'),
+                                'rejected' => __('Rejected'),
+                                'suspended' => __('Suspended'),
                             ])
                             ->default('approved')
                             ->required()
@@ -125,43 +126,45 @@ class StudentProfileForm
                             ->dehydrated(false),
                     ]),
 
-                Section::make('🏫 Academic Profile & School Metadata')
-                    ->description('Manage grade level, school name, enrolled subjects, and free trial session flag')
+                Section::make(__('Academic Profile & School Metadata'))
+                    ->icon('heroicon-o-academic-cap')
+                    ->description(__('Manage grade level, school name, enrolled subjects, and free trial session flag'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
                         Select::make('grade_level_id')
                             ->relationship('gradeLevel', 'name')
-                            ->label('Grade Level')
+                            ->label(__('Grade Level'))
                             ->searchable()
                             ->preload(),
 
                         TextInput::make('school_name')
-                            ->label('School Name')
+                            ->label(__('School Name'))
                             ->placeholder('e.g. Al-Bayan International School'),
 
                         Select::make('subjects')
                             ->relationship('subjects', 'name')
-                            ->label('Enrolled Subjects')
+                            ->label(__('Enrolled Subjects'))
                             ->multiple()
                             ->preload()
                             ->searchable(),
 
                         DatePicker::make('date_of_birth')
-                            ->label('Date of Birth'),
+                            ->label(__('Date of Birth')),
 
                         Toggle::make('has_used_free_session')
-                            ->label('Used Free Trial Session')
-                            ->helperText('Flag indicating if student consumed their free trial session credit.')
+                            ->label(__('Used Free Trial Session'))
+                            ->helperText(__('Flag indicating if student consumed their free trial session credit.'))
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('📸 Student Avatar & Profile Picture')
-                    ->description('Upload or change student profile picture')
+                Section::make(__('Student Avatar & Profile Picture'))
+                    ->icon('heroicon-o-camera')
+                    ->description(__('Upload or change student profile picture'))
                     ->columnSpanFull()
                     ->components([
                         \Filament\Forms\Components\FileUpload::make('avatar')
-                            ->label('Student Profile Photo')
+                            ->label(__('Student Profile Photo'))
                             ->disk('public')
                             ->directory('avatars')
                             ->visibility('public')
@@ -169,12 +172,13 @@ class StudentProfileForm
                             ->imageEditor()
                             ->avatar()
                             ->circleCropper()
-                            ->helperText('Upload a square portrait photo for the student profile (JPG, PNG, WebP).')
+                            ->helperText(__('Upload a square portrait photo for the student profile (JPG, PNG, WebP).'))
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('📊 360° Student Academic Overview, Packages & Submissions')
-                    ->description('Real-time overview of student active session package credits, linked parents, enrolled courses, and homework submissions')
+                Section::make(__('360° Student Academic Overview, Packages & Submissions'))
+                    ->icon('heroicon-o-chart-bar')
+                    ->description(__('Real-time overview of student active session package credits, linked parents, enrolled courses, and homework submissions'))
                     ->columnSpanFull()
                     ->visible(fn (string $operation) => $operation === 'edit')
                     ->components([

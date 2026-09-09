@@ -34,11 +34,11 @@ class TestimonialForm
                 Select::make('rating')
                     ->label(__('Rating (1 to 5 Stars)'))
                     ->options([
-                        5 => '⭐⭐⭐⭐⭐ (5 Stars)',
-                        4 => '⭐⭐⭐⭐ (4 Stars)',
-                        3 => '⭐⭐⭐ (3 Stars)',
-                        2 => '⭐⭐ (2 Stars)',
-                        1 => '⭐ (1 Star)',
+                        5 => '5 / 5 — ' . __('5 Stars (Excellent)'),
+                        4 => '4 / 5 — ' . __('4 Stars (Very Good)'),
+                        3 => '3 / 5 — ' . __('3 Stars (Good)'),
+                        2 => '2 / 5 — ' . __('2 Stars (Fair)'),
+                        1 => '1 / 5 — ' . __('1 Star (Poor)'),
                     ])
                     ->default(5)
                     ->required(),

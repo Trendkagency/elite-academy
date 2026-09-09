@@ -20,12 +20,13 @@ class StudentPackageForm
             ->components([
 
                 // ── SECTION 1: Who Gets the Package ─────────────────────────
-                Section::make('👤 Student')
-                    ->description('Select the student who will receive the package.')
+                Section::make(__('Student Information'))
+                    ->icon('heroicon-o-user')
+                    ->description(__('Select the student who will receive the package.'))
                     ->columnSpanFull()
                     ->schema([
                         Select::make('student_user_id')
-                            ->label('Student')
+                            ->label(__('Student'))
                             ->relationship(
                                 name: 'studentUser',
                                 titleAttribute: 'name',
@@ -36,20 +37,21 @@ class StudentPackageForm
                             ->preload()
                             ->required()
                             ->columnSpanFull()
-                            ->helperText('Search by student name or email address.'),
+                            ->helperText(__('Search by student name or email address.')),
                     ]),
 
                 // ── SECTION 2: Package Template (auto-fills credits) ─────────
-                Section::make('📦 Package Plan')
-                    ->description('Choose a pre-defined package template, or enter custom session credits manually below.')
+                Section::make(__('Package Plan'))
+                    ->icon('heroicon-o-cube')
+                    ->description(__('Choose a pre-defined package template, or enter custom session credits manually below.'))
                     ->columnSpanFull()
                     ->schema([
                         Select::make('package_template_id')
-                            ->label('Package Template')
+                            ->label(__('Package Template'))
                             ->relationship('packageTemplate', 'name',
                                 modifyQueryUsing: fn ($query) => $query->where('is_active', true)
                             )
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->sessions_count} sessions" . ($record->price ? " ({$record->price} SAR)" : ''))
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->sessions_count} " . __('sessions') . ($record->price ? " ({$record->price} SAR)" : ''))
                             ->searchable()
                             ->preload()
                             ->nullable()
@@ -65,26 +67,27 @@ class StudentPackageForm
                                 }
                             })
                             ->columnSpanFull()
-                            ->helperText('Selecting a template will automatically fill the session credits below.'),
+                            ->helperText(__('Selecting a template will automatically fill the session credits below.')),
 
                         Select::make('course_id')
-                            ->label('Restrict to Course (Optional)')
+                            ->label(__('Restrict to Course (Optional)'))
                             ->relationship('course', 'title')
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->helperText('Leave empty to allow access to all enrolled courses.')
+                            ->helperText(__('Leave empty to allow access to all enrolled courses.'))
                             ->columnSpanFull(),
                     ]),
 
                 // ── SECTION 3: Session Credits ───────────────────────────────
-                Section::make('🎟️ Session Credits')
-                    ->description('Set the number of session credits for this package. These are auto-filled when a template is selected.')
+                Section::make(__('Session Credits'))
+                    ->icon('heroicon-o-ticket')
+                    ->description(__('Set the number of session credits for this package. These are auto-filled when a template is selected.'))
                     ->columnSpanFull()
                     ->columns(3)
                     ->schema([
                         TextInput::make('total_sessions')
-                            ->label('Total Credits')
+                            ->label(__('Total Credits'))
                             ->required()
                             ->numeric()
                             ->minValue(1)
@@ -95,10 +98,10 @@ class StudentPackageForm
                                 $total = (int) ($state ?? 0);
                                 $set('remaining_sessions', max(0, $total - $used));
                             })
-                            ->suffix('sessions'),
+                            ->suffix(__('sessions')),
 
                         TextInput::make('used_sessions')
-                            ->label('Already Used')
+                            ->label(__('Already Used'))
                             ->required()
                             ->numeric()
                             ->minValue(0)
@@ -109,45 +112,46 @@ class StudentPackageForm
                                 $used = (int) ($state ?? 0);
                                 $set('remaining_sessions', max(0, $total - $used));
                             })
-                            ->suffix('sessions'),
+                            ->suffix(__('sessions')),
 
                         TextInput::make('remaining_sessions')
-                            ->label('Remaining Credits')
+                            ->label(__('Remaining Credits'))
                             ->required()
                             ->numeric()
                             ->minValue(0)
                             ->default(12)
-                            ->helperText('Auto-computed: Total − Used. You can override manually.')
-                            ->suffix('sessions'),
+                            ->helperText(__('Auto-computed: Total − Used. You can override manually.'))
+                            ->suffix(__('sessions')),
                     ]),
 
                 // ── SECTION 4: Status & Validity ─────────────────────────────
-                Section::make('⚙️ Activation & Validity')
-                    ->description('Set the package status and optional expiry date.')
+                Section::make(__('Activation & Validity'))
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->description(__('Set the package status and optional expiry date.'))
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         Select::make('status')
-                            ->label('Package Status')
+                            ->label(__('Package Status'))
                             ->options([
-                                'active'    => '✅ Active — Student has access',
-                                'pending'   => '⏳ Pending — Not yet activated',
-                                'exhausted' => '❌ Exhausted — 0 credits left',
-                                'suspended' => '🚫 Suspended — Temporarily blocked',
+                                'active'    => __('Active — Student has access'),
+                                'pending'   => __('Pending — Not yet activated'),
+                                'exhausted' => __('Exhausted — 0 credits left'),
+                                'suspended' => __('Suspended — Temporarily blocked'),
                             ])
                             ->default('active')
                             ->required()
                             ->native(false),
 
                         DateTimePicker::make('activated_at')
-                            ->label('Activation Date')
+                            ->label(__('Activation Date'))
                             ->default(now())
-                            ->helperText('When this package starts.'),
+                            ->helperText(__('When this package starts.')),
 
                         DateTimePicker::make('expires_at')
-                            ->label('Expiry Date (Optional)')
+                            ->label(__('Expiry Date (Optional)'))
                             ->nullable()
-                            ->helperText('Leave empty for no expiry.')
+                            ->helperText(__('Leave empty for no expiry.'))
                             ->columnSpan(1),
                     ]),
             ]);

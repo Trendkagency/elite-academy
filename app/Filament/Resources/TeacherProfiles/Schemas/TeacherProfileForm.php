@@ -22,8 +22,9 @@ class TeacherProfileForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('👤 Teacher Account & Public Identity')
-                    ->description('Link or create a user account and configure public visibility')
+                Section::make(__('Teacher Account & Public Identity'))
+                    ->icon('heroicon-o-user')
+                    ->description(__('Link or create a user account and configure public visibility'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
@@ -50,52 +51,52 @@ class TeacherProfileForm
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
-                            ->label('Teacher Account User')
-                            ->helperText('Select an existing teacher account, or click (+) to create a new teacher account directly.')
+                            ->label(__('Teacher Account User'))
+                            ->helperText(__('Select an existing teacher account, or click (+) to create a new teacher account directly.'))
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
                             ->unique(TeacherProfile::class, 'user_id', ignoreRecord: true)
                             ->createOptionForm([
                                 TextInput::make('name')
-                                    ->label('Full Name')
+                                    ->label(__('Full Name'))
                                     ->placeholder('e.g. Dr. Ahmed Mahmoud')
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('email')
-                                    ->label('Email Address')
+                                    ->label(__('Email Address'))
                                     ->email()
                                     ->placeholder('teacher@elite-academy.com')
                                     ->required()
                                     ->unique(User::class, 'email')
                                     ->maxLength(255),
                                 TextInput::make('phone')
-                                    ->label('Phone Number')
+                                    ->label(__('Phone Number'))
                                     ->tel()
                                     ->placeholder('+201000000000')
                                     ->unique(User::class, 'phone')
                                     ->maxLength(30),
                                 TextInput::make('password')
-                                    ->label('Account Password')
+                                    ->label(__('Account Password'))
                                     ->password()
                                     ->revealable()
                                     ->default('Password123!')
-                                    ->helperText('Default temporary password. The teacher can change it later.')
+                                    ->helperText(__('Default temporary password. The teacher can change it later.'))
                                     ->required()
                                     ->maxLength(255),
                                 Select::make('status')
-                                    ->label('Account Approval Status')
+                                    ->label(__('Account Approval Status'))
                                     ->options([
-                                        'approved' => '✅ Approved (مقبول)',
-                                        'pending' => '⏳ Pending Approval (قيد المراجعة)',
+                                        'approved' => __('Approved'),
+                                        'pending' => __('Pending Approval'),
                                     ])
                                     ->default('approved')
                                     ->required(),
                             ])
                             ->createOptionAction(fn ($action) => $action
-                                ->modalHeading('Create & Link New Teacher Account')
-                                ->modalDescription('Fill in the credentials to immediately register a new user account and attach it to this Teacher Profile.')
-                                ->modalSubmitActionLabel('Create Account')
+                                ->modalHeading(__('Create & Link New Teacher Account'))
+                                ->modalDescription(__('Fill in the credentials to immediately register a new user account and attach it to this Teacher Profile.'))
+                                ->modalSubmitActionLabel(__('Create Account'))
                                 ->modalWidth('lg')
                             )
                             ->live()
@@ -110,62 +111,64 @@ class TeacherProfileForm
                         TextInput::make('slug')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->helperText('Unique URL slug for teacher public profile page.'),
+                            ->helperText(__('Unique URL slug for teacher public profile page.')),
 
                         Toggle::make('is_featured')
-                            ->label('Feature on Homepage & Top Banner')
+                            ->label(__('Feature on Homepage & Top Banner'))
                             ->default(true),
 
                         Toggle::make('is_public')
-                            ->label('Publicly Visible on Website')
+                            ->label(__('Publicly Visible on Website'))
                             ->default(true),
 
                         Toggle::make('show_contact_info')
-                            ->label('Show Contact Details on Profile')
+                            ->label(__('Show Contact Details on Profile'))
                             ->default(false),
                     ]),
 
-                Section::make('🎓 Professional Details & Bio')
-                    ->description('Academic title, specialization, rating, and biographical overview')
+                Section::make(__('Professional Details & Bio'))
+                    ->icon('heroicon-o-academic-cap')
+                    ->description(__('Academic title, specialization, rating, and biographical overview'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
                         TextInput::make('title')
-                            ->label('Professional Title')
+                            ->label(__('Professional Title'))
                             ->placeholder('e.g. Senior Physics Lecturer / دكتور الفيزياء التطبيقية')
                             ->required(),
 
                         TextInput::make('specialization')
-                            ->label('Specialization / Subject Focus')
+                            ->label(__('Specialization / Subject Focus'))
                             ->placeholder('e.g. Advanced Physics & Mechanics')
                             ->required(),
 
                         TextInput::make('years_experience')
                             ->numeric()
                             ->default(5)
-                            ->label('Years of Experience'),
+                            ->label(__('Years of Experience')),
 
                         TextInput::make('rating_avg')
                             ->required()
                             ->numeric()
                             ->default(4.9)
-                            ->label('Rating (out of 5.0)'),
+                            ->label(__('Rating (out of 5.0)')),
 
                         TextInput::make('students_count')
                             ->required()
                             ->numeric()
                             ->default(100)
-                            ->label('Enrolled Students Count'),
+                            ->label(__('Enrolled Students Count')),
 
                         Textarea::make('bio')
-                            ->label('Biography & Academic Achievements')
-                            ->placeholder('Overview of qualifications, teaching methodology, and accomplishments...')
+                            ->label(__('Biography & Academic Achievements'))
+                            ->placeholder(__('Overview of qualifications, teaching methodology, and accomplishments...'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('📸 Teacher Photo & Spatie Media')
-                    ->description('Upload instructor profile picture')
+                Section::make(__('Teacher Photo & Spatie Media'))
+                    ->icon('heroicon-o-camera')
+                    ->description(__('Upload instructor profile picture'))
                     ->columnSpanFull()
                     ->components([
                         SpatieMediaLibraryFileUpload::make('photo')
@@ -174,7 +177,7 @@ class TeacherProfileForm
                             ->visibility('public')
                             ->image()
                             ->imageEditor()
-                            ->label('Teacher Photo Upload (Spatie Media)'),
+                            ->label(__('Teacher Photo Upload (Spatie Media)')),
                     ]),
             ]);
     }

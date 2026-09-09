@@ -14,19 +14,20 @@ class ListStudentPackages extends ListRecords
 
     public function getTitle(): string
     {
-        return '🎟️ Student Packages & Credits';
+        return __('Student Packages & Credits');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Manage session credits assigned to students. Use "Assign Package to Student" to issue a new package.';
+        return __('Manage session credits assigned to students. Use "Assign Package to Student" to issue a new package.');
     }
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('📦 Assign Package to Student')
+                ->label(__('Assign Package to Student'))
+                ->icon('heroicon-o-plus-circle')
                 ->color('primary'),
         ];
     }
@@ -34,12 +35,15 @@ class ListStudentPackages extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make('All Packages (جميع الباقات)')
+            'all' => Tab::make(__('All Packages'))
+                ->icon('heroicon-o-ticket')
                 ->badge(StudentPackage::count()),
-            'active' => Tab::make('🟢 Active Packages (الباقات النشطة)')
+            'active' => Tab::make(__('Active Packages'))
+                ->icon('heroicon-o-check-circle')
                 ->badge(StudentPackage::where('status', 'active')->count())
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'active')),
-            'pending' => Tab::make('⏳ Pending Payments (المدفوعات المعلقة)')
+            'pending' => Tab::make(__('Pending Payments'))
+                ->icon('heroicon-o-clock')
                 ->badge(StudentPackage::where('status', 'pending')->count())
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'pending')),
         ];

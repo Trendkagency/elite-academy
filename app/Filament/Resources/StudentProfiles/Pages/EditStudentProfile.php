@@ -44,24 +44,24 @@ class EditStudentProfile extends EditRecord
                 ->visible(fn () => $this->record->user?->status === AccountStatus::PENDING || $this->record->user?->status === 'pending'),
 
             Action::make('assignPackage')
-                ->label('🎟️ Assign Package / Credits')
-                ->icon('heroicon-o-credit-card')
+                ->label(__('Assign Package / Credits'))
+                ->icon('heroicon-o-ticket')
                 ->color('primary')
                 ->form([
                     Select::make('package_template_id')
-                        ->label('Select Package Plan Template')
+                        ->label(__('Select Package Plan Template'))
                         ->options(fn () => PackageTemplate::where('is_active', true)->pluck('name', 'id')->toArray())
                         ->searchable()
                         ->preload()
                         ->nullable()
-                        ->helperText('Select a pre-defined template or leave empty for custom package.'),
+                        ->helperText(__('Select a pre-defined template or leave empty for custom package.')),
                     TextInput::make('total_sessions')
-                        ->label('Total Session Credits')
+                        ->label(__('Total Session Credits'))
                         ->numeric()
                         ->default(12)
                         ->minValue(1)
                         ->required()
-                        ->suffix('sessions'),
+                        ->suffix(__('sessions')),
                 ])
                 ->action(function (array $data) {
                     StudentPackage::create([
@@ -74,7 +74,9 @@ class EditStudentProfile extends EditRecord
                         'activated_at' => now(),
                     ]);
                     Notification::make()
-                        ->title("✅ Assigned {$data['total_sessions']} Session Credits to Student")
+                        ->title(__("Assigned :count Session Credits to Student", ['count' => $data['total_sessions']]))
+                        ->icon('heroicon-o-check-circle')
+                        ->iconColor('success')
                         ->success()
                         ->send();
                 }),

@@ -40,13 +40,24 @@ class UsersTable
                 TextColumn::make('role')
                     ->label(__('Account Role'))
                     ->state(fn ($record) => match ($record->getRoleName()) {
-                        \App\Enums\Role::ADMIN->value => __('Admin') . ' ⚡',
-                        \App\Enums\Role::TEACHER->value => __('Teacher') . ' 👨‍🏫',
-                        \App\Enums\Role::PARENT->value => __('Parent') . ' 👨‍👩‍👧',
-                        default => __('Student') . ' 🎓',
+                        \App\Enums\Role::ADMIN->value => __('Admin'),
+                        \App\Enums\Role::TEACHER->value => __('Teacher'),
+                        \App\Enums\Role::PARENT->value => __('Parent'),
+                        default => __('Student'),
                     })
                     ->badge()
-                    ->color(fn ($state) => str_contains($state, __('Admin')) ? 'danger' : (str_contains($state, __('Teacher')) ? 'info' : (str_contains($state, __('Parent')) ? 'primary' : 'success'))),
+                    ->icon(fn ($record) => match ($record->getRoleName()) {
+                        \App\Enums\Role::ADMIN->value => 'heroicon-o-shield-check',
+                        \App\Enums\Role::TEACHER->value => 'heroicon-o-academic-cap',
+                        \App\Enums\Role::PARENT->value => 'heroicon-o-user-group',
+                        default => 'heroicon-o-user',
+                    })
+                    ->color(fn ($record) => match ($record->getRoleName()) {
+                        \App\Enums\Role::ADMIN->value => 'danger',
+                        \App\Enums\Role::TEACHER->value => 'info',
+                        \App\Enums\Role::PARENT->value => 'primary',
+                        default => 'success',
+                    }),
                 TextColumn::make('status')
                     ->label(__('Account Approval Status'))
                     ->badge(),
@@ -60,10 +71,10 @@ class UsersTable
                 SelectFilter::make('role')
                     ->label(__('Filter by Role'))
                     ->options([
-                        'student' => __('Student') . ' 🎓',
-                        'teacher' => __('Teacher') . ' 👨‍🏫',
-                        'parent'  => __('Parent') . ' 👨‍👩‍👧',
-                        'admin'   => __('Admin') . ' ⚡',
+                        'student' => __('Student'),
+                        'teacher' => __('Teacher'),
+                        'parent'  => __('Parent'),
+                        'admin'   => __('Admin'),
                     ])
                     ->query(function ($query, array $data) {
                         if (empty($data['value'])) {
@@ -80,10 +91,10 @@ class UsersTable
                 SelectFilter::make('status')
                     ->label(__('Account Approval Status'))
                     ->options([
-                        'pending'   => '⏳ ' . __('Pending Approval'),
-                        'approved'  => '✅ ' . __('Approved'),
-                        'rejected'  => '❌ ' . __('Rejected'),
-                        'suspended' => '🚫 ' . __('Suspended'),
+                        'pending'   => __('Pending Approval'),
+                        'approved'  => __('Approved'),
+                        'rejected'  => __('Rejected'),
+                        'suspended' => __('Suspended'),
                     ]),
                 TrashedFilter::make(),
             ])
