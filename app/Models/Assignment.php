@@ -46,6 +46,11 @@ class Assignment extends Model
         return $this->belongsTo(CourseSession::class, 'course_session_id');
     }
 
+    public function courseSession(): BelongsTo
+    {
+        return $this->belongsTo(CourseSession::class, 'course_session_id');
+    }
+
     public function liveSession(): BelongsTo
     {
         return $this->belongsTo(LiveSession::class, 'live_session_id');

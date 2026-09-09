@@ -31,6 +31,11 @@ class StudentEducationalNote extends Model
         return $this->belongsTo(TeacherProfile::class);
     }
 
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(TeacherProfile::class, 'teacher_profile_id');
+    }
+
     public function studentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_user_id');

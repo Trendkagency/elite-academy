@@ -24,6 +24,27 @@ class StudentProfile extends Model
         'has_used_free_session' => 'boolean',
     ];
 
+    public function getAvatarUrlAttribute(): string
+    {
+        if (! empty($this->avatar)) {
+            if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+                return $this->avatar;
+            }
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+                return asset('storage/' . $this->avatar);
+            }
+            if (file_exists(public_path($this->avatar))) {
+                return asset($this->avatar);
+            }
+
+            return asset('storage/' . $this->avatar);
+        }
+
+        $name = urlencode($this->user?->name ?? 'Student');
+
+        return "https://ui-avatars.com/api/?name={$name}&background=0D9488&color=ffffff&size=200&bold=true&font-size=0.38";
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -21,42 +21,45 @@ class SubjectsRelationManager extends RelationManager
 {
     protected static string $relationship = 'subjects';
 
-    protected static ?string $title = '📚 Linked Subjects (المواد الدراسية التابعة لهذا القسم)';
-
     protected static string|BackedEnum|null $icon = 'heroicon-o-book-open';
+
+    public static function getTitle($ownerRecord, string $pageClass): string
+    {
+        return __('Linked Subjects');
+    }
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Subject Name (اسم المادة)')
+                    ->label(__('Subject Name'))
                     ->required()
                     ->maxLength(100)
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state ?: 'subject'))),
 
                 TextInput::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->required()
                     ->maxLength(100),
 
                 TextInput::make('sort_order')
-                    ->label('Sort Order')
+                    ->label(__('Sort Order'))
                     ->numeric()
                     ->default(0)
                     ->required(),
 
                 Toggle::make('is_active')
-                    ->label('Active Status')
+                    ->label(__('Active Status'))
                     ->default(true),
 
                 Textarea::make('description')
-                    ->label('Description')
+                    ->label(__('Description'))
                     ->columnSpanFull(),
 
                 FileUpload::make('image')
-                    ->label('Subject Cover Image')
+                    ->label(__('Subject Cover Image'))
                     ->disk('public')
                     ->directory('subjects')
                     ->visibility('public')
@@ -71,36 +74,36 @@ class SubjectsRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Subject Name')
+                    ->label(__('Subject Name'))
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->searchable()
                     ->badge()
                     ->color('gray'),
 
                 TextColumn::make('courses_count')
                     ->counts('courses')
-                    ->label('Courses (الكورسات)')
+                    ->label(__('Linked Courses'))
                     ->badge()
                     ->color('warning'),
 
                 TextColumn::make('sort_order')
-                    ->label('Sort Order')
+                    ->label(__('Sort Order'))
                     ->numeric()
                     ->sortable(),
 
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('Active'))
                     ->boolean(),
             ])
             ->defaultSort('sort_order', 'asc')
             ->headerActions([
                 CreateAction::make()
-                    ->label('➕ Add New Subject under Category'),
+                    ->label(__('Add New Subject under Category')),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -156,6 +156,23 @@ class StudentProfileForm
                             ->columnSpanFull(),
                     ]),
 
+                Section::make('📸 Student Avatar & Profile Picture')
+                    ->description('Upload or change student profile picture')
+                    ->columnSpanFull()
+                    ->components([
+                        \Filament\Forms\Components\FileUpload::make('avatar')
+                            ->label('Student Profile Photo')
+                            ->disk('public')
+                            ->directory('avatars')
+                            ->visibility('public')
+                            ->image()
+                            ->imageEditor()
+                            ->avatar()
+                            ->circleCropper()
+                            ->helperText('Upload a square portrait photo for the student profile (JPG, PNG, WebP).')
+                            ->columnSpanFull(),
+                    ]),
+
                 Section::make('📊 360° Student Academic Overview, Packages & Submissions')
                     ->description('Real-time overview of student active session package credits, linked parents, enrolled courses, and homework submissions')
                     ->columnSpanFull()

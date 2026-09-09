@@ -19,14 +19,16 @@ class ArticleForm
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label(__('Title'))
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (string $operation, $state, callable $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
                 TextInput::make('slug')
+                    ->label(__('Slug'))
                     ->required()
                     ->unique(ignoreRecord: true),
                 Select::make('category')
-                    ->label('Category (القسم / التصنيف)')
+                    ->label(__('Category'))
                     ->options(function () {
                         $dbCategories = Category::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'name')->toArray();
                         $defaults = [
@@ -51,11 +53,13 @@ class ArticleForm
                     ->required(),
                 Select::make('author_user_id')
                     ->relationship('authorUser', 'name')
-                    ->label('Author'),
+                    ->label(__('Author')),
                 Textarea::make('excerpt')
+                    ->label(__('Excerpt'))
                     ->rows(2)
                     ->columnSpanFull(),
                 Textarea::make('content')
+                    ->label(__('Content'))
                     ->required()
                     ->rows(8)
                     ->columnSpanFull(),
@@ -65,16 +69,17 @@ class ArticleForm
                     ->visibility('public')
                     ->image()
                     ->imageEditor()
-                    ->label('Featured Image Upload (Spatie Media)'),
+                    ->label(__('Featured Image Upload (Spatie Media)')),
                 TextInput::make('read_time_minutes')
                     ->required()
                     ->numeric()
                     ->default(5)
-                    ->label('Est. Read Time (Minutes)'),
+                    ->label(__('Est. Read Time (Minutes)')),
                 DateTimePicker::make('published_at')
+                    ->label(__('Published At'))
                     ->default(now()),
                 Toggle::make('is_published')
-                    ->label('Show / Publish Blog Post on Website')
+                    ->label(__('Show / Publish Blog Post on Website'))
                     ->default(true),
             ]);
     }

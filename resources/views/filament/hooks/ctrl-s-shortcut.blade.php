@@ -59,7 +59,7 @@
                     const isAr = document.documentElement.lang === "ar" || document.dir === "rtl";
                     const toast = document.createElement("div");
                     toast.className = "fixed top-4 right-4 z-[99999] bg-slate-900 text-white font-mono text-xs px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700 transition-all duration-300 transform translate-y-0 opacity-100";
-                    toast.innerHTML = "<span><i class="fa-solid fa-floppy-disk"></i></span> <span>" + (isAr ? "جاري الحفظ... (Ctrl + S)" : "Saving Changes... (Ctrl + S)") + "</span>";
+                    toast.innerHTML = `<span><i class="fa-solid fa-floppy-disk"></i></span> <span>${isAr ? "جاري الحفظ... (Ctrl + S)" : "Saving Changes... (Ctrl + S)"}</span>`;
                     document.body.appendChild(toast);
 
                     setTimeout(function() {

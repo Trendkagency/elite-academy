@@ -19,42 +19,42 @@ class CategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Category Name (اسم القسم / التصنيف)')
+                    ->label(__('Category Name'))
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->searchable()
                     ->sortable()
                     ->badge()
                     ->color('gray'),
 
                 TextColumn::make('color_theme')
-                    ->label('Color Theme')
+                    ->label(__('Color Theme'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state) => $state ?: 'Default'),
 
                 TextColumn::make('subjects_count')
                     ->counts('subjects')
-                    ->label('Linked Subjects (المواد الدراسية)')
+                    ->label(__('Linked Subjects'))
                     ->badge()
                     ->color('info')
                     ->sortable(),
 
                 TextColumn::make('sort_order')
-                    ->label('Sort Order')
+                    ->label(__('Sort Order'))
                     ->numeric()
                     ->sortable(),
 
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('Active'))
                     ->boolean()
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('Created At'))
                     ->dateTime('d M Y, H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -62,10 +62,10 @@ class CategoriesTable
             ->defaultSort('sort_order', 'asc')
             ->filters([
                 SelectFilter::make('is_active')
-                    ->label('Active Status')
+                    ->label(__('Active Status'))
                     ->options([
-                        '1' => 'Active Only (مفعل فقط)',
-                        '0' => 'Inactive Only (غير مفعل)',
+                        '1' => __('Active Only'),
+                        '0' => __('Inactive Only'),
                     ]),
             ])
             ->recordActions([
@@ -74,8 +74,8 @@ class CategoriesTable
                     ->before(function (DeleteAction $action, $record) {
                         if ($record->subjects()->exists()) {
                             Notification::make()
-                                ->title('Cannot Delete Category')
-                                ->body("This category has {$record->subjects()->count()} linked academic subjects. Please reassign or remove them first.")
+                                ->title(__('Cannot Delete Category'))
+                                ->body(__('This category has linked academic subjects. Please reassign or remove them first.'))
                                 ->danger()
                                 ->send();
 

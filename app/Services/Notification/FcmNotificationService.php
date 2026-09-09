@@ -75,9 +75,9 @@ class FcmNotificationService
         $query = User::query();
 
         match ($targetAudience) {
-            'students' => $query->whereHas('studentProfile'),
-            'teachers' => $query->whereHas('teacherProfile'),
-            'parents'  => $query->whereHas('parentProfile'),
+            'students' => $query->roleStudent(),
+            'teachers' => $query->roleTeacher(),
+            'parents'  => $query->roleParent(),
             default    => null,
         };
 

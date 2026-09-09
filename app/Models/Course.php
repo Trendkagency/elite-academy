@@ -89,6 +89,11 @@ class Course extends Model
         return $this->hasMany(LiveSession::class)->orderBy('scheduled_at', 'desc');
     }
 
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class);
+    }
+
     public function getDemoVideoUrl(): string
     {
         if (! empty($this->demo_video_url)) {

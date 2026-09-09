@@ -54,6 +54,25 @@ class LiveSession extends Model
     {
         parent::boot();
 
+        static::saving(function (LiveSession $session) {
+            static $columns = null;
+            if ($columns === null) {
+                try {
+                    $columns = \Illuminate\Support\Facades\Schema::getColumnListing('live_sessions');
+                } catch (\Throwable $e) {
+                    $columns = null;
+                }
+            }
+
+            if (! empty($columns)) {
+                foreach ($session->attributes as $key => $val) {
+                    if (! in_array($key, $columns, true)) {
+                        unset($session->attributes[$key]);
+                    }
+                }
+            }
+        });
+
         static::created(function (LiveSession $session) {
             app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherSessionAssigned($session);
         });

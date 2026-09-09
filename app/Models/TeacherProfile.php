@@ -55,7 +55,25 @@ class TeacherProfile extends Model implements HasMedia
             }
         }
 
-        return $this->photo ?: 'images/instructor_portrait.webp';
+        // 2. Custom uploaded photo if not a static demo template image
+        if (! empty($this->photo) && ! in_array(basename($this->photo), [
+            'instructor_portrait.png', 'instructor_female.png', 'instructor_male.png',
+            'instructor_portrait.webp', 'instructor_female.webp', 'instructor_male.webp',
+        ], true)) {
+            if (str_starts_with($this->photo, 'http://') || str_starts_with($this->photo, 'https://')) {
+                return $this->photo;
+            }
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->photo)) {
+                return asset('storage/' . $this->photo);
+            }
+            if (file_exists(public_path($this->photo))) {
+                return asset($this->photo);
+            }
+        }
+
+        $name = urlencode($this->user?->name ?? 'Teacher');
+
+        return "https://ui-avatars.com/api/?name={$name}&background=4F46E5&color=ffffff&size=256&bold=true&font-size=0.38";
     }
 
     public function user(): BelongsTo

@@ -181,10 +181,32 @@ class UserForm
                     ->components([
                         Select::make('parent_students')
                             ->label(__('Linked Children / Students'))
-                            ->options(fn () => User::whereHas('studentProfile')->pluck('name', 'id'))
                             ->multiple()
                             ->searchable()
                             ->preload()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return User::whereHas('studentProfile')
+                                    ->where(function ($query) use ($search) {
+                                        $query->where('name', 'LIKE', "%{$search}%")
+                                              ->orWhere('phone', 'LIKE', "%{$search}%")
+                                              ->orWhere('email', 'LIKE', "%{$search}%");
+                                    })
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn (User $user) => [
+                                        $user->id => $user->name . ($user->phone ? ' — ' . __('Phone') . ': ' . $user->phone : '') . ($user->email ? ' — ' . $user->email : ''),
+                                    ])
+                                    ->toArray();
+                            })
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return User::whereIn('id', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn (User $user) => [
+                                        $user->id => $user->name . ($user->phone ? ' — ' . __('Phone') . ': ' . $user->phone : '') . ($user->email ? ' — ' . $user->email : ''),
+                                    ])
+                                    ->toArray();
+                            })
+                            ->helperText(__('Search students by name, phone number, or email. Multiple students can be linked to this parent account.'))
                             ->afterStateHydrated(function ($component, ?Model $record) {
                                 if ($record && $record->parentProfile) {
                                     $component->state($record->parentProfile->students()->pluck('users.id')->toArray());

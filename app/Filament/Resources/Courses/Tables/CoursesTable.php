@@ -22,92 +22,94 @@ class CoursesTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label('Course Title (اسم المقرر)')
+                    ->label(__('Course Title'))
                     ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('subject.category.name')
-                    ->label('Category (القسم)')
+                    ->label(__('Category'))
                     ->badge()
                     ->color('info')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('subject.name')
-                    ->label('Subject (المادة)')
+                    ->label(__('Subject'))
                     ->badge()
                     ->color('primary')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('gradeLevel.name')
-                    ->label('Grade Level (الصف)')
+                    ->label(__('Grade Level'))
                     ->searchable(),
                 TextColumn::make('teacher.title')
-                    ->label('Teacher')
+                    ->label(__('Teacher'))
                     ->searchable(),
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('image')
-                    ->label('Image'),
+                    ->label(__('Image')),
                 TextColumn::make('sessions_count')
-                    ->label('Sessions')
+                    ->label(__('Sessions'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('session_duration_minutes')
-                    ->label('Duration (m)')
+                    ->label(__('Duration (min)'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('rating_avg')
-                    ->label('Rating')
+                    ->label(__('Rating'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('reviews_count')
-                    ->label('Reviews')
+                    ->label(__('Reviews'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('enrollments_count')
-                    ->label('Students')
+                    ->label(__('Students'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('has_free_demo')
-                    ->label('Free Demo')
+                    ->label(__('Free Demo'))
                     ->boolean(),
                 IconColumn::make('is_accredited')
-                    ->label('Accredited')
+                    ->label(__('Accredited'))
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('Active'))
                     ->boolean(),
                 TextColumn::make('deleted_at')
+                    ->label(__('Deleted At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
+                    ->label(__('Created At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('category')
-                    ->label('Filter by Category (حسب القسم)')
+                    ->label(__('Filter by Category'))
                     ->relationship('subject.category', 'name'),
                 SelectFilter::make('subject_id')
-                    ->label('Filter by Subject (حسب المادة)')
+                    ->label(__('Filter by Subject'))
                     ->relationship('subject', 'name'),
                 SelectFilter::make('grade_level_id')
-                    ->label('Filter by Grade Level (حسب الصف)')
+                    ->label(__('Filter by Grade Level'))
                     ->relationship('gradeLevel', 'name'),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
-                \Filament\Actions\RestoreAction::make(),
-                \Filament\Actions\ForceDeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

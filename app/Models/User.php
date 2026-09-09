@@ -73,15 +73,17 @@ class User extends Authenticatable implements FilamentUser
         $token = Str::random(60);
         $this->update(['remember_token' => $token]);
 
-        return new class($token) {
-            public function __construct(public string $plainTextToken) {}
+        return new class ($token) {
+            public function __construct(public string $plainTextToken)
+            {}
         };
     }
 
     public function tokens(): object
     {
-        return new class($this) {
-            public function __construct(protected User $user) {}
+        return new class ($this) {
+            public function __construct(protected User $user)
+            {}
             public function delete(): bool
             {
                 return $this->user->update(['remember_token' => null]);
@@ -116,9 +118,42 @@ class User extends Authenticatable implements FilamentUser
             ->withTimestamps();
     }
 
+    public function parents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'student_user_id', 'parent_user_id')
+            ->withPivot('relationship')
+            ->withTimestamps();
+    }
+
     public function studentEducationalNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(StudentEducationalNote::class, 'student_user_id');
+    }
+
+    public function scopeRoleStudent($query)
+    {
+        return $query->whereDoesntHave('teacherProfile')
+            ->whereDoesntHave('parentProfile')
+            ->whereDoesntHave('adminProfile')
+            ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);
+    }
+
+    public function scopeRoleTeacher($query)
+    {
+        return $query->whereHas('teacherProfile');
+    }
+
+    public function scopeRoleParent($query)
+    {
+        return $query->whereHas('parentProfile');
+    }
+
+    public function scopeRoleAdmin($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereHas('adminProfile')
+                ->orWhereIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);
+        });
     }
 
     public function isAdmin(): bool
@@ -137,7 +172,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function isStudent(): bool
     {
-        return $this->studentProfile()->exists();
+        if ($this->isAdmin() || $this->isTeacher() || $this->isParent()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function isParent(): bool
@@ -158,6 +197,103 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return \App\Enums\Role::STUDENT->value;
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->relationLoaded('teacherProfile') && $this->teacherProfile) {
+            return $this->teacherProfile->photo_url;
+        }
+
+        if ($this->relationLoaded('studentProfile') && $this->studentProfile) {
+            return $this->studentProfile->avatar_url;
+        }
+
+        if ($this->teacherProfile) {
+            return $this->teacherProfile->photo_url;
+        }
+
+        if ($this->studentProfile) {
+            return $this->studentProfile->avatar_url;
+        }
+
+        $name = urlencode($this->name ?? 'User');
+
+        return "https://ui-avatars.com/api/?name={$name}&background=6366F1&color=ffffff&size=200&bold=true&font-size=0.38";
+    }
+
+    public function syncAssignedRole(string $role, array $profileData = []): void
+    {
+        switch ($role) {
+            case 'student':
+                TeacherProfile::where('user_id', $this->id)->forceDelete();
+                ParentProfile::where('user_id', $this->id)->forceDelete();
+                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                    AdminProfile::where('user_id', $this->id)->delete();
+                }
+
+                $profile = StudentProfile::withTrashed()->firstOrNew(['user_id' => $this->id]);
+                if ($profile->trashed()) {
+                    $profile->restore();
+                }
+                $profile->fill([
+                    'grade_level_id' => $profileData['grade_level_id'] ?? $profile->grade_level_id,
+                    'school_name' => $profileData['school_name'] ?? $profile->school_name,
+                ]);
+                $profile->save();
+
+                if (isset($profileData['student_subjects'])) {
+                    $profile->subjects()->sync($profileData['student_subjects']);
+                }
+                break;
+
+            case 'teacher':
+                StudentProfile::where('user_id', $this->id)->forceDelete();
+                ParentProfile::where('user_id', $this->id)->forceDelete();
+                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                    AdminProfile::where('user_id', $this->id)->delete();
+                }
+
+                $profile = TeacherProfile::withTrashed()->firstOrNew(['user_id' => $this->id]);
+                if ($profile->trashed()) {
+                    $profile->restore();
+                }
+                $slug = $profile->slug ?: (\Illuminate\Support\Str::slug($this->name ?: 'teacher') . '-' . $this->id);
+                $profile->fill([
+                    'slug' => $slug,
+                    'title' => $profileData['teacher_title'] ?? $profile->title,
+                    'specialization' => $profileData['teacher_specialization'] ?? $profile->specialization,
+                    'years_experience' => $profileData['teacher_experience'] ?? ($profile->years_experience ?: 5),
+                ]);
+                $profile->save();
+                break;
+
+            case 'parent':
+                StudentProfile::where('user_id', $this->id)->forceDelete();
+                TeacherProfile::where('user_id', $this->id)->forceDelete();
+                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                    AdminProfile::where('user_id', $this->id)->delete();
+                }
+
+                $profile = ParentProfile::withTrashed()->firstOrNew(['user_id' => $this->id]);
+                if ($profile->trashed()) {
+                    $profile->restore();
+                }
+                $profile->save();
+
+                if (isset($profileData['parent_students'])) {
+                    $this->children()->sync($profileData['parent_students']);
+                }
+                break;
+
+            case 'admin':
+                StudentProfile::where('user_id', $this->id)->forceDelete();
+                TeacherProfile::where('user_id', $this->id)->forceDelete();
+                ParentProfile::where('user_id', $this->id)->forceDelete();
+
+                AdminProfile::firstOrCreate(['user_id' => $this->id]);
+                break;
+        }
     }
 
     public function getPermissionsList(): array

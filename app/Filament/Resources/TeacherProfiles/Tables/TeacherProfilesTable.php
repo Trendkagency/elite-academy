@@ -6,8 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
@@ -19,12 +18,11 @@ class TeacherProfilesTable
     {
         return $table
             ->columns([
-                SpatieMediaLibraryImageColumn::make('photo')
-                    ->collection('photo')
-                    ->disk('public')
-                    ->visibility('public')
+                ImageColumn::make('photo')
+                    ->label(__('Photo'))
                     ->circular()
-                    ->label('Photo'),
+                    ->getStateUsing(fn ($record) => $record->photo_url)
+                    ->defaultImageUrl(fn ($record) => $record?->photo_url ?? 'https://ui-avatars.com/api/?name=Teacher&background=4F46E5&color=fff'),
                 TextColumn::make('user.name')
                     ->label('Teacher Name')
                     ->searchable()

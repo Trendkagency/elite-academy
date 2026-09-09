@@ -17,37 +17,38 @@ class GradeLevelsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Grade Level Name (الصف الدراسي)')
+                    ->label(__('Grade Level Name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('sort_order')
-                    ->label('Sort Order')
+                    ->label(__('Sort Order'))
                     ->numeric()
                     ->sortable(),
 
                 TextColumn::make('courses_count')
                     ->counts('courses')
-                    ->label('Linked Courses (الكورسات)')
+                    ->label(__('Linked Courses'))
                     ->badge()
                     ->color('info'),
 
                 TextColumn::make('student_profiles_count')
                     ->counts('studentProfiles')
-                    ->label('Students (الطلاب)')
+                    ->label(__('Students'))
                     ->badge()
                     ->color('success'),
 
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('Active'))
                     ->boolean(),
 
                 TextColumn::make('created_at')
+                    ->label(__('Created At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

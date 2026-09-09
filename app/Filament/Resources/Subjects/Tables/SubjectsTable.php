@@ -22,23 +22,23 @@ class SubjectsTable
         return $table
             ->columns([
                 TextColumn::make('category.name')
-                    ->label('Category (القسم)')
+                    ->label(__('Category'))
                     ->badge()
                     ->color('primary')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->label('Subject (المادة)')
+                    ->label(__('Subject'))
                     ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->badge()
                     ->color('gray')
                     ->searchable(),
                 ImageColumn::make('image')
-                    ->label('Image'),
+                    ->label(__('Image')),
                 TextColumn::make('active_courses_count')
                     ->label(__('Courses'))
                     ->state(fn ($record) => $record->getActiveCoursesCount())
@@ -60,37 +60,40 @@ class SubjectsTable
                     ->badge()
                     ->color('primary'),
                 TextColumn::make('sort_order')
-                    ->label('Sort Order')
+                    ->label(__('Sort Order'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('Active'))
                     ->boolean()
                     ->sortable(),
                 TextColumn::make('deleted_at')
+                    ->label(__('Deleted At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
+                    ->label(__('Created At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('category_id')
-                    ->label('Filter by Category (تصفية حسب القسم)')
+                    ->label(__('Filter by Category'))
                     ->relationship('category', 'name'),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
-                \Filament\Actions\RestoreAction::make(),
-                \Filament\Actions\ForceDeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

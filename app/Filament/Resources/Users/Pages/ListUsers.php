@@ -22,26 +22,32 @@ class ListUsers extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make('All Accounts (الجميع)')
+            'all' => Tab::make(__('All Accounts'))
                 ->badge(User::count()),
-            'pending' => Tab::make('⏳ Pending Approval (قيد المراجعة)')
+            'pending' => Tab::make(__('Pending Approval'))
+                ->icon('heroicon-o-clock')
                 ->badge(User::where('status', \App\Enums\AccountStatus::PENDING)->count())
-                ->modifyQueryUsing(fn ($query) => $query->where('status', \App\Enums\AccountStatus::PENDING)),
-            'approved' => Tab::make('✅ Approved (مقبول)')
+                ->modifyQueryUsing(fn($query) => $query->where('status', \App\Enums\AccountStatus::PENDING)),
+            'approved' => Tab::make(__('Approved'))
+                ->icon('heroicon-o-check-circle')
                 ->badge(User::where('status', \App\Enums\AccountStatus::APPROVED)->count())
-                ->modifyQueryUsing(fn ($query) => $query->where('status', \App\Enums\AccountStatus::APPROVED)),
-            'students' => Tab::make('Students 🎓')
-                ->badge(User::whereHas('studentProfile')->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('studentProfile')),
-            'teachers' => Tab::make('Teachers 👨‍🏫')
-                ->badge(User::whereHas('teacherProfile')->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('teacherProfile')),
-            'parents' => Tab::make('Parents 👨‍👩‍👧')
-                ->badge(User::whereHas('parentProfile')->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('parentProfile')),
-            'admins' => Tab::make('Admins ⚡')
-                ->badge(User::whereHas('adminProfile')->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('adminProfile')),
+                ->modifyQueryUsing(fn($query) => $query->where('status', \App\Enums\AccountStatus::APPROVED)),
+            'students' => Tab::make(__('Students'))
+                ->icon('heroicon-o-academic-cap')
+                ->badge(User::roleStudent()->count())
+                ->modifyQueryUsing(fn($query) => $query->roleStudent()),
+            'teachers' => Tab::make(__('Teachers'))
+                ->icon('heroicon-o-briefcase')
+                ->badge(User::roleTeacher()->count())
+                ->modifyQueryUsing(fn($query) => $query->roleTeacher()),
+            'parents' => Tab::make(__('Parents'))
+                ->icon('heroicon-o-user-group')
+                ->badge(User::roleParent()->count())
+                ->modifyQueryUsing(fn($query) => $query->roleParent()),
+            'admins' => Tab::make(__('Admins'))
+                ->icon('heroicon-o-shield-check')
+                ->badge(User::roleAdmin()->count())
+                ->modifyQueryUsing(fn($query) => $query->roleAdmin()),
         ];
     }
 }

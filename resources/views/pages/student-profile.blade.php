@@ -19,14 +19,8 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="flex items-center gap-6">
                 <div class="relative group">
-                    @if($profile->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->avatar))
-                        <img src="{{ asset('storage/' . $profile->avatar) }}" alt="{{ $user->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-4 border-teal-500/40 shadow-xl shadow-teal-500/20">
-                    @else
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-3xl sm:text-4xl flex items-center justify-center shadow-xl shadow-teal-500/20 border-4 border-teal-300/40">
-                            {{ mb_substr($user->name ?? 'S', 0, 1) }}
-                        </div>
-                    @endif
-                    <button onclick="document.getElementById('avatarInput').click()" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer transition-transform hover:scale-110" title="{{ app()->getLocale() === 'ar' ? 'تغيير الصورة الشخصية' : 'Change Avatar' }}">
+                    <img id="avatarPreviewImg" src="{{ $profile->avatar_url }}" alt="{{ $user->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-4 border-teal-500/40 shadow-xl shadow-teal-500/20" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=0D9488&color=fff&size=200&bold=true';">
+                    <button type="button" onclick="document.getElementById('avatarInput').click()" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer transition-transform hover:scale-110" title="{{ app()->getLocale() === 'ar' ? 'تغيير الصورة الشخصية' : 'Change Avatar' }}">
                         <i class="fa-solid fa-camera"></i>
                     </button>
                 </div>
@@ -338,12 +332,10 @@ function previewAvatar(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const avatarImgs = document.querySelectorAll('.group img, .group div');
-            avatarImgs.forEach(el => {
-                if (el.tagName === 'IMG') {
-                    el.src = e.target.result;
-                }
-            });
+            const preview = document.getElementById('avatarPreviewImg');
+            if (preview) {
+                preview.src = e.target.result;
+            }
         };
         reader.readAsDataURL(input.files[0]);
     }

@@ -14,7 +14,7 @@ class ListCategories extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('➕ Create New Category (إضافة قسم جديد)'),
+                ->label(__('Create Category')),
         ];
     }
 }

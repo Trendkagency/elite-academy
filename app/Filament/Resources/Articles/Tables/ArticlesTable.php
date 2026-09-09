@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Articles\Tables;
 
 use App\Models\Category;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -25,40 +26,42 @@ class ArticlesTable
                     ->collection('featured_image')
                     ->disk('public')
                     ->visibility('public')
-                    ->label('Image'),
+                    ->label(__('Image')),
                 TextColumn::make('title')
+                    ->label(__('Title'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('category')
-                    ->label('Category (القسم)')
+                    ->label(__('Category'))
                     ->badge()
                     ->color('primary')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('authorUser.name')
-                    ->label('Author')
+                    ->label(__('Author'))
                     ->searchable(),
                 ToggleColumn::make('is_published')
-                    ->label('Show / Close (Published)'),
+                    ->label(__('Published')),
                 TextColumn::make('read_time_minutes')
-                    ->label('Read Time (min)')
+                    ->label(__('Read Time (min)'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('published_at')
+                    ->label(__('Published At'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('category')
-                    ->label('Filter by Category (تصفية حسب القسم)')
+                    ->label(__('Filter by Category'))
                     ->options(fn () => Category::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'name')->toArray()),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
-                \Filament\Actions\RestoreAction::make(),
-                \Filament\Actions\ForceDeleteAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

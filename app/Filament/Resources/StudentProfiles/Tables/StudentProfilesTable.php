@@ -12,6 +12,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -22,6 +23,11 @@ class StudentProfilesTable
     {
         return $table
             ->columns([
+                ImageColumn::make('avatar')
+                    ->label(__('Avatar'))
+                    ->circular()
+                    ->getStateUsing(fn ($record) => $record->avatar_url)
+                    ->defaultImageUrl(fn ($record) => $record?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff'),
                 TextColumn::make('user.name')
                     ->label('Student Name')
                     ->searchable()
