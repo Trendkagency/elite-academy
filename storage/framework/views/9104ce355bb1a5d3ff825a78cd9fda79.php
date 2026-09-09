@@ -41,7 +41,7 @@
                     ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-start gap-2.5">
                             <div class="w-8 h-8 rounded-lg bg-slate-900 text-teal-300 flex items-center justify-center text-base font-bold shrink-0 border border-slate-800">
-                                <?php echo e($feat['icon']); ?>
+                                <?php echo $feat['icon']; ?>
 
                             </div>
                             <div class="min-w-0">
@@ -88,7 +88,7 @@
                     ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-center gap-3 group">
                             <div class="w-10 h-10 rounded-xl bg-slate-900 text-teal-300 group-hover:text-teal-200 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0 border border-slate-800">
-                                <?php echo e($item['icon']); ?>
+                                <?php echo $item['icon']; ?>
 
                             </div>
                             <h3 class="font-heading font-extrabold text-sm sm:text-base text-white group-hover:text-teal-300 transition-colors leading-tight">

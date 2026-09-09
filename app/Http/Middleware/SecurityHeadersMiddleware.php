@@ -16,7 +16,7 @@ class SecurityHeadersMiddleware
         $response = $next($request);
 
         // Do not alter binary downloads or stream responses if headers cannot be modified
-        if (! method_exists($response, 'header')) {
+        if (!method_exists($response, 'header')) {
             return $response;
         }
 

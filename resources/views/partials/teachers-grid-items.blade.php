@@ -32,7 +32,7 @@
             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs font-mono font-bold">
                 <div class="bg-slate-50 p-2.5 rounded-xl text-center">
                     <span class="text-slate-400 block text-[10px]">{{ __('Rating') }}</span>
-                    <span class="text-amber-500 font-extrabold">{{ $rating }}</span>
+                    <span class="text-amber-500 font-extrabold">{!! $rating !!}</span>
                 </div>
                 <div class="bg-slate-50 p-2.5 rounded-xl text-center">
                     <span class="text-slate-400 block text-[10px]">{{ __('Students') }}</span>

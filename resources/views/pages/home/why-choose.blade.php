@@ -62,7 +62,7 @@
                     @foreach ($features as $feature)
                         <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
                             <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 dark:bg-slate-800 text-slate-900 dark:text-teal-300 group-hover:text-teal-600 dark:group-hover:text-teal-300 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs border border-teal-100 dark:border-slate-700">
-                                {{ $feature['icon'] }}
+                                {!! $feature['icon'] !!}
                             </div>
                             <div class="min-w-0">
                                 <h3 class="font-heading font-extrabold text-xs sm:text-lg text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight truncate">{{ $feature['title'] }}</h3>

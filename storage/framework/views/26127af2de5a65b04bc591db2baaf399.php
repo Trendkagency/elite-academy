@@ -92,7 +92,7 @@
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6 max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide backdrop-blur-md shadow-md">
                         <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-                        <span><?php echo e(SiteSetting::getLocalized('landing_hero_badge', '<i class="fa-solid fa-rocket"></i> EGYPT’S #1 ACADEMIC PLATFORM')); ?></span>
+                        <span><?php echo SiteSetting::getLocalized('landing_hero_badge', '<i class="fa-solid fa-rocket"></i> EGYPT’S #1 ACADEMIC PLATFORM'); ?></span>
                     </div>
 
                     <h1 class="font-heading font-extrabold text-[28px] sm:text-[34px] md:text-5xl lg:text-7xl text-white tracking-tight leading-snug lg:leading-[1.1] drop-shadow-md text-center lg:text-left line-clamp-2">

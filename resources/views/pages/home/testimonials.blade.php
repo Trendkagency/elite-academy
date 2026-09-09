@@ -79,7 +79,7 @@
                         <div class="space-y-1 min-w-0 flex-1">
                             <h3 class="font-heading font-extrabold text-base text-slate-900 truncate {{ $t['nameColor'] }} transition-colors">{{ $t['name'] }}</h3>
                             <p class="text-xs font-mono text-slate-500 font-semibold truncate">{{ $t['course'] }}</p>
-                            <span class="inline-block {{ $t['badgeBg'] }} text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border">{{ $t['badge'] }}</span>
+                            <span class="inline-block {{ $t['badgeBg'] }} text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border">{!! $t['badge'] !!}</span>
                         </div>
                     </div>
                 </div>

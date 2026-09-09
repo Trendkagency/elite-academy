@@ -38,7 +38,7 @@
                     ] as $feat)
                         <div class="flex items-start gap-2.5">
                             <div class="w-8 h-8 rounded-lg bg-slate-900 text-teal-300 flex items-center justify-center text-base font-bold shrink-0 border border-slate-800">
-                                {{ $feat['icon'] }}
+                                {!! $feat['icon'] !!}
                             </div>
                             <div class="min-w-0">
                                 <h3 class="font-heading font-extrabold text-xs text-white leading-tight">{{ $feat['title'] }}</h3>
@@ -81,7 +81,7 @@
                     ] as $item)
                         <div class="flex items-center gap-3 group">
                             <div class="w-10 h-10 rounded-xl bg-slate-900 text-teal-300 group-hover:text-teal-200 group-hover:scale-110 flex items-center justify-center font-extrabold text-xl transition-all duration-300 shadow-xs flex-shrink-0 border border-slate-800">
-                                {{ $item['icon'] }}
+                                {!! $item['icon'] !!}
                             </div>
                             <h3 class="font-heading font-extrabold text-sm sm:text-base text-white group-hover:text-teal-300 transition-colors leading-tight">
                                 {{ $item['title'] }}

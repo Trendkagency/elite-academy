@@ -82,7 +82,7 @@
                         <div class="space-y-1 min-w-0 flex-1">
                             <h3 class="font-heading font-extrabold text-base text-slate-900 truncate <?php echo e($t['nameColor']); ?> transition-colors"><?php echo e($t['name']); ?></h3>
                             <p class="text-xs font-mono text-slate-500 font-semibold truncate"><?php echo e($t['course']); ?></p>
-                            <span class="inline-block <?php echo e($t['badgeBg']); ?> text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border"><?php echo e($t['badge']); ?></span>
+                            <span class="inline-block <?php echo e($t['badgeBg']); ?> text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border"><?php echo $t['badge']; ?></span>
                         </div>
                     </div>
                 </div>

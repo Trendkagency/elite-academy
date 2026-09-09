@@ -53,7 +53,7 @@
                         Teaching Experience
                     </div>
                     <div class="bg-white/10 p-3 rounded-xl border border-white/10">
-                        <span class="text-amber-400 font-bold block text-sm">{{ $rating }}</span>
+                        <span class="text-amber-400 font-bold block text-sm">{!! $rating !!}</span>
                         Student Evaluation
                     </div>
                     <div class="bg-white/10 p-3 rounded-xl border border-white/10 col-span-2 sm:col-span-1">

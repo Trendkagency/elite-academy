@@ -56,7 +56,7 @@
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\App\Models\SiteSetting::get('announcement_enabled') === '1'): ?>
     <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white text-xs font-bold py-2 px-4 text-center border-b border-teal-500/30 flex items-center justify-center gap-2">
-        <span><?php echo e(\App\Models\SiteSetting::get('announcement_text', '<i class="fa-solid fa-sparkles text-amber-400"></i> Fall Cohort 2026 Registration is Now Open!')); ?></span>
+        <span><?php echo \App\Models\SiteSetting::get('announcement_text', '<i class="fa-solid fa-sparkles text-amber-400"></i> Fall Cohort 2026 Registration is Now Open!'); ?></span>
         <a href="<?php echo e(\App\Models\SiteSetting::get('announcement_link', '/courses')); ?>" class="underline font-extrabold hover:text-teal-300 focus-visible:outline-white" aria-label="Explore Fall 2026 Cohort Registration and Details">
             <?php echo e(app()->getLocale() === 'ar' ? 'تفاصيل التسجيل والاشتراك ←' : 'Explore Cohort Details →'); ?>
 

@@ -21,7 +21,7 @@
             {{ $subject }}
         </span>
         <span class="absolute top-4 right-4 text-[10px] font-mono font-extrabold text-white bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/20">
-            {{ $rating }}
+            {!! $rating !!}
         </span>
     </div>
 

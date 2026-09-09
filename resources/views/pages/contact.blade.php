@@ -70,7 +70,7 @@
                     <img src="{{ media_url($heroImage, 'images/academy_campus.webp') }}" alt="Campus Support Desk" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 -left-6 bg-teal-600 text-white p-5 rounded-2xl shadow-2xl flex items-center gap-3">
-                    <span class="text-3xl">{{ $cardIcon }}</span>
+                    <span class="text-3xl">{!! $cardIcon !!}</span>
                     <div>
                         <p class="font-heading font-black text-lg">{{ __($cardTitle) }}</p>
                         <p class="text-xs font-mono text-teal-100">{{ __($cardSubtitle) }}</p>

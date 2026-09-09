@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" dir="<?php echo e(app()->getLocale() === 'ar' ? 'rtl' : 'ltr'); ?>" class="scroll-smooth h-full bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 antialiased">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" dir="<?php echo e(app()->getLocale() === 'ar' ? 'rtl' : 'ltr'); ?>"
+    class="scroll-smooth h-full bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 antialiased">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -8,8 +10,10 @@
     <link rel="icon" href="<?php echo e(asset('images/logo_500.webp')); ?>" type="image/webp">
     <link rel="shortcut icon" href="<?php echo e(asset('images/logo_500.webp')); ?>" type="image/webp">
     <title><?php echo e($pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt'); ?></title>
-    <meta name="description" content="<?php echo e($pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.'); ?>">
-    <meta name="keywords" content="Elite Academy, أكاديمية إيليت, منصة تعليمية, الثانوية العامة, برمجة, ذكاء اصطناعي, مصر, كورس, دروس مباشرة">
+    <meta name="description"
+        content="<?php echo e($pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.'); ?>">
+    <meta name="keywords"
+        content="Elite Academy, أكاديمية إيليت, منصة تعليمية, الثانوية العامة, برمجة, ذكاء اصطناعي, مصر, كورس, دروس مباشرة">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="author" content="Elite Academy Team">
     <link rel="canonical" href="<?php echo e(url()->current()); ?>">
@@ -21,19 +25,21 @@
 
     
     <script>
-        (function() {
+        (function () {
             try {
                 localStorage.removeItem('theme');
                 document.documentElement.classList.remove('dark');
-            } catch (e) {}
+            } catch (e) { }
         })();
     </script>
 
     
     <meta property="og:site_name" content="Elite Academy | أكاديمية إيليت">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="<?php echo e($pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform'); ?>">
-    <meta property="og:description" content="<?php echo e($pageDescription ?? 'Join Egypt’s premier academic platform for live classes, accredited tracks, and expert mentors.'); ?>">
+    <meta property="og:title"
+        content="<?php echo e($pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform'); ?>">
+    <meta property="og:description"
+        content="<?php echo e($pageDescription ?? 'Join Egypt’s premier academic platform for live classes, accredited tracks, and expert mentors.'); ?>">
     <meta property="og:url" content="<?php echo e(url()->current()); ?>">
     <meta property="og:image" content="<?php echo e(media_url($ogImage ?? 'images/academy_campus.webp')); ?>">
     <meta property="og:locale" content="<?php echo e(app()->getLocale() === 'ar' ? 'ar_EG' : 'en_US'); ?>">
@@ -41,7 +47,8 @@
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?php echo e($pageTitle ?? 'Elite Academy | أكاديمية إيليت'); ?>">
-    <meta name="twitter:description" content="<?php echo e($pageDescription ?? 'Egypt’s premier academic platform for live classes and accredited tracks.'); ?>">
+    <meta name="twitter:description"
+        content="<?php echo e($pageDescription ?? 'Egypt’s premier academic platform for live classes and accredited tracks.'); ?>">
     <meta name="twitter:image" content="<?php echo e(media_url($ogImage ?? 'images/academy_campus.webp')); ?>">
 
     
@@ -104,15 +111,26 @@
     </script>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(request()->routeIs('home') || request()->is('/')): ?>
-        <link rel="preload" as="image" href="<?php echo e(asset('images/hero_student.webp')); ?>" type="image/webp" fetchpriority="high">
+        <link rel="preload" as="image" href="<?php echo e(asset('images/hero_student.webp')); ?>" type="image/webp"
+            fetchpriority="high">
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <link rel="preload" as="image" href="<?php echo e(asset('images/logo_500.webp')); ?>" type="image/webp">
     <?php echo $__env->yieldPushContent('head_preloads'); ?>
 
+
+    <!-- Google Fonts: Performance Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Google Fonts -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
 
     <style>
         :root {
@@ -122,21 +140,36 @@
             --font-sans: var(--font-family-arabic);
             --font-heading: var(--font-family-arabic);
         }
-        html[lang="en"], [dir="ltr"] {
+
+        html[lang="en"],
+        [dir="ltr"] {
             --font-sans: var(--font-family-english);
             --font-heading: var(--font-family-english);
         }
-        html, body, button, input, select, textarea, table, .font-sans, .font-heading {
+
+        html,
+        body,
+        button,
+        input,
+        select,
+        textarea,
+        table,
+        .font-sans,
+        .font-heading {
             font-family: var(--font-sans) !important;
         }
-        html, body {
+
+        html,
+        body {
             background-color: #FAFAF9;
             color: #0F172A;
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
-        html.dark, html.dark body {
+
+        html.dark,
+        html.dark body {
             background-color: #0B0F19 !important;
             color: #F1F5F9 !important;
         }
@@ -145,6 +178,7 @@
         .card-lift {
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .card-lift:hover {
             transform: translateY(-4px);
         }
@@ -152,9 +186,11 @@
         .btn-lift {
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .btn-lift:hover {
             transform: translateY(-1.5px);
         }
+
         .btn-lift:active {
             transform: translateY(0.5px) scale(0.98);
         }
@@ -164,6 +200,7 @@
             backdrop-filter: blur(10px);
             transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
         }
+
         html.dark .glass-card {
             background: rgba(15, 23, 42, 0.92) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
@@ -185,6 +222,7 @@
             width: calc(100% - 2rem);
             max-width: 440px;
         }
+
         .toast-card {
             pointer-events: auto;
             position: relative;
@@ -204,37 +242,60 @@
             font-family: inherit;
             box-sizing: border-box;
         }
+
         @keyframes toastSlideDown {
-            from { opacity: 0; transform: translateY(-16px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(-16px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
+
         .toast-card.toast-exiting {
             animation: toastSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         }
+
         @keyframes toastSlideUp {
-            from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(-12px) scale(0.95); }
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-12px) scale(0.95);
+            }
         }
-        .toast-card.toast-danger, .toast-card.toast-error {
+
+        .toast-card.toast-danger,
+        .toast-card.toast-error {
             background: #fff5f5;
             border-color: #fecdd3;
             color: #9f1239;
         }
+
         .toast-card.toast-success {
             background: #f0fdf4;
             border-color: #bbf7d0;
             color: #14532d;
         }
+
         .toast-card.toast-warning {
             background: #fffbeb;
             border-color: #fde68a;
             color: #78350f;
         }
+
         .toast-card.toast-info {
             background: #f0fdfa;
             border-color: #99f6e4;
             color: #115e59;
         }
+
         .toast-icon-badge {
             flex-shrink: 0;
             width: 2rem;
@@ -246,43 +307,52 @@
             font-size: 0.95rem;
             font-weight: 800;
         }
-        .toast-danger .toast-icon-badge, .toast-error .toast-icon-badge {
+
+        .toast-danger .toast-icon-badge,
+        .toast-error .toast-icon-badge {
             background: #fee2e2;
             color: #e11d48;
             border: 1px solid #fca5a5;
         }
+
         .toast-success .toast-icon-badge {
             background: #dcfce7;
             color: #16a34a;
             border: 1px solid #86efac;
         }
+
         .toast-warning .toast-icon-badge {
             background: #fef3c7;
             color: #d97706;
             border: 1px solid #fcd34d;
         }
+
         .toast-info .toast-icon-badge {
             background: #ccfbf1;
             color: #0d9488;
             border: 1px solid #5eead4;
         }
+
         .toast-content {
             flex: 1;
             min-width: 0;
             text-align: start;
         }
+
         .toast-title {
             font-size: 0.85rem;
             font-weight: 800;
             line-height: 1.25;
             margin-bottom: 0.2rem;
         }
+
         .toast-message {
             font-size: 0.78rem;
             line-height: 1.4;
             opacity: 0.92;
             word-break: break-word;
         }
+
         .toast-close-btn {
             flex-shrink: 0;
             background: transparent;
@@ -296,10 +366,12 @@
             border-radius: 0.375rem;
             transition: opacity 0.15s ease, transform 0.15s ease;
         }
+
         .toast-close-btn:hover {
             opacity: 1;
             transform: scale(1.1);
         }
+
         .toast-progress-bar {
             position: absolute;
             bottom: 0;
@@ -308,13 +380,32 @@
             height: 3px;
             opacity: 0.65;
         }
-        .toast-danger .toast-progress-bar, .toast-error .toast-progress-bar { background: #e11d48; }
-        .toast-success .toast-progress-bar { background: #16a34a; }
-        .toast-warning .toast-progress-bar { background: #d97706; }
-        .toast-info .toast-progress-bar { background: #0d9488; }
+
+        .toast-danger .toast-progress-bar,
+        .toast-error .toast-progress-bar {
+            background: #e11d48;
+        }
+
+        .toast-success .toast-progress-bar {
+            background: #16a34a;
+        }
+
+        .toast-warning .toast-progress-bar {
+            background: #d97706;
+        }
+
+        .toast-info .toast-progress-bar {
+            background: #0d9488;
+        }
+
         @keyframes toastProgress {
-            from { width: 100%; }
-            to { width: 0%; }
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
         }
     </style>
     <script src="<?php echo e(asset('js/toast.js')); ?>?v=<?php echo e(time()); ?>"></script>
@@ -323,10 +414,13 @@
     <?php echo $__env->yieldPushContent('head'); ?>
     <?php echo $__env->make('partials.inp-optimizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </head>
-<body class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-teal-500/20 selection:text-teal-400 flex flex-col min-h-screen m-0 p-0 transition-colors duration-200">
+
+<body
+    class="font-sans antialiased overflow-x-hidden bg-[#FAFAF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-teal-500/20 selection:text-teal-400 flex flex-col min-h-screen m-0 p-0 transition-colors duration-200">
 
     
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-teal-600 focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-white">
+    <a href="#main-content"
+        class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-teal-600 focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-white">
         <?php echo e(app()->getLocale() === 'ar' ? 'التخطي إلى المحتوى الرئيسي' : 'Skip to main content'); ?>
 
     </a>
@@ -354,7 +448,8 @@
 
     
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!request()->boolean('iframe')): ?>
-        <button id="back-to-top" aria-label="<?php echo e(app()->getLocale() === 'ar' ? 'الرجوع إلى أعلى الصفحة' : 'Back to top'); ?>">↑</button>
+        <button id="back-to-top"
+            aria-label="<?php echo e(app()->getLocale() === 'ar' ? 'الرجوع إلى أعلى الصفحة' : 'Back to top'); ?>">↑</button>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <script>
@@ -394,9 +489,11 @@
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->check() && !request()->boolean('iframe')): ?>
         
-        <div id="fcm-permission-modal" class="hidden fixed bottom-6 right-6 left-6 sm:left-auto sm:max-w-md bg-slate-900/95 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl border border-slate-700/80 z-50 transition-all duration-300">
+        <div id="fcm-permission-modal"
+            class="hidden fixed bottom-6 right-6 left-6 sm:left-auto sm:max-w-md bg-slate-900/95 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl border border-slate-700/80 z-50 transition-all duration-300">
             <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center text-2xl shrink-0">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center text-2xl shrink-0">
                     <i class="fa-solid fa-bell"></i>
                 </div>
                 <div class="space-y-2 flex-1">
@@ -409,11 +506,13 @@
 
                     </p>
                     <div class="flex items-center gap-2 pt-1">
-                        <button id="btn-enable-fcm" type="button" class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                        <button id="btn-enable-fcm" type="button"
+                            class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
                             <span><i class="fa-solid fa-wand-magic-sparkles"></i></span> <?php echo e(__('Allow Notifications Now')); ?>
 
                         </button>
-                        <button id="btn-dismiss-fcm" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-all cursor-pointer">
+                        <button id="btn-dismiss-fcm" type="button"
+                            class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-all cursor-pointer">
                             <?php echo e(__('Later')); ?>
 
                         </button>
@@ -436,7 +535,7 @@
                 appId: "<?php echo e(config('fcm.web_config.app_id')); ?>"
             };
 
-            window.sendFcmTokenToServer = function(token) {
+            window.sendFcmTokenToServer = function (token) {
                 const shortToken = token.length > 25 ? token.substring(0, 22) + '...' : token;
                 console.log('[FCM] Token obtained:', shortToken);
 
@@ -460,13 +559,13 @@
                         device_type: 'web_browser'
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('[FCM] Token saved to server.');
-                    }
-                })
-                .catch(() => {});
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('[FCM] Token saved to server.');
+                        }
+                    })
+                    .catch(() => { });
             };
 
             document.addEventListener('DOMContentLoaded', function () {
@@ -482,7 +581,7 @@
                         }
                         if (firebase.messaging.isSupported()) {
                             messaging = firebase.messaging();
-                            
+
                             if ('serviceWorker' in navigator) {
                                 navigator.serviceWorker.register('<?php echo e(url('/firebase-messaging-sw.js')); ?>').then((reg) => {
                                     if (messaging && Notification.permission === 'granted') {
@@ -499,21 +598,21 @@
                                             if (saved) sendFcmTokenToServer(saved);
                                         });
                                     }
-                                }).catch(() => {});
+                                }).catch(() => { });
                             }
 
                             messaging.onMessage((payload) => {
                                 const title = (payload.notification && payload.notification.title) ||
-                                              (payload.data && payload.data.title) ||
-                                              '<i class="fa-solid fa-bell"></i> Firebase Push Notification';
+                                    (payload.data && payload.data.title) ||
+                                    '<i class="fa-solid fa-bell"></i> Firebase Push Notification';
 
                                 const body = (payload.notification && payload.notification.body) ||
-                                             (payload.data && payload.data.body) ||
-                                             '';
+                                    (payload.data && payload.data.body) ||
+                                    '';
 
                                 const icon = (payload.notification && payload.notification.image) ||
-                                             (payload.data && payload.data.icon) ||
-                                             '/images/logo_500.webp';
+                                    (payload.data && payload.data.icon) ||
+                                    '/images/logo_500.webp';
 
                                 if (window.Toast) {
                                     window.Toast.info(body, title);
@@ -522,7 +621,7 @@
                                 if ('Notification' in window && Notification.permission === 'granted') {
                                     try {
                                         new Notification(title, { body: body, icon: icon });
-                                    } catch (e) {}
+                                    } catch (e) { }
                                 }
 
                                 window.dispatchEvent(new CustomEvent('fcm-realtime-message', { detail: { notification: { title, body, image: icon }, data: payload.data || {} } }));
@@ -569,7 +668,7 @@
                 }
             });
 
-            window.copyFcmTokenToClipboard = function() {
+            window.copyFcmTokenToClipboard = function () {
                 const input = document.getElementById('userFcmTokenInput');
                 if (input && input.value && navigator.clipboard) {
                     navigator.clipboard.writeText(input.value).then(() => {
@@ -584,7 +683,7 @@
                 }
             };
 
-            window.registerCustomFcmToken = function() {
+            window.registerCustomFcmToken = function () {
                 const input = document.getElementById('userFcmTokenInput');
                 const token = input ? input.value.trim() : '';
 
@@ -608,18 +707,18 @@
                         device_type: 'web_browser'
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && window.Toast) {
-                        window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم تسجيل وتحديث رمز FCM في النظام بنجاح!' : 'FCM Token registered and updated cleanly!', 15, 512) ?>);
-                    }
-                })
-                .catch(() => {
-                    if (window.Toast) window.Toast.error('Failed to update FCM token');
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && window.Toast) {
+                            window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم تسجيل وتحديث رمز FCM في النظام بنجاح!' : 'FCM Token registered and updated cleanly!', 15, 512) ?>);
+                        }
+                    })
+                    .catch(() => {
+                        if (window.Toast) window.Toast.error('Failed to update FCM token');
+                    });
             };
 
-            window.requestLiveFirebaseToken = function() {
+            window.requestLiveFirebaseToken = function () {
                 if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
                     if (window.Toast) window.Toast.error(document.documentElement.lang === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications');
                     return;
@@ -648,14 +747,14 @@
                                 messaging.getToken(opts).then((token) => {
                                     if (token) {
                                         sendFcmTokenToServer(token);
-                                        
+
                                         fetch("<?php echo e(route('ajax.notifications.test-push')); ?>", {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',
                                                 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                                             }
-                                        }).catch(() => {});
+                                        }).catch(() => { });
 
                                         if (window.Toast) {
                                             window.Toast.success(document.documentElement.lang === 'ar' ? 'تم تفعيل وتحديث إشعارات الفايبربيس بنجاح! <i class="fa-solid fa-bell"></i>' : 'Live Firebase Push Notifications Enabled Successfully! <i class="fa-solid fa-bell"></i>');
@@ -682,5 +781,5 @@
 
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
-</html>
-<?php /**PATH C:\laragon\www\elite-academy\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+
+</html><?php /**PATH C:\laragon\www\elite-academy\resources\views/layouts/app.blade.php ENDPATH**/ ?>

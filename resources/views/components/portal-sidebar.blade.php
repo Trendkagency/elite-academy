@@ -36,7 +36,7 @@
                     <span class="text-teal-400">Elite</span> Academy<span class="text-teal-500">.</span>
                 </span>
                 <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded-full border border-teal-800/60">
-                    <span>{{ $roleIcon }}</span> {{ $roleBadgeText }}
+                    <span>{!! $roleIcon !!}</span> {{ $roleBadgeText }}
                 </span>
             </div>
         </a>

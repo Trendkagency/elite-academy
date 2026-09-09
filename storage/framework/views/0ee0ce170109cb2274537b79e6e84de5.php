@@ -63,7 +63,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
                         <div class="flex items-center gap-2.5 sm:gap-4 group cursor-default">
                             <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-teal-50 dark:bg-slate-800 text-slate-900 dark:text-teal-300 group-hover:text-teal-600 dark:group-hover:text-teal-300 group-hover:scale-110 flex items-center justify-center font-extrabold text-xs sm:text-lg transition-all duration-300 flex-shrink-0 shadow-2xs border border-teal-100 dark:border-slate-700">
-                                <?php echo e($feature['icon']); ?>
+                                <?php echo $feature['icon']; ?>
 
                             </div>
                             <div class="min-w-0">
