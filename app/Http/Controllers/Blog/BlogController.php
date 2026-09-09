@@ -22,7 +22,10 @@ class BlogController extends Controller
             ->paginate(5)
             ->withQueryString();
 
-        $categories = ['Programming', 'AI & Tech', 'Study Tips', 'Announcements', 'Mathematics', 'Science'];
+        $dbCategories = \App\Models\Category::where('is_active', true)->orderBy('sort_order')->pluck('name')->toArray();
+        $articleCategories = Article::where('is_published', true)->distinct()->pluck('category')->filter()->toArray();
+        $defaultCategories = ['Programming', 'AI & Tech', 'Study Tips', 'Announcements', 'Mathematics', 'Science'];
+        $categories = array_values(array_unique(array_merge($dbCategories, $articleCategories, $defaultCategories)));
 
         return view('pages.blog', [
             'pageTitle' => 'Blog — Elite Academy',

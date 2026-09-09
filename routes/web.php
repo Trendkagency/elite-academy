@@ -12,6 +12,9 @@ use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/test', function () {
+    return 'Laravel HTTP works';
+});
 // Language Switcher
 Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'ar'], true)) {

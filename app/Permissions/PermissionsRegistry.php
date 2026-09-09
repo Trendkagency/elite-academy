@@ -80,6 +80,12 @@ class PermissionsRegistry
     public const TRANSLATIONS_TRANSLATE = 'translations.translate';
     public const TRANSLATIONS_BULK      = 'translations.bulk';
 
+    // 12. Category & Academic Management
+    public const CATEGORIES_VIEW        = 'categories.view';
+    public const CATEGORIES_CREATE      = 'categories.create';
+    public const CATEGORIES_UPDATE      = 'categories.update';
+    public const CATEGORIES_DELETE      = 'categories.delete';
+
     /**
      * Get list of all permissions defined in system.
      */
@@ -148,6 +154,11 @@ class PermissionsRegistry
             self::TRANSLATIONS_DELETE,
             self::TRANSLATIONS_TRANSLATE,
             self::TRANSLATIONS_BULK,
+
+            self::CATEGORIES_VIEW,
+            self::CATEGORIES_CREATE,
+            self::CATEGORIES_UPDATE,
+            self::CATEGORIES_DELETE,
         ];
     }
 

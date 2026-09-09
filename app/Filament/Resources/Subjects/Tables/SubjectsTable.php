@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Subjects\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -10,6 +11,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -20,12 +22,23 @@ class SubjectsTable
         return $table
             ->columns([
                 TextColumn::make('category.name')
-                    ->searchable(),
+                    ->label('Category (القسم)')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Subject (المادة)')
+                    ->weight('bold')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
+                    ->badge()
+                    ->color('gray')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->label('Image'),
                 TextColumn::make('active_courses_count')
                     ->label(__('Courses'))
                     ->state(fn ($record) => $record->getActiveCoursesCount())
@@ -47,10 +60,13 @@ class SubjectsTable
                     ->badge()
                     ->color('primary'),
                 TextColumn::make('sort_order')
+                    ->label('Sort Order')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_active')
-                    ->boolean(),
+                    ->label('Active')
+                    ->boolean()
+                    ->sortable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -65,11 +81,14 @@ class SubjectsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('category_id')
+                    ->label('Filter by Category (تصفية حسب القسم)')
+                    ->relationship('category', 'name'),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                DeleteAction::make(),
                 \Filament\Actions\RestoreAction::make(),
                 \Filament\Actions\ForceDeleteAction::make(),
             ])

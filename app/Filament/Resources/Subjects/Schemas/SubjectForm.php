@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Subjects\Schemas;
 
+use App\Models\Category;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class SubjectForm
 {
@@ -16,13 +19,43 @@ class SubjectForm
         return $schema
             ->components([
                 Select::make('category_id')
-                    ->relationship('category', 'name')
+                    ->label('Academic Category (القسم / التصنيف الأكاديمي)')
+                    ->relationship('category', 'name', fn ($query) => $query->orderBy('sort_order', 'asc'))
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Category Name (اسم القسم)')
+                            ->required()
+                            ->maxLength(100)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state ?: 'category'))),
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->maxLength(100),
+                        ColorPicker::make('color_theme')
+                            ->label('Color Theme')
+                            ->default('#0D9488'),
+                        TextInput::make('sort_order')
+                            ->label('Sort Order')
+                            ->numeric()
+                            ->default(0),
+                        Toggle::make('is_active')
+                            ->label('Active')
+                            ->default(true),
+                    ])
                     ->required(),
                 TextInput::make('name')
-                    ->required(),
+                    ->label('Subject Name (اسم المادة)')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state ?: 'subject'))),
                 TextInput::make('slug')
+                    ->label('Slug / Identifier')
                     ->required(),
                 Textarea::make('description')
+                    ->label('Description (الوصف)')
                     ->columnSpanFull(),
                 FileUpload::make('image')
                     ->label(__('Subject Cover Image (Drag & Drop)'))
@@ -58,10 +91,13 @@ class SubjectForm
                     ->placeholder('e.g. 2')
                     ->helperText(__('Leave blank to calculate dynamically from active courses.')),
                 TextInput::make('sort_order')
+                    ->label('Sort Order')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('is_active')
+                    ->label('Active Status')
+                    ->default(true)
                     ->required(),
             ]);
     }

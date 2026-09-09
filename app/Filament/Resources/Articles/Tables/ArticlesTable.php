@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Articles\Tables;
 
+use App\Models\Category;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,6 +11,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -28,8 +30,11 @@ class ArticlesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('category')
+                    ->label('Category (القسم)')
                     ->badge()
-                    ->searchable(),
+                    ->color('primary')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('authorUser.name')
                     ->label('Author')
                     ->searchable(),
@@ -44,6 +49,9 @@ class ArticlesTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('category')
+                    ->label('Filter by Category (تصفية حسب القسم)')
+                    ->options(fn () => Category::query()->where('is_active', true)->orderBy('sort_order')->pluck('name', 'name')->toArray()),
                 TrashedFilter::make(),
             ])
             ->recordActions([
