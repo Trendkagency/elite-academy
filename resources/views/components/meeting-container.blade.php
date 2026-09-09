@@ -5,17 +5,21 @@
     $isRtl = $locale === 'ar';
 @endphp
 
-<div id="inSystemMeetingContainer" class="relative w-full max-w-6xl mx-auto bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden text-white font-sans transition-all duration-300">
-    
+<div id="inSystemMeetingContainer"
+    class="relative w-full max-w-6xl mx-auto bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden text-white font-sans transition-all duration-300">
+
     {{-- Meeting Header Bar --}}
-    <div class="px-6 py-4 bg-slate-900/90 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4 backdrop-blur-md relative z-30">
+    <div
+        class="px-6 py-4 bg-slate-900/90 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4 backdrop-blur-md relative z-30">
         <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <div
+                class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span id="meetingStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    <span id="meetingStatusBadge"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
                         <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
                         <span id="meetingStatusText">{{ $isRtl ? 'جاري الاتصال...' : 'CONNECTING...' }}</span>
                     </span>
@@ -31,32 +35,45 @@
 
         <div class="flex items-center gap-4 text-xs font-mono">
             <div class="hidden sm:flex flex-col items-end text-slate-300">
-                <span><i class="fa-solid fa-chalkboard-user"></i> {{ $session->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</span>
-                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-book-open"></i> {{ $session->subject?->name ?: 'Physics' }}</span>
+                <span><i class="fa-solid fa-chalkboard-user"></i>
+                    {{ $session->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</span>
+                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-book-open"></i>
+                    {{ $session->subject?->name ?: 'Physics' }}</span>
             </div>
-            <div class="px-3.5 py-1.5 bg-slate-800/80 rounded-xl border border-slate-700/70 text-teal-300 font-bold flex items-center gap-2">
+            <div
+                class="px-3.5 py-1.5 bg-slate-800/80 rounded-xl border border-slate-700/70 text-teal-300 font-bold flex items-center gap-2">
                 <span><i class="fa-solid fa-stopwatch"></i></span>
                 <span id="meetingDurationTimer">00:00:00</span>
             </div>
-            <button onclick="leaveMeetingSession()" class="btn-lift px-4 py-2 bg-rose-600/80 hover:bg-rose-600 text-white rounded-xl font-bold cursor-pointer transition-all flex items-center gap-1.5 shadow-md shadow-rose-600/20">
-                <span><i class="fa-solid fa-arrow-right-from-bracket"></i></span> {{ $isRtl ? 'مغادرة الحصة' : 'Leave Session' }}
+            <button onclick="leaveMeetingSession()"
+                class="btn-lift px-4 py-2 bg-rose-600/80 hover:bg-rose-600 text-white rounded-xl font-bold cursor-pointer transition-all flex items-center gap-1.5 shadow-md shadow-rose-600/20">
+                <span><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                {{ $isRtl ? 'مغادرة الحصة' : 'Leave Session' }}
             </button>
         </div>
     </div>
 
     {{-- Main Embed Area & Video Wrapper --}}
-    <div class="relative w-full aspect-video min-h-[420px] max-h-[680px] bg-slate-950 flex items-center justify-center overflow-hidden select-none">
-        
+    <div
+        class="relative w-full aspect-video min-h-[420px] max-h-[680px] bg-slate-950 flex items-center justify-center overflow-hidden select-none">
+
         {{-- Floating Security Dynamic Watermark Layer --}}
-        <div id="dynamicWatermark" class="absolute inset-0 pointer-events-none z-30 overflow-hidden flex items-center justify-center opacity-70 select-none">
-            <div id="watermarkContent" class="text-teal-300 font-mono font-black text-xs sm:text-sm tracking-widest uppercase transition-all duration-1000 transform -rotate-12 bg-slate-950/80 px-4 py-2 rounded-xl border border-teal-500/50 shadow-2xl backdrop-blur-md">
-                <i class="fa-solid fa-shield-halved"></i> {{ $user->name }} • {{ 'STU-' . str_pad((string) $user->id, 5, '0', STR_PAD_LEFT) }} • {{ 'SES-' . str_pad((string) $session->id, 5, '0', STR_PAD_LEFT) }} • IP: {{ request()->ip() }} • <span id="watermarkClock"></span>
+        <div id="dynamicWatermark"
+            class="absolute inset-0 pointer-events-none z-30 overflow-hidden flex items-center justify-center opacity-70 select-none">
+            <div id="watermarkContent"
+                class="text-teal-300 font-mono font-black text-xs sm:text-sm tracking-widest uppercase transition-all duration-1000 transform -rotate-12 bg-slate-950/80 px-4 py-2 rounded-xl border border-teal-500/50 shadow-2xl backdrop-blur-md">
+                <i class="fa-solid fa-shield-halved"></i> {{ $user->name }} •
+                {{ 'STU-' . str_pad((string) $user->id, 5, '0', STR_PAD_LEFT) }} •
+                {{ 'SES-' . str_pad((string) $session->id, 5, '0', STR_PAD_LEFT) }} • IP: {{ request()->ip() }} • <span
+                    id="watermarkClock"></span>
             </div>
         </div>
 
         {{-- Anti-Piracy Screen Recording & Capture Security Shield --}}
-        <div id="screenRecordSecurityOverlay" class="hidden absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <div class="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-3xl shadow-xl animate-bounce">
+        <div id="screenRecordSecurityOverlay"
+            class="hidden absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <div
+                class="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-3xl shadow-xl animate-bounce">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div class="space-y-1 max-w-md">
@@ -67,14 +84,17 @@
                     {{ $isRtl ? 'لحماية الملكية الفكرية، تم تعتيم الشاشة وحظر العرض فوراً. يتم تسجيل بيانات الطالب والعنوان الرقمي (IP) لدى الإدارة.' : 'To protect IP rights, playback is obfuscated. Security events are audited with your identity.' }}
                 </p>
             </div>
-            <button onclick="resumeMeetingPlayback()" class="mt-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer font-mono">
+            <button onclick="resumeMeetingPlayback()"
+                class="mt-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer font-mono">
                 {{ $isRtl ? 'العودة لمتابعة الحصة المباشرة ▶' : 'Resume Session Playback ▶' }}
             </button>
         </div>
 
         {{-- Loading & State Overlays --}}
-        <div id="meetingStateOverlay" class="absolute inset-0 bg-slate-950/90 z-20 flex flex-col items-center justify-center p-6 text-center space-y-4">
-            <div id="meetingSpinner" class="w-14 h-14 border-4 border-teal-500/30 border-t-teal-400 rounded-full animate-spin"></div>
+        <div id="meetingStateOverlay"
+            class="absolute inset-0 bg-slate-950/90 z-20 flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <div id="meetingSpinner"
+                class="w-14 h-14 border-4 border-teal-500/30 border-t-teal-400 rounded-full animate-spin"></div>
             <div class="space-y-1">
                 <h4 id="overlayTitle" class="font-heading font-extrabold text-xl text-white">
                     {{ $isRtl ? 'جاري تجهيز غرفة الاجتماع الأكاديمي المباشر...' : 'Preparing Secure In-System Live Session...' }}
@@ -83,17 +103,22 @@
                     {{ $isRtl ? 'يتم التحقق من هوية الطالب، رصيد الحصص، والواجبات المطلوبة...' : 'Verifying enrollment, timing rules, and security tokens...' }}
                 </p>
             </div>
-            <button id="btnRetryMeeting" onclick="initializeInSystemMeeting()" class="hidden px-5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold font-mono transition-all shadow-lg">
+            <button id="btnRetryMeeting" onclick="initializeInSystemMeeting()"
+                class="hidden px-5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold font-mono transition-all shadow-lg">
                 <i class="fa-solid fa-arrows-rotate"></i> {{ $isRtl ? 'إعادة المحاولة' : 'Retry Connection' }}
             </button>
         </div>
 
         {{-- Embedded Stream Frame --}}
-        <iframe id="embeddedMeetingFrame" src="about:blank" class="w-full h-full border-0 relative z-10 hidden" allow="camera *; microphone *; display-capture *; autoplay *; encrypted-media *; fullscreen *" allowfullscreen></iframe>
+        <iframe id="embeddedMeetingFrame" src="about:blank" class="w-full h-full border-0 relative z-10 hidden"
+            allow="camera *; microphone *; display-capture *; autoplay *; encrypted-media *; fullscreen *"
+            allowfullscreen></iframe>
 
         {{-- External Platform Launcher Container (For Google Meet / Teams) --}}
-        <div id="externalMeetingLauncher" class="hidden w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-5 bg-slate-950 relative z-10">
-            <div class="w-16 h-16 rounded-3xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-3xl shadow-xl shadow-teal-500/10">
+        <div id="externalMeetingLauncher"
+            class="hidden w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-5 bg-slate-950 relative z-10">
+            <div
+                class="w-16 h-16 rounded-3xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-3xl shadow-xl shadow-teal-500/10">
                 <i class="fa-solid fa-video"></i>
             </div>
             <div class="space-y-1.5 max-w-lg">
@@ -105,8 +130,10 @@
                 </p>
             </div>
             <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
-                <a id="btnExternalLaunch" href="#" target="_blank" rel="noopener noreferrer" class="btn-lift px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 rounded-2xl font-heading font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center gap-2">
-                    <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> <span id="externalLaunchBtnText">{{ $isRtl ? 'انضم للبث عبر Google Meet <i class="fa-solid fa-rocket"></i>' : 'Join via Google Meet <i class="fa-solid fa-rocket"></i>' }}</span>
+                <a id="btnExternalLaunch" href="#" target="_blank" rel="noopener noreferrer"
+                    class="btn-lift px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 rounded-2xl font-heading font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center gap-2">
+                    <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> <span
+                        id="externalLaunchBtnText">{{ $isRtl ? 'انضم للبث عبر Google Meet <i class="fa-solid fa-rocket"></i>' : 'Join via Google Meet <i class="fa-solid fa-rocket"></i>' }}</span>
                 </a>
             </div>
         </div>
@@ -116,12 +143,15 @@
     </div>
 
     {{-- Security Alert Banner --}}
-    <div id="securityAlertBanner" class="hidden px-6 py-3 bg-amber-950/80 border-t border-amber-800/80 text-amber-200 text-xs font-mono flex items-center justify-between">
+    <div id="securityAlertBanner"
+        class="hidden px-6 py-3 bg-amber-950/80 border-t border-amber-800/80 text-amber-200 text-xs font-mono flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span><i class="fa-solid fa-triangle-exclamation"></i></span>
-            <span id="securityAlertText">{{ $isRtl ? 'تنبيه: يرجى إبقاء نافذة الحصة نشطة ومفتوحة دائماً للحفاظ على الحضور.' : 'Warning: Please keep the session tab active to record attendance.' }}</span>
+            <span
+                id="securityAlertText">{{ $isRtl ? 'تنبيه: يرجى إبقاء نافذة الحصة نشطة ومفتوحة دائماً للحفاظ على الحضور.' : 'Warning: Please keep the session tab active to record attendance.' }}</span>
         </div>
-        <button onclick="document.getElementById('securityAlertBanner').classList.add('hidden')" class="text-amber-400 hover:text-white font-bold cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="document.getElementById('securityAlertBanner').classList.add('hidden')"
+            class="text-amber-400 hover:text-white font-bold cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
     </div>
 </div>
 
@@ -138,7 +168,7 @@
         initializeInSystemMeeting();
 
         // Anti-Tamper & Security Detection Event Listeners
-        document.addEventListener('contextmenu', function(e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 
@@ -163,7 +193,7 @@
         // 2. Intercept Display Capture API (getDisplayMedia)
         if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
             const origGetDisplayMedia = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
-            navigator.mediaDevices.getDisplayMedia = function() {
+            navigator.mediaDevices.getDisplayMedia = function () {
                 logSecurityEvent('DISPLAY_MEDIA_REQUESTED', {});
                 triggerSecurityBlur('{{ $isRtl ? "تم رصد محاولة تسجيل/مشاركة الشاشة عبر المتصفح! تم حجب البث لحماية المحتوى." : "Display screen recording request detected! Stream obfuscated." }}');
                 return origGetDisplayMedia.apply(this, arguments);
@@ -230,69 +260,69 @@
             },
             body: JSON.stringify({})
         })
-        .then(res => res.json().then(data => ({ status: res.status, body: data })))
-        .then(res => {
-            if (res.status === 200 && res.body.success) {
-                meetingAccessToken = res.body.access_token;
-                meetingTokenExpiresAt = res.body.expires_at;
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(res => {
+                if (res.status === 200 && res.body.success) {
+                    meetingAccessToken = res.body.access_token;
+                    meetingTokenExpiresAt = res.body.expires_at;
 
-                statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-                statusText.innerText = '{{ $isRtl ? "مباشر LIVE" : "LIVE SESSION" }}';
+                    statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                    statusText.innerText = '{{ $isRtl ? "مباشر LIVE" : "LIVE SESSION" }}';
 
-                const supportsEmbed = res.body.supports_embedding ?? true;
-                const streamUrl = res.body.stream_url || res.body.join_url;
-                const provider = res.body.provider || '';
+                    const supportsEmbed = res.body.supports_embedding ?? true;
+                    const streamUrl = res.body.stream_url || res.body.join_url;
+                    const provider = res.body.provider || '';
 
-                const isExternalMeeting = (!supportsEmbed) || (streamUrl && (streamUrl.includes('meet.google.com') || streamUrl.includes('teams.microsoft.com')));
-                const embeddableUrl = getEmbeddableUrl(streamUrl);
+                    const isExternalMeeting = (!supportsEmbed) || (streamUrl && (streamUrl.includes('meet.google.com') || streamUrl.includes('teams.microsoft.com')));
+                    const embeddableUrl = getEmbeddableUrl(streamUrl);
 
-                if (isExternalMeeting && streamUrl) {
-                    const launcher = document.getElementById('externalMeetingLauncher');
-                    const launchBtn = document.getElementById('btnExternalLaunch');
-                    const launchBtnText = document.getElementById('externalLaunchBtnText');
-                    const platformTitle = document.getElementById('externalPlatformTitle');
+                    if (isExternalMeeting && streamUrl) {
+                        const launcher = document.getElementById('externalMeetingLauncher');
+                        const launchBtn = document.getElementById('btnExternalLaunch');
+                        const launchBtnText = document.getElementById('externalLaunchBtnText');
+                        const platformTitle = document.getElementById('externalPlatformTitle');
 
-                    if (launchBtn) launchBtn.href = streamUrl;
+                        if (launchBtn) launchBtn.href = streamUrl;
 
-                    if (platformTitle) {
-                        platformTitle.innerText = (provider === 'google_meet' || (streamUrl && streamUrl.includes('meet.google.com')))
-                            ? '{{ $isRtl ? "غرفة البث المباشر التفاعلي — Google Meet" : "Interactive Live Stream — Google Meet" }}'
-                            : '{{ $isRtl ? "غرفة البث المباشر التفاعلي — Microsoft Teams" : "Interactive Live Stream — Microsoft Teams" }}';
+                        if (platformTitle) {
+                            platformTitle.innerText = (provider === 'google_meet' || (streamUrl && streamUrl.includes('meet.google.com')))
+                                ? '{{ $isRtl ? "غرفة البث المباشر التفاعلي — Google Meet" : "Interactive Live Stream — Google Meet" }}'
+                                : '{{ $isRtl ? "غرفة البث المباشر التفاعلي — Microsoft Teams" : "Interactive Live Stream — Microsoft Teams" }}';
+                        }
+
+                        if (launchBtnText) {
+                            launchBtnText.innerText = (provider === 'google_meet' || (streamUrl && streamUrl.includes('meet.google.com')))
+                                ? '{{ $isRtl ? "انضم للبث عبر Google Meet <i class='fa-solid fa-rocket'></i>" : "Join via Google Meet <i class='fa-solid fa-rocket'></i>" }}'
+                                : '{{ $isRtl ? "انضم للبث عبر Microsoft Teams <i class='fa-solid fa-rocket'></i>" : "Join via Microsoft Teams <i class='fa-solid fa-rocket'></i>" }}';
+                        }
+
+                        if (launcher) launcher.classList.remove('hidden');
+                    } else if (embeddableUrl) {
+                        frame.src = embeddableUrl;
+                        frame.classList.remove('hidden');
                     }
 
-                    if (launchBtnText) {
-                        launchBtnText.innerText = (provider === 'google_meet' || (streamUrl && streamUrl.includes('meet.google.com')))
-                            ? '{{ $isRtl ? "انضم للبث عبر Google Meet <i class="fa-solid fa-rocket"></i>" : "Join via Google Meet <i class="fa-solid fa-rocket"></i>" }}'
-                            : '{{ $isRtl ? "انضم للبث عبر Microsoft Teams <i class="fa-solid fa-rocket"></i>" : "Join via Microsoft Teams <i class="fa-solid fa-rocket"></i>" }}';
-                    }
+                    overlay.classList.add('hidden');
 
-                    if (launcher) launcher.classList.remove('hidden');
-                } else if (embeddableUrl) {
-                    frame.src = embeddableUrl;
-                    frame.classList.remove('hidden');
+                    startWatermarkAnimation();
+                    startHeartbeatLoop();
+                    startDurationTimer();
+                } else {
+                    spinner.classList.add('hidden');
+                    retryBtn.classList.remove('hidden');
+                    statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+                    statusText.innerText = '{{ $isRtl ? "مغلق / غير متاح" : "UNAVAILABLE" }}';
+
+                    overlayTitle.innerText = res.body.message || '{{ $isRtl ? "تعذر الوصول للحصة المباشرة" : "Unable to Join Live Session" }}';
+                    overlayMessage.innerText = res.body.reason_code ? `Error Code: ${res.body.reason_code}` : '{{ $isRtl ? "تأكد من شروط الموعد، الباقة الفعالة، وتسليم الواجبات." : "Please verify session timing, active package, and prerequisite homework." }}';
                 }
-
-                overlay.classList.add('hidden');
-
-                startWatermarkAnimation();
-                startHeartbeatLoop();
-                startDurationTimer();
-            } else {
+            })
+            .catch(err => {
                 spinner.classList.add('hidden');
                 retryBtn.classList.remove('hidden');
-                statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
-                statusText.innerText = '{{ $isRtl ? "مغلق / غير متاح" : "UNAVAILABLE" }}';
-
-                overlayTitle.innerText = res.body.message || '{{ $isRtl ? "تعذر الوصول للحصة المباشرة" : "Unable to Join Live Session" }}';
-                overlayMessage.innerText = res.body.reason_code ? `Error Code: ${res.body.reason_code}` : '{{ $isRtl ? "تأكد من شروط الموعد، الباقة الفعالة، وتسليم الواجبات." : "Please verify session timing, active package, and prerequisite homework." }}';
-            }
-        })
-        .catch(err => {
-            spinner.classList.add('hidden');
-            retryBtn.classList.remove('hidden');
-            overlayTitle.innerText = '{{ $isRtl ? "خطأ في الاتصال بالخادم" : "Server Connection Failure" }}';
-            overlayMessage.innerText = err.message;
-        });
+                overlayTitle.innerText = '{{ $isRtl ? "خطأ في الاتصال بالخادم" : "Server Connection Failure" }}';
+                overlayMessage.innerText = err.message;
+            });
     }
 
     let isHeartbeatPending = false;
@@ -315,20 +345,20 @@
                     expires_at: meetingTokenExpiresAt
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                isHeartbeatPending = false;
-                if (data.success && data.formatted_duration) {
-                    document.getElementById('meetingDurationTimer').innerText = data.formatted_duration;
-                } else if (data.session_ended) {
-                    alert('{{ $isRtl ? "انتهت هذه الجلسة المباشرة." : "This live session has ended." }}');
-                    leaveMeetingSession();
-                }
-            })
-            .catch(err => {
-                isHeartbeatPending = false;
-                console.error(err);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    isHeartbeatPending = false;
+                    if (data.success && data.formatted_duration) {
+                        document.getElementById('meetingDurationTimer').innerText = data.formatted_duration;
+                    } else if (data.session_ended) {
+                        alert('{{ $isRtl ? "انتهت هذه الجلسة المباشرة." : "This live session has ended." }}');
+                        leaveMeetingSession();
+                    }
+                })
+                .catch(err => {
+                    isHeartbeatPending = false;
+                    console.error(err);
+                });
         }, 30000);
     }
 
