@@ -54,6 +54,15 @@ RUN composer config process-timeout 600 \
 COPY --chown=www-data:www-data . .
 
 # 3. إنشاء الـ autoloader المحسن
+RUN mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/framework/testing \
+        bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
 # 4. تنظيف ملفات التطوير وغير المطلوبة في الـ Production
