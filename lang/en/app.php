@@ -106,6 +106,7 @@ return [
     ],
 
     'portal' => [
+        'notifications' => 'Notifications',
         'welcome_back' => 'Welcome Back',
         'grade_level' => 'Grade Level',
         'school' => 'School',

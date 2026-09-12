@@ -88,12 +88,14 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h4 class="font-bold text-base text-slate-900">Module 1: Orientation & Foundations</h4>
                         @if($hasFreeDemo)
-                            <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                                {{ app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية <i class="fa-solid fa-check"></i>' : 'Unlocked / Free Demo <i class="fa-solid fa-check"></i>' }}
+                            <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200 inline-flex items-center gap-1.5">
+                                <span>{{ app()->getLocale() === 'ar' ? 'مفتوح / حصة مجانية' : 'Unlocked / Free Demo' }}</span>
+                                <i class="fa-solid fa-check"></i>
                             </span>
                         @else
-                            <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                                {{ app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك <i class="fa-solid fa-lock"></i>' : 'Locked / Package Required <i class="fa-solid fa-lock"></i>' }}
+                            <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1.5">
+                                <span>{{ app()->getLocale() === 'ar' ? 'مغلق / يلزم الاشتراك' : 'Locked / Package Required' }}</span>
+                                <i class="fa-solid fa-lock"></i>
                             </span>
                         @endif
                     </div>
@@ -110,8 +112,9 @@
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-2">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h4 class="font-bold text-base text-slate-900">Module 2: Advanced Core Architecture</h4>
-                        <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">
-                            {{ app()->getLocale() === 'ar' ? 'الحصة الحالية <i class="fa-solid fa-hourglass-half"></i>' : 'Current In Progress <i class="fa-solid fa-hourglass-half"></i>' }}
+                        <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 inline-flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'الحصة الحالية' : 'Current In Progress' }}</span>
+                            <i class="fa-solid fa-hourglass-half"></i>
                         </span>
                     </div>
                     <p class="text-xs text-slate-600 leading-relaxed">
@@ -127,8 +130,9 @@
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-2">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h4 class="font-bold text-base text-slate-900">Module 3: Final Certification & Capstone</h4>
-                        <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                            {{ app()->getLocale() === 'ar' ? 'قريباً <i class="fa-solid fa-lock"></i>' : 'Upcoming <i class="fa-solid fa-lock"></i>' }}
+                        <span class="text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 inline-flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'قريباً' : 'Upcoming' }}</span>
+                            <i class="fa-solid fa-lock"></i>
                         </span>
                     </div>
                     <p class="text-xs text-slate-600 leading-relaxed">

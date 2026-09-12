@@ -22,6 +22,19 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Services\WindowsSafeFilesystem();
         });
 
+        $this->app->extend('translation.loader', function ($originalLoader, $app) {
+            $loader = new \App\Services\Translation\DatabaseFileTranslationLoader($app['files'], $app->langPath());
+
+            if (is_dir(base_path('lang')) && base_path('lang') !== $app->langPath()) {
+                $loader->addPath(base_path('lang'));
+                $loader->addJsonPath(base_path('lang'));
+            }
+
+            return $loader;
+        });
+
+
+
         if (file_exists(app_path('helpers.php'))) {
             require_once app_path('helpers.php');
         }

@@ -23,17 +23,17 @@ class CourseForm
                     ->columnSpanFull()
                     ->components([
                         Select::make('subject_id')
-                            ->relationship('subject', 'name')
+                            ->relationship('subject', 'name', modifyQueryUsing: fn ($q) => $q->latest('created_at'))
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('grade_level_id')
-                            ->relationship('gradeLevel', 'name')
+                            ->relationship('gradeLevel', 'name', modifyQueryUsing: fn ($q) => $q->orderBy('sort_order', 'asc'))
                             ->searchable()
                             ->preload()
                             ->nullable(),
                         Select::make('teacher_id')
-                            ->relationship('teacher')
+                            ->relationship('teacher', modifyQueryUsing: fn ($q) => $q->latest('created_at'))
                             ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: $record->title ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
                             ->searchable()
                             ->preload()
@@ -43,7 +43,10 @@ class CourseForm
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
                         TextInput::make('slug')
-                            ->required(),
+                            ->required()
+                            ->maxLength(150)
+                            ->unique(ignoreRecord: true)
+                            ->helperText(__('Unique URL identifier for this course.')),
                         Textarea::make('description')
                             ->columnSpanFull(),
                         FileUpload::make('image')

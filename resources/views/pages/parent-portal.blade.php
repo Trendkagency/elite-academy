@@ -338,9 +338,9 @@ async function loadStudentProgress(studentId) {
         const todayStr = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US');
 
         nameEl.textContent = isAr ? `تقرير الأداء الأكاديمي الشامل: ${data.student.name}` : `Comprehensive Academic Performance Report: ${data.student.name}`;
-        metaEl.textContent = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school} • ${data.student.phone ? ('<i class="fa-solid fa-phone"></i> ' + data.student.phone) : ''}`;
-        pkgBadge.textContent = `<i class="fa-solid fa-credit-card"></i> ${data.package.name} (${data.package.remaining_sessions} ${isAr ? 'حصص متبقية' : 'sessions remaining'})`;
-        attBadge.textContent = `<i class="fa-solid fa-bullseye"></i> ${isAr ? 'نسبة الحضور' : 'Attendance'}: ${data.attendance.rate}`;
+        metaEl.innerHTML = `${data.student.grade} • ${isAr ? 'المدرسة' : 'School'}: ${data.student.school} • ${data.student.phone ? ('<i class="fa-solid fa-phone"></i> ' + data.student.phone) : ''}`;
+        pkgBadge.innerHTML = `<i class="fa-solid fa-credit-card"></i> ${data.package.name} (${data.package.remaining_sessions} ${isAr ? 'حصص متبقية' : 'sessions remaining'})`;
+        attBadge.innerHTML = `<i class="fa-solid fa-bullseye"></i> ${isAr ? 'نسبة الحضور' : 'Attendance'}: ${data.attendance.rate}`;
 
         const pkgPct = Math.round((data.package.remaining_sessions / data.package.total_sessions) * 100);
 

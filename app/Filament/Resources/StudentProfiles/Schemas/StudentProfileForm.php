@@ -46,7 +46,7 @@ class StudentProfileForm
                                         } else {
                                             $q->whereDoesntHave('studentProfile');
                                         }
-                                    });
+                                    })->latest('created_at');
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))

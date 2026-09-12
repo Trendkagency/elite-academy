@@ -30,7 +30,7 @@ class StudentPackageForm
                             ->relationship(
                                 name: 'studentUser',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')
+                                modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')->latest('created_at')
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
                             ->searchable()
@@ -49,7 +49,7 @@ class StudentPackageForm
                         Select::make('package_template_id')
                             ->label(__('Package Template'))
                             ->relationship('packageTemplate', 'name',
-                                modifyQueryUsing: fn ($query) => $query->where('is_active', true)
+                                modifyQueryUsing: fn ($query) => $query->where('is_active', true)->latest('created_at')
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->sessions_count} " . __('sessions') . ($record->price ? " ({$record->price} SAR)" : ''))
                             ->searchable()
@@ -71,7 +71,7 @@ class StudentPackageForm
 
                         Select::make('course_id')
                             ->label(__('Restrict to Course (Optional)'))
-                            ->relationship('course', 'title')
+                            ->relationship('course', 'title', modifyQueryUsing: fn ($query) => $query->latest('created_at'))
                             ->searchable()
                             ->preload()
                             ->nullable()

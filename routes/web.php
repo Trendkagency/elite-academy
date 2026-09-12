@@ -139,11 +139,15 @@ Route::middleware(SetLocale::class)->group(function () {
 
         // FCM Notifications, Deadline Reminders & 30s Test Push
         Route::get('/ajax/notifications', [\App\Http\Controllers\Notification\NotificationController::class, 'feed'])->name('ajax.notifications.feed');
+        Route::get('/ajax/notifications/check', [\App\Http\Controllers\Notification\NotificationController::class, 'checkRealtime'])->name('ajax.notifications.check');
         Route::post('/ajax/notifications/fcm-token', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken'])->name('ajax.notifications.token');
+
         Route::post('/api/notifications/fcm-token', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken']);
         Route::post('/api/device-tokens', [\App\Http\Controllers\Notification\NotificationController::class, 'registerToken']);
         Route::post('/ajax/notifications/test-push', [\App\Http\Controllers\Notification\NotificationController::class, 'triggerTestPush'])->name('ajax.notifications.test-push');
         Route::post('/ajax/notifications/send-custom', [\App\Http\Controllers\Notification\NotificationController::class, 'sendCustomNotification'])->name('ajax.notifications.send-custom');
+        Route::post('/ajax/notifications/{id}/read', [\App\Http\Controllers\Notification\NotificationController::class, 'markAsRead'])->where('id', '[0-9]+')->name('ajax.notifications.read');
+        Route::post('/ajax/notifications/read-all', [\App\Http\Controllers\Notification\NotificationController::class, 'markAllAsRead'])->name('ajax.notifications.read-all');
     });
 
     // Firebase Web Messaging Service Worker Route
@@ -185,8 +189,10 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'Elite Academy Notification');
   const notificationOptions = {
     body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : ''),
-    icon: payload.notification ? payload.notification.image : '/images/logo.png',
-    data: payload.data || {}
+    icon: (payload.notification && payload.notification.image) || (payload.data && payload.data.icon) || '/images/logo_500.webp',
+    badge: '/images/logo_500.webp',
+    vibrate: [100, 50, 100],
+    data: payload.data || { url: '/student-portal' }
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -194,7 +200,7 @@ messaging.onBackgroundMessage(function(payload) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : '/student-portal';
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/student-portal';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
       for (let i = 0; i < clientList.length; i++) {

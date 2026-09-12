@@ -40,7 +40,7 @@ class ParentProfileForm
                                         } else {
                                             $q->whereDoesntHave('parentProfile');
                                         }
-                                    });
+                                    })->latest('created_at');
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
@@ -99,6 +99,7 @@ class ParentProfileForm
                                     ->whereDoesntHave('teacherProfile')
                                     ->whereDoesntHave('adminProfile')
                                     ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu'])
+                                    ->latest('created_at')
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
                             ->label('Linked Children / Students (Select & Manage)')

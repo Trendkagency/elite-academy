@@ -30,6 +30,7 @@ class CourseController extends Controller
                 });
             })
             ->with(['subject.category', 'teacher.user', 'gradeLevel'])
+            ->latest('created_at')
             ->paginate(6)
             ->withQueryString();
 

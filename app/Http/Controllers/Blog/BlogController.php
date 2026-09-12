@@ -45,6 +45,7 @@ class BlogController extends Controller
 
         $relatedArticles = Article::where('is_published', true)
             ->when($article, fn ($q) => $q->where('id', '!=', $article->id))
+            ->latest('published_at')
             ->limit(3)
             ->get();
 

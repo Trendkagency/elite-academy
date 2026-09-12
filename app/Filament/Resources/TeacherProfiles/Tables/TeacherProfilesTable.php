@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -21,8 +22,8 @@ class TeacherProfilesTable
                 ImageColumn::make('photo')
                     ->label(__('Photo'))
                     ->circular()
-                    ->getStateUsing(fn ($record) => $record->photo_url)
-                    ->defaultImageUrl(fn ($record) => $record?->photo_url ?? 'https://ui-avatars.com/api/?name=Teacher&background=4F46E5&color=fff'),
+                    ->getStateUsing(fn($record) => $record->photo_url)
+                    ->defaultImageUrl(fn($record) => $record?->photo_url ?? 'https://ui-avatars.com/api/?name=Teacher&background=4F46E5&color=fff'),
                 TextColumn::make('user.name')
                     ->label('Teacher Name')
                     ->searchable()
@@ -66,7 +67,7 @@ class TeacherProfilesTable
                         $record->user?->update(['status' => \App\Enums\AccountStatus::APPROVED]);
                         \Filament\Notifications\Notification::make()->title('Teacher Approved')->success()->send();
                     })
-                    ->visible(fn ($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
+                    ->visible(fn($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
                 \Filament\Actions\Action::make('rejectAccount')
                     ->label('Reject Teacher')
                     ->icon('heroicon-o-x-circle')
@@ -76,7 +77,7 @@ class TeacherProfilesTable
                         $record->user?->update(['status' => \App\Enums\AccountStatus::REJECTED]);
                         \Filament\Notifications\Notification::make()->title('Teacher Rejected')->warning()->send();
                     })
-                    ->visible(fn ($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
+                    ->visible(fn($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
                 EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
                 \Filament\Actions\RestoreAction::make(),
@@ -88,6 +89,7 @@ class TeacherProfilesTable
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

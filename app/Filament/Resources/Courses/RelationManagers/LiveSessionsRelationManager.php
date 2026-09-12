@@ -29,7 +29,7 @@ class LiveSessionsRelationManager extends RelationManager
                     ->relationship(
                         name: 'studentUser',
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')
+                        modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')->latest('created_at')
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
                     ->label('Student (Leave empty for global live stream)')
@@ -102,6 +102,7 @@ class LiveSessionsRelationManager extends RelationManager
             ->recordActions([
                 \Filament\Actions\EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
-            ]);
+            ])
+            ->defaultSort('scheduled_at', 'desc');
     }
 }

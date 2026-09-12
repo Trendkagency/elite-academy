@@ -34,6 +34,7 @@ class ParentPortalController extends Controller
 
             $linkedStudents = StudentProfile::whereIn('user_id', $linkedStudentUserIds)
                 ->with(['user', 'gradeLevel'])
+                ->latest('created_at')
                 ->get();
         }
 
@@ -295,6 +296,13 @@ class ParentPortalController extends Controller
         $studentProfile = StudentProfile::where('user_id', $studentUser->id)->first();
         if ($studentProfile) {
             $studentProfile->update(['parent_user_id' => $user->id]);
+        }
+
+        // Notify admins about parent-child linking
+        try {
+            app(\App\Services\Notification\FcmNotificationService::class)->notifyAdminParentChildLinked($user, $studentUser);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminParentChildLinked failed: ' . $e->getMessage());
         }
 
         return response()->json([

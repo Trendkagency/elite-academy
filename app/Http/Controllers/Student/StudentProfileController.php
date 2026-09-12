@@ -53,7 +53,7 @@ class StudentProfileController extends Controller
             ->where('student_user_id', $user->id)
             ->get();
         $parentUserIds = $parentLinks->pluck('parent_user_id')->toArray();
-        $parents = User::whereIn('id', $parentUserIds)->get();
+        $parents = User::whereIn('id', $parentUserIds)->latest('created_at')->get();
 
         return view('pages.student-profile', [
             'user' => $user,

@@ -57,7 +57,8 @@ class MeetingProviderResource extends Resource
                 IconColumn::make('is_active')->boolean(),
                 IconColumn::make('supports_embedding')->boolean(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

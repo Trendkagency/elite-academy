@@ -28,6 +28,7 @@ class LiveSession extends Model
         'cancellation_reason',
         'lifecycle_state',
         'reminders_sent',
+        'reminder_sent_at',
         'teacher_notes',
         'scheduled_at',
         'start_at',
@@ -74,7 +75,14 @@ class LiveSession extends Model
         });
 
         static::created(function (LiveSession $session) {
-            app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherSessionAssigned($session);
+            $service = app(\App\Services\Notification\FcmNotificationService::class);
+            $service->notifyTeacherSessionAssigned($session);
+            // Notify admins about new session creation (wrapped to not break session creation on failure)
+            try {
+                $service->notifyAdminSessionCreated($session);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionCreated failed: ' . $e->getMessage());
+            }
         });
 
         static::updated(function (LiveSession $session) {
@@ -90,10 +98,12 @@ class LiveSession extends Model
                     'cancelled', 'cancelled_by_teacher' => (function () use ($service, $session) {
                         $service->notifySessionCancelled($session);
                         $service->notifyTeacherSessionCancelled($session);
+                        try { $service->notifyAdminSessionCancelled($session); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionCancelled failed: ' . $e->getMessage()); }
                     })(),
                     'rescheduled' => (function () use ($service, $session) {
                         $service->notifySessionRescheduled($session);
                         $service->notifyTeacherSessionRescheduled($session);
+                        try { $service->notifyAdminSessionRescheduled($session); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionRescheduled failed: ' . $e->getMessage()); }
                     })(),
                     default => null,
                 };
@@ -110,6 +120,7 @@ class LiveSession extends Model
                 if (! in_array($session->status, ['cancelled', 'cancelled_by_teacher', 'completed'], true)) {
                     $service->notifySessionRescheduled($session);
                     $service->notifyTeacherSessionRescheduled($session);
+                    try { $service->notifyAdminSessionRescheduled($session); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionRescheduled failed: ' . $e->getMessage()); }
                 }
             }
 

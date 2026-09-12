@@ -47,7 +47,7 @@ class AssignmentForm
                                         if ($teacherId = $get('teacher_profile_id')) {
                                             $query->where('teacher_id', $teacherId);
                                         }
-                                        return $query;
+                                        return $query->latest('created_at');
                                     }
                                 )
                                 ->label(__('Target Course (Recommended)'))
@@ -69,7 +69,7 @@ class AssignmentForm
                                 ->relationship(
                                     name: 'teacherProfile',
                                     titleAttribute: 'id',
-                                    modifyQueryUsing: fn ($query) => $query->with('user')
+                                    modifyQueryUsing: fn ($query) => $query->with('user')->latest('created_at')
                                 )
                                 ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->name ? "{$record->user->name} (" . ($record->specialization ?? 'Teacher') . ")" : "Teacher #{$record->id}")
                                 ->label(__('Assigned Teacher / Instructor'))
@@ -102,7 +102,7 @@ class AssignmentForm
                                         } elseif ($teacherId = $get('teacher_profile_id')) {
                                             $query->whereHas('course', fn ($q) => $q->where('teacher_id', $teacherId));
                                         }
-                                        return $query;
+                                        return $query->latest('created_at');
                                     }
                                 )
                                 ->label(__('Course Lesson / Module (Optional)'))
@@ -134,7 +134,7 @@ class AssignmentForm
                                         } elseif ($teacherId = $get('teacher_profile_id')) {
                                             $query->where('teacher_profile_id', $teacherId);
                                         }
-                                        return $query->with(['course', 'subject', 'studentUser', 'teacherProfile.user']);
+                                        return $query->with(['course', 'subject', 'studentUser', 'teacherProfile.user'])->latest('created_at');
                                     }
                                 )
                                 ->getOptionLabelFromRecordUsing(fn ($record) => "Live Session #{$record->id} — " . ($record->title ?? $record->course?->title ?? 'Session') . " (" . ($record->scheduled_at?->format('Y-m-d H:i') ?? 'Unscheduled') . ")")

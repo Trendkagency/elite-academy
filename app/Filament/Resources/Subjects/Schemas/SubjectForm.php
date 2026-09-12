@@ -48,11 +48,19 @@ class SubjectForm
                 TextInput::make('name')
                     ->label(__('Subject Name'))
                     ->required()
+                    ->maxLength(150)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state ?: 'subject'))),
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        if (empty($get('slug')) || $get('slug') === Str::slug($state ?: 'subject')) {
+                            $set('slug', Str::slug($state ?: 'subject'));
+                        }
+                    }),
                 TextInput::make('slug')
                     ->label(__('Slug / Identifier'))
-                    ->required(),
+                    ->required()
+                    ->maxLength(150)
+                    ->unique(ignoreRecord: true)
+                    ->helperText(__('Auto-generated from name. Must be unique across all subjects.')),
                 Textarea::make('description')
                     ->label(__('Description'))
                     ->columnSpanFull(),

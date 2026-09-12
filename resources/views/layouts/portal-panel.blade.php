@@ -413,6 +413,8 @@
 
     <script src="{{ asset('js/toast.js') }}"></script>
 
+    @include('partials.realtime-notifications')
+
     @stack('scripts')
 </body>
 </html>

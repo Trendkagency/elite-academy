@@ -4,6 +4,7 @@ namespace App\Services\Notification;
 
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\CourseEnrollment;
 use App\Models\ExceptionRequest;
 use App\Models\FcmToken;
 use App\Models\LiveSession;
@@ -66,8 +67,239 @@ class FcmNotificationService
         return $notification;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Admin Notification Methods
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Internal helper: persist DB notification + FCM push to ALL admin users dynamically.
+     * Admin users are resolved via User::scopeRoleAdmin() — no hard-coded IDs.
+     *
+     * @return int  Number of admins notified
+     */
+    public function notifyAllAdmins(string $type, string $title, string $body, ?string $actionUrl = null): int
+    {
+        $adminUrl = $actionUrl ?: url('/admin');
+
+        $admins = User::roleAdmin()->get();
+
+        if ($admins->isEmpty()) {
+            Log::info("[FCM ADMIN] No admin users found to notify. Type: {$type}");
+            return 0;
+        }
+
+        $allTokens = [];
+        $count     = 0;
+
+        foreach ($admins as $admin) {
+            try {
+                UserNotification::create([
+                    'user_id'    => $admin->id,
+                    'type'       => $type,
+                    'title'      => $title,
+                    'body'       => $body,
+                    'action_url' => $adminUrl,
+                    'is_read'    => false,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error("[FCM ADMIN] Failed to persist notification for admin #{$admin->id}: " . $e->getMessage());
+            }
+
+            $tokens = FcmToken::where('user_id', $admin->id)->pluck('token')->toArray();
+            $allTokens = array_merge($allTokens, $tokens);
+            $count++;
+        }
+
+        Log::info("[FCM ADMIN BROADCAST] Type: {$type} | Admins: {$count} | Tokens: " . count($allTokens));
+
+        if (! empty($allTokens)) {
+            $this->dispatchFcmPayload($allTokens, $title, $body, $adminUrl);
+        }
+
+        return $count;
+    }
+
+    /**
+     * Admin: New user registered (student, teacher, or parent).
+     */
+    public function notifyAdminNewRegistration(User $user): int
+    {
+        $role = $user->getRoleName();
+        $roleLabel = match ($role) {
+            'teacher' => app()->getLocale() === 'ar' ? 'معلم' : 'Teacher',
+            'parent'  => app()->getLocale() === 'ar' ? 'ولي أمر' : 'Parent',
+            default   => app()->getLocale() === 'ar' ? 'طالب'  : 'Student',
+        };
+
+        $title = app()->getLocale() === 'ar'
+            ? "🆕 تسجيل حساب جديد ({$roleLabel})"
+            : "🆕 New {$roleLabel} Registration";
+
+        $body = app()->getLocale() === 'ar'
+            ? "سجّل {$user->name} ({$user->email}) حساباً جديداً بصفة ({$roleLabel}). الحساب بانتظار الموافقة."
+            : "{$user->name} ({$user->email}) registered a new {$roleLabel} account. Pending approval.";
+
+        return $this->notifyAllAdmins('ADMIN_NEW_REGISTRATION', $title, $body, url('/admin/users'));
+    }
+
+    /**
+     * Admin: Student enrolled in a course.
+     */
+    public function notifyAdminStudentEnrolled(CourseEnrollment $enrollment): int
+    {
+        $student    = $enrollment->student ?? User::find($enrollment->student_user_id);
+        $course     = $enrollment->course;
+        $courseName = $course?->title ?? 'Course';
+        $studentName = $student?->name ?? 'Student';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📚 تسجيل طالب في دورة'
+            : '📚 Student Course Enrollment';
+
+        $body = app()->getLocale() === 'ar'
+            ? "انضم الطالب ({$studentName}) إلى دورة ({$courseName})."
+            : "Student ({$studentName}) enrolled in course ({$courseName}).";
+
+        return $this->notifyAllAdmins('ADMIN_STUDENT_ENROLLED', $title, $body, url('/admin/course-enrollments'));
+    }
+
+    /**
+     * Admin: Student submitted an assignment.
+     */
+    public function notifyAdminAssignmentSubmitted(AssignmentSubmission $submission): int
+    {
+        $student         = $submission->studentUser ?? User::find($submission->student_user_id);
+        $assignmentTitle = $submission->assignment?->title ?? 'Assignment';
+        $studentName     = $student?->name ?? 'Student';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📝 تسليم واجب جديد'
+            : '📝 New Assignment Submission';
+
+        $body = app()->getLocale() === 'ar'
+            ? "قام الطالب ({$studentName}) بتسليم إجابات واجب ({$assignmentTitle})."
+            : "Student ({$studentName}) submitted assignment ({$assignmentTitle}).";
+
+        return $this->notifyAllAdmins('ADMIN_ASSIGNMENT_SUBMITTED', $title, $body, url('/admin/assignment-submissions'));
+    }
+
+    /**
+     * Admin: Exception request created by a student.
+     */
+    public function notifyAdminExceptionRequested(ExceptionRequest $request): int
+    {
+        $student     = $request->studentUser ?? User::find($request->student_user_id);
+        $studentName = $student?->name ?? 'Student';
+        $scope       = ($request->is_global || $request->scope === 'global')
+            ? (app()->getLocale() === 'ar' ? 'استثناء عام' : 'Global Exception')
+            : (app()->getLocale() === 'ar' ? 'استثناء حصة' : 'Session Exception');
+
+        $title = app()->getLocale() === 'ar'
+            ? '📩 طلب استثناء جديد'
+            : '📩 New Exception Request';
+
+        $body = app()->getLocale() === 'ar'
+            ? "قدّم الطالب ({$studentName}) طلب ({$scope}). السبب: " . ($request->reason ?: 'لم يُحدد')
+            : "Student ({$studentName}) submitted a ({$scope}) request. Reason: " . ($request->reason ?: 'Not specified');
+
+        return $this->notifyAllAdmins('ADMIN_EXCEPTION_REQUESTED', $title, $body, url('/admin/exception-requests'));
+    }
+
+    /**
+     * Admin: Teacher created a new live session.
+     */
+    public function notifyAdminSessionCreated(LiveSession $session): int
+    {
+        $teacherUser = $session->teacherProfile?->user;
+        $teacherName = $teacherUser?->name ?? 'Teacher';
+        $subjectName = $session->subject?->name ?? ($session->title ?? 'Session');
+        $timeStr     = $session->effective_start_at ? $session->effective_start_at->format('Y-m-d H:i') : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '📅 جلسة مباشرة جديدة'
+            : '📅 New Live Session Created';
+
+        $body = app()->getLocale() === 'ar'
+            ? "أنشأ المعلم ({$teacherName}) جلسة مباشرة لمادة ({$subjectName}) بتاريخ {$timeStr}."
+            : "Teacher ({$teacherName}) created a new live session for ({$subjectName}) at {$timeStr}.";
+
+        return $this->notifyAllAdmins('ADMIN_SESSION_CREATED', $title, $body, url('/admin/live-sessions'));
+    }
+
+    /**
+     * Admin: A live session was cancelled.
+     */
+    public function notifyAdminSessionCancelled(LiveSession $session): int
+    {
+        $teacherName = $session->teacherProfile?->user?->name ?? 'Teacher';
+        $subjectName = $session->subject?->name ?? ($session->title ?? 'Session');
+        $reason      = $session->cancellation_reason ? " — " . $session->cancellation_reason : '';
+
+        $title = app()->getLocale() === 'ar'
+            ? '❌ إلغاء جلسة مباشرة'
+            : '❌ Live Session Cancelled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم إلغاء جلسة ({$subjectName}) للمعلم ({$teacherName}){$reason}."
+            : "Session ({$subjectName}) by ({$teacherName}) was cancelled{$reason}.";
+
+        return $this->notifyAllAdmins('ADMIN_SESSION_CANCELLED', $title, $body, url('/admin/live-sessions'));
+    }
+
+    /**
+     * Admin: A live session was rescheduled.
+     */
+    public function notifyAdminSessionRescheduled(LiveSession $session): int
+    {
+        $teacherName = $session->teacherProfile?->user?->name ?? 'Teacher';
+        $subjectName = $session->subject?->name ?? ($session->title ?? 'Session');
+        $newTimeStr  = $session->effective_start_at ? $session->effective_start_at->format('Y-m-d H:i') : 'New Time';
+
+        $title = app()->getLocale() === 'ar'
+            ? '🗓️ إعادة جدولة جلسة'
+            : '🗓️ Live Session Rescheduled';
+
+        $body = app()->getLocale() === 'ar'
+            ? "تم تغيير موعد جلسة ({$subjectName}) للمعلم ({$teacherName}) إلى {$newTimeStr}."
+            : "Session ({$subjectName}) by ({$teacherName}) rescheduled to {$newTimeStr}.";
+
+        return $this->notifyAllAdmins('ADMIN_SESSION_RESCHEDULED', $title, $body, url('/admin/live-sessions'));
+    }
+
+    /**
+     * Admin: Parent linked a child student to their account.
+     */
+    public function notifyAdminParentChildLinked(User $parent, User $child): int
+    {
+        $title = app()->getLocale() === 'ar'
+            ? '👪 ربط طالب بحساب ولي أمر'
+            : '👪 Parent Linked a Child';
+
+        $body = app()->getLocale() === 'ar'
+            ? "قام ولي الأمر ({$parent->name}) بربط الطالب ({$child->name}) بحسابه."
+            : "Parent ({$parent->name}) linked student ({$child->name}) to their account.";
+
+        return $this->notifyAllAdmins('ADMIN_PARENT_CHILD_LINKED', $title, $body, url('/admin/parent-profiles'));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Invalid Token Cleanup
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Remove a permanently invalid FCM token from the database.
+     */
+    public function removeInvalidToken(string $token): void
+    {
+        $deleted = FcmToken::where('token', $token)->delete();
+        if ($deleted) {
+            Log::info("[FCM] Removed permanently invalid token: " . substr($token, 0, 20) . '...');
+        }
+    }
+
     /**
      * Broadcast FCM push notification to a target audience.
+     * Target: 'all' | 'students' | 'teachers' | 'parents'
      * Target: 'all' | 'students' | 'teachers' | 'parents'
      */
     public function broadcastNotification(string $targetAudience, string $title, string $body, ?string $actionUrl = null): int

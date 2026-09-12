@@ -18,7 +18,7 @@ class ExceptionRequestForm
                     ->relationship(
                         name: 'studentUser',
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')
+                        modifyQueryUsing: fn ($query) => $query->whereHas('studentProfile')->latest('created_at')
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
                     ->label('Student')
@@ -34,7 +34,7 @@ class ExceptionRequestForm
                     ->default('course')
                     ->required(),
                 Select::make('course_id')
-                    ->relationship('course', 'title')
+                    ->relationship('course', 'title', modifyQueryUsing: fn ($query) => $query->latest('created_at'))
                     ->label('Specific Target Course')
                     ->searchable()
                     ->preload()
@@ -46,7 +46,7 @@ class ExceptionRequestForm
                     ->relationship(
                         name: 'liveSession',
                         titleAttribute: 'id',
-                        modifyQueryUsing: fn ($query) => $query->with(['course', 'subject'])
+                        modifyQueryUsing: fn ($query) => $query->with(['course', 'subject'])->latest('created_at')
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "Session #{$record->id} — " . ($record->course?->title ?? $record->subject?->name ?? 'Live Session') . " (" . ($record->scheduled_at?->format('Y-m-d H:i') ?? 'Unscheduled') . ")")
                     ->label('Live Session (Optional)')

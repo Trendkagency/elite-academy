@@ -36,6 +36,7 @@ class TeacherController extends Controller
         }
 
         $teachers = $query->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
             ->orderBy('rating_avg', 'desc')
             ->paginate(12)
             ->withQueryString();

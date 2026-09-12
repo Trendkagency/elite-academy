@@ -46,7 +46,8 @@ class MeetingAttendanceResource extends Resource
                 TextColumn::make('joined_at')->dateTime()->sortable(),
                 TextColumn::make('last_seen_at')->dateTime()->sortable(),
                 TextColumn::make('ip_address')->searchable(),
-            ]);
+            ])
+            ->defaultSort('joined_at', 'desc');
     }
 
     public static function getPages(): array

@@ -41,6 +41,7 @@ class StudentPortalController extends Controller
                 'course.gradeLevel',
                 'progress'
             ])
+            ->latest('created_at')
             ->get() : collect();
 
         $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();

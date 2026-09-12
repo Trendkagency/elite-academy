@@ -51,18 +51,25 @@ class AssignmentSubmission extends Model
     {
         parent::boot();
 
+        // Only notify teacher when a student has actually SUBMITTED (not when they merely start IN_PROGRESS).
         static::created(function (AssignmentSubmission $submission) {
             $statusVal = $submission->status instanceof SubmissionStatus ? $submission->status->value : (string) $submission->status;
-            if (in_array($statusVal, ['submitted', 'completed'], true) || ! $statusVal) {
-                app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherAssignmentSubmitted($submission);
+            if (in_array($statusVal, ['submitted', 'completed'], true)) {
+                $service = app(\App\Services\Notification\FcmNotificationService::class);
+                $service->notifyTeacherAssignmentSubmitted($submission);
+                try { $service->notifyAdminAssignmentSubmitted($submission); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminAssignmentSubmitted failed: ' . $e->getMessage()); }
             }
         });
 
+        // When status transitions to submitted/completed (e.g. via AssignmentEvaluationService), notify.
+        // Guard against double-notification: only fires when status CHANGES, not on initial create.
         static::updated(function (AssignmentSubmission $submission) {
             if ($submission->wasChanged('status')) {
                 $statusVal = $submission->status instanceof SubmissionStatus ? $submission->status->value : (string) $submission->status;
                 if (in_array($statusVal, ['submitted', 'completed'], true)) {
-                    app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherAssignmentSubmitted($submission);
+                    $service = app(\App\Services\Notification\FcmNotificationService::class);
+                    $service->notifyTeacherAssignmentSubmitted($submission);
+                    try { $service->notifyAdminAssignmentSubmitted($submission); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminAssignmentSubmitted failed: ' . $e->getMessage()); }
                 }
             }
         });

@@ -106,6 +106,8 @@ return [
     ],
 
     'portal' => [
+        'notifications' => 'الإشعارات',
+        'to_do_list' => 'قائمة المهام',
         'welcome_back' => 'أهلاً بك',
         'grade_level' => 'الصف الدراسي',
         'school' => 'المدرسة',

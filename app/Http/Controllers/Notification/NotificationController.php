@@ -55,6 +55,47 @@ class NotificationController extends Controller
     }
 
     /**
+     * Check for new real-time notifications since a given ID or timestamp.
+     */
+    public function checkRealtime(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $sinceId = (int) $request->input('since_id', 0);
+
+        $query = UserNotification::where('user_id', $user->id)
+            ->orderBy('id', 'desc');
+
+        if ($sinceId > 0) {
+            $newNotifications = (clone $query)->where('id', '>', $sinceId)->take(10)->get();
+        } else {
+            $newNotifications = collect([]);
+        }
+
+        $unreadCount = UserNotification::where('user_id', $user->id)->where('is_read', false)->count();
+        $latest = UserNotification::where('user_id', $user->id)->orderBy('id', 'desc')->first();
+
+        // Also fetch up to 5 recent notifications for dropdown
+        $recent = UserNotification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(6)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'has_new' => $newNotifications->isNotEmpty(),
+            'new_notifications' => $newNotifications,
+            'recent_notifications' => $recent,
+            'unread_count' => $unreadCount,
+            'latest_id' => $latest ? $latest->id : 0,
+        ]);
+    }
+
+
+    /**
      * Register FCM Web Push device token.
      */
     public function registerToken(Request $request): JsonResponse
@@ -118,5 +159,89 @@ class NotificationController extends Controller
             'fcm_tokens' => $fcmTokens,
             'delay_seconds' => 30,
         ]);
+    }
+
+    /**
+     * Send a custom in-app notification to a specific user (admin-only).
+     * Route: POST /ajax/notifications/send-custom
+     */
+    public function sendCustomNotification(Request $request): JsonResponse
+    {
+        $admin = auth()->user();
+        if (! $admin || ! $admin->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'user_id'    => 'required|integer|exists:users,id',
+            'type'       => 'required|string|max:100',
+            'title'      => 'required|string|max:255',
+            'body'       => 'required|string|max:2000',
+            'action_url' => 'nullable|url|max:500',
+        ]);
+
+        $targetUser = \App\Models\User::findOrFail($request->input('user_id'));
+
+        $notification = $this->notificationService->sendNotification(
+            $targetUser,
+            $request->input('type'),
+            $request->input('title'),
+            $request->input('body'),
+            $request->input('action_url')
+        );
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Custom notification sent successfully.',
+            'notification' => $notification,
+        ]);
+    }
+
+    /**
+     * Mark a single notification as read.
+     * Route: POST /ajax/notifications/{id}/read
+     */
+    public function markAsRead(int $id): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $notification = UserNotification::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $notification) {
+            return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+        }
+
+        $notification->update([
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Marked as read.']);
+    }
+
+    /**
+     * Mark all notifications for the authenticated user as read.
+     * Route: POST /ajax/notifications/read-all
+     */
+    public function markAllAsRead(): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        UserNotification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
+
+        return response()->json(['success' => true, 'message' => 'All notifications marked as read.']);
     }
 }

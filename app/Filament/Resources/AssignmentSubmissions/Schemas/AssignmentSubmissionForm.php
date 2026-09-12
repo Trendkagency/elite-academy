@@ -28,7 +28,7 @@ class AssignmentSubmissionForm
                                     $query->whereIn('course_id', $enrolledCourseIds);
                                 }
                             }
-                            return $query;
+                            return $query->latest('created_at');
                         }
                     )
                     ->label(__('Assignment / Exam Title'))
@@ -62,7 +62,7 @@ class AssignmentSubmissionForm
                                     $query->whereHas('courseEnrollments', fn ($q) => $q->where('course_id', $assignment->course_id));
                                 }
                             }
-                            return $query;
+                            return $query->latest('created_at');
                         }
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
@@ -99,7 +99,7 @@ class AssignmentSubmissionForm
                                     $query->where('course_id', $assignment->course_id);
                                 }
                             }
-                            return $query->with(['studentUser', 'course']);
+                            return $query->latest('created_at')->with(['studentUser', 'course']);
                         }
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "Enrollment #{$record->id} — " . ($record->studentUser?->name ?? 'Student') . " (" . ($record->course?->title ?? 'Course') . ")")

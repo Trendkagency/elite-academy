@@ -64,6 +64,36 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('sync_and_export')
+                ->label(app()->getLocale() === 'ar' ? '💾 حفظ وتصدير لملفات النظام' : '💾 Sync & Export to Files')
+                ->color('success')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->action(function () {
+                    $manager = new TranslationManagerService(new MyMemoryTranslationService());
+                    $stats = $manager->exportToJsonFiles();
+
+                    Notification::make()
+                        ->title(__('Translations Synced & Exported Successfully!'))
+                        ->body("العربية: {$stats['ar_count']} مفتاح | English: {$stats['en_count']} keys")
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('import_system_keys')
+                ->label(app()->getLocale() === 'ar' ? '📥 استيراد مفاتيح النظام المفقودة' : '📥 Import Missing Keys')
+                ->color('primary')
+                ->icon(Heroicon::OutlinedFolderArrowDown)
+                ->action(function () {
+                    $manager = new TranslationManagerService(new MyMemoryTranslationService());
+                    $stats = $manager->importAllSystemKeys();
+
+                    Notification::make()
+                        ->title(__('System Keys Scanned & Imported!'))
+                        ->body("إجمالي المفاتيح: {$stats['total_keys']} | تم استيراد: {$stats['newly_imported']} | تم تحديث: {$stats['values_updated']}")
+                        ->success()
+                        ->send();
+                }),
+
             Action::make('translate_all')
                 ->label(app()->getLocale() === 'ar' ? '🤖 ترجمة الكل تلقائياً (Bulk Job)' : '🤖 Translate All (Bulk Job)')
                 ->color('warning')
@@ -101,6 +131,7 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
                 }),
         ];
     }
+
 
     public function table(Table $table): Table
     {

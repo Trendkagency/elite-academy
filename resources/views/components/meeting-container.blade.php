@@ -132,8 +132,9 @@
             <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <a id="btnExternalLaunch" href="#" target="_blank" rel="noopener noreferrer"
                     class="btn-lift px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 rounded-2xl font-heading font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center gap-2">
-                    <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> <span
-                        id="externalLaunchBtnText">{{ $isRtl ? 'انضم للبث عبر Google Meet <i class="fa-solid fa-rocket"></i>' : 'Join via Google Meet <i class="fa-solid fa-rocket"></i>' }}</span>
+                    <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span>
+                    <span id="externalLaunchBtnText">{{ $isRtl ? 'انضم للبث عبر Google Meet' : 'Join via Google Meet' }}</span>
+                    <i class="fa-solid fa-rocket"></i>
                 </a>
             </div>
         </div>
@@ -292,8 +293,8 @@
 
                         if (launchBtnText) {
                             launchBtnText.innerText = (provider === 'google_meet' || (streamUrl && streamUrl.includes('meet.google.com')))
-                                ? '{{ $isRtl ? "انضم للبث عبر Google Meet <i class='fa-solid fa-rocket'></i>" : "Join via Google Meet <i class='fa-solid fa-rocket'></i>" }}'
-                                : '{{ $isRtl ? "انضم للبث عبر Microsoft Teams <i class='fa-solid fa-rocket'></i>" : "Join via Microsoft Teams <i class='fa-solid fa-rocket'></i>" }}';
+                                ? '{{ $isRtl ? "انضم للبث عبر Google Meet" : "Join via Google Meet" }}'
+                                : '{{ $isRtl ? "انضم للبث عبر Microsoft Teams" : "Join via Microsoft Teams" }}';
                         }
 
                         if (launcher) launcher.classList.remove('hidden');

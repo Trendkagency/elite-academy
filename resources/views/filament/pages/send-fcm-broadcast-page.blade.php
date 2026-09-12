@@ -13,9 +13,15 @@
         <form wire:submit="sendBroadcast" class="space-y-6">
             {{ $this->form }}
 
-            <x-filament::button type="submit" size="lg" color="primary" icon="heroicon-o-paper-airplane" class="w-full sm:w-auto">
-                Dispatch FCM Push Broadcast Now
-            </x-filament::button>
+            <div class="flex flex-wrap items-center gap-3">
+                <x-filament::button type="submit" size="lg" color="primary" icon="heroicon-o-paper-airplane" class="w-full sm:w-auto">
+                    Dispatch FCM Push Broadcast Now
+                </x-filament::button>
+
+                <x-filament::button type="button" wire:click="sendTestPushToSelf" size="lg" color="gray" icon="heroicon-o-bolt" class="w-full sm:w-auto">
+                    ⚡ Send Test Push to My Account
+                </x-filament::button>
+            </div>
         </form>
     </div>
 </x-filament-panels::page>

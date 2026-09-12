@@ -103,4 +103,27 @@ class SendFcmBroadcastPage extends Page implements HasForms
             'action_url' => route('student-portal'),
         ]);
     }
+
+    public function sendTestPushToSelf(): void
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return;
+        }
+
+        $service = app(FcmNotificationService::class);
+        $service->sendNotification(
+            $user,
+            'TEST_NOTIFICATION',
+            '⚡ Live Real-Time Test Alert (From Admin Panel)',
+            'Real-time notifications are fully operational! If you have the portal or frontend open, this alert was delivered instantly with sound and toast.',
+            route('student-portal')
+        );
+
+        Notification::make()
+            ->title('Real-Time Test Alert Dispatched!')
+            ->body("Dispatched instant live test notification to your account ({$user->email}). Check your browser / portal tab.")
+            ->success()
+            ->send();
+    }
 }

@@ -68,6 +68,180 @@
             </div>
         @endif
 
+        <!-- Real-Time Notification Bell & Dropdown -->
+        <div class="relative" 
+             x-data="{
+                 open: false,
+                 unreadCount: 0,
+                 recent: [],
+                 init() {
+                     window.addEventListener('notifications-updated', (e) => {
+                         if (e.detail) {
+                             this.unreadCount = e.detail.unread_count || 0;
+                             if (e.detail.recent_notifications) {
+                                 this.recent = e.detail.recent_notifications;
+                             }
+                         }
+                     });
+                     window.addEventListener('new-notification-received', (e) => {
+                         if (e.detail) {
+                             this.unreadCount++;
+                             this.recent.unshift(e.detail);
+                             if (this.recent.length > 8) this.recent.pop();
+                         }
+                     });
+                 },
+                 markRead(item) {
+                     if (!item.is_read) {
+                         item.is_read = true;
+                         if (this.unreadCount > 0) this.unreadCount--;
+                         if (window.markNotificationAsRead) {
+                             window.markNotificationAsRead(item.id);
+                         }
+                     }
+                     if (item.action_url) {
+                         window.location.href = item.action_url;
+                     }
+                 },
+                 markAll() {
+                     this.unreadCount = 0;
+                     this.recent.forEach(n => n.is_read = true);
+                     if (window.markAllNotificationsAsRead) {
+                         window.markAllNotificationsAsRead();
+                     }
+                 }
+             }" 
+             @click.away="open = false">
+            
+            <button @click="open = !open; if(open && window.pollNotifications) window.pollNotifications(true);" 
+                    type="button" 
+                    class="relative p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs cursor-pointer"
+                    title="{{ __('Notifications') }}"
+                    aria-label="{{ __('Notifications') }}">
+                <i class="fa-solid fa-bell text-base"></i>
+                
+                {{-- Pulse Unread Badge --}}
+                <span x-show="unreadCount > 0" 
+                      x-transition
+                      x-cloak
+                      class="absolute -top-1 -end-1 min-w-[20px] h-5 px-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-mono font-extrabold text-[10px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-xs animate-pulse">
+                    <span x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
+                </span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="open" 
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 x-cloak
+                 style="display: none;"
+                 class="absolute {{ $isAr ? 'left-0 sm:-left-12' : 'right-0 sm:-right-12' }} mt-2 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden z-50">
+                
+                {{-- Header --}}
+                <div class="px-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
+                        <h3 class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white">
+                            {{ __('Notifications') }}
+                        </h3>
+                        <span x-show="unreadCount > 0" 
+                              class="text-[10px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/20"
+                              x-text="unreadCount + ' {{ __('unread') }}'">
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        {{-- ⚡ Instant Test Button --}}
+                        <button type="button" 
+                                onclick="window.triggerTestPush(this)"
+                                class="px-2.5 py-1 text-[11px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900/80 rounded-xl border border-teal-200 dark:border-teal-800 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                                title="{{ __('Test Real-Time Alert') }}">
+                            <i class="fa-solid fa-bolt text-amber-500"></i>
+                            <span class="hidden sm:inline">{{ __('Test Push') }}</span>
+                        </button>
+
+                        {{-- Mark All Read --}}
+                        <button x-show="unreadCount > 0"
+                                @click="markAll()" 
+                                type="button"
+                                class="px-2 py-1 text-[11px] font-mono font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+                                title="{{ __('Mark all as read') }}">
+                            <i class="fa-solid fa-check-double"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Notification List --}}
+                <div class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                    <template x-if="recent.length === 0">
+                        <div class="p-8 text-center space-y-2">
+                            <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-bell-slash"></i>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                {{ __('No notifications yet') }}
+                            </p>
+                            <p class="text-[11px] font-mono text-slate-400">
+                                {{ __('Click "Test Push" above to test live alerts!') }}
+                            </p>
+                        </div>
+                    </template>
+
+                    <template x-for="item in recent" :key="item.id">
+                        <div @click="markRead(item)"
+                             :class="{'bg-teal-50/40 dark:bg-teal-950/20': !item.is_read, 'hover:bg-slate-50 dark:hover:bg-slate-800/40': true}"
+                             class="p-3.5 transition-colors cursor-pointer flex items-start gap-3 relative group">
+                            
+                            {{-- Unread Dot --}}
+                            <span x-show="!item.is_read" 
+                                  class="absolute top-4 {{ $isAr ? 'left-3' : 'right-3' }} w-2 h-2 rounded-full bg-teal-500">
+                            </span>
+
+                            {{-- Type Icon --}}
+                            <div class="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center text-xs font-bold shadow-2xs"
+                                 :class="{
+                                     'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300': item.type === 'ASSIGNMENT_DEADLINE_REMINDER',
+                                     'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300': item.type === 'ADMIN_APPROVAL_ALERT',
+                                     'bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300': item.type !== 'ASSIGNMENT_DEADLINE_REMINDER' && item.type !== 'ADMIN_APPROVAL_ALERT'
+                                 }">
+                                <template x-if="item.type === 'ASSIGNMENT_DEADLINE_REMINDER'">
+                                    <i class="fa-solid fa-clock"></i>
+                                </template>
+                                <template x-if="item.type === 'ADMIN_APPROVAL_ALERT'">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </template>
+                                <template x-if="item.type !== 'ASSIGNMENT_DEADLINE_REMINDER' && item.type !== 'ADMIN_APPROVAL_ALERT'">
+                                    <i class="fa-solid fa-bell"></i>
+                                </template>
+                            </div>
+
+                            <div class="flex-1 min-w-0 {{ $isAr ? 'pl-3' : 'pr-3' }}">
+                                <div class="flex items-center justify-between gap-1 mb-0.5">
+                                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate" x-text="item.title"></h4>
+                                </div>
+                                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-2" x-text="item.body"></p>
+                                <span class="text-[10px] font-mono text-slate-400 mt-1 inline-block" x-text="item.created_at ? (new Date(item.created_at)).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '{{ __('Just now') }}'"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Footer Link --}}
+                <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 text-center">
+                    <a href="{{ route('student-portal') }}#notifications" 
+                       @click="open = false"
+                       class="text-xs font-mono font-bold text-teal-600 dark:text-teal-400 hover:underline inline-flex items-center gap-1">
+                        <span>{{ __('View all notifications') }}</span>
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Language Switcher -->
         <a href="{{ route('lang.switch', $otherLocale) }}" class="px-3 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs" title="Switch Language">
             <i class="fa-solid fa-globe"></i> {{ $isAr ? 'EN' : 'عربي' }}

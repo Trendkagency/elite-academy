@@ -113,6 +113,13 @@ class RegisterController extends Controller
             }
         }
 
+        // Notify admins about the new registration (isolated — never breaks registration on failure)
+        try {
+            app(\App\Services\Notification\FcmNotificationService::class)->notifyAdminNewRegistration($user);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminNewRegistration failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success'           => true,
             'message'           => __('app.auth.account_pending'),

@@ -33,7 +33,9 @@ class ExceptionRequest extends Model
         parent::boot();
 
         static::created(function (ExceptionRequest $request) {
-            app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherExceptionRequested($request);
+            $service = app(\App\Services\Notification\FcmNotificationService::class);
+            $service->notifyTeacherExceptionRequested($request);
+            try { $service->notifyAdminExceptionRequested($request); } catch (\Throwable $e) { \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminExceptionRequested failed: ' . $e->getMessage()); }
         });
 
         static::updated(function (ExceptionRequest $request) {

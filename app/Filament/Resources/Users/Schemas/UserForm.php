@@ -184,6 +184,16 @@ class UserForm
                             ->multiple()
                             ->searchable()
                             ->preload()
+                            ->options(function (): array {
+                                return User::whereHas('studentProfile')
+                                    ->latest('created_at')
+                                    ->limit(100)
+                                    ->get()
+                                    ->mapWithKeys(fn (User $user) => [
+                                        $user->id => $user->name . ($user->phone ? ' — ' . __('Phone') . ': ' . $user->phone : '') . ($user->email ? ' — ' . $user->email : ''),
+                                    ])
+                                    ->toArray();
+                            })
                             ->getSearchResultsUsing(function (string $search): array {
                                 return User::whereHas('studentProfile')
                                     ->where(function ($query) use ($search) {
@@ -191,6 +201,7 @@ class UserForm
                                               ->orWhere('phone', 'LIKE', "%{$search}%")
                                               ->orWhere('email', 'LIKE', "%{$search}%");
                                     })
+                                    ->latest('created_at')
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(fn (User $user) => [

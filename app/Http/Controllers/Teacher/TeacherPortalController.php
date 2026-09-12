@@ -107,7 +107,7 @@ class TeacherPortalController extends Controller
 
         $allAssignedUserIds = array_unique(array_merge($enrolledStudentUserIds, $directSessionStudentUserIds));
 
-        $assignedStudentsQuery = StudentProfile::query()->with(['user', 'gradeLevel']);
+        $assignedStudentsQuery = StudentProfile::query()->with(['user', 'gradeLevel'])->latest('created_at');
         if (! empty($allAssignedUserIds)) {
             $assignedStudentsQuery->whereIn('user_id', $allAssignedUserIds);
         }
@@ -848,6 +848,7 @@ class TeacherPortalController extends Controller
 
         $students = StudentProfile::whereIn('user_id', $studentUserIds)
             ->with(['user', 'gradeLevel'])
+            ->latest('created_at')
             ->get()
             ->map(function ($st) use ($existingRecords, $session) {
                 $status = $existingRecords[$st->user_id] ?? ($session->student_user_id === $st->user_id ? ($session->attendance_status ?: 'present') : 'present');

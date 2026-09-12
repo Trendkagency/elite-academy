@@ -37,7 +37,7 @@ class SubjectController extends Controller
                 });
             })
             ->with(['category', 'courses' => function ($q) {
-                $q->where('is_active', true)->with(['teacher.user', 'gradeLevel', 'sessions']);
+                $q->where('is_active', true)->with(['teacher.user', 'gradeLevel', 'sessions'])->latest('created_at');
             }])
             ->first();
 
