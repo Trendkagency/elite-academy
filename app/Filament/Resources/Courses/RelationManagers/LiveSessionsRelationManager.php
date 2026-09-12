@@ -49,11 +49,13 @@ class LiveSessionsRelationManager extends RelationManager
                     ->placeholder('https://meet.google.com/...'),
                 Select::make('meeting_platform')
                     ->options([
+                        'agora' => 'Agora Classroom',
                         'google_meet' => 'Google Meet',
                         'zoom' => 'Zoom Meeting',
                         'microsoft_teams' => 'Microsoft Teams',
+                        'other' => 'Other Platform',
                     ])
-                    ->default('google_meet'),
+                    ->default('agora'),
                 Select::make('status')
                     ->options([
                         'scheduled' => 'Scheduled (مجدولة)',

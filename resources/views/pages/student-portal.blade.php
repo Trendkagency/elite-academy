@@ -110,8 +110,7 @@
                     </div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
                         @if($hasActivePackage)
-                            {{ $package->remaining_sessions }}
-                            {{ app()->getLocale() === 'ar' ? 'حصص متبقية' : 'Sessions Remaining' }}
+                            {{ $package->remaining_sessions }} {{ app()->getLocale() === 'ar' ? 'حصص متبقية' : 'Sessions Remaining' }}
                         @else
                             <span
                                 class="text-rose-600 text-lg sm:text-xl font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد باقة نشطة (0 حصة)' : 'No Active Package (0 Credits)' }}</span>

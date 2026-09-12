@@ -33,7 +33,7 @@
 
             <div class="space-y-3">
                 <span class="px-4 py-1.5 rounded-full text-xs font-mono font-black bg-rose-100 text-rose-700 border border-rose-200 tracking-wider inline-block">
-                    HTTP 403 — {{ __('ACCESS FORBIDDEN') }}
+                    HTTP 403 — ACCESS FORBIDDEN
                 </span>
                 <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
                     {{ __('Access Forbidden') }}

@@ -32,14 +32,16 @@ Route::middleware(SetLocale::class)->group(function () {
     // 1. Static & Public Pages
     Route::get('/', [PageController::class, 'show'])->defaults('page', 'home')->name('home');
     Route::get('/about', [\App\Http\Controllers\Cms\AboutController::class, 'show'])->name('about');
-    // Public Catalog Pages (Open to All Users)
-    Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
-    Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
-    Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
-    Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
+    // Public Catalog Pages (Teachers automatically redirected to Teacher Portal)
+    Route::middleware([\App\Http\Middleware\RedirectTeacherToPortal::class])->group(function () {
+        Route::get('/subjects', [\App\Http\Controllers\Subject\SubjectController::class, 'index'])->name('subjects');
+        Route::get('/subject-details/{slug?}', [\App\Http\Controllers\Subject\SubjectController::class, 'show'])->name('subject-details');
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers');
+        Route::get('/teacher-profile/{slug?}', [TeacherController::class, 'show'])->name('teacher-profile');
 
-    Route::get('/courses', [CourseController::class, 'index'])->name('courses');
-    Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
+        Route::get('/courses', [CourseController::class, 'index'])->name('courses');
+        Route::get('/course-details/{slug?}', [CourseController::class, 'show'])->name('course-details');
+    });
 
     Route::redirect('/instructors', '/teachers');
     Route::get('/instructor-profile/{slug}', function (string $slug) {

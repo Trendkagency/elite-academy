@@ -68,6 +68,11 @@ class RecurringSchedule extends Model
         return $this->hasMany(LiveSession::class, 'recurring_schedule_id');
     }
 
+    public function liveSessions(): HasMany
+    {
+        return $this->hasMany(LiveSession::class, 'recurring_schedule_id');
+    }
+
     public function auditLogs(): HasMany
     {
         return $this->hasMany(SessionAuditLog::class, 'recurring_schedule_id');

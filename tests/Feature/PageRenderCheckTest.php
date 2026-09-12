@@ -131,6 +131,11 @@ class PageRenderCheckTest extends TestCase
         $studentUser = User::create(['name' => 'Student Phone Mask', 'email' => 'smask@student.com', 'phone' => '01099998888', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
         \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
 
+        $category = \App\Models\Category::firstOrCreate(['name' => 'General', 'slug' => 'gen']);
+        $subject = \App\Models\Subject::firstOrCreate(['name' => 'General', 'slug' => 'gen-sub', 'category_id' => $category->id]);
+        $course = \App\Models\Course::create(['subject_id' => $subject->id, 'teacher_id' => $teacherProfile->id, 'title' => 'Sample Track', 'slug' => 'sample-track', 'is_active' => true]);
+        \App\Models\CourseEnrollment::create(['course_id' => $course->id, 'student_user_id' => $studentUser->id]);
+
         $response = $this->actingAs($teacherUser)->getJson("/ajax/teacher/students/{$studentUser->id}/details");
         $response->assertStatus(200);
 

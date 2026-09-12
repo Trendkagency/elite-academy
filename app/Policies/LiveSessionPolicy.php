@@ -18,9 +18,9 @@ class LiveSessionPolicy
             return true;
         }
 
-        // Student assigned directly
-        if ($session->student_user_id && (int) $session->student_user_id === (int) $user->id) {
-            return true;
+        // If session is directly assigned to a specific student, enforce strict student identity
+        if ($session->student_user_id) {
+            return (int) $session->student_user_id === (int) $user->id;
         }
 
         // Student enrolled in the course
@@ -61,9 +61,9 @@ class LiveSessionPolicy
             return false;
         }
 
-        // Student assigned directly
-        if ($session->student_user_id && (int) $session->student_user_id === (int) $user->id) {
-            return true;
+        // If session is directly assigned to a specific student, enforce strict student identity
+        if ($session->student_user_id) {
+            return (int) $session->student_user_id === (int) $user->id;
         }
 
         // Student enrolled in the course

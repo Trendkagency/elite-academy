@@ -177,6 +177,8 @@
 
         {{-- Section 2: Selected Child Detailed Performance Panel --}}
         <div id="section-progress" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6 scroll-mt-28">
+            <div id="section-sessions" class="scroll-mt-28"></div>
+            <div id="section-reports" class="scroll-mt-28"></div>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                     <h3 id="selectedStudentName" class="font-heading font-black text-2xl text-slate-900">{{ __('Student Academic Overview') }}</h3>

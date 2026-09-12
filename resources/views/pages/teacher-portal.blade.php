@@ -2951,12 +2951,24 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             const data = await res.json();
 
+            if (res.status === 401) {
+                const sessionExpiredMsg = isArLocale ? 'انتهت الجلسة، يرجى إعادة تسجيل الدخول.' : 'Your session has expired. Please log in again.';
+                if (previewSummary) previewSummary.textContent = sessionExpiredMsg;
+                if (conflictBadge) {
+                    conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+                    conflictBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i> ${isArLocale ? 'جلسة منتهية' : 'Session Expired'}`;
+                }
+                showTeacherToast(sessionExpiredMsg, false);
+                setTimeout(() => window.location.href = '{{ route("login") }}', 1500);
+                return;
+            }
+
             if (!res.ok || !data.success) {
                 const errMsg = data.message || 'Validation failed';
                 if (previewSummary) previewSummary.textContent = errMsg;
                 if (conflictBadge) {
                     conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
-                    conflictBadge.textContent = '<i class="fa-solid fa-circle-xmark text-rose-500"></i> Error';
+                    conflictBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i> ${isArLocale ? 'خطأ' : 'Error'}`;
                 }
                 return;
             }
@@ -2969,12 +2981,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (data.has_conflicts) {
                 conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 animate-pulse';
-                conflictBadge.textContent = isArLocale ? '<i class="fa-solid fa-triangle-exclamation"></i> يوجد تعارض في المواعيد' : '<i class="fa-solid fa-triangle-exclamation"></i> Schedule Conflicts Detected';
+                conflictBadge.innerHTML = isArLocale ? '<i class="fa-solid fa-triangle-exclamation"></i> يوجد تعارض في المواعيد' : '<i class="fa-solid fa-triangle-exclamation"></i> Schedule Conflicts Detected';
                 conflictWarning.classList.remove('hidden');
                 conflictWarning.innerHTML = `<span><i class="fa-solid fa-triangle-exclamation"></i> ${isArLocale ? 'تنبيه: بعض الحصص المقترحة تتعارض مع حصص سابقة لنفس المعلم أو الطالب.' : 'Warning: Some proposed sessions conflict with existing schedules.'}</span>`;
             } else {
                 conflictBadge.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-                conflictBadge.textContent = isArLocale ? '<i class="fa-solid fa-check"></i> المواعيد متاحة بدون تعارض' : '<i class="fa-solid fa-check"></i> All Slots Available';
+                conflictBadge.innerHTML = isArLocale ? '<i class="fa-solid fa-check"></i> المواعيد متاحة بدون تعارض' : '<i class="fa-solid fa-check"></i> All Slots Available';
                 conflictWarning.classList.add('hidden');
             }
 
@@ -3039,6 +3051,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 });
+                if (res.status === 401) {
+                    showTeacherToast(isArLocale ? 'انتهت الجلسة، يرجى إعادة تسجيل الدخول.' : 'Your session has expired. Please log in again.', false);
+                    setTimeout(() => window.location.href = '{{ route("login") }}', 1500);
+                    return;
+                }
                 const data = await res.json();
                 if (data.success) {
                     showTeacherToast(data.message, true);

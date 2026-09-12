@@ -347,6 +347,7 @@ class TeacherPortalController extends Controller
             'course_id' => 'required|exists:courses,id',
             'scheduled_at' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
+            'meeting_platform' => 'nullable|string|max:50',
             'meeting_link' => 'nullable|url|max:500',
             'is_free_demo' => 'nullable|boolean',
         ]);
@@ -369,6 +370,7 @@ class TeacherPortalController extends Controller
             'start_at' => $scheduledAt,
             'end_at' => $endAt,
             'duration_minutes' => $duration,
+            'meeting_platform' => $validated['meeting_platform'] ?? 'agora',
             'meeting_link' => $validated['meeting_link'] ?? null,
             'status' => 'scheduled',
             'lifecycle_state' => 'scheduled',
@@ -1111,7 +1113,6 @@ class TeacherPortalController extends Controller
                 'student_code' => 'STU-' . str_pad((string) $studentUserId, 5, '0', STR_PAD_LEFT),
                 'name' => $studentProfile->user?->name ?: 'Student',
                 'email' => $studentProfile->user?->email ?: '',
-                'phone' => $studentProfile->user?->phone ?: '',
                 'school' => $studentProfile->school_name ?: 'Elite Academy',
                 'grade' => $studentProfile->gradeLevel?->name ?: 'Secondary Stage',
                 'avatar' => $studentProfile->avatar ?: null,
