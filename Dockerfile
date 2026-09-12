@@ -6,7 +6,7 @@
 
 FROM php:8.4-fpm-alpine
 
-# حزم النظام: nginx + supervisor + bash + curl + git + unzip + مكتبات الـ PHP extensions
+# حزم النظام الأساسية
 RUN apk add --no-cache \
         nginx \
         supervisor \
@@ -14,20 +14,12 @@ RUN apk add --no-cache \
         curl \
         git \
         unzip \
-        libzip \
-        libpng \
-        freetype \
-        libjpeg-turbo \
-        icu-libs \
-        oniguruma \
-        libzip-dev \
-        libpng-dev \
-        freetype-dev \
-        jpeg-dev \
-        icu-dev \
-        oniguruma-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+        icu-data-full
+
+# تثبيت PHP extensions بسرعة وبدون بطء أو استهلاك زائد للذاكرة
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+RUN install-php-extensions \
         pdo_mysql \
         zip \
         gd \
@@ -35,9 +27,7 @@ RUN apk add --no-cache \
         mbstring \
         bcmath \
         exif \
-    && docker-php-ext-enable opcache \
-    && apk del --no-cache \
-        libzip-dev libpng-dev freetype-dev jpeg-dev icu-dev oniguruma-dev
+        opcache
 
 # تثبيت Composer مباشرة من صورته الرسمية
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

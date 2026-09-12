@@ -22,4 +22,12 @@ yarn-error.log
 elite-academy-laravel-tmp
 /config/*.json
 /scratch/
-
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/framework/testing/.gitignore
+/storage/logs/*.log
