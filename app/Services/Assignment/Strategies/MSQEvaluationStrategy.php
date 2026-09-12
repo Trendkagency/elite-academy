@@ -157,6 +157,18 @@ class MSQEvaluationStrategy implements EvaluationStrategyInterface
                 );
             }
 
+            // If student passed and assignment is linked to a curriculum course session, unlock next session
+            if ($isPassed && $enrollment && $assignment->session) {
+                try {
+                    app(\App\Actions\Course\UnlockNextSessionAction::class)->execute(
+                        $enrollment,
+                        $assignment->session
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('[MSQEvaluation] Unlock next session exception: ' . $e->getMessage());
+                }
+            }
+
             return $submission;
         });
     }

@@ -95,6 +95,11 @@ class AssignmentSubmission extends Model
         return $this->belongsTo(CourseEnrollment::class, 'course_enrollment_id');
     }
 
+    public function courseEnrollment(): BelongsTo
+    {
+        return $this->enrollment();
+    }
+
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
@@ -107,6 +112,9 @@ class AssignmentSubmission extends Model
 
     public function isPassed(): bool
     {
-        return $this->percentage !== null && $this->passing_score !== null && $this->percentage >= $this->passing_score;
+        $effectiveScore = $this->percentage ?? $this->grade ?? $this->score;
+        $passing = $this->passing_score ?? $this->assignment?->passing_score ?? $this->assignment?->passing_grade ?? 70.0;
+
+        return $effectiveScore !== null && (float) $effectiveScore >= (float) $passing;
     }
 }

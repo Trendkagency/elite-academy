@@ -88,8 +88,8 @@
 
     {{-- Help Modal if Permission was Blocked in Browser Settings --}}
     <div id="fcm-blocked-modal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="relative bg-slate-900 text-white p-6 rounded-3xl max-w-md w-full border border-rose-500/30 shadow-2xl">
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog relative bg-slate-900 text-white p-6 rounded-[28px] max-w-md w-full border border-rose-500/30 shadow-2xl">
             <div class="flex items-center gap-3 text-rose-400 mb-3">
                 <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-lg">
                     <i class="fa-solid fa-bell-slash"></i>
@@ -113,7 +113,7 @@
                     <span>{{ __('Refresh the page to activate.') }}</span>
                 </div>
             </div>
-            <button type="button" onclick="document.getElementById('fcm-blocked-modal').classList.add('hidden')"
+            <button type="button" onclick="window.closeModal ? window.closeModal('fcm-blocked-modal') : document.getElementById('fcm-blocked-modal').classList.add('hidden')"
                 class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer">
                 {{ __('Understood') }}
             </button>
@@ -450,13 +450,15 @@
             };
 
             // Request Live Firebase Token
-            window.requestLiveFirebaseToken = async function () {
+            window.requestLiveFirebaseToken = async function (isUserInitiated = true) {
                 if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
-                    if (window.Toast) window.Toast.error(@json(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications'));
+                    if (isUserInitiated && window.Toast) {
+                        window.Toast.error(@json(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications'));
+                    }
                     return;
                 }
 
-                if (btnEnable) {
+                if (btnEnable && isUserInitiated) {
                     btnEnable.disabled = true;
                     const iconSpan = document.getElementById('btn-enable-icon');
                     const textSpan = document.getElementById('btn-enable-text');
@@ -465,11 +467,28 @@
                 }
 
                 try {
-                    const permission = await Notification.requestPermission();
+                    const permission = (isUserInitiated && Notification.permission !== 'granted')
+                        ? await Notification.requestPermission()
+                        : Notification.permission;
+
                     if (permission === 'granted') {
                         initFirebase();
                         if (messaging) {
-                            const reg = await navigator.serviceWorker.register('{{ url('/firebase-messaging-sw.js') }}', { scope: '/' });
+                            const appBasePath = (() => {
+                                const match = window.location.pathname.match(/^(\/[^\/]+\/public)/);
+                                return match ? (match[1] + '/') : '{{ rtrim(parse_url(url('/'), PHP_URL_PATH) ?: '/', '/') . '/' }}';
+                            })();
+                            const swUrl = (() => {
+                                const match = window.location.pathname.match(/^(\/[^\/]+\/public)/);
+                                return match ? (window.location.origin + match[1] + '/firebase-messaging-sw.js') : '{{ url('/firebase-messaging-sw.js') }}';
+                            })();
+                            let reg;
+                            try {
+                                reg = await navigator.serviceWorker.register(swUrl, { scope: appBasePath });
+                            } catch (scopeErr) {
+                                console.warn('[FCM] Scope register fallback to default:', scopeErr);
+                                reg = await navigator.serviceWorker.register(swUrl);
+                            }
                             await navigator.serviceWorker.ready;
 
                             const vapidKey = "{{ config('fcm.web_config.vapid_key') }}";
@@ -482,7 +501,7 @@
                                 hideModal();
                                 updateIndicatorState('granted');
 
-                                if (window.Toast) {
+                                if (isUserInitiated && window.Toast) {
                                     window.Toast.success(@json(app()->getLocale() === 'ar' ? 'تم تفعيل إشعارات المتصفح بنجاح! 🔔' : 'Push notifications enabled successfully! 🔔'));
                                 }
                             }
@@ -490,15 +509,17 @@
                     } else if (permission === 'denied') {
                         hideModal();
                         updateIndicatorState('denied');
-                        if (window.Toast) {
+                        if (isUserInitiated && window.Toast) {
                             window.Toast.warning(@json(app()->getLocale() === 'ar' ? 'تم حظر الإشعارات في المتصفح' : 'Notifications were blocked in your browser'));
                         }
                     } else {
                         hideModal();
                     }
                 } catch (err) {
-                    console.error('[FCM] Permission/Token error:', err);
-                    if (window.Toast) window.Toast.error(err ? err.message : 'Error enabling notifications');
+                    console.warn('[FCM] Permission/Token error:', err);
+                    if (isUserInitiated && window.Toast) {
+                        window.Toast.error(err ? err.message : 'Error enabling notifications');
+                    }
                 } finally {
                     if (btnEnable) {
                         btnEnable.disabled = false;
@@ -560,14 +581,16 @@
                         }
                     } else if (Notification.permission === 'granted') {
                         if (!savedToken && messaging) {
-                            window.requestLiveFirebaseToken();
+                            window.requestLiveFirebaseToken(false);
                         }
                     }
                 }
 
                 // Button Event Listeners
                 if (btnEnable) {
-                    btnEnable.addEventListener('click', window.requestLiveFirebaseToken);
+                    btnEnable.addEventListener('click', function () {
+                        window.requestLiveFirebaseToken(true);
+                    });
                 }
 
                 if (btnDismiss) {

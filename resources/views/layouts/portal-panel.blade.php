@@ -65,6 +65,46 @@
             transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
         }
 
+        /* ─── Elite Responsive Modal System ─── */
+        .elite-modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.24s ease;
+        }
+        .elite-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .elite-modal.hidden {
+            display: none !important;
+        }
+        .elite-modal-dialog {
+            transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease;
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+        .elite-modal.active .elite-modal-dialog {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Sleek custom scrollbars for modals and panels */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(13, 148, 136, 0.7);
+        }
+
         /* ─── Global Top-Center Toast Notification System ─── */
         #toast-container {
             position: fixed;
@@ -409,6 +449,73 @@
                 }
             } catch(e) {}
         })();
+
+        // ─── Universal High-Performance Modal System ───
+        window.openModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) return;
+
+            // Ensure backdrop transition class
+            modal.classList.add('elite-modal');
+            const dialog = modal.querySelector('.elite-modal-dialog') || modal.firstElementChild;
+            if (dialog && !dialog.classList.contains('elite-modal-dialog')) {
+                dialog.classList.add('elite-modal-dialog');
+            }
+
+            modal.classList.remove('hidden');
+            // Trigger reflow for CSS transition
+            void modal.offsetWidth;
+            modal.classList.add('active');
+
+            // Scroll lock on background
+            document.body.classList.add('overflow-hidden');
+
+            // Focus management
+            const focusTarget = modal.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([aria-label="Close"])');
+            if (focusTarget) {
+                setTimeout(() => focusTarget.focus(), 60);
+            }
+        };
+
+        window.closeModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) return;
+
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // Check if any modal remains open
+                const remaining = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
+                if (remaining.length === 0) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }, 200);
+        };
+
+        // Universal Backdrop Click & ESC Key Handling
+        document.addEventListener('DOMContentLoaded', function () {
+            // Backdrop click closes modal
+            document.addEventListener('click', function (e) {
+                const openModalEl = e.target.closest('.elite-modal, [id$="Modal"]');
+                if (openModalEl && !openModalEl.classList.contains('hidden')) {
+                    const dialog = openModalEl.querySelector('.elite-modal-dialog') || openModalEl.firstElementChild;
+                    if (dialog && !dialog.contains(e.target)) {
+                        window.closeModal(openModalEl.id);
+                    }
+                }
+            });
+
+            // ESC key closes topmost open modal
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    const openModals = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
+                    if (openModals.length > 0) {
+                        const topModal = openModals[openModals.length - 1];
+                        window.closeModal(topModal.id);
+                    }
+                }
+            });
+        });
     </script>
 
     <script src="{{ asset('js/toast.js') }}"></script>

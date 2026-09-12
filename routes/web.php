@@ -128,6 +128,7 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::post('/ajax/teacher/sessions/{id}/cancel', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'cancelSession'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.cancel');
             Route::get('/ajax/teacher/calendar-feed', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getCalendarEvents'])->name('ajax.teacher.calendar.feed');
             Route::post('/ajax/teacher/assignments/create', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'createAssignment'])->middleware('throttle:strict_actions')->name('ajax.teacher.assignments.create');
+            Route::get('/ajax/teacher/assignments/{id}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getAssignmentDetails'])->name('ajax.teacher.assignments.details');
             Route::get('/ajax/teacher/submissions/{submissionId}/review-details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSubmissionReview'])->name('ajax.teacher.submissions.review-details');
             Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->middleware('throttle:strict_actions')->name('ajax.teacher.submissions.review');
             Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->middleware('throttle:strict_actions')->name('ajax.teacher.attendance.mark');
@@ -220,6 +221,7 @@ JS;
         return response($swContent, 200, [
             'Content-Type' => 'application/javascript; charset=utf-8',
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Service-Worker-Allowed' => '/',
         ]);
     });
 });

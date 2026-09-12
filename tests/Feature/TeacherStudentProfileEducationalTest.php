@@ -345,4 +345,62 @@ class TeacherStudentProfileEducationalTest extends TestCase
             'type' => 'TEACHER_NOTE_ADDED',
         ]);
     }
+
+    public function test_teacher_can_fetch_assignment_details(): void
+    {
+        $assignment = Assignment::create([
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'title' => 'Quantum Mechanics Homework 1',
+            'description' => 'Solve problems 1-5',
+            'passing_score' => 75,
+            'duration_minutes' => 45,
+            'status' => 'published',
+            'due_at' => now()->addDays(5),
+        ]);
+
+        $submission = AssignmentSubmission::create([
+            'assignment_id' => $assignment->id,
+            'student_user_id' => $this->assignedStudentUser->id,
+            'score' => 85,
+            'status' => 'reviewed',
+            'submitted_at' => now()->subDay(),
+        ]);
+
+        $response = $this->actingAs($this->teacherUser)
+            ->getJson("/ajax/teacher/assignments/{$assignment->id}/details");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'assignment' => [
+                    'id' => $assignment->id,
+                    'title' => 'Quantum Mechanics Homework 1',
+                ],
+                'stats' => [
+                    'total_submissions' => 1,
+                    'graded_submissions' => 1,
+                    'pass_rate' => 100,
+                ],
+            ])
+            ->assertJsonPath('submissions.0.id', $submission->id)
+            ->assertJsonPath('submissions.0.student_name', 'Student Marie Curie')
+            ->assertJsonPath('submissions.0.score', 85);
+    }
+
+    public function test_teacher_cannot_fetch_other_teacher_assignment_details(): void
+    {
+        $otherAssignment = Assignment::create([
+            'teacher_profile_id' => $this->teacherProfile2->id,
+            'title' => 'Relativity Homework',
+            'status' => 'published',
+            'due_at' => now()->addDays(5),
+        ]);
+
+        $response = $this->actingAs($this->teacherUser)
+            ->getJson("/ajax/teacher/assignments/{$otherAssignment->id}/details");
+
+        $response->assertStatus(403)
+            ->assertJson(['success' => false]);
+    }
 }

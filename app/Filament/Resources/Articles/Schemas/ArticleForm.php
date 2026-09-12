@@ -52,7 +52,7 @@ class ArticleForm
                     })
                     ->required(),
                 Select::make('author_user_id')
-                    ->relationship('authorUser', 'name', modifyQueryUsing: fn ($q) => $q->latest('created_at'))
+                    ->relationship('authorUser', 'name', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->latest('created_at'))
                     ->label(__('Author')),
                 Textarea::make('excerpt')
                     ->label(__('Excerpt'))

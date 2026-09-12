@@ -15,16 +15,35 @@ class GradeSubmissionAction
     public function execute(AssignmentSubmission $submission, int $grade, ?string $feedback = null): AssignmentSubmission
     {
         $assignment = $submission->assignment;
-        $passingGrade = $assignment->passing_grade ?? 50;
-        $passed = $grade >= $passingGrade;
+        $passingGrade = (float) ($assignment->passing_score ?? $assignment->passing_grade ?? 70.0);
+        $passed = (float) $grade >= $passingGrade;
         $status = $passed ? SubmissionStatus::COMPLETED->value : SubmissionStatus::PENDING->value;
 
         $submission->update([
             'grade' => $grade,
+            'score' => $grade,
+            'percentage' => $grade,
+            'passing_score' => $passingGrade,
             'status' => $status,
             'teacher_notes' => $feedback,
+            'evaluation_notes' => $feedback,
             'reviewed_at' => now(),
         ]);
+
+        if ($assignment->live_session_id) {
+            \App\Models\StudentSession::updateOrCreate(
+                [
+                    'student_user_id' => $submission->student_user_id,
+                    'live_session_id' => $assignment->live_session_id,
+                ],
+                [
+                    'assignment_status' => $passed ? 'passed' : 'failed',
+                    'assignment_score' => $grade,
+                    'session_status' => $passed ? 'completed' : 'active',
+                    'completed_at' => $passed ? now() : null,
+                ]
+            );
+        }
 
         if ($passed && $submission->enrollment && $assignment->session) {
             $this->unlockNextSessionAction->execute(

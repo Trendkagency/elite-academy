@@ -640,7 +640,10 @@
                             $subCount = $assignment->submissions->count();
                             $subLabel = $isAr ? ($subCount == 1 ? 'تسليم' : ($subCount == 2 ? 'تسليمان' : ($subCount <= 10 ? 'تسليمات' : 'تسليم'))) : ($subCount == 1 ? 'Submission' : 'Submissions');
                         @endphp
-                        <div class="bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 space-y-3 flex flex-col justify-between hover:border-teal-400 hover:bg-white transition-all group shadow-xs">
+                        <div 
+                            onclick="openAssignmentDetailsModal({{ $assignment->id }})"
+                            class="bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 space-y-3 flex flex-col justify-between hover:border-teal-400 hover:bg-white hover:shadow-lg transition-all group shadow-xs cursor-pointer"
+                        >
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-3 text-xs">
                                     <span class="font-mono font-bold text-teal-700 uppercase truncate flex-1 min-w-0">{{ $assignment->course?->title ?: __('Course') }}</span>
@@ -654,6 +657,14 @@
                             <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-mono text-slate-500">
                                 <span class="truncate"><i class="fa-solid fa-calendar-days"></i> {{ __('Due') }}: {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
                                 <span class="font-extrabold text-slate-800 shrink-0 ms-2 bg-slate-100 px-2 py-0.5 rounded-lg"><i class="fa-solid fa-bullseye"></i> {{ $assignment->passing_score ?: 70 }}% {{ __('Pass') }}</span>
+                            </div>
+                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                                <span class="text-teal-600 font-bold group-hover:underline flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-info"></i> {{ __('View Details & Questions') }} &rarr;
+                                </span>
+                                @if($subCount > 0)
+                                    <span class="text-emerald-600 font-bold font-mono text-[11px]"><i class="fa-solid fa-users"></i> {{ $subCount }} {{ $subLabel }}</span>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -797,8 +808,8 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL: COMPREHENSIVE STUDENT EDUCATIONAL PROFILE (8 TABS)                    --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="studentProfileModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden relative">
+<div id="studentProfileModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 max-h-[92vh] sm:max-h-[88vh] flex flex-col overflow-hidden relative">
         
         {{-- Modal Top Bar / Header --}}
         <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 to-teal-950 text-white flex items-start justify-between gap-4 shrink-0">
@@ -1010,11 +1021,14 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL: ADD EDUCATIONAL NOTE FOR STUDENT                                      --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="addNoteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-60 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 relative">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.teacher.add_educational_note') }}</h3>
-            <button type="button" onclick="closeModal('addNoteModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+<div id="addNoteModal" class="elite-modal fixed inset-0 z-60 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-4 relative">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
+            <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-pen-nib"></i></span>
+                <span>{{ __('app.teacher.add_educational_note') }}</span>
+            </h3>
+            <button type="button" onclick="closeModal('addNoteModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="addNoteForm" class="space-y-4">
@@ -1056,11 +1070,14 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 1: SCHEDULE NEW SESSION                                                --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="createSessionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative">
+<div id="createSessionModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200/90 space-y-6 relative max-h-[90vh] sm:max-h-[85vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Schedule New Live Session') }}</h3>
-            <button type="button" onclick="closeModal('createSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-calendar-plus"></i></span>
+                <span>{{ __('Schedule New Live Session') }}</span>
+            </h3>
+            <button type="button" onclick="closeModal('createSessionModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="createSessionForm" action="{{ route('ajax.teacher.sessions.create') }}" method="POST" class="space-y-4">
@@ -1113,16 +1130,17 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 1B: CREATE RECURRING SCHEDULE (WEEKLY / MONTHLY / YEARLY)               --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="recurringScheduleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+<div id="recurringScheduleModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200/90 space-y-6 relative max-h-[90vh] sm:max-h-[85vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                    <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Create Recurring Schedule') }}
+                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-arrows-rotate"></i></span>
+                    <span>{{ __('Create Recurring Schedule') }}</span>
                 </h3>
                 <p class="text-xs font-mono text-slate-500 mt-0.5">{{ __('Automatically generate recurring class sessions with conflict detection.') }}</p>
             </div>
-            <button type="button" onclick="closeModal('recurringScheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal('recurringScheduleModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="recurringScheduleForm" class="space-y-4">
@@ -1254,11 +1272,14 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 1C: EDIT SESSION / OVERRIDE SCOPE SELECTOR                              --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="editSessionOverrideModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative">
+<div id="editSessionOverrideModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200/90 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Edit Session & Recurrence Scope') }}</h3>
-            <button type="button" onclick="closeModal('editSessionOverrideModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-sliders"></i></span>
+                <span>{{ __('Edit Session & Recurrence Scope') }}</span>
+            </h3>
+            <button type="button" onclick="closeModal('editSessionOverrideModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="editSessionOverrideForm" class="space-y-4">
@@ -1334,13 +1355,13 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 1D: CANCEL SESSION MODAL                                                --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="cancelSessionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 relative">
+<div id="cancelSessionModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-5 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="font-heading font-black text-xl text-rose-600 flex items-center gap-2">
                 <span><i class="fa-solid fa-circle-xmark text-rose-500"></i></span> {{ __('Cancel Session') }}
             </h3>
-            <button type="button" onclick="closeModal('cancelSessionModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal('cancelSessionModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="cancelSessionForm" class="space-y-4">
@@ -1368,11 +1389,14 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 2: MEETING LINK EDITOR                                                 --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="meetingLinkModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-6 relative">
+<div id="meetingLinkModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Update Live Stream Link') }}</h3>
-            <button type="button" onclick="closeModal('meetingLinkModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-video"></i></span>
+                <span>{{ __('Update Live Stream Link') }}</span>
+            </h3>
+            <button type="button" onclick="closeModal('meetingLinkModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="meetingLinkForm" method="POST" class="space-y-4">
@@ -1396,11 +1420,14 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 3: RESCHEDULE SESSION                                                  --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="rescheduleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-6 relative">
+<div id="rescheduleModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-6 relative">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Reschedule Teaching Session') }}</h3>
-            <button type="button" onclick="closeModal('rescheduleModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-calendar-days"></i></span>
+                <span>{{ __('Reschedule Teaching Session') }}</span>
+            </h3>
+            <button type="button" onclick="closeModal('rescheduleModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="rescheduleForm" method="POST" class="space-y-4">
@@ -1428,14 +1455,17 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 4: PUBLISH ASSIGNMENT                                                  --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="createAssignmentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+<div id="createAssignmentModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200/90 space-y-6 relative max-h-[90vh] sm:max-h-[85vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-                <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Publish New Assignment & Quiz') }}</h3>
+                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-file-signature"></i></span>
+                    <span>{{ __('Publish New Assignment & Quiz') }}</span>
+                </h3>
                 <p class="text-xs text-slate-500 font-mono mt-0.5">{{ __('Create homework assignments or interactive MSQ quizzes for your students.') }}</p>
             </div>
-            <button type="button" onclick="closeModal('createAssignmentModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal('createAssignmentModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         <form id="createAssignmentForm" action="{{ route('ajax.teacher.assignments.create') }}" method="POST" class="space-y-5">
@@ -1513,16 +1543,123 @@
 </div>
 
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
+{{-- MODAL 4B: ASSIGNMENT DETAILS, QUIZ QUESTIONS & SUBMISSIONS ROSTER             --}}
+{{-- ════════════════════════════════════════════════════════════════════════════ --}}
+<div id="assignmentDetailsModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 relative max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
+        {{-- Modal Top Header --}}
+        <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white flex items-start justify-between gap-4 shrink-0 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="space-y-1.5 min-w-0 flex-1 z-10">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="adModalCourse" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/40"></span>
+                    <span id="adModalSubject" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white/10 text-slate-200"></span>
+                    <span id="adModalStatus" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"></span>
+                </div>
+                <h3 id="adModalTitle" class="font-heading font-black text-xl sm:text-2xl text-white leading-snug"></h3>
+                <p id="adModalDescription" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
+            <button type="button" onclick="closeModal('assignmentDetailsModal')" aria-label="{{ __('Close') }}" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
+                <i class="fa-solid fa-xmark text-sm"></i>
+        </div>
+
+        {{-- Modal Scrollable Body --}}
+        <div class="p-5 sm:p-7 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+            {{-- Loading Skeleton --}}
+            <div id="adLoadingSkeleton" class="py-12 text-center space-y-3">
+                <div class="inline-block w-8 h-8 border-3 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs font-mono text-slate-400">{{ __('Loading assignment details...') }}</p>
+            </div>
+
+            {{-- Dynamic Content --}}
+            <div id="adModalContent" class="hidden space-y-6">
+                {{-- KPI Stats Grid --}}
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <span class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Due Date') }}</span>
+                        <span id="adDueAt" class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
+                        <span id="adDueHuman" class="text-[10px] font-mono text-teal-600 block mt-0.5"></span>
+                    </div>
+                    <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <span class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Passing Score') }}</span>
+                        <span id="adPassScore" class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
+                        <span class="text-[10px] font-mono text-slate-400 block mt-0.5">{{ __('Minimum to pass') }}</span>
+                    </div>
+                    <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <span class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Total Questions') }}</span>
+                        <span id="adQuestionsCount" class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
+                        <span id="adDuration" class="text-[10px] font-mono text-slate-400 block mt-0.5"></span>
+                    </div>
+                    <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <span class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Total Submissions') }}</span>
+                        <span id="adSubmissionsCount" class="font-heading font-black text-xs sm:text-sm text-emerald-600 block mt-0.5"></span>
+                        <span id="adAvgScore" class="text-[10px] font-mono text-slate-400 block mt-0.5"></span>
+                    </div>
+                </div>
+
+            {{-- Subtabs Selector --}}
+            <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                <button type="button" onclick="switchAdSubTab('questions')" id="ad-tab-btn-questions" class="ad-subtab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-teal-600 text-white shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-list-check me-1"></i> {{ __('Quiz Questions') }} (<span id="adQuestionsBadge">0</span>)
+                </button>
+                <button type="button" onclick="switchAdSubTab('submissions')" id="ad-tab-btn-submissions" class="ad-subtab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:bg-slate-100 cursor-pointer">
+                    <i class="fa-solid fa-user-graduate me-1"></i> {{ __('Student Submissions') }} (<span id="adSubmissionsBadge">0</span>)
+                </button>
+            </div>
+
+            {{-- Tab Pane 1: Questions & Answers Key --}}
+            <div id="ad-pane-questions" class="ad-pane space-y-4">
+                <div id="adQuestionsList" class="space-y-4"></div>
+                <div id="adNoQuestionsNotice" class="hidden text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-500 italic">{{ __('No multiple-choice questions attached to this assignment.') }}</p>
+                </div>
+            </div>
+
+            {{-- Tab Pane 2: Student Submissions Roster --}}
+            <div id="ad-pane-submissions" class="ad-pane hidden space-y-4">
+                <div id="adSubmissionsTableContainer" class="overflow-x-auto">
+                    <table class="w-full text-left rtl:text-right border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
+                                <th class="py-2.5 px-3">{{ __('Student') }}</th>
+                                <th class="py-2.5 px-3">{{ __('Submitted At') }}</th>
+                                <th class="py-2.5 px-3">{{ __('Grade / Score') }}</th>
+                                <th class="py-2.5 px-3">{{ __('Status') }}</th>
+                                <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Review Action') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adSubmissionsTableBody" class="divide-y divide-slate-100 font-mono"></tbody>
+                    </table>
+                </div>
+                <div id="adNoSubmissionsNotice" class="hidden text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-500 italic">{{ __('No student submissions recorded for this assignment yet.') }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal Footer --}}
+        <div class="p-4 sm:p-5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end shrink-0 rounded-b-[28px]">
+            <button type="button" onclick="closeModal('assignmentDetailsModal')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer">
+                {{ __('Close') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 5: GRADE ASSIGNMENT SUBMISSION & QUESTION REVIEW                       --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="gradeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+<div id="gradeModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-200/90 space-y-6 relative max-h-[90vh] sm:max-h-[85vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-                <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Review & Grade Submission') }}</h3>
+                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i class="fa-solid fa-award"></i></span>
+                    <span>{{ __('Review & Grade Submission') }}</span>
+                </h3>
                 <p id="gradeStudentName" class="text-xs text-teal-600 font-mono font-bold mt-0.5"></p>
             </div>
-            <button type="button" onclick="closeModal('gradeModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal('gradeModal')" aria-label="{{ __('Close') }}" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
 
         {{-- Question By Question Auto-Correction Breakdown --}}
@@ -1562,44 +1699,62 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 {{-- MODAL 6: MARK SESSION ATTENDANCE (REAL-TIME COURSE COHORT)                   --}}
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-<div id="attendanceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 relative max-h-[90vh] flex flex-col overflow-hidden">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
-            <div class="min-w-0 space-y-0.5">
-                <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Record Session Attendance') }}</h3>
-                <p id="attendanceSessionTitle" class="text-xs text-teal-600 font-mono font-bold truncate"></p>
+<div id="attendanceModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] max-w-xl w-full shadow-2xl border border-slate-200/90 relative max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
+        {{-- Header --}}
+        <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex items-center gap-3.5 min-w-0 z-10">
+                <div class="w-11 h-11 rounded-2xl bg-teal-500/20 border border-teal-400/30 text-teal-300 flex items-center justify-center shrink-0 shadow-sm text-lg">
+                    <i class="fa-solid fa-clipboard-user"></i>
+                </div>
+                <div class="min-w-0 space-y-1">
+                    <h3 class="font-heading font-black text-lg sm:text-xl text-white tracking-tight leading-snug">
+                        {{ __('Record Session Attendance') }}
+                    </h3>
+                    <p id="attendanceSessionTitle" class="text-xs text-teal-300/90 font-mono font-bold truncate max-w-md"></p>
+                </div>
             </div>
-            <button type="button" onclick="closeModal('attendanceModal')" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal('attendanceModal')" aria-label="{{ __('Close') }}" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
         </div>
 
-        {{-- Quick Bulk Actions & Cohort Header --}}
-        <div class="flex items-center justify-between gap-2 shrink-0">
-            <label class="block text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                {{ __('COHORT STUDENT CHECK-IN') }} (<span id="attendanceCohortCount">0</span>)
-            </label>
-            <div class="flex items-center gap-1.5">
-                <button type="button" onclick="bulkSetAttendance('present')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-lg border border-emerald-200 transition-colors cursor-pointer">
-                    <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> {{ __('All Present') }}
+        {{-- Sub-header with Bulk Controls --}}
+        <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">{{ __('COHORT CHECK-IN') }}</span>
+                <span id="attendanceCohortCount" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-black bg-teal-50 text-teal-700 border border-teal-200">0</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="bulkSetAttendance('present')" class="btn-lift px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+                    <span>{{ __('All Present') }}</span>
                 </button>
-                <button type="button" onclick="bulkSetAttendance('absent')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-800 text-[11px] font-bold rounded-lg border border-rose-200 transition-colors cursor-pointer">
-                    <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> {{ __('All Absent') }}
+                <button type="button" onclick="bulkSetAttendance('absent')" class="btn-lift px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold rounded-xl border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                    <i class="fa-solid fa-circle-xmark text-rose-600 text-xs"></i>
+                    <span>{{ __('All Absent') }}</span>
                 </button>
             </div>
         </div>
 
-        <form id="attendanceForm" method="POST" class="space-y-4 flex-1 flex flex-col overflow-hidden">
+        <form id="attendanceForm" method="POST" class="flex-1 flex flex-col overflow-hidden m-0">
             @csrf
             <input type="hidden" id="attendanceSessionId">
 
             {{-- Dynamic Scrollable Students Container --}}
-            <div id="attendanceStudentsContainer" class="divide-y divide-slate-100 overflow-y-auto flex-1 p-1 scrollbar-thin">
+            <div id="attendanceStudentsContainer" class="divide-y divide-slate-100 overflow-y-auto flex-1 p-4 sm:p-6 space-y-1 custom-scrollbar">
                 {{-- Populated dynamically in real-time via AJAX --}}
             </div>
 
-            <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 shrink-0">
-                <button type="button" onclick="closeModal('attendanceModal')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
-                <button type="submit" id="saveAttendanceBtn" class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
-                    <span>→</span> {{ __('Save Attendance Sheet') }}
+            {{-- Sticky Action Footer --}}
+            <div class="p-4 sm:p-5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[28px]">
+                <button type="button" onclick="closeModal('attendanceModal')" class="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-xl transition-all cursor-pointer">
+                    {{ __('Cancel') }}
+                </button>
+                <button type="submit" id="saveAttendanceBtn" class="btn-lift px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-teal-600/25 cursor-pointer flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{ __('Save Attendance Sheet') }}</span>
                 </button>
             </div>
         </form>
@@ -1608,6 +1763,27 @@
 
 <script>
 const isArLocale = @json(app()->getLocale() === 'ar');
+const appBaseUrl = (() => {
+    // 1. If currently at /teacher-portal, anything preceding /teacher-portal is the application base path
+    const tpIdx = window.location.pathname.indexOf('/teacher-portal');
+    if (tpIdx !== -1) {
+        return window.location.origin + window.location.pathname.substring(0, tpIdx);
+    }
+    // 2. If pathname contains /public
+    const match = window.location.pathname.match(/^(.*?\/public)/);
+    if (match) {
+        return window.location.origin + match[1];
+    }
+    // 3. Fallback to Laravel rendered base path
+    const serverUrl = @json(rtrim(url('/'), '/'));
+    if (serverUrl && serverUrl.startsWith('http')) {
+        try {
+            const p = new URL(serverUrl);
+            return window.location.origin + p.pathname.replace(/\/+$/, '');
+        } catch (e) {}
+    }
+    return window.location.origin;
+})();
 
 // Global i18n Dictionary for Dynamic JS Elements
 const i18n = {
@@ -1699,16 +1875,25 @@ async function openStudentDetailsModal(studentUserId) {
     switchSpTab('overview');
 
     try {
-        const res = await fetch(`/ajax/teacher/students/${studentUserId}/details`, {
+        const res = await fetch(`${appBaseUrl}/ajax/teacher/students/${studentUserId}/details`, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        const data = await res.json();
 
-        if (!data.success) {
-            showTeacherToast(data.message || 'Unauthorized access', false);
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (e) {
+            data = { success: false, message: 'Server error' };
+        }
+
+        if (!res.ok || !data.success) {
+            const errorMsg = data.message || (res.status === 403 
+                ? '{{ __("Unauthorized: You do not have permission to access this student educational profile.") }}'
+                : '{{ __("Failed to load student details.") }}');
+            showTeacherToast(errorMsg, false);
             closeModal('studentProfileModal');
             return;
         }
@@ -2002,13 +2187,21 @@ function resetStudentFilters() {
 
 // ── Open Modals & Action Helpers ─────────────────────────────────────────────
 function openModal(id) {
-    const m = document.getElementById(id);
-    if (m) m.classList.remove('hidden');
+    if (window.openModal) {
+        window.openModal(id);
+    } else {
+        const m = document.getElementById(id);
+        if (m) m.classList.remove('hidden');
+    }
 }
 
 function closeModal(id) {
-    const m = document.getElementById(id);
-    if (m) m.classList.add('hidden');
+    if (window.closeModal) {
+        window.closeModal(id);
+    } else {
+        const m = document.getElementById(id);
+        if (m) m.classList.add('hidden');
+    }
 }
 
 function openCreateSessionModal() {
@@ -2019,33 +2212,226 @@ function openCreateAssignmentModal() {
     openModal('createAssignmentModal');
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeJs(str) {
+    if (!str) return '';
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+async function openAssignmentDetailsModal(assignmentId) {
+    openModal('assignmentDetailsModal');
+
+    document.getElementById('adLoadingSkeleton').classList.remove('hidden');
+    document.getElementById('adModalContent').classList.add('hidden');
+    switchAdSubTab('questions');
+
+    try {
+        const res = await fetch(`${appBaseUrl}/ajax/teacher/assignments/${assignmentId}/details`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (e) {
+            data = { success: false };
+        }
+
+        if (!res.ok || !data.success) {
+            showTeacherToast(data.message || '{{ __("Failed to load assignment details.") }}', false);
+            closeModal('assignmentDetailsModal');
+            return;
+        }
+
+        const a = data.assignment;
+        const stats = data.stats || {};
+
+        document.getElementById('adModalCourse').textContent = a.course_title;
+        document.getElementById('adModalSubject').textContent = a.subject_name || '';
+        document.getElementById('adModalStatus').textContent = (a.status || 'published').toUpperCase();
+        document.getElementById('adModalTitle').textContent = a.title;
+        document.getElementById('adModalDescription').textContent = a.description || '{{ __("No instructions provided.") }}';
+
+        document.getElementById('adDueAt').textContent = a.due_at || '{{ __("No deadline") }}';
+        document.getElementById('adDueHuman').textContent = a.due_at_human || '';
+        document.getElementById('adPassScore').textContent = a.passing_score + '%';
+        document.getElementById('adQuestionsCount').textContent = a.total_questions || 0;
+        document.getElementById('adDuration').textContent = a.duration_minutes ? a.duration_minutes + ' {{ __("min") }}' : '';
+        document.getElementById('adSubmissionsCount').textContent = stats.total_submissions || 0;
+        document.getElementById('adAvgScore').textContent = stats.avg_score !== null ? '{{ __("Avg") }}: ' + stats.avg_score + '%' : '';
+
+        document.getElementById('adQuestionsBadge').textContent = (data.questions || []).length;
+        document.getElementById('adSubmissionsBadge').textContent = (data.submissions || []).length;
+
+        // Render Questions
+        const qContainer = document.getElementById('adQuestionsList');
+        const noQNotice = document.getElementById('adNoQuestionsNotice');
+        if (data.questions && data.questions.length > 0) {
+            noQNotice.classList.add('hidden');
+            let qHtml = '';
+            data.questions.forEach((q, idx) => {
+                let optsHtml = '';
+                (q.options || []).forEach(opt => {
+                    const isCorrect = opt.is_correct;
+                    optsHtml += `
+                        <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold shadow-2xs' : 'bg-white border-slate-200 text-slate-700'} flex items-start justify-between gap-2 text-xs">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-5 h-5 rounded-lg ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center shrink-0 text-[10px]">
+                                    ${isCorrect ? '<i class="fa-solid fa-check"></i>' : '•'}
+                                </span>
+                                <span class="break-words">${escapeHtml(opt.option_text)}</span>
+                            </div>
+                            ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-900 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __("Correct Answer") }}</span>' : ''}
+                        </div>
+                    `;
+                });
+
+                qHtml += `
+                    <div class="p-4 rounded-2xl bg-[#FAFAF9] border border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-heading font-black text-xs text-teal-800 bg-teal-100/70 px-2.5 py-1 rounded-lg">#${idx + 1}</span>
+                            <span class="text-[11px] font-mono font-bold text-slate-500">${q.points} {{ __('pts') }}</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-900 leading-snug">${escapeHtml(q.question_text)}</p>
+                        <div class="space-y-1.5 pt-1">
+                            ${optsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            qContainer.innerHTML = qHtml;
+        } else {
+            qContainer.innerHTML = '';
+            noQNotice.classList.remove('hidden');
+        }
+
+        // Render Submissions
+        const subTBody = document.getElementById('adSubmissionsTableBody');
+        const noSubNotice = document.getElementById('adNoSubmissionsNotice');
+        const subTableContainer = document.getElementById('adSubmissionsTableContainer');
+
+        if (data.submissions && data.submissions.length > 0) {
+            noSubNotice.classList.add('hidden');
+            subTableContainer.classList.remove('hidden');
+            let subHtml = '';
+
+            data.submissions.forEach(s => {
+                const isPassed = s.is_passed;
+                const scoreText = s.score !== null ? `${s.score}%` : '{{ __("Pending Grade") }}';
+                const scoreClass = s.score !== null ? (isPassed ? 'text-emerald-600 font-extrabold' : 'text-rose-600 font-extrabold') : 'text-slate-400 italic';
+                const statusBadgeClass = s.status === 'reviewed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+
+                subHtml += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-3">
+                            <p class="font-bold text-slate-900">${escapeHtml(s.student_name)}</p>
+                            <p class="text-[10px] text-slate-500 font-mono">${escapeHtml(s.student_email)}</p>
+                        </td>
+                        <td class="py-3 px-3 font-mono text-slate-600">${s.submitted_at || 'Draft'}</td>
+                        <td class="py-3 px-3 font-mono ${scoreClass}">${scoreText}</td>
+                        <td class="py-3 px-3 font-mono">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadgeClass}">
+                                ${escapeHtml(s.status)}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3 text-right rtl:text-left">
+                            <button type="button" onclick="closeModal('assignmentDetailsModal'); openGradeModal(${s.id}, '${escapeJs(s.student_name)}', '${escapeJs(a.title)}', '${s.score !== null ? s.score : ''}', '${escapeJs(s.evaluation_notes || '')}')" class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors">
+                                <i class="fa-solid fa-magnifying-glass"></i> {{ __('Review & Grade') }}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            subTBody.innerHTML = subHtml;
+        } else {
+            subTBody.innerHTML = '';
+            subTableContainer.classList.add('hidden');
+            noSubNotice.classList.remove('hidden');
+        }
+
+        document.getElementById('adLoadingSkeleton').classList.add('hidden');
+        document.getElementById('adModalContent').classList.remove('hidden');
+
+    } catch (err) {
+        showTeacherToast('{{ __("Failed to load assignment details.") }}', false);
+        closeModal('assignmentDetailsModal');
+    }
+}
+
+function switchAdSubTab(tab) {
+    document.querySelectorAll('.ad-pane').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.ad-subtab-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
+        btn.classList.add('text-slate-600');
+    });
+
+    const pane = document.getElementById('ad-pane-' + tab);
+    const btn = document.getElementById('ad-tab-btn-' + tab);
+    if (pane) pane.classList.remove('hidden');
+    if (btn) {
+        btn.classList.remove('text-slate-600');
+        btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
+    }
+}
+
 function openMeetingLinkModal(sessionId, currentLink) {
     document.getElementById('linkSessionId').value = sessionId;
     document.getElementById('meetingUrlInput').value = currentLink || '';
-    document.getElementById('meetingLinkForm').action = `/ajax/teacher/sessions/${sessionId}/link`;
+    document.getElementById('meetingLinkForm').action = `${appBaseUrl}/ajax/teacher/sessions/${sessionId}/link`;
     openModal('meetingLinkModal');
 }
 
 function openRescheduleModal(sessionId, currentDateTime) {
     document.getElementById('rescheduleSessionId').value = sessionId;
     document.getElementById('rescheduleDateTime').value = currentDateTime || '';
-    document.getElementById('rescheduleForm').action = `/ajax/teacher/sessions/${sessionId}/reschedule`;
+    document.getElementById('rescheduleForm').action = `${appBaseUrl}/ajax/teacher/sessions/${sessionId}/reschedule`;
     openModal('rescheduleModal');
 }
 
 async function openAttendanceModal(sessionId, sessionTitle) {
     document.getElementById('attendanceSessionId').value = sessionId;
     document.getElementById('attendanceSessionTitle').textContent = sessionTitle || 'Loading...';
-    document.getElementById('attendanceForm').action = `/ajax/teacher/sessions/${sessionId}/attendance`;
+    document.getElementById('attendanceForm').action = `${appBaseUrl}/ajax/teacher/sessions/${sessionId}/attendance`;
 
     const container = document.getElementById('attendanceStudentsContainer');
     container.innerHTML = `
-        <div class="py-12 text-center space-y-2">
-            <svg class="animate-spin h-6 w-6 text-teal-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="text-xs font-mono text-slate-500 font-bold">${i18n.loadingReview || 'Loading registered students...'}</p>
+        <div class="py-6 space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-slate-50/80 rounded-2xl animate-pulse">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0"></div>
+                <div class="flex-1 space-y-2">
+                    <div class="h-3.5 bg-slate-200 rounded-md w-1/3"></div>
+                    <div class="h-2.5 bg-slate-200 rounded-md w-1/4"></div>
+                </div>
+                <div class="w-28 h-8 bg-slate-200 rounded-xl shrink-0"></div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-slate-50/80 rounded-2xl animate-pulse">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0"></div>
+                <div class="flex-1 space-y-2">
+                    <div class="h-3.5 bg-slate-200 rounded-md w-1/2"></div>
+                    <div class="h-2.5 bg-slate-200 rounded-md w-1/5"></div>
+                </div>
+                <div class="w-28 h-8 bg-slate-200 rounded-xl shrink-0"></div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-slate-50/80 rounded-2xl animate-pulse">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0"></div>
+                <div class="flex-1 space-y-2">
+                    <div class="h-3.5 bg-slate-200 rounded-md w-2/5"></div>
+                    <div class="h-2.5 bg-slate-200 rounded-md w-1/4"></div>
+                </div>
+                <div class="w-28 h-8 bg-slate-200 rounded-xl shrink-0"></div>
+            </div>
         </div>
     `;
     document.getElementById('attendanceCohortCount').textContent = '...';
@@ -2053,7 +2439,7 @@ async function openAttendanceModal(sessionId, sessionTitle) {
     openModal('attendanceModal');
 
     try {
-        const res = await fetch(`/ajax/teacher/sessions/${sessionId}/attendance-roster`, {
+        const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/attendance-roster`, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -2076,10 +2462,14 @@ async function openAttendanceModal(sessionId, sessionTitle) {
 
         if (students.length === 0) {
             container.innerHTML = `
-                <div class="py-10 text-center space-y-2">
-                    <span class="text-2xl"><i class="fa-solid fa-users"></i></span>
-                    <p class="text-xs font-semibold text-slate-700">${isArLocale ? 'لا يوجد طلاب مسجلين في هذا الكورس حالياً.' : 'No students enrolled in this course yet.'}</p>
-                    <p class="text-[10px] font-mono text-slate-400">${isArLocale ? 'سيظهر الطلاب المسجلون تلقائياً بمجرد اشتراكهم.' : 'Enrolled students will appear here automatically.'}</p>
+                <div class="py-12 text-center space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto text-xl shadow-2xs border border-teal-100">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-700">${isArLocale ? 'لا يوجد طلاب مسجلين في هذا الكورس حالياً.' : 'No students enrolled in this course yet.'}</p>
+                        <p class="text-[11px] font-mono text-slate-400">${isArLocale ? 'سيظهر الطلاب المسجلون تلقائياً بمجرد اشتراكهم.' : 'Enrolled students will appear here automatically.'}</p>
+                    </div>
                 </div>
             `;
             return;
@@ -2093,24 +2483,27 @@ async function openAttendanceModal(sessionId, sessionTitle) {
             const isAbsent = st.status === 'absent';
 
             html += `
-                <div class="py-3 flex items-center justify-between gap-3">
+                <div class="p-3 sm:p-3.5 rounded-2xl hover:bg-slate-50/80 transition-colors flex items-center justify-between gap-3 border border-transparent hover:border-slate-100">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-sm flex items-center justify-center shrink-0 shadow-sm border border-teal-200/50">
                             ${(st.name || 'S').substring(0, 1).toUpperCase()}
                         </div>
                         <div class="min-w-0 space-y-0.5">
-                            <p class="text-xs font-bold text-slate-900 truncate">${st.name}</p>
-                            <p class="text-[10px] font-mono text-slate-500 truncate">${st.school || 'Elite Academy'} ${st.grade ? '• ' + st.grade : ''}</p>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(st.name)}</p>
+                            <p class="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1.5">
+                                <span>${escapeHtml(st.school || 'Elite Academy')}</span>
+                                ${st.grade ? `<span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span><span>${escapeHtml(st.grade)}</span>` : ''}
+                            </p>
                         </div>
                     </div>
 
                     <input type="hidden" name="attendance[${idx}][student_user_id]" value="${st.id}">
                     <div class="shrink-0">
-                        <select name="attendance[${idx}][status]" onchange="onAttendanceStatusChange('${st.name ? st.name.replace(/'/g, "\\'") : ''}', this.value)" class="attendance-status-select bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-teal-600 shadow-2xs cursor-pointer">
-                            <option value="present" ${isPresent ? 'selected' : ''}><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${isArLocale ? 'حاضر (Present)' : 'Present'}</option>
-                            <option value="late" ${isLate ? 'selected' : ''}><i class="fa-solid fa-circle text-amber-500 text-[10px]"></i> ${isArLocale ? 'متأخر (Late)' : 'Late'}</option>
-                            <option value="excused" ${isExcused ? 'selected' : ''}><i class="fa-solid fa-circle text-slate-300 text-[10px]"></i> ${isArLocale ? 'معذور (Excused)' : 'Excused'}</option>
-                            <option value="absent" ${isAbsent ? 'selected' : ''}><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${isArLocale ? 'غائب (Absent)' : 'Absent'}</option>
+                        <select name="attendance[${idx}][status]" onchange="onAttendanceStatusChange('${escapeJs(st.name)}', this.value)" class="attendance-status-select bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 shadow-2xs cursor-pointer transition-all">
+                            <option value="present" ${isPresent ? 'selected' : ''}>🟢 ${isArLocale ? 'حاضر (Present)' : 'Present'}</option>
+                            <option value="late" ${isLate ? 'selected' : ''}>🟡 ${isArLocale ? 'متأخر (Late)' : 'Late'}</option>
+                            <option value="excused" ${isExcused ? 'selected' : ''}>⚪ ${isArLocale ? 'معذور (Excused)' : 'Excused'}</option>
+                            <option value="absent" ${isAbsent ? 'selected' : ''}>🔴 ${isArLocale ? 'غائب (Absent)' : 'Absent'}</option>
                         </select>
                     </div>
                 </div>
@@ -2120,7 +2513,20 @@ async function openAttendanceModal(sessionId, sessionTitle) {
         container.innerHTML = html;
 
     } catch (err) {
-        container.innerHTML = `<p class="text-xs text-rose-600 italic text-center py-6">Failed to load real-time attendance roster.</p>`;
+        container.innerHTML = `
+            <div class="py-10 text-center space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto text-xl shadow-xs border border-rose-100">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs font-bold text-rose-700">${isArLocale ? 'تعذر تحميل كشف حضور الطلاب في الوقت الفعلي.' : 'Failed to load real-time attendance roster.'}</p>
+                    <p class="text-[11px] font-mono text-slate-400">${isArLocale ? 'يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.' : 'Please check your connection and try again.'}</p>
+                </div>
+                <button type="button" onclick="openAttendanceModal(${sessionId}, '${escapeJs(sessionTitle)}')" class="btn-lift px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i> ${isArLocale ? 'إعادة المحاولة' : 'Retry'}
+                </button>
+            </div>
+        `;
     }
 }
 
@@ -2179,7 +2585,7 @@ async function confirmCancelSession(sessionId) {
     }
 
     try {
-        const res = await fetch(`/ajax/teacher/sessions/${sessionId}/cancel`, {
+        const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/cancel`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -2202,7 +2608,7 @@ async function openGradeModal(submissionId, studentName, assignmentTitle, curren
     document.getElementById('gradeScoreInput').value = currentScore && currentScore !== 'null' ? currentScore : '';
     const notesEl = document.getElementById('gradeEvaluationNotes');
     if (notesEl) notesEl.value = evaluationNotes && evaluationNotes !== 'null' ? evaluationNotes : '';
-    document.getElementById('gradeForm').action = `/ajax/teacher/submissions/${submissionId}/review`;
+    document.getElementById('gradeForm').action = `${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review`;
 
     const questionsContainer = document.getElementById('submissionQuestionsContainer');
     questionsContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">${i18n.loadingReview}</p>`;
@@ -2210,7 +2616,7 @@ async function openGradeModal(submissionId, studentName, assignmentTitle, curren
     openModal('gradeModal');
 
     try {
-        const res = await fetch(`/ajax/teacher/submissions/${submissionId}/review-details`);
+        const res = await fetch(`${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review-details`);
         const data = await res.json();
         if (data.success && data.questions && data.questions.length > 0) {
             let html = '';
@@ -2467,7 +2873,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                const res = await fetch(`/ajax/teacher/students/${sId}/notes`, {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/students/${sId}/notes`, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -2665,7 +3071,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 const formData = new FormData(overrideForm);
-                const res = await fetch(`/ajax/teacher/sessions/${sId}/override`, {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sId}/override`, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -2700,7 +3106,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(cancelForm);
 
             try {
-                const res = await fetch(`/ajax/teacher/sessions/${sId}/cancel`, {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sId}/cancel`, {
                     method: 'POST',
                     body: formData,
                     headers: {

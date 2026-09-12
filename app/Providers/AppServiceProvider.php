@@ -57,6 +57,37 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        // Safe originalRequest resolution for Filament & Livewire (fixes MethodNotAllowedHttpException on wire:navigate/GET requests with X-Livewire header)
+        $this->app->scoped(
+            'originalRequest',
+            function () {
+                if (! class_exists(\Livewire\Livewire::class) || ! \Livewire\Livewire::isLivewireRequest()) {
+                    return request();
+                }
+
+                if (class_exists(\Livewire\Mechanisms\HandleRequests\HandleRequests::class)) {
+                    $handleRequests = app(\Livewire\Mechanisms\HandleRequests\HandleRequests::class);
+                    if (! $handleRequests->isLivewireRoute()) {
+                        return request();
+                    }
+                }
+
+                try {
+                    $persistentMiddleware = app(\Livewire\Mechanisms\PersistentMiddleware\PersistentMiddleware::class);
+                    /** @phpstan-ignore-next-line */
+                    $fakeRequest = invade($persistentMiddleware)->makeFakeRequest();
+                    if (! $fakeRequest->getMethod() || $fakeRequest->getMethod() === '') {
+                        return request();
+                    }
+                    /** @phpstan-ignore-next-line */
+                    invade($persistentMiddleware)->getRouteFromRequest($fakeRequest);
+                    return $fakeRequest;
+                } catch (\Throwable $e) {
+                    return request();
+                }
+            }
+        );
+
         Gate::policy(LiveSession::class, LiveSessionPolicy::class);
 
         // Role-Based Access Control Gates

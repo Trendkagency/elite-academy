@@ -252,7 +252,7 @@
         retryBtn.classList.add('hidden');
         overlayTitle.innerText = '{{ $isRtl ? "جاري الاتصال بالغرفة المباشرة..." : "Connecting to Live Session..." }}';
 
-        fetch(`/ajax/sessions/${meetingSessionId}/meeting/join`, {
+        fetch(`{{ url('/ajax/sessions') }}/${meetingSessionId}/meeting/join`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -334,7 +334,7 @@
             if (!meetingAccessToken || isHeartbeatPending) return;
 
             isHeartbeatPending = true;
-            fetch(`/ajax/sessions/${meetingSessionId}/meeting/heartbeat`, {
+            fetch(`{{ url('/ajax/sessions') }}/${meetingSessionId}/meeting/heartbeat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -396,7 +396,7 @@
     }
 
     function logSecurityEvent(eventType, metadata) {
-        fetch(`/ajax/sessions/${meetingSessionId}/meeting/security-event`, {
+        fetch(`{{ url('/ajax/sessions') }}/${meetingSessionId}/meeting/security-event`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -453,7 +453,7 @@
         if (durationTimerInterval) clearInterval(durationTimerInterval);
         if (watermarkInterval) clearInterval(watermarkInterval);
 
-        fetch(`/ajax/sessions/${meetingSessionId}/meeting/leave`, {
+        fetch(`{{ url('/ajax/sessions') }}/${meetingSessionId}/meeting/leave`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

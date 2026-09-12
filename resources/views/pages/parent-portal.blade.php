@@ -204,23 +204,25 @@
 </section>
 
 {{-- Link New Child Modal --}}
-<div id="linkChildModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 hidden no-print">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-6 relative anim-lift">
-        <button type="button" onclick="closeLinkChildModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
+<div id="linkChildModal" class="elite-modal fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-3 sm:p-5 hidden no-print transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-md w-full border border-slate-200/90 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <button type="button" onclick="closeLinkChildModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 absolute top-5 end-5 text-sm" aria-label="{{ __('Close') }}">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
 
-        <div class="space-y-2">
-            <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl font-bold border border-teal-200">
+        <div class="space-y-2 pe-8">
+            <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-teal-200 shadow-xs">
                 <i class="fa-solid fa-link"></i>
             </div>
             <h3 class="font-heading font-black text-xl text-slate-900">{{ __('Link New Child Account') }}</h3>
-            <p class="text-xs text-slate-500 font-medium">
+            <p class="text-xs text-slate-500 font-medium leading-relaxed">
                 {{ __('Enter the phone number or registered email address of your student to link their account for monitoring.') }}
             </p>
         </div>
 
         <form id="linkChildForm" onsubmit="handleLinkChildSubmit(event)" class="space-y-4">
             @csrf
-            <div class="space-y-1">
+            <div class="space-y-1.5">
                 <label class="block text-xs font-mono font-extrabold text-slate-600 uppercase">{{ __('Student Phone Number or Email') }}</label>
                 <input type="text" id="phone_or_email" name="phone_or_email" required placeholder="e.g. 01012345678 or student@email.com" class="w-full h-11 bg-slate-50 border border-slate-300 rounded-xl px-4 text-sm font-semibold text-slate-900 focus:outline-teal-600">
             </div>
@@ -228,10 +230,10 @@
             <div id="linkChildFeedback" class="hidden text-xs font-bold p-3 rounded-xl"></div>
 
             <div class="pt-2 flex items-center justify-end gap-3">
-                <button type="button" onclick="closeLinkChildModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200">
+                <button type="button" onclick="closeLinkChildModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 cursor-pointer transition-all">
                     {{ __('Cancel') }}
                 </button>
-                <button type="submit" id="linkSubmitBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-teal-600/20">
+                <button type="submit" id="linkSubmitBtn" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-teal-600/20 cursor-pointer transition-all">
                     {{ __('Link Child Account') }}
                 </button>
             </div>
@@ -247,17 +249,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function openLinkChildModal() {
-    const modal = document.getElementById('linkChildModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        const input = document.getElementById('phone_or_email');
-        if (input) input.focus();
+    if (window.openModal) {
+        window.openModal('linkChildModal');
+    } else {
+        const modal = document.getElementById('linkChildModal');
+        if (modal) modal.classList.remove('hidden');
     }
+    const input = document.getElementById('phone_or_email');
+    if (input) setTimeout(() => input.focus(), 80);
 }
 
 function closeLinkChildModal() {
-    const modal = document.getElementById('linkChildModal');
-    if (modal) modal.classList.add('hidden');
+    if (window.closeModal) {
+        window.closeModal('linkChildModal');
+    } else {
+        const modal = document.getElementById('linkChildModal');
+        if (modal) modal.classList.add('hidden');
+    }
     const feedback = document.getElementById('linkChildFeedback');
     if (feedback) feedback.classList.add('hidden');
     const form = document.getElementById('linkChildForm');

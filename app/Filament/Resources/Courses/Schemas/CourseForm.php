@@ -23,17 +23,17 @@ class CourseForm
                     ->columnSpanFull()
                     ->components([
                         Select::make('subject_id')
-                            ->relationship('subject', 'name', modifyQueryUsing: fn ($q) => $q->latest('created_at'))
+                            ->relationship('subject', 'name', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->latest('created_at'))
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('grade_level_id')
-                            ->relationship('gradeLevel', 'name', modifyQueryUsing: fn ($q) => $q->orderBy('sort_order', 'asc'))
+                            ->relationship('gradeLevel', 'name', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('sort_order', 'asc'))
                             ->searchable()
                             ->preload()
                             ->nullable(),
                         Select::make('teacher_id')
-                            ->relationship('teacher', modifyQueryUsing: fn ($q) => $q->latest('created_at'))
+                            ->relationship('teacher', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with('user')->latest('created_at'))
                             ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: $record->title ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
                             ->searchable()
                             ->preload()

@@ -239,8 +239,8 @@
 </section>
 
 {{-- Result Breakdown Modal (Displays Full Scores & Evaluation Breakdown on Screen) --}}
-<div id="resultModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 border border-slate-200 text-center">
+<div id="resultModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200/90 text-center space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
         
         {{-- Passed/Failed Icon Badge --}}
         <div id="resultIconBadge" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md border-4">
@@ -269,7 +269,7 @@
             <a href="{{ route('student-portal') }}" class="w-full sm:w-auto btn-elite-primary px-8 py-3 font-bold text-xs shadow-md">
                 Go to Student Portal &rarr;
             </a>
-            <button type="button" onclick="closeResultModal()" class="w-full sm:w-auto btn-elite-nav px-6 py-3 font-bold text-xs">
+            <button type="button" onclick="closeResultModal()" class="w-full sm:w-auto btn-elite-nav px-6 py-3 font-bold text-xs cursor-pointer">
                 Review Questions
             </button>
         </div>
@@ -594,12 +594,20 @@ window.showResultModal = function(data) {
     if (perc) perc.textContent = `${Math.round(data.percentage || 0)}%`;
     if (score) score.textContent = `${data.score || 0} / ${data.total_points || 10}`;
 
-    modal.classList.remove('hidden');
+    if (window.openModal) {
+        window.openModal('resultModal');
+    } else {
+        modal.classList.remove('hidden');
+    }
 };
 
 window.closeResultModal = function() {
-    const modal = document.getElementById('resultModal');
-    if (modal) modal.classList.add('hidden');
+    if (window.closeModal) {
+        window.closeModal('resultModal');
+    } else {
+        const modal = document.getElementById('resultModal');
+        if (modal) modal.classList.add('hidden');
+    }
 };
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -130,6 +130,28 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(StudentEducationalNote::class, 'student_user_id');
     }
 
+    public function courseEnrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class, 'student_user_id');
+    }
+
+    public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class, 'student_user_id');
+    }
+
+    public function enrolledCourses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_enrollments', 'student_user_id', 'course_id')
+            ->withPivot(['cohort', 'status', 'progress_percent', 'enrolled_at', 'completed_at'])
+            ->withTimestamps();
+    }
+
+    public function assignmentSubmissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'student_user_id');
+    }
+
     public function scopeRoleStudent($query)
     {
         return $query->whereDoesntHave('teacherProfile')

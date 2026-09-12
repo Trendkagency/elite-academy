@@ -48,7 +48,34 @@ class StudentProfilePolicy
                 return true;
             }
 
-            return \App\Models\LiveSession::where('teacher_profile_id', $teacherProfile->id)
+            $hasDirectSession = \App\Models\LiveSession::where('teacher_profile_id', $teacherProfile->id)
+                ->where('student_user_id', $studentProfile->user_id)
+                ->exists();
+
+            if ($hasDirectSession) {
+                return true;
+            }
+
+            $hasGroupSession = \App\Models\StudentSession::where('student_user_id', $studentProfile->user_id)
+                ->whereHas('liveSession', function ($q) use ($teacherProfile) {
+                    $q->where('teacher_profile_id', $teacherProfile->id);
+                })->exists();
+
+            if ($hasGroupSession) {
+                return true;
+            }
+
+            $hasSubmission = \App\Models\AssignmentSubmission::where('student_user_id', $studentProfile->user_id)
+                ->whereHas('assignment', function ($q) use ($teacherProfile) {
+                    $q->where('teacher_profile_id', $teacherProfile->id)
+                        ->orWhereHas('course', fn ($c) => $c->where('teacher_id', $teacherProfile->id));
+                })->exists();
+
+            if ($hasSubmission) {
+                return true;
+            }
+
+            return \App\Models\StudentEducationalNote::where('teacher_profile_id', $teacherProfile->id)
                 ->where('student_user_id', $studentProfile->user_id)
                 ->exists();
         }

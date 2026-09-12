@@ -403,6 +403,46 @@
                 width: 0%;
             }
         }
+
+        /* ─── Universal Elite Modal System ─── */
+        .elite-modal {
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.25s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .elite-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .elite-modal.hidden {
+            display: none !important;
+        }
+        .elite-modal-dialog {
+            transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease;
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+        .elite-modal.active .elite-modal-dialog {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Sleek custom scrollbars for modals and panels */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(13, 148, 136, 0.7);
+        }
     </style>
     <script src="{{ asset('js/toast.js') }}?v={{ time() }}"></script>
     <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v={{ time() }}">
@@ -455,6 +495,65 @@
                 setTimeout(() => { announcer.textContent = message; }, 50);
             }
         }
+
+        // ─── Universal High-Performance Modal System ───
+        window.openModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) return;
+
+            modal.classList.add('elite-modal');
+            const dialog = modal.querySelector('.elite-modal-dialog') || modal.firstElementChild;
+            if (dialog && !dialog.classList.contains('elite-modal-dialog')) {
+                dialog.classList.add('elite-modal-dialog');
+            }
+
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.add('active');
+            document.body.classList.add('overflow-hidden');
+
+            const focusTarget = modal.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([aria-label="Close"])');
+            if (focusTarget) {
+                setTimeout(() => focusTarget.focus(), 60);
+            }
+        };
+
+        window.closeModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) return;
+
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                const remaining = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
+                if (remaining.length === 0) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }, 200);
+        };
+
+        // Universal Backdrop Click & ESC Key Handling
+        document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('click', function (e) {
+                const openModalEl = e.target.closest('.elite-modal, [id$="Modal"]');
+                if (openModalEl && !openModalEl.classList.contains('hidden')) {
+                    const dialog = openModalEl.querySelector('.elite-modal-dialog') || openModalEl.firstElementChild;
+                    if (dialog && !dialog.contains(e.target)) {
+                        window.closeModal(openModalEl.id);
+                    }
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    const openModals = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
+                    if (openModals.length > 0) {
+                        const topModal = openModals[openModals.length - 1];
+                        window.closeModal(topModal.id);
+                    }
+                }
+            });
+        });
     </script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>

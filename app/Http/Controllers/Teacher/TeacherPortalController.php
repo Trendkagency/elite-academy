@@ -94,56 +94,82 @@ class TeacherPortalController extends Controller
 
         $assignmentIds = $assignments->pluck('id')->filter()->toArray();
 
-        // 6. Assigned Students Roster (Linked via CourseEnrollment or LiveSession, or fall back to all students)
-        $enrolledStudentUserIds = CourseEnrollment::whereIn('course_id', $courseIds)
+        // 6. Assigned Students Roster (Strictly Scoped: CourseEnrollment, LiveSession, StudentSession, AssignmentSubmission)
+        $allTeacherCourseIds = Course::where('teacher_id', $teacherId)->pluck('id')->filter()->toArray();
+
+        $enrolledStudentUserIds = CourseEnrollment::whereIn('course_id', $allTeacherCourseIds)
             ->pluck('student_user_id')
             ->filter()
             ->toArray();
 
         $directSessionStudentUserIds = LiveSession::where('teacher_profile_id', $teacherId)
+            ->whereNotNull('student_user_id')
             ->pluck('student_user_id')
             ->filter()
             ->toArray();
 
-        $allAssignedUserIds = array_unique(array_merge($enrolledStudentUserIds, $directSessionStudentUserIds));
+        $groupSessionStudentUserIds = StudentSession::whereHas('liveSession', fn ($q) => $q->where('teacher_profile_id', $teacherId))
+            ->pluck('student_user_id')
+            ->filter()
+            ->toArray();
 
-        $assignedStudentsQuery = StudentProfile::query()->with(['user', 'gradeLevel'])->latest('created_at');
-        if (! empty($allAssignedUserIds)) {
-            $assignedStudentsQuery->whereIn('user_id', $allAssignedUserIds);
+        $assignmentStudentUserIds = AssignmentSubmission::whereIn('assignment_id', $assignmentIds)
+            ->pluck('student_user_id')
+            ->filter()
+            ->toArray();
+
+        $allAssignedUserIds = array_values(array_unique(array_merge(
+            $enrolledStudentUserIds,
+            $directSessionStudentUserIds,
+            $groupSessionStudentUserIds,
+            $assignmentStudentUserIds
+        )));
+
+        if (empty($allAssignedUserIds)) {
+            $assignedStudents = collect();
+        } else {
+            $assignedStudents = StudentProfile::query()
+                ->whereIn('user_id', $allAssignedUserIds)
+                ->with(['user', 'gradeLevel'])
+                ->latest('created_at')
+                ->get()
+                ->map(function ($st) use ($allTeacherCourseIds, $assignmentIds, $teacherId) {
+                    $stSubmissions = AssignmentSubmission::where('student_user_id', $st->user_id)
+                        ->whereIn('assignment_id', $assignmentIds)
+                        ->get();
+
+                    $gradedSubmissions = $stSubmissions->filter(fn ($s) => ! is_null($s->score));
+                    $st->avg_score = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('score'), 1) : null;
+                    $st->submissions_count = $stSubmissions->count();
+
+                    $stDirectSessions = LiveSession::where('teacher_profile_id', $teacherId)
+                        ->where('student_user_id', $st->user_id)
+                        ->get();
+
+                    $stGroupSessions = StudentSession::where('student_user_id', $st->user_id)
+                        ->whereHas('liveSession', fn ($q) => $q->where('teacher_profile_id', $teacherId))
+                        ->get();
+
+                    $attendedCount = $stDirectSessions->where('attendance_status', 'present')->count() + $stGroupSessions->where('attendance_status', 'present')->count();
+                    $lateCount = $stDirectSessions->where('attendance_status', 'late')->count() + $stGroupSessions->where('attendance_status', 'late')->count();
+                    $totalCount = $stDirectSessions->count() + $stGroupSessions->count();
+                    $st->attendance_rate = $totalCount > 0 ? round((($attendedCount + ($lateCount * 0.5)) / $totalCount) * 100) : 100;
+
+                    $studentEnrollments = CourseEnrollment::where('student_user_id', $st->user_id)
+                        ->whereIn('course_id', $allTeacherCourseIds)
+                        ->with('course')
+                        ->get();
+
+                    $st->enrolled_courses = $studentEnrollments->map(fn ($e) => [
+                        'id' => $e->course_id,
+                        'title' => $e->course?->title ?: '',
+                    ]);
+                    $st->enrolled_courses_count = $studentEnrollments->count();
+                    $st->enrolled_course_ids = $studentEnrollments->pluck('course_id')->toArray();
+
+                    return $st;
+                });
         }
-
-        $assignedStudents = $assignedStudentsQuery->get()->map(function ($st) use ($courseIds, $assignmentIds, $teacherId) {
-            $stSubmissions = AssignmentSubmission::where('student_user_id', $st->user_id)
-                ->whereIn('assignment_id', $assignmentIds)
-                ->get();
-
-            $gradedSubmissions = $stSubmissions->filter(fn ($s) => ! is_null($s->score));
-            $st->avg_score = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('score'), 1) : null;
-            $st->submissions_count = $stSubmissions->count();
-
-            $stSessions = LiveSession::where('teacher_profile_id', $teacherId)
-                ->where('student_user_id', $st->user_id)
-                ->get();
-
-            $attendedCount = $stSessions->where('attendance_status', 'present')->count();
-            $lateCount = $stSessions->where('attendance_status', 'late')->count();
-            $totalCount = $stSessions->count();
-            $st->attendance_rate = $totalCount > 0 ? round((($attendedCount + ($lateCount * 0.5)) / $totalCount) * 100) : 100;
-
-            $studentEnrollments = CourseEnrollment::where('student_user_id', $st->user_id)
-                ->whereIn('course_id', $courseIds)
-                ->with('course')
-                ->get();
-
-            $st->enrolled_courses = $studentEnrollments->map(fn ($e) => [
-                'id' => $e->course_id,
-                'title' => $e->course?->title ?: '',
-            ]);
-            $st->enrolled_courses_count = $studentEnrollments->count();
-            $st->enrolled_course_ids = $studentEnrollments->pluck('course_id')->toArray();
-
-            return $st;
-        });
 
         // 7. Assignment Submissions Needing Review
         $submissions = AssignmentSubmission::whereIn('assignment_id', $assignmentIds)
@@ -686,7 +712,7 @@ class TeacherPortalController extends Controller
     public function reviewSubmission(Request $request, int $id): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $submission = AssignmentSubmission::with('assignment')->findOrFail($id);
+        $submission = AssignmentSubmission::with(['assignment.session', 'enrollment'])->findOrFail($id);
 
         if ((int) $submission->assignment->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
@@ -698,16 +724,49 @@ class TeacherPortalController extends Controller
         ]);
 
         $score = (float) $validated['score'];
+        $assignment = $submission->assignment;
+        $passingScore = (float) ($assignment->passing_score ?? $assignment->passing_grade ?? 70.0);
+        $isPassed = $score >= $passingScore;
 
         $submission->update([
             'score' => $score,
             'grade' => $score,
             'percentage' => $score,
+            'passing_score' => $passingScore,
             'evaluation_notes' => $validated['evaluation_notes'] ?? null,
+            'teacher_notes' => $validated['evaluation_notes'] ?? null,
             'status' => SubmissionStatus::REVIEWED->value,
             'reviewed_at' => now(),
             'reviewed_by' => auth()->id(),
         ]);
+
+        // Sync relational StudentSession state if tied to a live session
+        if ($assignment->live_session_id) {
+            \App\Models\StudentSession::updateOrCreate(
+                [
+                    'student_user_id' => $submission->student_user_id,
+                    'live_session_id' => $assignment->live_session_id,
+                ],
+                [
+                    'assignment_status' => $isPassed ? 'passed' : 'failed',
+                    'assignment_score' => $score,
+                    'session_status' => $isPassed ? 'completed' : 'active',
+                    'completed_at' => $isPassed ? now() : null,
+                ]
+            );
+        }
+
+        // If passed and assigned to a curriculum course session, unlock next session
+        if ($isPassed && $submission->enrollment && $assignment->session) {
+            try {
+                app(\App\Actions\Course\UnlockNextSessionAction::class)->execute(
+                    $submission->enrollment,
+                    $assignment->session
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[TeacherPortal] Unlock next session exception: ' . $e->getMessage());
+            }
+        }
 
         // Notify Student
         app(\App\Services\Notification\FcmNotificationService::class)->notifyStudentSubmissionGraded($submission);
@@ -715,6 +774,9 @@ class TeacherPortalController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Submission graded and evaluation feedback sent to student!'),
+            'is_passed' => $isPassed,
+            'score' => $score,
+            'grade' => $score,
         ]);
     }
 
@@ -1210,6 +1272,102 @@ class TeacherPortalController extends Controller
                 'evaluation_notes' => $submission->evaluation_notes,
             ],
             'questions' => $questionsData,
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint: Get Full Assignment Details, Questions & Submissions for Teacher
+     */
+    public function getAssignmentDetails(Request $request, int $id): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $assignment = Assignment::with([
+            'course.subject',
+            'liveSession',
+            'questions.options',
+            'submissions.studentUser',
+            'submissions.answers',
+        ])->findOrFail($id);
+
+        $isTeacherOwner = (int) $assignment->teacher_profile_id === (int) $teacherProfile->id
+            || ($assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id)
+            || ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id);
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized access to assignment.')], 403);
+        }
+
+        $submissions = $assignment->submissions->map(function ($sub) use ($assignment) {
+            $statusVal = $sub->status instanceof \App\Enums\SubmissionStatus ? $sub->status->value : (is_object($sub->status) ? ($sub->status->value ?? '') : (string) $sub->status);
+            $passingScore = (float) ($assignment->passing_score ?: 70.0);
+            $score = $sub->score !== null ? (float) $sub->score : null;
+            $isPassed = $score !== null ? ($score >= $passingScore) : null;
+
+            return [
+                'id' => $sub->id,
+                'student_name' => $sub->studentUser?->name ?: __('Student'),
+                'student_email' => $sub->studentUser?->email ?: '',
+                'score' => $score,
+                'status' => $statusVal,
+                'is_passed' => $isPassed,
+                'submitted_at' => $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : ($sub->created_at ? $sub->created_at->format('Y-m-d H:i') : ''),
+                'evaluation_notes' => $sub->evaluation_notes,
+                'answers_count' => $sub->answers->count(),
+            ];
+        });
+
+        $gradedSubmissions = $submissions->filter(fn ($s) => $s['score'] !== null);
+        $avgScore = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('score'), 1) : null;
+        $passedCount = $submissions->where('is_passed', true)->count();
+        $passRate = $gradedSubmissions->count() > 0 ? round(($passedCount / $gradedSubmissions->count()) * 100) : 0;
+
+        $questionsData = $assignment->questions->map(function ($q, $idx) {
+            return [
+                'id' => $q->id,
+                'number' => $idx + 1,
+                'question_text' => $q->question_text,
+                'points' => (float) $q->points,
+                'options' => $q->options->map(function ($opt) {
+                    return [
+                        'id' => $opt->id,
+                        'option_text' => $opt->option_text,
+                        'is_correct' => (bool) $opt->is_correct,
+                        'explanation' => $opt->explanation,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'assignment' => [
+                'id' => $assignment->id,
+                'title' => $assignment->title,
+                'description' => $assignment->description ?: '',
+                'course_title' => $assignment->course?->title ?: __('Course'),
+                'subject_name' => $assignment->course?->subject?->name ?: '',
+                'live_session_title' => $assignment->liveSession?->title ?: '',
+                'due_at' => $assignment->effective_due_at ? $assignment->effective_due_at->format('Y-m-d H:i') : null,
+                'due_at_human' => $assignment->effective_due_at ? $assignment->effective_due_at->diffForHumans() : __('No deadline'),
+                'duration_minutes' => $assignment->duration_minutes ?: 30,
+                'passing_score' => (float) ($assignment->passing_score ?: 70.0),
+                'total_questions' => $assignment->questions->count(),
+                'status' => $assignment->status ?: 'published',
+            ],
+            'stats' => [
+                'total_submissions' => $submissions->count(),
+                'graded_submissions' => $gradedSubmissions->count(),
+                'pending_submissions' => $submissions->whereIn('status', ['submitted', 'in_progress'])->count(),
+                'avg_score' => $avgScore,
+                'pass_rate' => $passRate,
+                'passed_count' => $passedCount,
+            ],
+            'questions' => $questionsData,
+            'submissions' => $submissions,
         ]);
     }
 

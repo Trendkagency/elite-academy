@@ -54,11 +54,11 @@
 
                 {{-- Quick Action Buttons --}}
                 <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="document.getElementById('excuseModal').classList.remove('hidden')"
+                    <button onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
                         class="btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
                         <span><i class="fa-solid fa-file-lines"></i></span> {{ __('app.portal.submit_excuse') }}
                     </button>
-                    <button onclick="document.getElementById('homeworkExceptionModal').classList.remove('hidden')"
+                    <button onclick="window.openModal ? window.openModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.remove('hidden')"
                         class="btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
                         <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.submit_exception') }}
                     </button>
@@ -985,54 +985,63 @@
 
     {{-- 1. Modal: Interactive MSQ Assignment Solver --}}
     <div id="takeMsqModal"
-        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 border border-slate-200 my-8">
-            <div class="flex justify-between items-start pb-4 border-b border-slate-100">
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-5 sm:p-6 bg-slate-50 border-b border-slate-200/80 flex justify-between items-start shrink-0">
                 <div>
                     <span
                         class="text-[10px] font-mono font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full uppercase border border-teal-200">Interactive
                         MSQ Evaluation</span>
-                    <h3 id="msqModalTitle" class="font-bold text-xl text-slate-900 mt-1">Loading Assignment...</h3>
-                    <p id="msqModalDesc" class="text-xs text-slate-500 font-mono"></p>
+                    <h3 id="msqModalTitle" class="font-heading font-black text-xl sm:text-2xl text-slate-900 mt-1">Loading Assignment...</h3>
+                    <p id="msqModalDesc" class="text-xs text-slate-500 font-mono mt-0.5"></p>
                 </div>
-                <button onclick="closeMsqModal()"
-                    class="text-slate-400 hover:text-slate-800 font-bold text-2xl cursor-pointer p-1">&times;</button>
+                <button type="button" onclick="closeMsqModal()"
+                    class="w-9 h-9 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 shrink-0 text-xl font-bold"
+                    aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
-            {{-- Timer & Warning Banner --}}
-            <div id="msqTimerBar"
-                class="flex items-center justify-between p-4 bg-slate-900 text-white rounded-2xl text-xs font-mono shadow-md">
-                <span class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
-                    <span>Session Deadline Rule Active</span>
-                </span>
-                <span id="msqTimerDisplay" class="font-bold text-teal-300 text-sm">Time Remaining: --:--</span>
-            </div>
-
-            <form id="msqAnswerForm" class="space-y-6">
-                @csrf
-                <input type="hidden" id="msqAssignmentId" name="assignment_id" value="">
-
-                <div id="msqQuestionsContainer" class="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
-                    <div class="text-center py-8 text-slate-500 font-mono text-xs">Loading questions...</div>
+            <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar space-y-5 flex-1">
+                {{-- Timer & Warning Banner --}}
+                <div id="msqTimerBar"
+                    class="flex items-center justify-between p-4 bg-slate-900 text-white rounded-2xl text-xs font-mono shadow-md">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+                        <span>Session Deadline Rule Active</span>
+                    </span>
+                    <span id="msqTimerDisplay" class="font-bold text-teal-300 text-sm">Time Remaining: --:--</span>
                 </div>
 
-                <button type="submit" id="msqSubmitBtn"
-                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/30 touch-press font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2">
-                    <span>Submit Assignment for Automated Evaluation</span> &rarr;
-                </button>
-            </form>
+                <form id="msqAnswerForm" class="space-y-6">
+                    @csrf
+                    <input type="hidden" id="msqAssignmentId" name="assignment_id" value="">
+
+                    <div id="msqQuestionsContainer" class="space-y-6">
+                        <div class="text-center py-8 text-slate-500 font-mono text-xs">Loading questions...</div>
+                    </div>
+
+                    <button type="submit" id="msqSubmitBtn"
+                        class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/30 touch-press font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Submit Assignment for Automated Evaluation</span> &rarr;
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     {{-- 2. Modal: Submit Session Absence Excuse --}}
     <div id="excuseModal"
-        class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="font-bold text-lg text-slate-900">{{ __('app.portal.submit_excuse') }}</h3>
-                <button onclick="document.getElementById('excuseModal').classList.add('hidden')"
-                    class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center text-sm border border-teal-200/60">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.portal.submit_excuse') }}</h3>
+                </div>
+                <button type="button" onclick="window.closeModal ? window.closeModal('excuseModal') : document.getElementById('excuseModal').classList.add('hidden')"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 text-lg font-bold"
+                    aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
             <div id="excuseAlert" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
@@ -1053,7 +1062,7 @@
                 </div>
 
                 <button type="submit"
-                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press">
+                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer">
                     {{ app()->getLocale() === 'ar' ? 'إرسال عذر الغياب' : 'Submit Absence Excuse' }}
                 </button>
             </form>
@@ -1062,12 +1071,18 @@
 
     {{-- 3. Modal: Submit Homework Exception Request --}}
     <div id="homeworkExceptionModal"
-        class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="font-bold text-lg text-slate-900">{{ __('app.portal.submit_exception') }}</h3>
-                <button onclick="document.getElementById('homeworkExceptionModal').classList.add('hidden')"
-                    class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-sm border border-amber-200/60">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.portal.submit_exception') }}</h3>
+                </div>
+                <button type="button" onclick="window.closeModal ? window.closeModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.add('hidden')"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 text-lg font-bold"
+                    aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
             <div id="hwExceptionAlert" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
@@ -1112,7 +1127,7 @@
                 </div>
 
                 <button type="submit"
-                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press">
+                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer">
                     {{ app()->getLocale() === 'ar' ? 'إرسال طلب استثناء الواجب' : 'Submit Homework Exception' }}
                 </button>
             </form>
@@ -1130,7 +1145,11 @@
             const assignIdInput = document.getElementById('msqAssignmentId');
 
             assignIdInput.value = assignmentId;
-            modal.classList.remove('hidden');
+            if (window.openModal) {
+                window.openModal('takeMsqModal');
+            } else {
+                modal.classList.remove('hidden');
+            }
             container.innerHTML = '<div class="text-center py-8 text-slate-500 font-mono text-xs">Loading assignment questions...</div>';
 
             try {
@@ -1207,7 +1226,11 @@
         }
 
         function closeMsqModal() {
-            document.getElementById('takeMsqModal').classList.add('hidden');
+            if (window.closeModal) {
+                window.closeModal('takeMsqModal');
+            } else {
+                document.getElementById('takeMsqModal').classList.add('hidden');
+            }
             if (msqTimerInterval) clearInterval(msqTimerInterval);
         }
 
@@ -1233,7 +1256,10 @@
                         excuseAlert.classList.remove('hidden');
 
                         if (data.success) {
-                            setTimeout(() => document.getElementById('excuseModal').classList.add('hidden'), 1500);
+                            setTimeout(() => {
+                                if (window.closeModal) window.closeModal('excuseModal');
+                                else document.getElementById('excuseModal').classList.add('hidden');
+                            }, 1500);
                         }
                     } catch (err) {
                         excuseAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
@@ -1264,7 +1290,10 @@
                         hwAlert.classList.remove('hidden');
 
                         if (data.success) {
-                            setTimeout(() => document.getElementById('homeworkExceptionModal').classList.add('hidden'), 1500);
+                            setTimeout(() => {
+                                if (window.closeModal) window.closeModal('homeworkExceptionModal');
+                                else document.getElementById('homeworkExceptionModal').classList.add('hidden');
+                            }, 1500);
                         }
                     } catch (err) {
                         hwAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
@@ -1478,9 +1507,9 @@
 
     {{-- Ultra-Premium Glassmorphic Enrolled Course Details Modal --}}
     <div id="enrolledCourseModal"
-        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
         <div
-            class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200/90 flex flex-col my-auto relative">
+            class="elite-modal-dialog bg-white rounded-[28px] max-w-4xl w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border border-slate-200/90 flex flex-col relative">
 
             {{-- Modal Header --}}
             <div
@@ -1502,14 +1531,15 @@
                         class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"></h2>
                     <p id="modalCourseTeacher" class="text-xs font-mono text-teal-300 flex items-center gap-1.5"></p>
                 </div>
-                <button onclick="closeEnrolledCourseModal()"
-                    class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition-all cursor-pointer border border-slate-700 shrink-0 relative z-10">
+                <button type="button" onclick="closeEnrolledCourseModal()"
+                    class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition-all cursor-pointer border border-slate-700 shrink-0 relative z-10"
+                    aria-label="{{ __('Close') }}">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             {{-- Modal Scrollable Body --}}
-            <div class="p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)] font-mono text-slate-800">
+            <div class="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[calc(90vh-180px)] font-mono text-slate-800 flex-1">
                 {{-- Overview Card --}}
                 <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                     <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500">
@@ -1629,8 +1659,12 @@
             renderModalLiveSessions();
             renderModalRecordedSessions();
 
-            const modal = document.getElementById('enrolledCourseModal');
-            modal.classList.remove('hidden');
+            if (window.openModal) {
+                window.openModal('enrolledCourseModal');
+            } else {
+                const modal = document.getElementById('enrolledCourseModal');
+                if (modal) modal.classList.remove('hidden');
+            }
         }
 
         function renderModalLiveSessions() {
@@ -1771,8 +1805,12 @@
         }
 
         function closeEnrolledCourseModal() {
-            const modal = document.getElementById('enrolledCourseModal');
-            modal.classList.add('hidden');
+            if (window.closeModal) {
+                window.closeModal('enrolledCourseModal');
+            } else {
+                const modal = document.getElementById('enrolledCourseModal');
+                if (modal) modal.classList.add('hidden');
+            }
         }
 
         // ── Live Session Countdown Timers ──────────────────────────────────────────
