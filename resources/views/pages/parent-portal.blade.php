@@ -176,7 +176,7 @@
         </div>
 
         {{-- Section 2: Selected Child Detailed Performance Panel --}}
-        <div id="section-progress" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6 scroll-mt-28">
+        <div id="section-progress" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6 scroll-mt-28 min-w-0">
             <div id="section-sessions" class="scroll-mt-28"></div>
             <div id="section-reports" class="scroll-mt-28"></div>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
@@ -190,7 +190,7 @@
                 </div>
             </div>
 
-            <div id="progressContent" class="space-y-6">
+            <div id="progressContent" class="space-y-6 min-w-0">
                 @if(count($linkedStudents) === 0)
                     <div class="p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
                         <p class="text-sm font-bold text-slate-700">{{ __('Please link a child account above using their phone number to view academic reports.') }}</p>
@@ -315,6 +315,13 @@ async function handleLinkChildSubmit(e) {
         submitBtn.disabled = false;
         submitBtn.textContent = "{{ __('Link Child Account') }}";
     }
+}
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
 }
 
 async function loadStudentProgress(studentId) {
@@ -630,54 +637,54 @@ async function loadStudentProgress(studentId) {
             </div>
 
             {{-- Academic Notifications & Alerts Section --}}
-            <div id="section-notifications" class="space-y-4 pt-6 border-t border-slate-100 scroll-mt-28">
-                <div class="flex items-center justify-between gap-3 flex-wrap">
-                    <div>
+            <div id="section-notifications" class="space-y-4 pt-6 border-t border-slate-100 scroll-mt-28 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="min-w-0">
                         <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                            <span class="text-teal-600"><i class="fa-solid fa-bell"></i></span>
-                            ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
+                            <span class="text-teal-600 shrink-0"><i class="fa-solid fa-bell"></i></span>
+                            <span>${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}</span>
                         </h4>
                         <p class="text-[11px] font-mono text-slate-500 mt-0.5">${isAr ? 'إشعارات الواجبات المصححة، مواعيد الحصص المباشرة، والملاحظات التربوية في الوقت الفعلي' : 'Real-time alerts for graded homework, live class schedules, and teacher notes'}</p>
                     </div>
-                    <span class="text-xs font-mono font-extrabold px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                    <span class="text-xs font-mono font-extrabold px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200 shrink-0 whitespace-nowrap self-start sm:self-auto">
                         ${data.notifications ? data.notifications.length : 0} ${isAr ? 'تنبيهات مباشرة' : 'live alerts'}
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
         `;
 
         if (data.notifications && data.notifications.length > 0) {
             data.notifications.forEach(n => {
                 const colorMap = {
-                    emerald: { bg: 'bg-emerald-50/70', border: 'border-emerald-200/90', text: 'text-emerald-800', badge: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-                    teal: { bg: 'bg-teal-50/70', border: 'border-teal-200/90', text: 'text-teal-800', badge: 'bg-teal-100 text-teal-800 border-teal-300' },
-                    blue: { bg: 'bg-sky-50/70', border: 'border-sky-200/90', text: 'text-sky-800', badge: 'bg-sky-100 text-sky-800 border-sky-300' },
-                    amber: { bg: 'bg-amber-50/70', border: 'border-amber-200/90', text: 'text-amber-800', badge: 'bg-amber-100 text-amber-800 border-amber-300' },
-                    rose: { bg: 'bg-rose-50/70', border: 'border-rose-200/90', text: 'text-rose-800', badge: 'bg-rose-100 text-rose-800 border-rose-300' },
-                    purple: { bg: 'bg-purple-50/70', border: 'border-purple-200/90', text: 'text-purple-800', badge: 'bg-purple-100 text-purple-800 border-purple-300' },
-                    indigo: { bg: 'bg-indigo-50/70', border: 'border-indigo-200/90', text: 'text-indigo-800', badge: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+                    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', badge: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+                    teal: { bg: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-800', badge: 'bg-teal-100 text-teal-800 border-teal-300' },
+                    blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', badge: 'bg-blue-100 text-blue-800 border-blue-200' },
+                    amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800', badge: 'bg-amber-100 text-amber-800 border-amber-300' },
+                    rose: { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-800', badge: 'bg-rose-100 text-rose-800 border-rose-200' },
+                    purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', badge: 'bg-purple-100 text-purple-800 border-purple-200' },
+                    indigo: { bg: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-800', badge: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
                 };
                 const theme = colorMap[n.color] || colorMap.teal;
 
                 html += `
-                    <div class="p-4.5 ${theme.bg} rounded-2xl border ${theme.border} space-y-2 transition-all hover:shadow-xs">
-                        <div class="flex justify-between items-center text-[11px] font-mono font-bold gap-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[10px] ${theme.badge}">
+                    <div class="p-4 ${theme.bg} rounded-2xl border ${theme.border} space-y-2 transition-all hover:shadow-xs min-w-0 overflow-hidden break-words">
+                        <div class="flex justify-between items-center text-[11px] font-mono font-bold gap-2 min-w-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[10px] ${theme.badge} shrink-0">
                                 <i class="${n.icon || 'fa-solid fa-bell'}"></i> ${escapeHtml(n.category || '')}
                             </span>
                             <span class="text-[10px] text-slate-500 font-normal shrink-0">
                                 <i class="fa-solid fa-clock text-slate-400"></i> ${escapeHtml(n.time || '')}
                             </span>
                         </div>
-                        <h5 class="text-xs font-extrabold text-slate-900 leading-snug">${escapeHtml(n.title)}</h5>
-                        <p class="text-xs text-slate-700 leading-relaxed font-medium">${escapeHtml(n.message)}</p>
+                        <h5 class="text-xs font-extrabold text-slate-900 leading-snug break-words" dir="auto">${escapeHtml(n.title)}</h5>
+                        <p class="text-xs text-slate-700 leading-relaxed font-medium break-words" dir="auto">${escapeHtml(n.message)}</p>
                     </div>
                 `;
             });
         } else {
             html += `
-                <div class="col-span-1 sm:col-span-2 p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+                <div class="col-span-1 md:col-span-2 p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
                     <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto text-xl border border-teal-200">
                         <i class="fa-solid fa-bell-slash"></i>
                     </div>
@@ -703,7 +710,9 @@ async function loadStudentProgress(studentId) {
             }, 200);
         }
     } catch (e) {
-        content.innerHTML = '<div class="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-xs font-bold">Network error while fetching student progress data.</div>';
+        console.error('Error rendering student progress:', e);
+        const isArLang = "{{ app()->getLocale() }}" === "ar";
+        content.innerHTML = `<div class="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-xs font-bold">${isArLang ? 'حدث خطأ أثناء عرض بيانات الطالب. يرجى المحاولة مرة أخرى.' : 'Error displaying student progress data. Please try again.'}</div>`;
     }
 }
 
