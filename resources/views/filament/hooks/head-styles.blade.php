@@ -30,25 +30,21 @@
     }
 
     /* --- Background & Overall Canvas --- */
-    .fi-body {
+    html:not(.dark) .fi-body,
+    html:not(.dark) .fi-main-ctn {
         background-color: #F8FAFC !important;
     }
 
-    .fi-main-ctn {
-        background-color: #F8FAFC !important;
-    }
-
-    /* --- Sidebar: Sleek Dark Slate Navy Theme --- */
-    aside.fi-sidebar {
-        background: linear-gradient(180deg, #0F172A 0%, #020617 100%) !important;
-        border-right: 1px solid rgba(30, 41, 59, 0.8) !important;
-        border-left: 1px solid rgba(30, 41, 59, 0.8) !important;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+    /* --- Sidebar: Universal Layout & Geometry --- */
+    .fi-sidebar,
+    #fi-main-sidebar,
+    div.fi-sidebar {
+        transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
     }
 
     .fi-sidebar-header {
-        border-bottom: 1px solid rgba(30, 41, 59, 0.8) !important;
         padding: 1.25rem 1rem !important;
+        transition: background-color 0.25s ease, border-color 0.25s ease !important;
     }
 
     .fi-sidebar-header a img {
@@ -58,12 +54,12 @@
     .fi-sidebar-group-label {
         font-family: 'Cairo', sans-serif !important;
         font-weight: 800 !important;
-        font-size: 0.7rem !important;
+        font-size: 0.72rem !important;
         letter-spacing: 0.05em !important;
         text-transform: uppercase !important;
-        color: #94A3B8 !important;
         margin-top: 0.75rem !important;
         margin-bottom: 0.25rem !important;
+        transition: color 0.2s ease !important;
     }
 
     .fi-sidebar-item-btn {
@@ -72,68 +68,168 @@
         font-weight: 700 !important;
         font-size: 0.825rem !important;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        color: #CBD5E1 !important;
     }
 
     .fi-sidebar-item-btn:hover {
-        background-color: rgba(15, 118, 110, 0.25) !important;
-        color: #5EEAD4 !important;
         transform: translateX(-2px);
     }
     html[dir="rtl"] .fi-sidebar-item-btn:hover {
         transform: translateX(2px) !important;
     }
 
+    .fi-sidebar-item-icon {
+        transition: transform 0.2s ease, color 0.2s ease !important;
+    }
+
+    .fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
+        transform: scale(1.12) !important;
+    }
+
+    /* --- ACTIVE SIDEBAR ITEM: 100% PURE WHITE TEXT & ICON IN BOTH LIGHT AND DARK MODES --- */
+    .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+    .fi-sidebar-item.fi-active > a,
+    .fi-sidebar-item.fi-active > button,
     .fi-sidebar-item-btn.fi-active,
     .fi-sidebar-item-btn[aria-current="page"] {
-        background: linear-gradient(135deg, rgba(13, 148, 136, 0.9) 0%, rgba(15, 118, 110, 0.95) 100%) !important;
+        background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
         color: #FFFFFF !important;
         font-weight: 800 !important;
         box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35) !important;
     }
 
+    .fi-sidebar-item.fi-active > .fi-sidebar-item-btn *,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-label,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-icon svg,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-icon i,
+    .fi-sidebar-item-btn.fi-active *,
+    .fi-sidebar-item-btn.fi-active .fi-sidebar-item-label,
     .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon,
-    .fi-sidebar-item-btn[aria-current="page"] .fi-sidebar-item-icon {
+    .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon svg,
+    .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon i,
+    .fi-sidebar-item-btn[aria-current="page"] *,
+    .fi-sidebar-item-btn[aria-current="page"] .fi-sidebar-item-label,
+    .fi-sidebar-item-btn[aria-current="page"] .fi-sidebar-item-icon,
+    .fi-sidebar-item-btn[aria-current="page"] .fi-sidebar-item-icon svg,
+    .fi-sidebar-item-btn[aria-current="page"] .fi-sidebar-item-icon i {
+        color: #FFFFFF !important;
+        fill: #FFFFFF !important;
+        stroke: #FFFFFF !important;
+        font-weight: 800 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .fi-sidebar-item.fi-active > .fi-sidebar-item-btn:hover,
+    .fi-sidebar-item-btn.fi-active:hover,
+    .fi-sidebar-item-btn[aria-current="page"]:hover {
+        background: linear-gradient(135deg, #0F766E 0%, #115E59 100%) !important;
         color: #FFFFFF !important;
     }
 
-    .fi-sidebar-item-icon {
-        color: #2DD4BF !important;
-        transition: transform 0.2s ease !important;
+    .fi-sidebar-item.fi-active > .fi-sidebar-item-btn:hover *,
+    .fi-sidebar-item-btn.fi-active:hover *,
+    .fi-sidebar-item-btn[aria-current="page"]:hover * {
+        color: #FFFFFF !important;
+        fill: #FFFFFF !important;
     }
 
-    .fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
-        transform: scale(1.15) !important;
+    /* ══════════════════════════════════════════════════════════════════════════
+       LIGHT MODE: SIDEBAR & TOPBAR THEME (Crisp White Canvas, Dark Slate Text)
+       ══════════════════════════════════════════════════════════════════════════ */
+    html:not(.dark) .fi-sidebar,
+    html:not(.dark) #fi-main-sidebar,
+    html:not(.dark) div.fi-sidebar {
+        background-color: #FFFFFF !important;
+        border-right: 1px solid #E2E8F0 !important;
+        border-left: 1px solid #E2E8F0 !important;
+        box-shadow: 2px 0 16px rgba(0, 0, 0, 0.04) !important;
     }
 
-    .fi-sidebar-footer {
-        border-top: 1px solid rgba(30, 41, 59, 0.8) !important;
-        background: rgba(2, 6, 23, 0.6) !important;
+    html:not(.dark) .fi-sidebar-header {
+        border-bottom: 1px solid #F1F5F9 !important;
+        background-color: #FFFFFF !important;
     }
 
-    /* --- Topbar / Header: Frosted Glass Effect --- */
-    header.fi-topbar {
-        background: rgba(255, 255, 255, 0.92) !important;
+    html:not(.dark) .fi-sidebar-group-label {
+        color: #64748B !important;
+    }
+
+    html:not(.dark) .fi-sidebar-group-collapse-btn {
+        color: #94A3B8 !important;
+    }
+    html:not(.dark) .fi-sidebar-group-collapse-btn:hover {
+        color: #0F172A !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) {
+        color: #334155 !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) .fi-sidebar-item-label,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) .fi-sidebar-item-label {
+        color: #334155 !important;
+        font-weight: 700 !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) .fi-sidebar-item-icon,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) .fi-sidebar-item-icon {
+        color: #0D9488 !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover {
+        background-color: rgba(13, 148, 136, 0.08) !important;
+        color: #0F766E !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover .fi-sidebar-item-label,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover .fi-sidebar-item-label {
+        color: #0F766E !important;
+    }
+
+    html:not(.dark) .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover .fi-sidebar-item-icon,
+    html:not(.dark) .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover .fi-sidebar-item-icon {
+        color: #0D9488 !important;
+    }
+
+    html:not(.dark) .fi-sidebar-footer {
+        border-top: 1px solid #F1F5F9 !important;
+        background-color: #F8FAFC !important;
+    }
+
+    /* --- Light Mode: Topbar / Header --- */
+    html:not(.dark) header.fi-topbar {
+        background: rgba(255, 255, 255, 0.94) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         border-bottom: 1px solid #E2E8F0 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
     }
 
-    .fi-topbar-nav {
+    html:not(.dark) .fi-topbar-nav {
         padding: 0.5rem 1.5rem !important;
     }
 
-    .fi-global-search-input-ctn input {
+    html:not(.dark) .fi-topbar .fi-icon-btn {
+        color: #475569 !important;
+    }
+    html:not(.dark) .fi-topbar .fi-icon-btn:hover {
+        color: #0D9488 !important;
+        background-color: #F1F5F9 !important;
+    }
+
+    html:not(.dark) .fi-global-search-input-ctn input {
         border-radius: 1rem !important;
         border: 1.5px solid #E2E8F0 !important;
         background-color: #F1F5F9 !important;
         font-size: 0.85rem !important;
         font-weight: 600 !important;
+        color: #0F172A !important;
         transition: all 0.2s ease !important;
     }
 
-    .fi-global-search-input-ctn input:focus {
+    html:not(.dark) .fi-global-search-input-ctn input:focus {
         background-color: #FFFFFF !important;
         border-color: #0D9488 !important;
         box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
@@ -364,11 +460,137 @@
         background-color: #0B1120 !important;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════════
+       DARK MODE: SIDEBAR & TOPBAR THEME (Deep Navy Canvas, Crisp Mint Text)
+       ══════════════════════════════════════════════════════════════════════════ */
+    html.dark .fi-sidebar,
+    html.dark #fi-main-sidebar,
+    html.dark div.fi-sidebar {
+        background: linear-gradient(180deg, #0F172A 0%, #020617 100%) !important;
+        border-right: 1px solid rgba(51, 65, 85, 0.6) !important;
+        border-left: 1px solid rgba(51, 65, 85, 0.6) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    html.dark .fi-sidebar-header {
+        border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+        background: rgba(15, 23, 42, 0.7) !important;
+    }
+
+    html.dark .fi-sidebar-group-label {
+        color: #94A3B8 !important;
+    }
+
+    html.dark .fi-sidebar-group-collapse-btn {
+        color: #64748B !important;
+    }
+    html.dark .fi-sidebar-group-collapse-btn:hover {
+        color: #E2E8F0 !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) {
+        color: #CBD5E1 !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) .fi-sidebar-item-label,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) .fi-sidebar-item-label {
+        color: #CBD5E1 !important;
+        font-weight: 700 !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) .fi-sidebar-item-icon,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]) .fi-sidebar-item-icon {
+        color: #2DD4BF !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover {
+        background-color: rgba(15, 118, 110, 0.25) !important;
+        color: #5EEAD4 !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover .fi-sidebar-item-label,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover .fi-sidebar-item-label {
+        color: #5EEAD4 !important;
+    }
+
+    html.dark .fi-sidebar-item:not(.fi-active) > .fi-sidebar-item-btn:hover .fi-sidebar-item-icon,
+    html.dark .fi-sidebar-item-btn:not(.fi-active):not([aria-current="page"]):hover .fi-sidebar-item-icon {
+        color: #5EEAD4 !important;
+    }
+
+    html.dark .fi-sidebar-footer {
+        border-top: 1px solid rgba(51, 65, 85, 0.6) !important;
+        background: rgba(2, 6, 23, 0.7) !important;
+    }
+
+    /* --- Dark Mode: Topbar / Header --- */
     html.dark header.fi-topbar {
-        background: rgba(15, 23, 42, 0.88) !important;
+        background: rgba(15, 23, 42, 0.92) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         border-bottom: 1px solid rgba(51, 65, 85, 0.7) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    html.dark .fi-topbar-nav {
+        padding: 0.5rem 1.5rem !important;
+    }
+
+    html.dark .fi-topbar .fi-icon-btn {
+        color: #94A3B8 !important;
+    }
+    html.dark .fi-topbar .fi-icon-btn:hover {
+        color: #2DD4BF !important;
+        background-color: rgba(51, 65, 85, 0.5) !important;
+    }
+
+    /* --- Dropdowns & Flyouts (Dual Mode) --- */
+    html:not(.dark) .fi-dropdown-panel {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        border-radius: 1rem !important;
+    }
+    html:not(.dark) .fi-dropdown-list-item-btn {
+        color: #334155 !important;
+        font-weight: 700 !important;
+    }
+    html:not(.dark) .fi-dropdown-list-item-btn:hover {
+        background-color: #F1F5F9 !important;
+        color: #0F766E !important;
+    }
+
+    html.dark .fi-dropdown-panel {
+        background-color: #0F172A !important;
+        border: 1px solid rgba(51, 65, 85, 0.8) !important;
+        box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5) !important;
+        border-radius: 1rem !important;
+    }
+    html.dark .fi-dropdown-list-item-btn {
+        color: #CBD5E1 !important;
+        font-weight: 700 !important;
+    }
+    html.dark .fi-dropdown-list-item-btn:hover {
+        background-color: rgba(30, 41, 59, 0.8) !important;
+        color: #5EEAD4 !important;
+    }
+
+    /* --- Breadcrumbs (Dual Mode) --- */
+    html:not(.dark) .fi-breadcrumbs-item-label {
+        color: #64748B !important;
+        font-weight: 700 !important;
+    }
+    html:not(.dark) .fi-breadcrumbs-item-label:hover {
+        color: #0D9488 !important;
+    }
+    html.dark .fi-breadcrumbs-item-label {
+        color: #94A3B8 !important;
+        font-weight: 700 !important;
+    }
+    html.dark .fi-breadcrumbs-item-label:hover {
+        color: #2DD4BF !important;
     }
 
     html.dark .fi-global-search-input-ctn input {

@@ -527,46 +527,101 @@ async function loadStudentProgress(studentId) {
 
                 {{-- Column 2: Live Stream Attendance Logs & Schedule --}}
                 <div id="section-attendance" class="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-200/80 scroll-mt-28">
-                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                        <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                            <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> ${isAr ? 'سجل حضور البث المباشر والحصص القادمة' : 'Live Stream Attendance Log & Upcoming'}
-                        </h4>
-                        <span class="text-xs font-mono font-bold text-slate-500">${data.attendance.logs ? data.attendance.logs.length : 0} ${isAr ? 'جلسات مسجلة' : 'sessions'}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-3 gap-2">
+                        <div>
+                            <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                ${isAr ? 'سجل حضور البث المباشر والحصص' : 'Live Stream Attendance & Classes'}
+                            </h4>
+                            <p class="text-[11px] font-mono text-slate-500 mt-0.5">${isAr ? 'متابعة الحصص القادمة وسجلات الحضور والغياب المؤكدة' : 'Monitor upcoming live classes & verified attendance logs'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-teal-100 text-teal-800 border border-teal-200">
+                                ${data.attendance.rate} ${isAr ? 'نسبة الحضور' : 'Attendance'}
+                            </span>
+                            <span class="text-xs font-mono font-bold text-slate-500">
+                                ${data.attendance.logs ? data.attendance.logs.length : 0} ${isAr ? 'جلسات' : 'sessions'}
+                            </span>
+                        </div>
                     </div>
-                    <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+
+                    <div class="space-y-3 max-h-[440px] overflow-y-auto pr-1 custom-scrollbar">
         `;
 
+        // 1. Upcoming Live Sessions
         if (data.upcoming_sessions && data.upcoming_sessions.length > 0) {
+            html += `
+                <div class="pt-1 pb-1">
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                        <i class="fa-solid fa-calendar-days"></i> ${isAr ? 'الحصص المباشرة القادمة' : 'Upcoming Live Classes'}
+                    </span>
+                </div>
+            `;
             data.upcoming_sessions.forEach(s => {
                 html += `
-                    <div class="p-3.5 bg-blue-50/80 rounded-2xl border border-blue-200 shadow-2xs space-y-1">
-                        <div class="flex justify-between items-center gap-2">
-                            <span class="font-bold text-xs text-blue-950 flex items-center gap-1"><span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span> ${s.title}</span>
-                            <span class="text-[10px] font-mono font-extrabold bg-blue-200 text-blue-900 px-2 py-0.5 rounded-lg whitespace-nowrap">${s.scheduled_at}</span>
+                    <div class="p-3.5 bg-gradient-to-r from-teal-50/90 to-emerald-50/70 rounded-2xl border border-teal-200/90 shadow-2xs space-y-1.5 transition-all hover:shadow-xs">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="font-bold text-xs text-teal-950 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                                ${escapeHtml(s.title)}
+                            </span>
+                            <span class="text-[10px] font-mono font-extrabold bg-teal-200/80 text-teal-900 px-2 py-0.5 rounded-lg whitespace-nowrap shrink-0">
+                                <i class="fa-solid fa-clock"></i> ${escapeHtml(s.scheduled_at)}
+                            </span>
                         </div>
-                        <p class="text-[11px] font-mono text-blue-800">${s.subject_name} • <i class="fa-solid fa-chalkboard-user"></i> ${s.teacher_name}</p>
+                        <div class="flex justify-between items-center text-[11px] font-mono text-teal-800">
+                            <span><i class="fa-solid fa-book-open text-teal-600"></i> ${escapeHtml(s.subject_name)}</span>
+                            <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i> ${escapeHtml(s.teacher_name)}</span>
+                        </div>
                     </div>
                 `;
             });
         }
 
+        // 2. Verified Attendance Logs
         if (data.attendance.logs && data.attendance.logs.length > 0) {
+            html += `
+                <div class="pt-2 pb-1">
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                        <i class="fa-solid fa-clipboard-check"></i> ${isAr ? 'سجل الحضور المؤكد' : 'Verified Attendance Logs'}
+                    </span>
+                </div>
+            `;
             data.attendance.logs.forEach(att => {
+                let badgeHtml = '';
+                if (att.status === 'present') {
+                    badgeHtml = `<span class="text-[10px] font-mono font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md whitespace-nowrap">${isAr ? 'حضور مؤكد <i class="fa-solid fa-check"></i>' : 'Attended <i class="fa-solid fa-check"></i>'}</span>`;
+                } else if (att.status === 'late') {
+                    badgeHtml = `<span class="text-[10px] font-mono font-extrabold bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md whitespace-nowrap">${isAr ? 'متأخر <i class="fa-solid fa-clock"></i>' : 'Late <i class="fa-solid fa-clock"></i>'}</span>`;
+                } else if (att.status === 'absent') {
+                    badgeHtml = `<span class="text-[10px] font-mono font-extrabold bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded-md whitespace-nowrap">${isAr ? 'غائب <i class="fa-solid fa-xmark"></i>' : 'Absent <i class="fa-solid fa-xmark"></i>'}</span>`;
+                } else {
+                    badgeHtml = `<span class="text-[10px] font-mono font-extrabold bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md whitespace-nowrap">${isAr ? 'معذور' : 'Excused'}</span>`;
+                }
+
                 html += `
-                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-                        <div class="flex justify-between items-center gap-2">
-                            <span class="font-bold text-xs text-slate-900">${att.session_title}</span>
-                            <span class="text-[10px] font-mono font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">${isAr ? 'حضور مؤكد <i class="fa-solid fa-check"></i>' : 'Attended <i class="fa-solid fa-check"></i>'}</span>
+                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1.5 transition-all hover:border-teal-300">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="font-bold text-xs text-slate-900">${escapeHtml(att.session_title)}</span>
+                            ${badgeHtml}
                         </div>
                         <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
-                            <span><i class="fa-solid fa-chalkboard-user"></i> ${att.teacher} (${att.subject})</span>
-                            <span><i class="fa-solid fa-stopwatch"></i> ${att.duration_minutes} ${isAr ? 'دقيقة' : 'mins'} • <i class="fa-solid fa-calendar-days"></i> ${att.joined_at}</span>
+                            <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i> ${escapeHtml(att.teacher)} (${escapeHtml(att.subject)})</span>
+                            <span><i class="fa-solid fa-calendar-days text-slate-400"></i> ${escapeHtml(att.joined_at)}</span>
                         </div>
                     </div>
                 `;
             });
         } else if (!data.upcoming_sessions || data.upcoming_sessions.length === 0) {
-            html += `<div class="p-4 bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">${isAr ? 'لا توجد سجلات حضور حالياً.' : 'No attendance logs recorded.'}</div>`;
+            html += `
+                <div class="p-6 bg-white rounded-2xl border border-slate-200 text-center space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-lg">
+                        <i class="fa-solid fa-calendar-xmark"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-700">${isAr ? 'لا توجد حصص مجدولة أو سجلات حضور مسجلة لهذا الطالب حتى الآن.' : 'No live sessions or attendance records logged yet.'}</p>
+                    <p class="text-[11px] font-mono text-slate-400">${isAr ? 'ستظهر الحصص القادمة وسجلات الحضور فور تسجيلها.' : 'Live attendance will appear as sessions are held.'}</p>
+                </div>
+            `;
         }
 
         html += `
@@ -576,23 +631,61 @@ async function loadStudentProgress(studentId) {
 
             {{-- Academic Notifications & Alerts Section --}}
             <div id="section-notifications" class="space-y-4 pt-6 border-t border-slate-100 scroll-mt-28">
-                <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                    <span><i class="fa-solid fa-bell"></i></span> ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
-                </h4>
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <h4 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
+                            <span class="text-teal-600"><i class="fa-solid fa-bell"></i></span>
+                            ${isAr ? 'التنبيهات الأكاديمية الخاصة بالطالب' : 'Student Academic Notifications & Alerts'}
+                        </h4>
+                        <p class="text-[11px] font-mono text-slate-500 mt-0.5">${isAr ? 'إشعارات الواجبات المصححة، مواعيد الحصص المباشرة، والملاحظات التربوية في الوقت الفعلي' : 'Real-time alerts for graded homework, live class schedules, and teacher notes'}</p>
+                    </div>
+                    <span class="text-xs font-mono font-extrabold px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                        ${data.notifications ? data.notifications.length : 0} ${isAr ? 'تنبيهات مباشرة' : 'live alerts'}
+                    </span>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         `;
 
-        data.notifications.forEach(n => {
-            html += `
-                <div class="p-4 bg-teal-50/70 rounded-2xl border border-teal-200/80 space-y-1">
-                    <div class="flex justify-between items-center text-[11px] font-mono font-bold text-teal-800">
-                        <span>${n.title}</span>
-                        <span>${n.time}</span>
+        if (data.notifications && data.notifications.length > 0) {
+            data.notifications.forEach(n => {
+                const colorMap = {
+                    emerald: { bg: 'bg-emerald-50/70', border: 'border-emerald-200/90', text: 'text-emerald-800', badge: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+                    teal: { bg: 'bg-teal-50/70', border: 'border-teal-200/90', text: 'text-teal-800', badge: 'bg-teal-100 text-teal-800 border-teal-300' },
+                    blue: { bg: 'bg-sky-50/70', border: 'border-sky-200/90', text: 'text-sky-800', badge: 'bg-sky-100 text-sky-800 border-sky-300' },
+                    amber: { bg: 'bg-amber-50/70', border: 'border-amber-200/90', text: 'text-amber-800', badge: 'bg-amber-100 text-amber-800 border-amber-300' },
+                    rose: { bg: 'bg-rose-50/70', border: 'border-rose-200/90', text: 'text-rose-800', badge: 'bg-rose-100 text-rose-800 border-rose-300' },
+                    purple: { bg: 'bg-purple-50/70', border: 'border-purple-200/90', text: 'text-purple-800', badge: 'bg-purple-100 text-purple-800 border-purple-300' },
+                    indigo: { bg: 'bg-indigo-50/70', border: 'border-indigo-200/90', text: 'text-indigo-800', badge: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+                };
+                const theme = colorMap[n.color] || colorMap.teal;
+
+                html += `
+                    <div class="p-4.5 ${theme.bg} rounded-2xl border ${theme.border} space-y-2 transition-all hover:shadow-xs">
+                        <div class="flex justify-between items-center text-[11px] font-mono font-bold gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[10px] ${theme.badge}">
+                                <i class="${n.icon || 'fa-solid fa-bell'}"></i> ${escapeHtml(n.category || '')}
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-normal shrink-0">
+                                <i class="fa-solid fa-clock text-slate-400"></i> ${escapeHtml(n.time || '')}
+                            </span>
+                        </div>
+                        <h5 class="text-xs font-extrabold text-slate-900 leading-snug">${escapeHtml(n.title)}</h5>
+                        <p class="text-xs text-slate-700 leading-relaxed font-medium">${escapeHtml(n.message)}</p>
                     </div>
-                    <p class="text-xs text-slate-800 font-semibold">${n.message}</p>
+                `;
+            });
+        } else {
+            html += `
+                <div class="col-span-1 sm:col-span-2 p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto text-xl border border-teal-200">
+                        <i class="fa-solid fa-bell-slash"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-800">${isAr ? 'لا توجد تنبيهات أكاديمية مسجلة حالياً لهذا الطالب.' : 'No academic alerts recorded for this student yet.'}</p>
+                    <p class="text-[11px] font-mono text-slate-500">${isAr ? 'ستظهر الإشعارات والتنبيهات المباشرة فور تصحيح الواجبات أو جدولة الحصص.' : 'Real-time alerts will appear automatically when assignments are graded or sessions scheduled.'}</p>
                 </div>
             `;
-        });
+        }
 
         html += `
                 </div>

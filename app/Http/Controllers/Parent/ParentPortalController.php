@@ -115,25 +115,85 @@ class ParentPortalController extends Controller
             ->limit(10)
             ->get();
 
-        // 3. Real Attendance Logs & Computation
-        $attendanceRecords = \App\Models\MeetingAttendance::where('student_user_id', $studentUserId)
-            ->with(['liveSession.course', 'liveSession.subject', 'liveSession.teacherProfile.user'])
-            ->orderBy('joined_at', 'desc')
-            ->limit(20)
+        // 3. Real Attendance Logs & Computation (Merged from StudentSession, Direct LiveSession, and MeetingAttendance)
+        $studentSessions = \App\Models\StudentSession::where('student_user_id', $studentUserId)
+            ->with(['liveSession.course.subject', 'liveSession.course.teacher.user', 'liveSession.teacherProfile.user', 'liveSession.subject'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        $totalAttended = $attendanceRecords->whereIn('status', ['attended', 'completed', 'present'])->count();
-        $totalSessionsCount = $attendanceRecords->count();
-        $absencesCount = max(0, $totalSessionsCount - $totalAttended);
-        $attendanceRate = $totalSessionsCount > 0 
-            ? round(($totalAttended / $totalSessionsCount) * 100) . '%' 
-            : '95%';
+        $meetingAttendances = \App\Models\MeetingAttendance::where('student_user_id', $studentUserId)
+            ->with(['liveSession.course.subject', 'liveSession.course.teacher.user', 'liveSession.teacherProfile.user', 'liveSession.subject'])
+            ->orderBy('joined_at', 'desc')
+            ->get();
 
-        if ($totalSessionsCount === 0) {
-            $totalAttended = max(1, $enrollments->count() * 4);
-            $absencesCount = 0;
-            $attendanceRate = '100%';
+        $directSessions = LiveSession::where('student_user_id', $studentUserId)
+            ->whereNotNull('attendance_status')
+            ->with(['course.subject', 'course.teacher.user', 'teacherProfile.user', 'subject'])
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
+
+        $attendanceLogsMap = collect();
+
+        foreach ($studentSessions as $ss) {
+            $sess = $ss->liveSession;
+            if (! $sess) continue;
+            $rawStatus = $ss->attendance_status;
+            $status = in_array($rawStatus, ['present', 'late', 'absent', 'excused'], true) ? $rawStatus : 'present';
+            $attendanceLogsMap->put($sess->id, [
+                'session_id' => $sess->id,
+                'session_title' => $sess->title ?: ($sess->course?->title ?: __('Live Class Session')),
+                'subject' => $sess->subject?->name ?: ($sess->course?->subject?->name ?: __('Curriculum')),
+                'teacher' => $sess->teacherProfile?->user?->name ?: ($sess->course?->teacher?->user?->name ?: __('Instructor')),
+                'joined_at' => $ss->completed_at ? $ss->completed_at->format('Y-m-d h:i A') : ($ss->created_at ? $ss->created_at->format('Y-m-d h:i A') : __('Recorded')),
+                'duration_minutes' => $sess->duration_minutes ?: 60,
+                'status' => $status,
+            ]);
         }
+
+        foreach ($directSessions as $ds) {
+            if (! $attendanceLogsMap->has($ds->id)) {
+                $rawStatus = $ds->attendance_status;
+                $status = in_array($rawStatus, ['present', 'late', 'absent', 'excused'], true) ? $rawStatus : 'present';
+                $attendanceLogsMap->put($ds->id, [
+                    'session_id' => $ds->id,
+                    'session_title' => $ds->title ?: ($ds->course?->title ?: __('Live Class Session')),
+                    'subject' => $ds->subject?->name ?: ($ds->course?->subject?->name ?: __('Curriculum')),
+                    'teacher' => $ds->teacherProfile?->user?->name ?: ($ds->course?->teacher?->user?->name ?: __('Instructor')),
+                    'joined_at' => $ds->scheduled_at ? $ds->scheduled_at->format('Y-m-d h:i A') : __('Recorded'),
+                    'duration_minutes' => $ds->duration_minutes ?: 60,
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        foreach ($meetingAttendances as $ma) {
+            $sess = $ma->liveSession;
+            if ($sess && ! $attendanceLogsMap->has($sess->id)) {
+                $rawStatus = $ma->status;
+                $status = in_array($rawStatus, ['attended', 'present', 'completed'], true) ? 'present' : ($rawStatus === 'absent' ? 'absent' : 'present');
+                $attendanceLogsMap->put($sess->id, [
+                    'session_id' => $sess->id,
+                    'session_title' => $sess->title ?: ($sess->course?->title ?: __('Live Class Session')),
+                    'subject' => $sess->subject?->name ?: ($sess->course?->subject?->name ?: __('Curriculum')),
+                    'teacher' => $sess->teacherProfile?->user?->name ?: ($sess->course?->teacher?->user?->name ?: __('Instructor')),
+                    'joined_at' => $ma->joined_at ? $ma->joined_at->format('Y-m-d h:i A') : ($ma->created_at ? $ma->created_at->format('Y-m-d h:i A') : __('Verified')),
+                    'duration_minutes' => $ma->duration_seconds ? round($ma->duration_seconds / 60) : ($sess->duration_minutes ?: 60),
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        $allAttendanceLogs = $attendanceLogsMap->values();
+        $totalSessionsCount = $allAttendanceLogs->count();
+        $totalAttended = $allAttendanceLogs->where('status', 'present')->count();
+        $lateCount = $allAttendanceLogs->where('status', 'late')->count();
+        $absencesCount = $allAttendanceLogs->where('status', 'absent')->count();
+        $excusedCount = $allAttendanceLogs->where('status', 'excused')->count();
+
+        $effectiveAttended = $totalAttended + ($lateCount * 0.5);
+        $attendanceRate = $totalSessionsCount > 0
+            ? round(($effectiveAttended / $totalSessionsCount) * 100) . '%'
+            : '100%';
 
         // 4. Homework Submissions & Graded Evaluation History
         $submissions = AssignmentSubmission::where('student_user_id', $studentUserId)
@@ -153,29 +213,125 @@ class ParentPortalController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
-        // 6. Student Notifications & Alerts
-        $studentUser = $studentProfile->user;
+        // 6. Real Student Notifications & Academic Alerts
         $notifications = [];
-        if ($studentUser && \Illuminate\Support\Facades\Schema::hasTable('notifications')) {
-            try {
-                $notifications = $studentUser->notifications()
-                    ->limit(6)
-                    ->get()
-                    ->map(fn ($n) => [
-                        'title' => $n->data['title'] ?? __('Academic Update'),
-                        'message' => $n->data['message'] ?? __('New academic notification recorded.'),
-                        'time' => $n->created_at ? $n->created_at->diffForHumans() : __('Recently'),
-                    ])->toArray();
-            } catch (\Throwable $e) {
-                $notifications = [];
+        $rawNotifications = \App\Models\UserNotification::where('user_id', $studentUserId)
+            ->orderBy('created_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($rawNotifications as $n) {
+            $type = strtoupper((string) $n->type);
+            $icon = 'fa-solid fa-bell';
+            $badgeColor = 'teal';
+            $category = __('Academic Alert');
+
+            if (str_contains($type, 'ASSIGNMENT_GRADED') || str_contains($type, 'SUBMISSION')) {
+                $icon = 'fa-solid fa-clipboard-check';
+                $badgeColor = 'emerald';
+                $category = __('Graded Assignment');
+            } elseif (str_contains($type, 'ASSIGNMENT_ADDED') || str_contains($type, 'ASSIGNMENT')) {
+                $icon = 'fa-solid fa-file-pen';
+                $badgeColor = 'teal';
+                $category = __('Homework Assignment');
+            } elseif (str_contains($type, 'DEADLINE')) {
+                $icon = 'fa-solid fa-hourglass-half';
+                $badgeColor = 'amber';
+                $category = __('Submission Deadline');
+            } elseif (str_contains($type, 'SESSION_OPENED') || str_contains($type, 'SESSION_STARTED')) {
+                $icon = 'fa-solid fa-video';
+                $badgeColor = 'emerald';
+                $category = __('Live Session Active');
+            } elseif (str_contains($type, 'SESSION')) {
+                $icon = 'fa-solid fa-calendar-days';
+                $badgeColor = 'blue';
+                $category = __('Live Schedule');
+            } elseif (str_contains($type, 'APPROVAL')) {
+                $icon = 'fa-solid fa-shield-check';
+                $badgeColor = 'indigo';
+                $category = __('Admin Approval');
+            } elseif (str_contains($type, 'NOTE')) {
+                $icon = 'fa-solid fa-comment-dots';
+                $badgeColor = 'purple';
+                $category = __('Teacher Note');
+            } elseif (str_contains($type, 'ABSENT') || str_contains($type, 'ATTENDANCE')) {
+                $icon = 'fa-solid fa-triangle-exclamation';
+                $badgeColor = 'rose';
+                $category = __('Attendance Check');
             }
+
+            $notifications[] = [
+                'id' => $n->id,
+                'type' => $n->type,
+                'category' => $category,
+                'icon' => $icon,
+                'color' => $badgeColor,
+                'title' => $n->title,
+                'message' => $n->body,
+                'is_read' => (bool) $n->is_read,
+                'time' => $n->created_at ? $n->created_at->diffForHumans() : __('Recently'),
+                'date' => $n->created_at ? $n->created_at->format('Y-m-d h:i A') : '',
+            ];
         }
 
+        // If no user_notifications rows exist, synthesize real-time events from actual student records
         if (empty($notifications)) {
-            $notifications = [
-                ['title' => __('Assignment Update'), 'message' => __('Physics Assignment graded with score 95%'), 'time' => __('2 hours ago')],
-                ['title' => __('Live Class Reminder'), 'message' => __('Chemistry Live Stream scheduled for tomorrow at 05:00 PM'), 'time' => __('Yesterday')],
-            ];
+            // 1. Check recent graded submissions
+            foreach ($submissions->take(3) as $sub) {
+                $gradePct = $sub->grade !== null ? $sub->grade . '%' : null;
+                if ($gradePct !== null) {
+                    $notifications[] = [
+                        'id' => 'sub-' . $sub->id,
+                        'type' => 'ASSIGNMENT_GRADED',
+                        'category' => __('Graded Assignment'),
+                        'icon' => 'fa-solid fa-clipboard-check',
+                        'color' => 'emerald',
+                        'title' => __('Assignment Evaluation Completed'),
+                        'message' => __('Assignment ":title" has been graded. Grade: :grade.', ['title' => $sub->assignment?->title ?: __('Assignment'), 'grade' => $gradePct]),
+                        'is_read' => true,
+                        'time' => $sub->submitted_at ? $sub->submitted_at->diffForHumans() : __('Recently'),
+                        'date' => $sub->submitted_at ? $sub->submitted_at->format('Y-m-d h:i A') : '',
+                    ];
+                }
+            }
+
+            // 2. Check teacher educational notes
+            $studentNotes = \App\Models\StudentEducationalNote::where('student_user_id', $studentUserId)
+                ->with('teacherProfile.user')
+                ->latest()
+                ->take(2)
+                ->get();
+
+            foreach ($studentNotes as $sn) {
+                $notifications[] = [
+                    'id' => 'note-' . $sn->id,
+                    'type' => 'EDUCATIONAL_NOTE',
+                    'category' => __('Teacher Note'),
+                    'icon' => 'fa-solid fa-comment-dots',
+                    'color' => 'purple',
+                    'title' => __('Teacher Academic Feedback'),
+                    'message' => $sn->note,
+                    'is_read' => true,
+                    'time' => $sn->created_at ? $sn->created_at->diffForHumans() : __('Recently'),
+                    'date' => $sn->created_at ? $sn->created_at->format('Y-m-d h:i A') : '',
+                ];
+            }
+
+            // 3. Check upcoming sessions
+            foreach ($upcomingSessions->take(2) as $upSess) {
+                $notifications[] = [
+                    'id' => 'sess-' . $upSess->id,
+                    'type' => 'SESSION_REMINDER',
+                    'category' => __('Upcoming Live Class'),
+                    'icon' => 'fa-solid fa-calendar-days',
+                    'color' => 'blue',
+                    'title' => __('Upcoming Live Session Reminder'),
+                    'message' => __('Live class ":title" (:subject) is scheduled for :time.', ['title' => $upSess->title, 'subject' => $upSess->subject?->name ?: __('Class'), 'time' => $upSess->scheduled_at ? $upSess->scheduled_at->format('Y-m-d h:i A') : '']),
+                    'is_read' => true,
+                    'time' => $upSess->scheduled_at ? $upSess->scheduled_at->diffForHumans() : __('Upcoming'),
+                    'date' => $upSess->scheduled_at ? $upSess->scheduled_at->format('Y-m-d h:i A') : '',
+                ];
+            }
         }
 
         return response()->json([
@@ -203,22 +359,21 @@ class ParentPortalController extends Controller
             'attendance' => [
                 'rate' => $attendanceRate,
                 'attended_count' => $totalAttended,
+                'late_count' => $lateCount,
                 'absences_count' => $absencesCount,
-                'logs' => $attendanceRecords->map(fn ($att) => [
-                    'session_title' => $att->liveSession?->title ?: ($att->liveSession?->course?->title ?: __('Live Class Session')),
-                    'subject' => $att->liveSession?->subject?->name ?: ($att->liveSession?->course?->subject?->name ?: __('Curriculum')),
-                    'teacher' => $att->liveSession?->teacherProfile?->user?->name ?: __('Instructor'),
-                    'joined_at' => $att->joined_at ? $att->joined_at->format('Y-m-d H:i') : ($att->created_at ? $att->created_at->format('Y-m-d H:i') : __('Verified')),
-                    'duration_minutes' => $att->duration_seconds ? round($att->duration_seconds / 60) : 60,
-                    'status' => $att->status ?: 'attended',
-                ]),
+                'excused_count' => $excusedCount,
+                'total_sessions_count' => $totalSessionsCount,
+                'has_records' => $totalSessionsCount > 0,
+                'logs' => $allAttendanceLogs,
             ],
             'upcoming_sessions' => $upcomingSessions->map(fn ($s) => [
                 'id' => $s->id,
                 'title' => $s->title ?: ($s->course ? $s->course->title : __('Live Stream Session')),
-                'teacher_name' => $s->teacherProfile?->user?->name ?: __('Dr. Ahmed Mahmoud'),
-                'subject_name' => $s->subject?->name ?: ($s->course?->subject?->name ?: __('Physics')),
+                'teacher_name' => $s->teacherProfile?->user?->name ?: ($s->course?->teacher?->user?->name ?: __('Academic Instructor')),
+                'subject_name' => $s->subject?->name ?: ($s->course?->subject?->name ?: __('Curriculum')),
                 'scheduled_at' => $s->scheduled_at ? $s->scheduled_at->format('Y-m-d h:i A') : __('Today 06:00 PM'),
+                'scheduled_diff' => $s->scheduled_at ? $s->scheduled_at->diffForHumans() : '',
+                'is_today' => $s->scheduled_at ? $s->scheduled_at->isToday() : false,
             ]),
             'submissions' => $submissions->map(fn ($s) => [
                 'assignment_title' => $s->assignment->title ?? __('Homework Assignment'),
