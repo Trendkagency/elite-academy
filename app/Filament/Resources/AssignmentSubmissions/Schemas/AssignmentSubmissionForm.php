@@ -31,7 +31,7 @@ class AssignmentSubmissionForm
                             return $query->latest('created_at');
                         }
                     )
-                    ->label(__('Assignment / Exam Title'))
+                    ->label(app()->getLocale() === 'ar' ? 'الواجب / الاختبار' : 'Assignment / Exam')
                     ->searchable()
                     ->preload()
                     ->live()
@@ -66,7 +66,7 @@ class AssignmentSubmissionForm
                         }
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
-                    ->label(__('Student Name'))
+                    ->label(app()->getLocale() === 'ar' ? 'اسم الطالب' : 'Student Name')
                     ->searchable()
                     ->preload()
                     ->live()
@@ -103,7 +103,7 @@ class AssignmentSubmissionForm
                         }
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "Enrollment #{$record->id} — " . ($record->studentUser?->name ?? 'Student') . " (" . ($record->course?->title ?? 'Course') . ")")
-                    ->label(__('Course Enrollment'))
+                    ->label(app()->getLocale() === 'ar' ? 'التسجيل في الكورس' : 'Course Enrollment')
                     ->searchable()
                     ->preload()
                     ->live()
@@ -117,28 +117,52 @@ class AssignmentSubmissionForm
                     })
                     ->required(),
 
-                DateTimePicker::make('submitted_at')
-                    ->label(__('Submission Date & Time')),
-
                 Select::make('status')
                     ->options([
-                        'pending' => __('Pending Review'),
-                        'submitted' => __('Submitted'),
-                        'completed' => __('Completed (Passed)'),
-                        'late' => __('Submitted Late'),
+                        'completed' => app()->getLocale() === 'ar' ? 'مكتمل (ناجح)' : 'Completed (Passed)',
+                        'reviewed' => app()->getLocale() === 'ar' ? 'تم التقييم' : 'Reviewed',
+                        'submitted' => app()->getLocale() === 'ar' ? 'تم التسليم' : 'Submitted',
+                        'late' => app()->getLocale() === 'ar' ? 'تسليم متأخر' : 'Late Submission',
+                        'in_progress' => app()->getLocale() === 'ar' ? 'جاري الحل' : 'In Progress',
+                        'pending' => app()->getLocale() === 'ar' ? 'قيد المراجعة' : 'Pending Review',
                     ])
                     ->default('completed')
                     ->required()
-                    ->label(__('Submission Status')),
+                    ->label(app()->getLocale() === 'ar' ? 'حالة التسليم' : 'Submission Status'),
 
                 TextInput::make('grade')
-                    ->label(__('Grade Percentage (%)'))
+                    ->label(app()->getLocale() === 'ar' ? 'الدرجة بالنسبة المئوية (%)' : 'Grade Percentage (%)')
                     ->numeric()
-                    ->default(100),
+                    ->minValue(0)
+                    ->maxValue(100)
+                    ->suffix('%')
+                    ->default(100)
+                    ->required(),
+
+                TextInput::make('score')
+                    ->label(app()->getLocale() === 'ar' ? 'النقاط المحصلة' : 'Points Earned')
+                    ->numeric()
+                    ->nullable(),
+
+                TextInput::make('total_points')
+                    ->label(app()->getLocale() === 'ar' ? 'إجمالي نقاط الواجب' : 'Total Available Points')
+                    ->numeric()
+                    ->nullable(),
+
+                DateTimePicker::make('started_at')
+                    ->label(app()->getLocale() === 'ar' ? 'تاريخ ووقت بدء الحل' : 'Started At'),
+
+                DateTimePicker::make('submitted_at')
+                    ->label(app()->getLocale() === 'ar' ? 'تاريخ ووقت التسليم' : 'Submitted At'),
 
                 Textarea::make('teacher_notes')
-                    ->label(__('Teacher Feedback & Review Notes'))
-                    ->rows(4)
+                    ->label(app()->getLocale() === 'ar' ? 'ملاحظات وتوجيهات المعلم' : 'Teacher Feedback & Notes')
+                    ->rows(3)
+                    ->columnSpanFull(),
+
+                Textarea::make('evaluation_notes')
+                    ->label(app()->getLocale() === 'ar' ? 'ملاحظات النظام / التقييم' : 'System Evaluation Notes')
+                    ->rows(2)
                     ->columnSpanFull(),
             ]);
     }

@@ -1,22 +1,87 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth h-full bg-[#FAFAF9] text-slate-900 antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="notranslate scroll-smooth h-full" translate="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="google" content="notranslate">
     <meta name="theme-color" content="#0D9488">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     <link rel="shortcut icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     <title>{{ $pageTitle ?? 'Elite Academy Portal' }}</title>
 
-    {{-- Enforce Pure Light Mode --}}
+    {{-- Enforce Pure Light Mode & Universal Modal Controller --}}
     <script>
-        (function() {
+        // ── Theme Bootstrap: read stored preference BEFORE body paints to avoid FOUC ──
+        (function () {
             try {
-                localStorage.removeItem('theme');
-                document.documentElement.classList.remove('dark');
+                var stored = localStorage.getItem('elite_theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
             } catch (e) {}
         })();
+
+        // Universal Modal Controller (Early Init in Head)
+        window.openModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) {
+                console.warn('[Modal] Element not found:', id);
+                return;
+            }
+
+            modal.classList.add('elite-modal');
+            const dialog = modal.querySelector('.elite-modal-dialog') || modal.firstElementChild;
+            if (dialog && !dialog.classList.contains('elite-modal-dialog')) {
+                dialog.classList.add('elite-modal-dialog');
+            }
+
+            modal.classList.remove('hidden');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('opacity', '1', 'important');
+            modal.style.setProperty('pointer-events', 'auto', 'important');
+            modal.style.setProperty('visibility', 'visible', 'important');
+            modal.classList.add('active');
+
+            if (dialog) {
+                dialog.style.setProperty('opacity', '1', 'important');
+                dialog.style.setProperty('transform', 'scale(1) translateY(0)', 'important');
+            }
+
+            document.body.classList.add('overflow-hidden');
+
+            const focusTarget = modal.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([aria-label="Close"])');
+            if (focusTarget) {
+                setTimeout(() => focusTarget.focus(), 60);
+            }
+        };
+
+        window.closeModal = function (id) {
+            const modal = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!modal) return;
+
+            modal.classList.remove('active');
+            modal.style.setProperty('opacity', '0', 'important');
+            modal.style.setProperty('pointer-events', 'none', 'important');
+
+            const dialog = modal.querySelector('.elite-modal-dialog') || modal.firstElementChild;
+            if (dialog) {
+                dialog.style.setProperty('opacity', '0', 'important');
+                dialog.style.setProperty('transform', 'scale(0.95) translateY(10px)', 'important');
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.setProperty('display', 'none', 'important');
+                const remaining = document.querySelectorAll('.elite-modal.active:not(.hidden)');
+                if (remaining.length === 0) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }, 200);
+        };
     </script>
 
     {{-- Google Fonts: Cairo (AR) & Plus Jakarta Sans / Inter --}}
@@ -33,20 +98,70 @@
             --font-sans: var(--font-family-arabic);
             --font-heading: var(--font-family-arabic);
             --portal-sidebar-w: 280px;
+
+            /* Light mode tokens */
+            --surface-bg:     #FAFAF9;
+            --surface-card:   #FFFFFF;
+            --surface-border: #E2E8F0;
+            --surface-subtle: #F8FAFC;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
         }
         html[lang="en"], [dir="ltr"] {
             --font-sans: var(--font-family-english);
             --font-heading: var(--font-family-english);
         }
+        html.dark {
+            --surface-bg:     #0B0F19;
+            --surface-card:   #0F172A;
+            --surface-border: #1E293B;
+            --surface-subtle: #162032;
+            --text-primary:   #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted:     #475569;
+        }
         html, body, button, input, select, textarea, table, .font-sans, .font-heading {
             font-family: var(--font-sans) !important;
         }
         html, body {
-            background-color: #FAFAF9;
-            color: #0F172A;
+            background-color: var(--surface-bg);
+            color: var(--text-primary);
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* ── Mobile input font-size fix (prevents iOS Safari auto-zoom) ── */
+        .input-mobile {
+            width: 100%;
+            background: var(--surface-subtle);
+            border: 1.5px solid var(--surface-border);
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            font-size: 1rem; /* 16px on mobile */
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            -webkit-appearance: none;
+        }
+        @media (min-width: 640px) { .input-mobile { font-size: 0.8125rem; } }
+        .input-mobile:focus {
+            border-color: #0D9488;
+            box-shadow: 0 0 0 3px rgba(13,148,136,0.15);
+            background: var(--surface-card);
+        }
+        html.dark .input-mobile {
+            background: #1E293B;
+            border-color: #334155;
+            color: #F8FAFC;
+        }
+        html.dark .input-mobile:focus {
+            border-color: #14B8A6;
+            background: #1E293B;
         }
 
         .btn-lift {
@@ -65,11 +180,27 @@
             transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
         }
 
-        /* ─── Elite Responsive Modal System ─── */
+        /* ─── Elite Ultra-Responsive Mobile-First Modal System ─── */
         .elite-modal {
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.24s ease;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        @media (max-width: 640px) {
+            .elite-modal {
+                padding: 0.5rem;
+                padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+            }
         }
         .elite-modal.active {
             opacity: 1;
@@ -83,6 +214,20 @@
             transform: scale(0.95) translateY(10px);
             opacity: 0;
             will-change: transform, opacity;
+            max-height: calc(100dvh - 2rem);
+            max-height: calc(100vh - 2rem);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: auto;
+            box-sizing: border-box;
+        }
+        @media (max-width: 640px) {
+            .elite-modal-dialog {
+                max-height: calc(100dvh - 1.25rem);
+                max-height: calc(100vh - 1.25rem);
+                border-radius: 24px;
+            }
         }
         .elite-modal.active .elite-modal-dialog {
             transform: scale(1) translateY(0);
@@ -368,6 +513,34 @@
                 display: none !important;
             }
         }
+
+        /* ── Dark mode card/surface overrides ── */
+        html.dark .bg-white { background-color: #0F172A !important; }
+        html.dark .bg-\[\#FAFAF9\] { background-color: #0B0F19 !important; }
+        html.dark .bg-slate-50 { background-color: #162032 !important; }
+        html.dark .bg-white\/40 { background-color: rgba(15,23,42,0.4) !important; }
+        html.dark .border-slate-200\/90 { border-color: rgba(30,41,59,0.9) !important; }
+        html.dark .border-slate-200 { border-color: #1E293B !important; }
+        html.dark .border-slate-100 { border-color: #1E293B !important; }
+        html.dark .text-slate-900 { color: #F8FAFC !important; }
+        html.dark .text-slate-800 { color: #E2E8F0 !important; }
+        html.dark .text-slate-700 { color: #CBD5E1 !important; }
+        html.dark .text-slate-600 { color: #94A3B8 !important; }
+        html.dark .text-slate-500 { color: #64748B !important; }
+        html.dark .shadow-xl { box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; }
+
+        /* ── Responsive Tab Bar Scroll ── */
+        .teacher-tab-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            scroll-snap-type: x proximity;
+        }
+        .teacher-tab-scroll::-webkit-scrollbar { display: none; }
+
+        /* ── Safe-area bottom padding ── */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
+
     </style>
 
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
@@ -375,7 +548,8 @@
 
     @stack('styles')
 </head>
-<body class="min-h-screen bg-[#FAFAF9] dark:bg-[#0B0F19] flex flex-col font-sans transition-colors duration-200 overflow-x-hidden">
+<body class="min-h-screen flex flex-col font-sans transition-colors duration-200 overflow-x-hidden"
+      style="background-color:var(--surface-bg,#FAFAF9);color:var(--text-primary,#0F172A);">
     
     {{-- Unified Portal Sidebar Component --}}
     <x-portal-sidebar />
@@ -387,13 +561,14 @@
         <x-portal-navbar :title="$pageTitle ?? __('Dashboard Panel')" />
 
         {{-- Page Main Dynamic Body --}}
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-full">
+        <main class="flex-1 p-3 sm:p-5 lg:p-8 space-y-6 max-w-full overflow-x-hidden">
             @yield('content')
         </main>
 
         {{-- Minimal Portal Footer --}}
-        <footer class="py-6 px-6 border-t border-slate-200 dark:border-slate-800 text-center text-xs font-mono text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xs">
-            <p>&copy; {{ date('Y') }} Elite Academy. {{ __('All rights reserved.') }} • {{ __('Leading Accredited Academy') }}</p>
+        <footer class="py-5 px-6 border-t text-center text-xs font-mono pb-safe"
+                style="border-color:var(--surface-border,#E2E8F0);color:var(--text-muted,#94A3B8);background:var(--surface-card,#fff);">
+            <p>&copy; {{ date('Y') }} Elite Academy. {{ __('All rights reserved.') }} &bull; {{ __('Leading Accredited Academy') }}</p>
         </footer>
     </div>
 
@@ -450,68 +625,42 @@
             } catch(e) {}
         })();
 
-        // ─── Universal High-Performance Modal System ───
-        window.openModal = function (id) {
-            const modal = typeof id === 'string' ? document.getElementById(id) : id;
-            if (!modal) return;
-
-            // Ensure backdrop transition class
-            modal.classList.add('elite-modal');
-            const dialog = modal.querySelector('.elite-modal-dialog') || modal.firstElementChild;
-            if (dialog && !dialog.classList.contains('elite-modal-dialog')) {
-                dialog.classList.add('elite-modal-dialog');
-            }
-
-            modal.classList.remove('hidden');
-            // Trigger reflow for CSS transition
-            void modal.offsetWidth;
-            modal.classList.add('active');
-
-            // Scroll lock on background
-            document.body.classList.add('overflow-hidden');
-
-            // Focus management
-            const focusTarget = modal.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([aria-label="Close"])');
-            if (focusTarget) {
-                setTimeout(() => focusTarget.focus(), 60);
-            }
-        };
-
-        window.closeModal = function (id) {
-            const modal = typeof id === 'string' ? document.getElementById(id) : id;
-            if (!modal) return;
-
-            modal.classList.remove('active');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                // Check if any modal remains open
-                const remaining = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
-                if (remaining.length === 0) {
-                    document.body.classList.remove('overflow-hidden');
-                }
-            }, 200);
+        // ── Theme Toggle ─────────────────────────────────────────────────────
+        window.togglePortalTheme = function () {
+            var isDark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('elite_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+            document.body.style.backgroundColor = isDark ? 'var(--surface-bg,#0B0F19)' : 'var(--surface-bg,#FAFAF9)';
+            document.body.style.color = isDark ? 'var(--text-primary,#F8FAFC)' : 'var(--text-primary,#0F172A)';
+            // Sync all toggle icons
+            document.querySelectorAll('.theme-toggle-icon').forEach(function(el) {
+                el.className = 'theme-toggle-icon ' + (isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon');
+            });
         };
 
         // Universal Backdrop Click & ESC Key Handling
         document.addEventListener('DOMContentLoaded', function () {
-            // Backdrop click closes modal
+            // Sync theme icons on first load
+            var isDark = document.documentElement.classList.contains('dark');
+            document.querySelectorAll('.theme-toggle-icon').forEach(function(el) {
+                el.className = 'theme-toggle-icon ' + (isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon');
+            });
+
+            // Clicking directly on the modal backdrop overlay closes the modal
             document.addEventListener('click', function (e) {
-                const openModalEl = e.target.closest('.elite-modal, [id$="Modal"]');
-                if (openModalEl && !openModalEl.classList.contains('hidden')) {
-                    const dialog = openModalEl.querySelector('.elite-modal-dialog') || openModalEl.firstElementChild;
-                    if (dialog && !dialog.contains(e.target)) {
-                        window.closeModal(openModalEl.id);
-                    }
+                if (e.target && e.target.classList && e.target.classList.contains('elite-modal')) {
+                    window.closeModal(e.target.id);
                 }
             });
 
             // ESC key closes topmost open modal
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' || e.key === 'Esc') {
-                    const openModals = document.querySelectorAll('.elite-modal.active, [id$="Modal"]:not(.hidden)');
+                    const openModals = document.querySelectorAll('.elite-modal.active:not(.hidden)');
                     if (openModals.length > 0) {
                         const topModal = openModals[openModals.length - 1];
-                        window.closeModal(topModal.id);
+                        if (topModal && topModal.id) {
+                            window.closeModal(topModal.id);
+                        }
                     }
                 }
             });

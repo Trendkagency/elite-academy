@@ -71,21 +71,24 @@
             <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105" fetchpriority="high">
         </a>
 
-        {{-- Desktop Navigation Links --}}
-        <nav aria-label="{{ app()->getLocale() === 'ar' ? 'التنقل الرئيسي' : 'Main Navigation' }}" class="hidden md:flex items-center space-x-1 lg:space-x-2 rtl:space-x-reverse text-xs lg:text-sm font-bold text-slate-800 dark:text-slate-200 shrink">
+        {{-- Desktop Navigation Links (lg+) --}}
+        <nav aria-label="{{ app()->getLocale() === 'ar' ? 'التنقل الرئيسي' : 'Main Navigation' }}"
+             class="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-wrap text-xs xl:text-sm font-bold text-slate-800 dark:text-slate-200 min-w-0 shrink">
             @foreach ($navItems as $item)
                 <a href="{{ $item['url'] ?? route($item['route']) }}"
                    @class([
-                       'px-2 py-1 lg:px-3 lg:py-2 rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600',
+                       'px-2 py-1.5 xl:px-3 xl:py-2 rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600',
                        'text-teal-700 dark:text-teal-300 font-extrabold bg-teal-50/90 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-700/80 shadow-xs' => $item['active'],
                        'text-slate-800 dark:text-slate-200 font-bold hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100/90 dark:hover:bg-slate-800/90' => ! $item['active'],
                    ])>{{ $item['label'] }}</a>
             @endforeach
         </nav>
 
-        {{-- Desktop Right Controls --}}
-        <div class="hidden md:flex items-center space-x-1.5 lg:space-x-2.5 rtl:space-x-reverse text-xs font-bold font-sans shrink-0">
-            <a href="{{ route('lang.switch', ['locale' => $otherLocale]) }}" class="px-2.5 py-1.5 rounded-xl text-slate-700 hover:text-slate-950 bg-slate-100/80 hover:bg-slate-200/80 uppercase border border-slate-200 transition-all font-sans font-bold shadow-xs whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600" aria-label="Switch Language to {{ strtoupper($otherLocale) }}">
+        {{-- Desktop Right Controls (lg+) --}}
+        <div class="hidden lg:flex items-center gap-1.5 xl:gap-2 text-xs font-bold font-sans shrink-0">
+            <a href="{{ route('lang.switch', ['locale' => $otherLocale]) }}"
+               class="px-2.5 py-1.5 rounded-xl text-slate-700 hover:text-slate-950 bg-slate-100/80 hover:bg-slate-200/80 uppercase border border-slate-200 transition-all font-sans font-bold shadow-xs whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+               aria-label="Switch Language to {{ strtoupper($otherLocale) }}">
                 <i class="fa-solid fa-globe"></i> {{ strtoupper($otherLocale) }}
             </a>
 
@@ -103,7 +106,7 @@
                     <span><i class="fa-solid fa-chart-column"></i></span> {{ $portalLabel }}
                 </a>
                 @if(! $authUser->isAdmin() && ! $authUser->isTeacher() && ! $authUser->isParent())
-                    <a href="{{ route('student.profile') }}" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1 whitespace-nowrap shrink-0 hidden lg:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                    <a href="{{ route('student.profile') }}" class="btn-lift px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90 font-sans font-bold text-xs flex items-center gap-1 whitespace-nowrap shrink-0 hidden xl:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
                         <span><i class="fa-solid fa-user"></i></span> {{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}
                     </a>
                 @endif
@@ -116,13 +119,17 @@
             @endauth
         </div>
 
-        {{-- Mobile Hamburger & Language Controls --}}
-        <div class="flex items-center gap-2 md:hidden">
-            <a href="{{ route('lang.switch', ['locale' => $otherLocale]) }}" class="px-2.5 py-1.5 rounded-lg text-xs font-sans font-bold text-slate-700 bg-slate-100 uppercase border border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600" aria-label="Switch Language to {{ strtoupper($otherLocale) }}">
-                {{ strtoupper($otherLocale) }}
+        {{-- Mobile Hamburger & Language Controls (below lg) --}}
+        <div class="flex items-center gap-2 lg:hidden">
+            <a href="{{ route('lang.switch', ['locale' => $otherLocale]) }}"
+               class="px-2.5 py-1.5 rounded-lg text-xs font-sans font-bold text-slate-700 bg-slate-100 uppercase border border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+               aria-label="Switch Language to {{ strtoupper($otherLocale) }}">
+                <i class="fa-solid fa-globe"></i> {{ strtoupper($otherLocale) }}
             </a>
 
-            <label for="mobile-drawer-toggle" class="p-2 text-slate-800 hover:bg-slate-100 rounded-xl cursor-pointer touch-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600" aria-label="Toggle Navigation Menu" aria-controls="mobile-drawer-panel" role="button" tabindex="0">
+            <label for="mobile-drawer-toggle"
+                   class="p-2 text-slate-800 hover:bg-slate-100 rounded-xl cursor-pointer touch-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                   aria-label="Toggle Navigation Menu" aria-controls="mobile-drawer-panel" role="button" tabindex="0">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -135,10 +142,15 @@
 <input type="checkbox" id="mobile-drawer-toggle" class="peer hidden" aria-hidden="true">
 
 {{-- Drawer Backdrop --}}
-<label for="mobile-drawer-toggle" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 md:hidden" aria-label="Close Mobile Navigation Menu" role="button"></label>
+<label for="mobile-drawer-toggle"
+       class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 lg:hidden"
+       aria-label="Close Mobile Navigation Menu" role="button"></label>
 
 {{-- Drawer Content Panel --}}
-<div id="mobile-drawer-panel" class="fixed top-0 right-0 bottom-0 w-[300px] bg-white z-50 shadow-2xl flex flex-col justify-between p-6 transform translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out rtl:right-auto rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 md:hidden border-l rtl:border-r rtl:border-l-0 border-slate-200">
+<div id="mobile-drawer-panel"
+     class="fixed top-0 bottom-0 w-[300px] bg-white dark:bg-slate-900 z-50 shadow-2xl flex flex-col justify-between p-6 transform transition-transform duration-300 ease-in-out lg:hidden border-slate-200 dark:border-slate-800
+            ltr:right-0 ltr:translate-x-full ltr:peer-checked:translate-x-0 ltr:border-l
+            rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 rtl:border-r">
     <div class="space-y-6">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="160" height="36" class="h-14 sm:h-16 w-auto object-contain" loading="lazy">

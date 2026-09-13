@@ -203,8 +203,90 @@ class TeacherPortalController extends Controller
         $totalPastSessionsCount = LiveSession::where('teacher_profile_id', $teacherId)->where('scheduled_at', '<', now())->count();
         $attendanceRate = $totalPastSessionsCount > 0 ? round(($completedSessionsCount / $totalPastSessionsCount) * 100) : 100;
 
+        // ── Comprehensive Attendance Tracker Dataset & KPIs ──────────────────────
+        $attendanceSessionsRaw = LiveSession::where('teacher_profile_id', $teacherId)
+            ->with(['course.subject', 'course.gradeLevel', 'studentUser', 'studentSessions.studentUser', 'attendances'])
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
+
+        $totalPresentCheckins = 0;
+        $totalAbsentRecords = 0;
+        $totalTrackedRecords = 0;
+        $pendingAttendanceSessionsCount = 0;
+
+        $attendanceSessions = $attendanceSessionsRaw->map(function ($ses) use (&$totalPresentCheckins, &$totalAbsentRecords, &$totalTrackedRecords, &$pendingAttendanceSessionsCount, $allTeacherCourseIds) {
+            $studentSessions = $ses->studentSessions ?? collect();
+            $meetingAttendances = $ses->attendances ?? collect();
+
+            // Count per status
+            $presentCount = $studentSessions->whereIn('attendance_status', ['present', 'late'])->count();
+            $absentCount = $studentSessions->where('attendance_status', 'absent')->count();
+            $excusedCount = $studentSessions->where('attendance_status', 'excused')->count();
+
+            // If direct 1-on-1 session
+            if ($ses->student_user_id && $studentSessions->isEmpty()) {
+                if ($ses->attendance_status === 'present') {
+                    $presentCount = 1;
+                } elseif ($ses->attendance_status === 'absent') {
+                    $absentCount = 1;
+                }
+            }
+
+            // Calculate total cohort learners for this session
+            $enrolledCount = 0;
+            if ($ses->course_id) {
+                $enrolledCount = CourseEnrollment::where('course_id', $ses->course_id)->count();
+            } elseif ($ses->student_user_id) {
+                $enrolledCount = 1;
+            }
+
+            $totalSessionLearners = max($enrolledCount, $studentSessions->count(), ($presentCount + $absentCount + $excusedCount));
+            $isRecorded = ($ses->status === 'completed' || $ses->attendance_status !== null || $studentSessions->isNotEmpty());
+
+            $sessionRate = ($presentCount + $absentCount > 0)
+                ? round(($presentCount / ($presentCount + $absentCount)) * 100)
+                : ($isRecorded && $presentCount > 0 ? 100 : null);
+
+            $ses->present_count = $presentCount;
+            $ses->absent_count = $absentCount;
+            $ses->excused_count = $excusedCount;
+            $ses->total_learners = $totalSessionLearners;
+            $ses->is_recorded = $isRecorded;
+            $ses->session_rate = $sessionRate;
+
+            $totalPresentCheckins += $presentCount;
+            $totalAbsentRecords += $absentCount;
+            $totalTrackedRecords += ($presentCount + $absentCount);
+
+            if (! $isRecorded && $ses->scheduled_at && $ses->scheduled_at->isPast() && ! in_array($ses->status, ['cancelled', 'cancelled_by_teacher'], true)) {
+                $pendingAttendanceSessionsCount++;
+            }
+
+            return $ses;
+        });
+
+        $overallAttendanceRate = $totalTrackedRecords > 0
+            ? round(($totalPresentCheckins / $totalTrackedRecords) * 100)
+            : ($attendanceRate ?: 100);
+
+        $attendanceStats = [
+            'total_sessions' => $attendanceSessions->count(),
+            'total_present' => $totalPresentCheckins,
+            'total_absent' => $totalAbsentRecords,
+            'pending_count' => $pendingAttendanceSessionsCount,
+            'overall_rate' => $overallAttendanceRate,
+        ];
+
         $gradeLevels = \App\Models\GradeLevel::orderBy('sort_order')->get();
         $initialStudentId = $request->query('student');
+
+        // 9. Recurring Schedules for Schedules Tab
+        $recurringSchedules = RecurringSchedule::where('teacher_profile_id', $teacherId)
+            ->with(['course', 'sessions' => function ($q) {
+                $q->orderBy('scheduled_at', 'asc');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('pages.teacher-portal', [
             'pageTitle' => __('app.teacher.portal_title'),
@@ -217,19 +299,22 @@ class TeacherPortalController extends Controller
             'todaySessions' => $todaySessions,
             'upcomingSessions' => $upcomingSessions,
             'allSessions' => $allSessions,
+            'attendanceSessions' => $attendanceSessions,
+            'attendanceStats' => $attendanceStats,
             'assignedStudents' => $assignedStudents,
             'assignments' => $assignments,
             'submissions' => $submissions,
             'pendingSubmissions' => $pendingSubmissions,
             'userNotifications' => $userNotifications,
             'unreadNotifCount' => $unreadNotifCount,
+            'recurringSchedules' => $recurringSchedules,
             // KPIs
             'todaySessionsCount' => $todaySessionsCount,
             'upcomingSessionsCount' => $upcomingSessionsCount,
             'assignedStudentsCount' => $assignedStudentsCount,
             'pendingAssignmentsCount' => $pendingAssignmentsCount,
             'submittedAssignmentsCount' => $submittedAssignmentsCount,
-            'attendanceRate' => $attendanceRate,
+            'attendanceRate' => $overallAttendanceRate,
         ]);
     }
 
@@ -714,9 +799,16 @@ class TeacherPortalController extends Controller
     public function reviewSubmission(Request $request, int $id): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $submission = AssignmentSubmission::with(['assignment.session', 'enrollment'])->findOrFail($id);
+        $submission = AssignmentSubmission::with(['assignment.session', 'assignment.course', 'assignment.liveSession', 'enrollment'])->findOrFail($id);
 
-        if ((int) $submission->assignment->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+        $assignment = $submission->assignment;
+        $isTeacherOwner = $assignment && (
+            (int) $assignment->teacher_profile_id === (int) $teacherProfile->id
+            || ($assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id)
+            || ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id)
+        );
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -788,22 +880,29 @@ class TeacherPortalController extends Controller
     public function markAttendance(Request $request, int $sessionId): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $session = LiveSession::findOrFail($sessionId);
+        $session = LiveSession::with('course')->findOrFail($sessionId);
+        $isTeacherSession = (int) $session->teacher_profile_id === (int) $teacherProfile->id;
+        $isTeacherCourse = $session->course && (int) $session->course->teacher_id === (int) $teacherProfile->id;
 
-        if ((int) $session->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+        if (! $isTeacherSession && ! $isTeacherCourse && ! auth()->user()->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
         $validated = $request->validate([
-            'attendance' => 'required|array',
+            'attendance' => 'nullable|array',
             'attendance.*.student_user_id' => 'required|exists:users,id',
             'attendance.*.status' => 'required|in:present,absent,late,excused',
         ]);
 
+        $attendanceList = $validated['attendance'] ?? [];
         $primaryStatus = null;
         $hasPresent = false;
+        $presentCount = 0;
+        $lateCount = 0;
+        $absentCount = 0;
+        $excusedCount = 0;
 
-        foreach ($validated['attendance'] as $record) {
+        foreach ($attendanceList as $record) {
             $studentUserId = (int) $record['student_user_id'];
             $status = $record['status'];
 
@@ -820,34 +919,76 @@ class TeacherPortalController extends Controller
                 ]
             );
 
-            if (in_array($status, ['present', 'late'], true)) {
+            // Sync with MeetingAttendance
+            try {
+                \App\Models\MeetingAttendance::updateOrCreate(
+                    [
+                        'live_session_id' => $session->id,
+                        'student_user_id' => $studentUserId,
+                    ],
+                    [
+                        'status' => $status,
+                        'joined_at' => now(),
+                        'last_seen_at' => now(),
+                    ]
+                );
+            } catch (\Throwable $e) {
+                // Keep resilient
+            }
+
+            if ($status === 'present') {
                 $hasPresent = true;
+                $presentCount++;
+            } elseif ($status === 'late') {
+                $hasPresent = true;
+                $lateCount++;
+            } elseif ($status === 'absent') {
+                $absentCount++;
+                $studentUser = User::find($studentUserId);
+                if ($studentUser) {
+                    try {
+                        app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherStudentAbsent($session, $studentUser);
+                    } catch (\Throwable $e) {}
+                }
+            } elseif ($status === 'excused') {
+                $excusedCount++;
             }
 
             if ((int) $session->student_user_id === $studentUserId) {
                 $primaryStatus = in_array($status, ['present', 'absent', 'excused'], true) ? $status : 'present';
             }
-
-            if ($status === 'absent') {
-                $studentUser = User::find($studentUserId);
-                if ($studentUser) {
-                    app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherStudentAbsent($session, $studentUser);
-                }
-            }
         }
 
         $sessionAttendanceStatus = $session->student_user_id
             ? ($primaryStatus ?: 'present')
-            : ($hasPresent ? 'present' : 'absent');
+            : ($hasPresent ? 'present' : ($absentCount > 0 ? 'absent' : 'present'));
 
         $session->update([
             'attendance_status' => $sessionAttendanceStatus,
             'status' => 'completed',
+            'lifecycle_state' => 'completed',
         ]);
+
+        $totalRecorded = count($attendanceList);
+        $rate = ($presentCount + $lateCount + $absentCount > 0)
+            ? round((($presentCount + $lateCount) / ($presentCount + $lateCount + $absentCount)) * 100)
+            : 100;
 
         return response()->json([
             'success' => true,
             'message' => __('Attendance marked and saved successfully!'),
+            'session_id' => $session->id,
+            'stats' => [
+                'total' => $totalRecorded,
+                'present' => $presentCount,
+                'late' => $lateCount,
+                'absent' => $absentCount,
+                'excused' => $excusedCount,
+                'attended_total' => ($presentCount + $lateCount),
+                'rate' => $rate,
+                'status_text' => $sessionAttendanceStatus,
+                'is_recorded' => true,
+            ],
         ]);
     }
 
@@ -861,7 +1002,7 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $session = LiveSession::with(['course.subject', 'course.gradeLevel'])->findOrFail($sessionId);
+        $session = LiveSession::with(['course.subject', 'course.gradeLevel', 'studentUser', 'recurringSchedule'])->findOrFail($sessionId);
 
         $isTeacherSession = (int) $session->teacher_profile_id === (int) $teacherProfile->id;
         $isTeacherCourse = $session->course && (int) $session->course->teacher_id === (int) $teacherProfile->id;
@@ -884,13 +1025,36 @@ class TeacherPortalController extends Controller
             $studentUserIds->push($session->student_user_id);
         }
 
+        if ($session->recurringSchedule?->student_user_id) {
+            $studentUserIds->push($session->recurringSchedule->student_user_id);
+        }
+
         // Also check any already recorded student_sessions for this live session
         $existingStudentSessionIds = StudentSession::where('live_session_id', $session->id)
             ->pluck('student_user_id')
             ->filter();
-        $studentUserIds = $studentUserIds->merge($existingStudentSessionIds)->unique()->values();
+        $studentUserIds = $studentUserIds->merge($existingStudentSessionIds);
 
-        // If no students enrolled in this course yet
+        // Check meeting attendances
+        $existingMeetingAttendanceIds = \App\Models\MeetingAttendance::where('live_session_id', $session->id)
+            ->pluck('student_user_id')
+            ->filter();
+        $studentUserIds = $studentUserIds->merge($existingMeetingAttendanceIds)->unique()->values();
+
+        // Fallback: If no students explicitly enrolled in this course yet, include teacher's active students
+        if ($studentUserIds->isEmpty()) {
+            $allTeacherCourseIds = Course::where('teacher_id', $teacherProfile->id)->pluck('id')->filter()->toArray();
+            $fallbackIds = CourseEnrollment::whereIn('course_id', $allTeacherCourseIds)->pluck('student_user_id')->filter();
+            if ($fallbackIds->isNotEmpty()) {
+                $studentUserIds = $fallbackIds->unique()->values();
+            } else {
+                // If still empty, check teacher's overall students
+                $directIds = LiveSession::where('teacher_profile_id', $teacherProfile->id)->whereNotNull('student_user_id')->pluck('student_user_id')->filter();
+                $studentUserIds = $directIds->unique()->values();
+            }
+        }
+
+        // If still empty
         if ($studentUserIds->isEmpty()) {
             return response()->json([
                 'success' => true,
@@ -898,7 +1062,10 @@ class TeacherPortalController extends Controller
                     'id' => $session->id,
                     'title' => $session->title ?: 'Live Session',
                     'course_title' => $session->course?->title ?: '',
+                    'subject_name' => $session->course?->subject?->name ?: ($session->subject?->name ?: ''),
                     'date' => $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : '',
+                    'duration' => $session->duration_minutes ?: 60,
+                    'status' => $session->status,
                 ],
                 'students' => [],
             ]);
@@ -915,14 +1082,17 @@ class TeacherPortalController extends Controller
             ->latest('created_at')
             ->get()
             ->map(function ($st) use ($existingRecords, $session) {
-                $status = $existingRecords[$st->user_id] ?? ($session->student_user_id === $st->user_id ? ($session->attendance_status ?: 'present') : 'present');
+                $defaultStatus = $session->status === 'completed' ? 'present' : 'present';
+                $status = $existingRecords[$st->user_id] ?? ($session->student_user_id === $st->user_id ? ($session->attendance_status ?: 'present') : $defaultStatus);
+                
                 return [
                     'id' => $st->user_id,
                     'student_code' => 'STU-' . str_pad((string) $st->user_id, 5, '0', STR_PAD_LEFT),
                     'name' => $st->user?->name ?: 'Student',
+                    'email' => $st->user?->email ?: '',
                     'school' => $st->school_name ?: 'Elite Academy',
                     'grade' => $st->gradeLevel?->name ?: '',
-                    'status' => $status,
+                    'status' => in_array($status, ['present', 'late', 'excused', 'absent'], true) ? $status : 'present',
                 ];
             });
 
@@ -932,7 +1102,10 @@ class TeacherPortalController extends Controller
                 'id' => $session->id,
                 'title' => $session->title ?: 'Live Session',
                 'course_title' => $session->course?->title ?: '',
+                'subject_name' => $session->course?->subject?->name ?: ($session->subject?->name ?: ''),
                 'date' => $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : '',
+                'duration' => $session->duration_minutes ?: 60,
+                'status' => $session->status,
             ],
             'students' => $students,
         ]);
@@ -1229,9 +1402,16 @@ class TeacherPortalController extends Controller
     public function getSubmissionReview(Request $request, int $submissionId): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $submission = AssignmentSubmission::with(['assignment.questions.options', 'studentUser', 'answers'])->findOrFail($submissionId);
+        $submission = AssignmentSubmission::with(['assignment.questions.options', 'assignment.course', 'assignment.liveSession', 'studentUser', 'answers'])->findOrFail($submissionId);
 
-        if ((int) $submission->assignment->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+        $assignment = $submission->assignment;
+        $isTeacherOwner = $assignment && (
+            (int) $assignment->teacher_profile_id === (int) $teacherProfile->id
+            || ($assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id)
+            || ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id)
+        );
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -1370,6 +1550,49 @@ class TeacherPortalController extends Controller
             'questions' => $questionsData,
             'submissions' => $submissions,
         ]);
+    }
+
+    /**
+     * AJAX Endpoint: Get Students Enrolled in a Course (for Schedules Tab)
+     */
+    public function getStudentsByCourse(Request $request): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $courseId = $request->integer('course_id');
+        if (! $courseId) {
+            return response()->json(['success' => false, 'message' => 'course_id required'], 422);
+        }
+
+        $course = Course::where('id', $courseId)
+            ->where(function ($q) use ($teacherProfile) {
+                $q->where('teacher_id', $teacherProfile->id)
+                  ->orWhere(fn ($q2) => $q2->whereNotNull('id')->when(auth()->user()?->isAdmin(), fn ($q3) => $q3));
+            })
+            ->first();
+
+        if (! $course && ! auth()->user()?->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Course not found or unauthorized'], 403);
+        }
+
+        $students = \App\Models\CourseEnrollment::where('course_id', $courseId)
+            ->with(['studentUser'])
+            ->get()
+            ->map(function ($enrollment) {
+                $user = $enrollment->studentUser;
+                if (! $user) return null;
+                return [
+                    'id'   => $user->id,
+                    'name' => $user->name,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json(['success' => true, 'students' => $students]);
     }
 
     /**

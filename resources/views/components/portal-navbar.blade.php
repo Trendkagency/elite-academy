@@ -247,6 +247,13 @@
             <i class="fa-solid fa-globe"></i> {{ $isAr ? 'EN' : 'عربي' }}
         </a>
 
+        {{-- Dark / Light Mode Toggle --}}
+        <button type="button" onclick="window.togglePortalTheme()"
+                class="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-500 transition-colors shadow-xs cursor-pointer"
+                title="{{ __('Toggle Dark Mode') }}" aria-label="{{ __('Toggle Dark Mode') }}">
+            <i class="theme-toggle-icon fa-solid fa-moon text-base"></i>
+        </button>
+
         <!-- User Profile Pill & Dropdown -->
         <div class="relative" x-data="{ open: false }" @click.away="open = false">
             <button @click="open = !open" type="button" class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-teal-500/50 transition-all shadow-xs cursor-pointer">

@@ -42,7 +42,7 @@ class LandingPageCounter extends Model
             try {
                 switch ($this->data_source) {
                     case 'students_count':
-                        $count = User::where('role', 'student')->count();
+                        $count = User::roleStudent()->count();
                         return ($count > 0 ? number_format($count) : '25,000') . ($this->suffix ?: '+');
 
                     case 'courses_count':

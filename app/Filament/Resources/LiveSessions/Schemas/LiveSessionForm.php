@@ -58,13 +58,11 @@ class LiveSessionForm
                     ->required(),
 
                 Select::make('student_user_id')
-                    ->label(app()->getLocale() === 'ar' ? 'طالب الحصة الخاصة (اختياري للدروس الفردية)' : '1-on-1 Student (Optional)')
+                    ->label(__('1-on-1 Student (Optional)'))
                     ->options(function () {
                         $query = User::query();
-                        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'role')) {
-                            $query->where('role', 'student');
-                        } elseif (method_exists(User::class, 'scopeRoleStudent')) {
-                            $query->roleStudent();
+                        if (method_exists(User::class, 'scopeRoleStudent')) {
+                            $query->roleStudent()->orWhereHas('studentProfile');
                         } else {
                             $query->whereHas('studentProfile');
                         }
@@ -72,7 +70,7 @@ class LiveSessionForm
                     })
                     ->searchable()
                     ->nullable()
-                    ->helperText(app()->getLocale() === 'ar' ? 'اتركه فارغاً إذا كانت الحصة جماعية لكافة طلاب الكورس' : 'Leave empty for full group class cohort'),
+                    ->helperText(__('Leave empty for full group class cohort')),
 
                 Select::make('recurring_schedule_id')
                     ->label(app()->getLocale() === 'ar' ? 'الجدول المتكرر التابع له' : 'Recurring Schedule Cohort')

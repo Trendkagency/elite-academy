@@ -68,6 +68,19 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin();
     }
 
+    public function isSuperAdmin(): bool
+    {
+        if (in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+            return true;
+        }
+
+        if (method_exists($this, 'hasRole') && $this->hasRole('super_admin')) {
+            return true;
+        }
+
+        return $this->isAdmin();
+    }
+
     public function createToken(string $name): object
     {
         $token = Str::random(60);
@@ -154,24 +167,56 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeRoleStudent($query)
     {
-        return $query->whereDoesntHave('teacherProfile')
-            ->whereDoesntHave('parentProfile')
-            ->whereDoesntHave('adminProfile')
-            ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);
+        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+            return $query->where(function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->where('name', 'student'))
+                    ->orWhereHas('studentProfile');
+            });
+        }
+
+        return $query->whereHas('studentProfile')
+            ->orWhere(function ($sub) {
+                $sub->whereDoesntHave('teacherProfile')
+                    ->whereDoesntHave('parentProfile')
+                    ->whereDoesntHave('adminProfile')
+                    ->whereNotIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);
+            });
     }
 
     public function scopeRoleTeacher($query)
     {
+        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+            return $query->where(function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->where('name', 'teacher'))
+                    ->orWhereHas('teacherProfile');
+            });
+        }
+
         return $query->whereHas('teacherProfile');
     }
 
     public function scopeRoleParent($query)
     {
+        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+            return $query->where(function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->where('name', 'parent'))
+                    ->orWhereHas('parentProfile');
+            });
+        }
+
         return $query->whereHas('parentProfile');
     }
 
     public function scopeRoleAdmin($query)
     {
+        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+            return $query->where(function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->whereIn('name', ['admin', 'super_admin']))
+                    ->orWhereHas('adminProfile')
+                    ->orWhereIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);
+            });
+        }
+
         return $query->where(function ($q) {
             $q->whereHas('adminProfile')
                 ->orWhereIn('email', ['admin@elite-academy.com', 'admin@elite.edu']);

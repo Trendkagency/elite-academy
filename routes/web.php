@@ -142,6 +142,7 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::get('/ajax/teacher/students/{studentUserId}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentDetails'])->name('ajax.teacher.students.details');
             Route::get('/teacher/students/{studentUserId}', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'showStudentProfile'])->name('teacher.students.show');
             Route::post('/ajax/teacher/students/{studentUserId}/notes', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'storeStudentNote'])->middleware('throttle:strict_actions')->name('ajax.teacher.students.notes.create');
+            Route::get('/ajax/teacher/courses/{course_id}/students', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentsByCourse'])->name('ajax.teacher.courses.students');
         });
 
         // FCM Notifications, Deadline Reminders & 30s Test Push

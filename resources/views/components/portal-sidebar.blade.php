@@ -112,6 +112,11 @@
                     <span>{{ __('My Students') }}</span>
                 </a>
 
+                <a href="#schedules" onclick="switchTeacherTab('schedules')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-indigo-950/60 hover:text-indigo-300 text-slate-200" data-tab="schedules">
+                    <span class="text-lg text-indigo-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-check"></i></span>
+                    <span>{{ __('Student & Course Schedules') }}</span>
+                </a>
+
             @elseif($role === 'parent')
                 <!-- Parent Navigation -->
                 <a href="#section-children" onclick="switchParentSection('children')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-section="children">
@@ -184,15 +189,24 @@
                 </div>
             </div>
 
-            <!-- Logout Form Button -->
-            <form action="{{ route('logout') }}" method="POST" class="shrink-0">
-                @csrf
-                <button type="submit" title="{{ __('navbar.logout') }}" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
+            <div class="flex items-center gap-1 shrink-0">
+                {{-- Dark mode toggle --}}
+                <button type="button" onclick="window.togglePortalTheme()"
+                        title="{{ __('Toggle Dark Mode') }}"
+                        class="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-amber-950/30 transition-colors cursor-pointer">
+                    <i class="theme-toggle-icon fa-solid fa-moon text-sm"></i>
                 </button>
-            </form>
+
+                {{-- Logout Form Button --}}
+                <form action="{{ route('logout') }}" method="POST" class="shrink-0">
+                    @csrf
+                    <button type="submit" title="{{ __('navbar.logout') }}" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </aside>

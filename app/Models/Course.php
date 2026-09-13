@@ -94,6 +94,13 @@ class Course extends Model
         return $this->hasMany(CourseEnrollment::class);
     }
 
+    public function students(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_enrollments', 'course_id', 'student_user_id')
+            ->withPivot(['cohort', 'status', 'progress_percent', 'enrolled_at', 'completed_at'])
+            ->withTimestamps();
+    }
+
     public function getDemoVideoUrl(): string
     {
         if (! empty($this->demo_video_url)) {

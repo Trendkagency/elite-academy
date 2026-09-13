@@ -41,13 +41,11 @@ class RecurringScheduleForm
                     ->required(),
 
                 Select::make('student_user_id')
-                    ->label(app()->getLocale() === 'ar' ? 'الطالب (اختياري للدروس الخصوصية)' : '1-on-1 Student (Optional)')
+                    ->label(__('1-on-1 Student (Optional)'))
                     ->options(function () {
                         $query = User::query();
-                        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'role')) {
-                            $query->where('role', 'student');
-                        } elseif (method_exists(User::class, 'scopeRoleStudent')) {
-                            $query->roleStudent();
+                        if (method_exists(User::class, 'scopeRoleStudent')) {
+                            $query->roleStudent()->orWhereHas('studentProfile');
                         } else {
                             $query->whereHas('studentProfile');
                         }
@@ -55,7 +53,7 @@ class RecurringScheduleForm
                     })
                     ->searchable()
                     ->nullable()
-                    ->helperText(app()->getLocale() === 'ar' ? 'اتركه فارغاً إذا كان الجدول لكامل طلاب الدفعة / الكورس' : 'Leave empty for course-wide public cohort'),
+                    ->helperText(__('Leave empty for course-wide public cohort')),
 
                 Select::make('recurrence_type')
                     ->label(app()->getLocale() === 'ar' ? 'نمط التكرار' : 'Recurrence Pattern')

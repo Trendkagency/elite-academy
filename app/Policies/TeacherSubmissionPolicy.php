@@ -32,6 +32,10 @@ class TeacherSubmissionPolicy
             return true;
         }
 
+        if ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
         return $assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id;
     }
 

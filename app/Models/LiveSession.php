@@ -178,6 +178,11 @@ class LiveSession extends Model
         return $this->hasOne(SessionMeeting::class, 'live_session_id');
     }
 
+    public function studentSessions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudentSession::class, 'live_session_id');
+    }
+
     public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(MeetingAttendance::class, 'live_session_id');
