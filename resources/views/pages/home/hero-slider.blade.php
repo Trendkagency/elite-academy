@@ -74,7 +74,7 @@
 
                 {{-- ── CONTENT BLOCK ──────────────────────────────── --}}
                 <div class="relative z-20 flex-1 flex {{ $position[0] }} {{ $position[1] }}
-                            max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+                            max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 pt-12 sm:pt-16 lg:pt-20 pb-24 sm:pb-28 lg:pb-32">
 
                     <div class="hero-content max-w-3xl lg:max-w-4xl xl:max-w-5xl space-y-4 sm:space-y-5 flex flex-col {{ $align }}">
 
@@ -161,7 +161,7 @@
             <div class="absolute -top-32 -left-32 w-[40rem] h-[40rem] rounded-full blur-3xl opacity-20 pointer-events-none bg-teal-500"></div>
 
             <div class="relative z-20 flex-1 flex justify-start items-center
-                        max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+                        max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 pt-12 sm:pt-16 lg:pt-20 pb-24 sm:pb-28 lg:pb-32">
                 <div class="hero-content max-w-3xl lg:max-w-4xl xl:max-w-5xl space-y-4 sm:space-y-5 flex flex-col items-start text-start rtl:text-right">
                     <div class="hero-anim-badge inline-flex items-center gap-2.5 px-4 py-2 rounded-full
                                 bg-teal-500/20 border border-teal-400/30 text-teal-300
@@ -239,7 +239,7 @@
 
     {{-- ── 2. ELEVATED SLIDE INDICATORS & PROGRESS BAR ─────────────── --}}
     @if($totalSlides > 1)
-        <div class="absolute bottom-20 sm:bottom-24 md:bottom-28 left-0 right-0 z-35
+        <div class="absolute bottom-5 sm:bottom-7 md:bottom-8 left-0 right-0 z-35
                     max-w-7xl mx-auto px-6 sm:px-10 lg:px-16
                     flex items-center justify-between pointer-events-none">
             
