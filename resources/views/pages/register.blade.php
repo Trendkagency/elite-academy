@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="py-12 md:py-20 px-4 bg-[#FAFAF9] min-h-[calc(100vh-140px)] flex items-center justify-center">
-    <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
+<section class="py-12 md:py-20 px-4 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-140px)] flex items-center justify-center transition-colors">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">
-                <i class="fa-solid fa-graduation-cap"></i>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 dark:border-teal-800 shadow-xs">
+                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
             </div>
-            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
-                {{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد' : 'Create an Account' }}
+            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
+                {{ __('auth.register_title') }}
             </h1>
-            <p class="text-xs text-slate-500 font-mono">
-                {{ app()->getLocale() === 'ar' ? 'انضم إلى أكاديمية إيليت وابدأ رحلة التعلّم التفاعلي.' : 'Join Elite Academy and start interactive learning.' }}
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {{ __('auth.register_subtitle') }}
             </p>
         </div>
 
@@ -25,8 +25,8 @@
             {{-- Full Name Input with Real-time Validation --}}
             <div class="space-y-1.5" id="group-name">
                 <div class="flex justify-between items-center">
-                    <label for="reg-name" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'الاسم بالكامل' : 'Full Name' }}
+                    <label for="reg-name" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.name_label') }}
                     </label>
                     <span id="name-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                 </div>
@@ -37,7 +37,7 @@
                     required 
                     autocomplete="name"
                     placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: أحمد محمد علي' : 'e.g. David Kovacs' }}" 
-                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                    class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                 >
                 <p id="name-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
             </div>
@@ -45,8 +45,8 @@
             {{-- Email Input with Real-time Availability Validation --}}
             <div class="space-y-1.5" id="group-email">
                 <div class="flex justify-between items-center">
-                    <label for="reg-email" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }}
+                    <label for="reg-email" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.email_label') }}
                     </label>
                     <span id="email-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                 </div>
@@ -58,9 +58,9 @@
                         required 
                         autocomplete="email"
                         placeholder="name@example.com" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
-                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600">
+                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600 dark:text-teal-400">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -73,8 +73,8 @@
             {{-- Phone Number Input with Real-time Availability Validation --}}
             <div class="space-y-1.5" id="group-phone">
                 <div class="flex justify-between items-center">
-                    <label for="reg-phone" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+                    <label for="reg-phone" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.phone_label') }}
                     </label>
                     <span id="phone-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                 </div>
@@ -86,9 +86,9 @@
                         required 
                         autocomplete="tel"
                         placeholder="01012345678" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
-                    <div id="phone-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600">
+                    <div id="phone-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600 dark:text-teal-400">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -100,9 +100,9 @@
 
             {{-- Role Selection --}}
             <div class="space-y-3 pt-1">
-                <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                     <span>{{ app()->getLocale() === 'ar' ? 'نوع الحساب' : 'Account Type' }}</span>
-                    <span class="text-[10px] font-semibold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-100/80">
+                    <span class="text-[10px] font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-full border border-teal-100/80 dark:border-teal-800">
                         {{ app()->getLocale() === 'ar' ? 'اختر دورك' : 'Select Role' }}
                     </span>
                 </label>
@@ -111,9 +111,9 @@
                     <!-- Student Card (Default Checked) -->
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="student" checked class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
-                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <i class="fa-solid fa-graduation-cap text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
-                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 dark:peer-checked:bg-teal-950/40 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <i class="fa-solid fa-graduation-cap text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110" aria-hidden="true"></i>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 peer-checked:text-teal-900 dark:peer-checked:text-teal-300 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'طالب' : 'Student' }}
                             </span>
                         </div>
@@ -122,9 +122,9 @@
                     <!-- Parent Card -->
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="parent" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
-                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <i class="fa-solid fa-people-roof text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
-                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 dark:peer-checked:bg-teal-950/40 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <i class="fa-solid fa-people-roof text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110" aria-hidden="true"></i>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 peer-checked:text-teal-900 dark:peer-checked:text-teal-300 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'ولي أمر' : 'Parent' }}
                             </span>
                         </div>
@@ -133,9 +133,9 @@
                     <!-- Teacher Card -->
                     <label class="relative group cursor-pointer select-none block">
                         <input type="radio" name="user_type" value="teacher" class="peer account-type-radio" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" onchange="toggleStudentGrade(this.value)">
-                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
-                            <i class="fa-solid fa-chalkboard-user text-2xl sm:text-3xl text-teal-600 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110"></i>
-                            <span class="text-xs font-bold text-slate-700 peer-checked:text-teal-900 transition-colors">
+                        <div class="h-full p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-teal-400 transition-all duration-200 ease-out flex flex-col items-center justify-center text-center space-y-1.5 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 dark:peer-checked:bg-teal-950/40 peer-checked:shadow-md peer-checked:shadow-teal-500/10 peer-checked:ring-2 peer-checked:ring-teal-500/20 active:scale-95">
+                            <i class="fa-solid fa-chalkboard-user text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 transition-transform duration-200 group-hover:scale-110 peer-checked:scale-110" aria-hidden="true"></i>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 peer-checked:text-teal-900 dark:peer-checked:text-teal-300 transition-colors">
                                 {{ app()->getLocale() === 'ar' ? 'معلم' : 'Teacher' }}
                             </span>
                         </div>
@@ -147,14 +147,14 @@
             <div id="studentFieldsGroup" class="space-y-4 pt-1">
                 {{-- Grade Level Select --}}
                 <div class="space-y-1.5" id="group-grade">
-                    <label for="reg-grade" class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <label for="reg-grade" class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>{{ app()->getLocale() === 'ar' ? 'الصف الدراسي' : 'Grade Level' }}</span>
-                        <span class="text-[10px] text-teal-600 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب للطالب' : 'Required for Student' }}</span>
+                        <span class="text-[10px] text-teal-600 dark:text-teal-400 font-bold">* {{ app()->getLocale() === 'ar' ? 'مطلوب للطالب' : 'Required for Student' }}</span>
                     </label>
                     <select 
                         id="reg-grade"
                         name="grade_level_id" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                        class="form-select w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
                         <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الصف الدراسي...' : 'Select Grade Level...' }}</option>
                         @foreach($gradeLevels ?? [] as $g)
@@ -166,7 +166,7 @@
 
                 {{-- School Name --}}
                 <div class="space-y-1.5">
-                    <label for="reg-school" class="text-xs font-bold text-slate-700">
+                    <label for="reg-school" class="text-xs font-bold text-slate-700 dark:text-slate-300">
                         {{ app()->getLocale() === 'ar' ? 'اسم المدرسة (اختياري)' : 'School Name (Optional)' }}
                     </label>
                     <input 
@@ -174,7 +174,7 @@
                         id="reg-school"
                         name="school_name" 
                         placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: مدرسة المتفوقين للغات' : 'e.g. Cairo International School' }}" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
                 </div>
             </div>
@@ -182,8 +182,8 @@
             {{-- Password Input with Strength Meter & Show/Hide --}}
             <div class="space-y-1.5" id="group-password">
                 <div class="flex justify-between items-center">
-                    <label for="reg-password" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}
+                    <label for="reg-password" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.password_label') }}
                     </label>
                     <span id="password-strength-badge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
                 </div>
@@ -195,27 +195,27 @@
                         required 
                         autocomplete="new-password"
                         placeholder="••••••••" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none pe-10"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none pe-10"
                     >
                     <button 
                         type="button" 
                         id="toggleRegPasswordBtn"
-                        aria-label="Toggle password visibility"
-                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 p-1 rounded-lg focus:outline-none text-sm transition-colors"
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'إظهار / إخفاء كلمة المرور' : 'Toggle password visibility' }}"
+                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg focus:outline-none text-sm transition-colors cursor-pointer"
                     >
-                        <i class="fa-solid fa-eye" id="toggleRegPasswordIcon"></i>
+                        <i class="fa-solid fa-eye" id="toggleRegPasswordIcon" aria-hidden="true"></i>
                     </button>
                 </div>
                 {{-- Strength Bar --}}
-                <div id="password-strength-container" class="hidden w-full bg-slate-100 rounded-full h-1 mt-1 overflow-hidden">
+                <div id="password-strength-container" class="hidden w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 mt-1 overflow-hidden">
                     <div id="password-strength-bar" class="h-full w-0 transition-all duration-300"></div>
                 </div>
                 <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2 flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl transition-all">
-                <span id="btnText">{{ app()->getLocale() === 'ar' ? 'إنشاء الحساب والبدء' : 'Create Account & Start' }}</span>
-                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon"></i>
+            <button type="submit" id="submitBtn" class="btn-primary w-full py-3.5 text-xs font-bold rounded-2xl transition-all">
+                <span id="btnText">{{ __('auth.create_account_btn') }}</span>
+                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon" aria-hidden="true"></i>
                 <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -224,12 +224,12 @@
         </form>
 
         {{-- Separate Login Redirection Link --}}
-        <div class="pt-6 border-t border-slate-100 text-center">
-            <p class="text-xs text-slate-500 font-mono">
-                {{ app()->getLocale() === 'ar' ? 'لديك حساب بالفعل؟' : 'Already have an account?' }}
-                <a href="{{ route('login') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1 inline-flex items-center gap-1">
-                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Log In to Portal' }}</span>
-                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]"></i>
+        <div class="pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {{ __('auth.already_have_account') }}
+                <a href="{{ route('login') }}" class="font-bold text-teal-600 dark:text-teal-400 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span>{{ __('auth.sign_in_link') }}</span>
+                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]" aria-hidden="true"></i>
                 </a>
             </p>
         </div>

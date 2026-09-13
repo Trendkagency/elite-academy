@@ -76,14 +76,19 @@ class TeacherPortalController extends Controller
             ->orderBy('scheduled_at', 'asc')
             ->get();
 
-        // 4. All Sessions for management tab
+        // 4. All Sessions for management tab (Real-Time Client-Side Pagination)
         $allSessions = LiveSession::where('teacher_profile_id', $teacherId)
             ->with(['studentUser', 'subject', 'course', 'assignments'])
             ->orderBy('scheduled_at', 'desc')
-            ->paginate(10, ['*'], 'sessions_page')
-            ->withQueryString();
+            ->take(250)
+            ->get();
 
         $activeTab = $request->query('tab', 'overview');
+        if ($request->has('notif_page')) {
+            $activeTab = 'notifications';
+        } elseif ($request->has('sessions_page')) {
+            $activeTab = 'sessions';
+        }
 
         // 5. Teacher's Assignments
         $assignments = Assignment::where('teacher_profile_id', $teacherId)
@@ -182,11 +187,11 @@ class TeacherPortalController extends Controller
             return in_array($val, ['submitted', 'in_progress'], true);
         })->values();
 
-        // 8. Notifications Feed
+        // 8. Notifications Feed (Real-Time Client-Side Pagination)
         $userNotifications = UserNotification::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->paginate(6, ['*'], 'notif_page')
-            ->withQueryString();
+            ->take(100)
+            ->get();
 
         $unreadNotifCount = UserNotification::where('user_id', $user->id)
             ->where('is_read', false)

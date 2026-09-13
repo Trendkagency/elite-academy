@@ -19,11 +19,34 @@
                 var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 if (stored === 'dark' || (!stored && prefersDark)) {
                     document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
                 } else {
                     document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
                 }
             } catch (e) {}
         })();
+
+        window.EliteTheme = {
+            get: function () {
+                return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            },
+            set: function (theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    try { localStorage.setItem('elite_theme', 'dark'); } catch (e) {}
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    try { localStorage.setItem('elite_theme', 'light'); } catch (e) {}
+                }
+                window.dispatchEvent(new CustomEvent('elite-theme-changed', { detail: { theme: theme } }));
+            },
+            toggle: function () {
+                this.set(this.get() === 'dark' ? 'light' : 'dark');
+            }
+        };
 
         // Universal Modal Controller (Early Init in Head)
         window.openModal = function (id) {
@@ -31,6 +54,11 @@
             if (!modal) {
                 console.warn('[Modal] Element not found:', id);
                 return;
+            }
+
+            // Move modal directly to document.body so it is never trapped inside .portal-main-canvas or below the sidebar
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
             }
 
             modal.classList.add('elite-modal');
@@ -51,6 +79,7 @@
                 dialog.style.setProperty('transform', 'scale(1) translateY(0)', 'important');
             }
 
+            document.documentElement.classList.add('overflow-hidden');
             document.body.classList.add('overflow-hidden');
 
             const focusTarget = modal.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([aria-label="Close"])');
@@ -78,6 +107,7 @@
                 modal.style.setProperty('display', 'none', 'important');
                 const remaining = document.querySelectorAll('.elite-modal.active:not(.hidden)');
                 if (remaining.length === 0) {
+                    document.documentElement.classList.remove('overflow-hidden');
                     document.body.classList.remove('overflow-hidden');
                 }
             }, 200);
@@ -180,14 +210,79 @@
             transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
         }
 
-        /* ─── Elite Ultra-Responsive Mobile-First Modal System ─── */
+        /* ─── Ultra-Responsive Mobile-First Table System ─── */
+        .table-responsive {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            position: relative;
+            scrollbar-width: thin;
+        }
+        .table-responsive table {
+            width: 100% !important;
+            min-width: 720px !important;
+            border-collapse: collapse !important;
+            text-align: start !important;
+        }
+        .table-responsive th {
+            white-space: nowrap !important;
+        }
+        .table-responsive td {
+            white-space: nowrap !important;
+        }
+        .table-responsive td.allow-wrap {
+            white-space: normal !important;
+        }
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 9999px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(13, 148, 136, 0.4);
+            border-radius: 9999px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: rgba(13, 148, 136, 0.7);
+        }
+        html.dark .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        html.dark .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(20, 184, 166, 0.5);
+        }
+
+        /* ── Complete Viewport Scroll-Locking when Modal is Active ── */
+        html.overflow-hidden,
+        body.overflow-hidden {
+            overflow: hidden !important;
+            height: 100% !important;
+            overscroll-behavior: none !important;
+        }
+
+        /* ── Elite Ultra-Responsive Mobile-First Modal System ── */
         .elite-modal {
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.24s ease;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            inset: 0 !important;
+            width: 100% !important;
+            width: 100vw !important;
+            height: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            z-index: 99999 !important;
+            background: rgba(15, 23, 42, 0.72) !important;
+            backdrop-filter: blur(10px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
             overflow-y: auto;
             overflow-x: hidden;
             display: flex;
@@ -195,6 +290,8 @@
             justify-content: center;
             padding: 0.75rem;
             -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            overscroll-behavior: contain;
         }
         @media (max-width: 640px) {
             .elite-modal {
@@ -203,8 +300,8 @@
             }
         }
         .elite-modal.active {
-            opacity: 1;
-            pointer-events: auto;
+            opacity: 1 !important;
+            pointer-events: auto !important;
         }
         .elite-modal.hidden {
             display: none !important;
@@ -221,6 +318,7 @@
             width: 100%;
             margin: auto;
             box-sizing: border-box;
+            overscroll-behavior: contain;
         }
         @media (max-width: 640px) {
             .elite-modal-dialog {
@@ -232,6 +330,37 @@
         .elite-modal.active .elite-modal-dialog {
             transform: scale(1) translateY(0);
             opacity: 1;
+        }
+
+        html.dark .elite-modal-dialog {
+            background-color: #0F172A !important;
+            border-color: #1E293B !important;
+            color: #F8FAFC !important;
+        }
+        html.dark .toast-card {
+            background: #1E293B !important;
+            color: #F8FAFC !important;
+            border-color: #334155 !important;
+        }
+        html.dark .toast-card.toast-danger, html.dark .toast-card.toast-error {
+            background: #3B1219 !important;
+            border-color: #881337 !important;
+            color: #FECDD3 !important;
+        }
+        html.dark .toast-card.toast-success {
+            background: #052E16 !important;
+            border-color: #14532D !important;
+            color: #BBF7D0 !important;
+        }
+        html.dark .toast-card.toast-warning {
+            background: #3B2404 !important;
+            border-color: #78350F !important;
+            color: #FDE68A !important;
+        }
+        html.dark .toast-card.toast-info {
+            background: #042F2E !important;
+            border-color: #115E59 !important;
+            color: #99F6E4 !important;
         }
 
         /* Sleek custom scrollbars for modals and panels */
@@ -538,9 +667,46 @@
         }
         .teacher-tab-scroll::-webkit-scrollbar { display: none; }
 
-        /* ── Safe-area bottom padding ── */
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
-
+        /* ── Elite Custom Select Component ── */
+        .elite-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .elite-select-trigger {
+            cursor: pointer;
+            user-select: none;
+        }
+        .elite-select-menu {
+            transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .elite-select-menu.hidden {
+            display: none !important;
+        }
+        html.dark .elite-select-trigger {
+            background-color: #0F172A !important;
+            border-color: #334155 !important;
+            color: #F8FAFC !important;
+        }
+        html.dark .elite-select-trigger:hover {
+            border-color: #14B8A6 !important;
+        }
+        html.dark .elite-select-menu {
+            background-color: rgba(15, 23, 42, 0.98) !important;
+            border-color: #1E293B !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7) !important;
+        }
+        html.dark .elite-select-option {
+            color: #E2E8F0 !important;
+        }
+        html.dark .elite-select-option:hover {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            color: #FFFFFF !important;
+        }
+        html.dark .elite-select-option.is-selected {
+            background-color: rgba(19, 78, 74, 0.6) !important;
+            color: #5EEAD4 !important;
+            border-color: rgba(20, 184, 166, 0.4) !important;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
@@ -627,13 +793,18 @@
 
         // ── Theme Toggle ─────────────────────────────────────────────────────
         window.togglePortalTheme = function () {
-            var isDark = document.documentElement.classList.toggle('dark');
-            try { localStorage.setItem('elite_theme', isDark ? 'dark' : 'light'); } catch(e) {}
-            document.body.style.backgroundColor = isDark ? 'var(--surface-bg,#0B0F19)' : 'var(--surface-bg,#FAFAF9)';
-            document.body.style.color = isDark ? 'var(--text-primary,#F8FAFC)' : 'var(--text-primary,#0F172A)';
+            if (window.EliteTheme) {
+                window.EliteTheme.toggle();
+            } else {
+                var isDark = document.documentElement.classList.toggle('dark');
+                try { localStorage.setItem('elite_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+            }
+            var isNowDark = document.documentElement.classList.contains('dark');
+            document.body.style.backgroundColor = isNowDark ? 'var(--surface-bg,#0B0F19)' : 'var(--surface-bg,#FAFAF9)';
+            document.body.style.color = isNowDark ? 'var(--text-primary,#F8FAFC)' : 'var(--text-primary,#0F172A)';
             // Sync all toggle icons
             document.querySelectorAll('.theme-toggle-icon').forEach(function(el) {
-                el.className = 'theme-toggle-icon ' + (isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon');
+                el.className = 'theme-toggle-icon ' + (isNowDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-700');
             });
         };
 
@@ -662,9 +833,201 @@
                             window.closeModal(topModal.id);
                         }
                     }
+                    // Also close open custom selects
+                    document.querySelectorAll('.elite-select-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+                    document.querySelectorAll('.elite-select-trigger .fa-chevron-down.rotate-180').forEach(i => i.classList.remove('rotate-180'));
+                    document.querySelectorAll('.elite-select-trigger.ring-2').forEach(t => t.classList.remove('ring-2', 'ring-teal-500/25', 'border-teal-500'));
                 }
             });
+
+            // Global click outside for custom select
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.elite-select-wrapper')) {
+                    document.querySelectorAll('.elite-select-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+                    document.querySelectorAll('.elite-select-trigger .fa-chevron-down.rotate-180').forEach(i => i.classList.remove('rotate-180'));
+                    document.querySelectorAll('.elite-select-trigger.ring-2').forEach(t => t.classList.remove('ring-2', 'ring-teal-500/25', 'border-teal-500'));
+                }
+            });
+
+            // Auto-initialize Elite Custom Selects
+            if (typeof window.initEliteCustomSelects === 'function') {
+                window.initEliteCustomSelects();
+            }
         });
+
+        // ════════════════════════════════════════════════════════════════════════
+        // UNIVERSAL ELITE CUSTOM SELECT ENGINE
+        // ════════════════════════════════════════════════════════════════════════
+        class EliteCustomSelect {
+            constructor(selectElement, options = {}) {
+                this.select = typeof selectElement === 'string' ? document.getElementById(selectElement) : selectElement;
+                if (!this.select || this.select._eliteCustomSelect) return;
+                this.select._eliteCustomSelect = this;
+                this.options = options;
+                this.isOpen = false;
+                this.build();
+            }
+
+            build() {
+                // Ensure native select is sr-only
+                this.select.classList.add('sr-only');
+                this.select.setAttribute('tabindex', '-1');
+                this.select.setAttribute('aria-hidden', 'true');
+
+                // Wrapper
+                this.wrapper = document.createElement('div');
+                this.wrapper.className = 'elite-select-wrapper relative w-full';
+                this.select.parentNode.insertBefore(this.wrapper, this.select);
+                this.wrapper.appendChild(this.select);
+
+                // Trigger button
+                this.trigger = document.createElement('button');
+                this.trigger.type = 'button';
+                this.trigger.className = 'elite-select-trigger w-full flex items-center justify-between gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-teal-500/80 dark:hover:border-teal-500 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/25';
+                
+                this.labelSpan = document.createElement('span');
+                this.labelSpan.className = 'elite-select-label truncate text-start flex-1';
+                
+                this.icon = document.createElement('i');
+                this.icon.className = 'fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 shrink-0';
+
+                this.trigger.appendChild(this.labelSpan);
+                this.trigger.appendChild(this.icon);
+                this.wrapper.appendChild(this.trigger);
+
+                // Dropdown menu
+                this.menu = document.createElement('div');
+                this.menu.className = 'elite-select-menu hidden absolute top-[calc(100%+6px)] start-0 w-full min-w-[210px] max-h-64 overflow-y-auto custom-scrollbar bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-1.5 z-50 transition-all duration-150 transform origin-top';
+                this.wrapper.appendChild(this.menu);
+
+                // Populate options
+                this.renderOptions();
+
+                // Sync initial label
+                this.syncLabel();
+
+                // Trigger click
+                this.trigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggle();
+                });
+
+                // Listen to external change events on native select
+                this.select.addEventListener('change', () => {
+                    this.syncLabel();
+                    this.syncSelectedOption();
+                });
+            }
+
+            renderOptions() {
+                this.menu.innerHTML = '';
+                const options = Array.from(this.select.options);
+                const currentVal = this.select.value;
+
+                options.forEach(opt => {
+                    const isSelected = opt.value === currentVal || (!currentVal && !opt.value);
+                    const item = document.createElement('div');
+                    item.className = 'elite-select-option px-3 py-2 text-xs rounded-xl cursor-pointer transition-all flex items-center justify-between gap-2 ' +
+                        (isSelected
+                            ? 'is-selected bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-bold border border-teal-200/80 dark:border-teal-800/60'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white font-medium');
+                    item.setAttribute('data-value', opt.value);
+
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'truncate';
+                    textSpan.textContent = opt.textContent;
+                    item.appendChild(textSpan);
+
+                    if (isSelected) {
+                        const checkIcon = document.createElement('i');
+                        checkIcon.className = 'fa-solid fa-check text-xs text-teal-600 dark:text-teal-400 shrink-0';
+                        item.appendChild(checkIcon);
+                    }
+
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.selectValue(opt.value);
+                    });
+
+                    this.menu.appendChild(item);
+                });
+            }
+
+            selectValue(val) {
+                if (this.select.value !== val) {
+                    this.select.value = val;
+                    this.select.dispatchEvent(new Event('change', { bubbles: true }));
+                    this.select.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                this.syncLabel();
+                this.syncSelectedOption();
+                this.close();
+            }
+
+            syncLabel() {
+                const selectedOpt = this.select.options[this.select.selectedIndex];
+                this.labelSpan.textContent = selectedOpt ? selectedOpt.textContent : '';
+            }
+
+            syncSelectedOption() {
+                const currentVal = this.select.value;
+                this.menu.querySelectorAll('.elite-select-option').forEach(item => {
+                    const isSelected = item.getAttribute('data-value') === currentVal;
+                    if (isSelected) {
+                        item.className = 'elite-select-option is-selected px-3 py-2 text-xs rounded-xl cursor-pointer transition-all flex items-center justify-between gap-2 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-bold border border-teal-200/80 dark:border-teal-800/60';
+                        if (!item.querySelector('.fa-check')) {
+                            const check = document.createElement('i');
+                            check.className = 'fa-solid fa-check text-xs text-teal-600 dark:text-teal-400 shrink-0';
+                            item.appendChild(check);
+                        }
+                    } else {
+                        item.className = 'elite-select-option px-3 py-2 text-xs rounded-xl cursor-pointer transition-all flex items-center justify-between gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white font-medium';
+                        const existingCheck = item.querySelector('.fa-check');
+                        if (existingCheck) existingCheck.remove();
+                    }
+                });
+            }
+
+            refresh() {
+                this.renderOptions();
+                this.syncLabel();
+            }
+
+            open() {
+                document.querySelectorAll('.elite-select-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+                document.querySelectorAll('.elite-select-trigger .fa-chevron-down.rotate-180').forEach(i => i.classList.remove('rotate-180'));
+                document.querySelectorAll('.elite-select-trigger.ring-2').forEach(t => t.classList.remove('ring-2', 'ring-teal-500/25', 'border-teal-500'));
+
+                this.menu.classList.remove('hidden');
+                this.icon.classList.add('rotate-180');
+                this.trigger.classList.add('ring-2', 'ring-teal-500/25', 'border-teal-500');
+                this.isOpen = true;
+            }
+
+            close() {
+                this.menu.classList.add('hidden');
+                this.icon.classList.remove('rotate-180');
+                this.trigger.classList.remove('ring-2', 'ring-teal-500/25', 'border-teal-500');
+                this.isOpen = false;
+            }
+
+            toggle() {
+                if (this.isOpen) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            }
+        }
+        window.EliteCustomSelect = EliteCustomSelect;
+
+        window.initEliteCustomSelects = function(root = document) {
+            root.querySelectorAll('.elite-custom-select').forEach(el => {
+                new EliteCustomSelect(el);
+            });
+        };
     </script>
 
     <script src="{{ asset('js/toast.js') }}"></script>

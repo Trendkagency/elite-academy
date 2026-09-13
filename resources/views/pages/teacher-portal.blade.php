@@ -22,7 +22,7 @@
 
         {{-- Executive Header & Faculty Greeting Banner --}}
         <div
-            class="relative overflow-hidden dark:bg-gray-900 rounded-3xl light:bg-gray-50 from-slate-900 via-slate-800 to-teal-950 p-6 sm:p-8 lg:p-10 text-white shadow-2xl border border-slate-700/60">
+            class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/80 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-2xl border border-slate-700/60 dark:border-slate-800">
             <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 lg:gap-8">
                 <div class="space-y-3.5 flex-1 min-w-0">
                     {{-- Status Badges --}}
@@ -58,26 +58,26 @@
                 </div>
 
                 {{-- Quick Action Cluster (Responsive 2-col on phones, flex row on tablet & desktop) --}}
-                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 w-full xl:w-auto shrink-0">
+                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 w-full xl:w-auto shrink-0">
                     <button type="button" onclick="openCreateSessionModal()"
-                        class="btn-lift px-4 py-2.5 sm:py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
                         <i class="fa-solid fa-plus text-xs"></i>
-                        <span>{{ __('Schedule Session') }}</span>
+                        <span class="truncate">{{ __('Schedule Session') }}</span>
                     </button>
                     <button type="button" onclick="openCreateAssignmentModal()"
-                        class="btn-lift px-4 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-white/20 backdrop-blur-md shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-white/20 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
                         <i class="fa-solid fa-pen-to-square text-emerald-300 text-xs"></i>
-                        <span>{{ __('Publish Assignment') }}</span>
+                        <span class="truncate">{{ __('Publish Assignment') }}</span>
                     </button>
                     <button type="button" onclick="switchTeacherTab('schedules')"
-                        class="btn-lift px-4 py-2.5 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
                         <i class="fa-solid fa-calendar-days text-indigo-400 text-xs"></i>
-                        <span>{{ __('Schedules') }}</span>
+                        <span class="truncate">{{ __('Schedules') }}</span>
                     </button>
                     <button type="button" onclick="switchTeacherTab('students')"
-                        class="btn-lift px-4 py-2.5 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
                         <i class="fa-solid fa-graduation-cap text-teal-400 text-xs"></i>
-                        <span>{{ __('My Students') }}</span>
+                        <span class="truncate">{{ __('My Students') }}</span>
                     </button>
                 </div>
             </div>
@@ -94,103 +94,115 @@
             class="hidden p-4 rounded-2xl text-sm font-semibold transition-all duration-300 shadow-md"></div>
 
         {{-- KPI Statistics Grid (Responsive: 2-cols mobile, 3-cols tablet, 6-cols desktop) --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-4">
             {{-- KPI 1: Today Sessions --}}
             <div
-                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-1.5 group">
-                <div class="flex items-center justify-between">
+                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] group">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('Today Sessions') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Today Sessions') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-calendar-days"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
-                    data-target="{{ $todaySessionsCount }}">0</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ __('Scheduled today') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
+                        data-target="{{ $todaySessionsCount }}">0</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Scheduled today') }}</p>
+                </div>
             </div>
 
             {{-- KPI 2: Upcoming --}}
             <div
-                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-1.5 group">
-                <div class="flex items-center justify-between">
+                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] group">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('Upcoming') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Upcoming') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-hourglass-half"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-blue-600 dark:text-blue-400 js-counter"
-                    data-target="{{ $upcomingSessionsCount }}">0</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ __('Future cohorts') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-blue-600 dark:text-blue-400 js-counter"
+                        data-target="{{ $upcomingSessionsCount }}">0</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Future cohorts') }}</p>
+                </div>
             </div>
 
             {{-- KPI 3: Students --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-teal-500/60 dark:hover:border-teal-500/60 transition-all duration-200 space-y-1.5 cursor-pointer group"
+            <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-teal-500/60 dark:hover:border-teal-500/60 transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] cursor-pointer group"
                 onclick="switchTeacherTab('students')">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('My Students') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('My Students') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white js-counter"
-                    data-target="{{ $assignedStudentsCount }}">0</p>
-                <p
-                    class="text-[11px] text-teal-600 dark:text-teal-400 font-bold flex items-center gap-1 group-hover:underline">
-                    {{ __('View roster →') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white js-counter"
+                        data-target="{{ $assignedStudentsCount }}">0</p>
+                    <p
+                        class="text-[10px] sm:text-[11px] text-teal-600 dark:text-teal-400 font-bold flex items-center gap-1 group-hover:underline truncate">
+                        {{ __('View roster →') }}</p>
+                </div>
             </div>
 
             {{-- KPI 4: Pending Assignments --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-500/60 dark:hover:border-amber-500/60 transition-all duration-200 space-y-1.5 cursor-pointer group"
+            <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-500/60 dark:hover:border-amber-500/60 transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] cursor-pointer group"
                 onclick="switchTeacherTab('assignments')">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('Need Grading') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Need Grading') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-amber-500 dark:text-amber-400 js-counter"
-                    data-target="{{ $pendingAssignmentsCount }}">0</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ __('Submissions queue') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-amber-500 dark:text-amber-400 js-counter"
+                        data-target="{{ $pendingAssignmentsCount }}">0</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Submissions queue') }}</p>
+                </div>
             </div>
 
             {{-- KPI 5: Total Submissions --}}
             <div
-                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-1.5 group">
-                <div class="flex items-center justify-between">
+                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] group">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('Submissions') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Submissions') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-chart-column"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
-                    data-target="{{ $submittedAssignmentsCount }}">0</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ __('Total handled') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
+                        data-target="{{ $submittedAssignmentsCount }}">0</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Total handled') }}</p>
+                </div>
             </div>
 
             {{-- KPI 6: Attendance Rate --}}
             <div
-                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 space-y-1.5 group">
-                <div class="flex items-center justify-between">
+                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] group">
+                <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('Attendance Rate') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Attendance Rate') }}</span>
                     <span
-                        class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
                         <i class="fa-solid fa-circle-check"></i>
                     </span>
                 </div>
-                <p class="font-heading font-black text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400"><span
-                        class="js-counter" data-target="{{ $attendanceRate }}">0</span>%</p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ __('Historical sessions') }}</p>
+                <div>
+                    <p class="font-heading font-black text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400"><span
+                            class="js-counter" data-target="{{ $attendanceRate }}">0</span>%</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Historical sessions') }}</p>
+                </div>
             </div>
         </div>
 
@@ -255,8 +267,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {{-- Today's Live Sessions Card --}}
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                             <div>
                                 <h2
                                     class="font-heading text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
@@ -272,26 +284,26 @@
                         </div>
 
                         @if ($todaySessions->count() > 0)
-                            <div class="space-y-4">
+                            <div id="todaySessionsListContainer" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($todaySessions as $session)
                                     <div
-                                        class="p-5 rounded-2xl bg-[#FAFAF9] border border-slate-200/90 hover:border-teal-400 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                        class="today-session-item p-5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-500 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                         <div class="space-y-1.5 min-w-0">
                                             <div class="flex items-center gap-2 flex-wrap">
                                                 <span
-                                                    class="px-2.5 py-0.5 text-[10px] font-mono font-extrabold uppercase rounded-full bg-teal-100 text-teal-800">
+                                                    class="px-2.5 py-0.5 text-[10px] font-mono font-extrabold uppercase rounded-full bg-teal-100 text-teal-800 dark:bg-teal-950/70 dark:text-teal-300 dark:border dark:border-teal-800/60">
                                                     {{ $session->course?->title ?: __('Course Session') }}
                                                 </span>
-                                                <span class="text-xs font-mono text-slate-500">
+                                                <span class="text-xs font-mono text-slate-500 dark:text-slate-400">
                                                     <i class="fa-solid fa-stopwatch"></i>
-                                                    {{ $session->effective_start_at ? $session->effective_start_at->format('h:i A') : 'Scheduled' }}
+                                                    {{ $session->effective_start_at ? $session->effective_start_at->format('h:i A') : __('Scheduled') }}
                                                     ({{ $session->duration_minutes }}m)
                                                 </span>
                                             </div>
-                                            <h3 class="font-heading font-extrabold text-base text-slate-900 truncate">
+                                            <h3 class="font-heading font-extrabold text-base text-slate-900 dark:text-white truncate">
                                                 {{ $session->title ?: __('Interactive Teaching Session') }}
                                             </h3>
-                                            <p class="text-xs text-slate-500 font-mono">
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
                                                 {{ __('Cohort') }}:
                                                 {{ $session->subject?->name ?: __('General Curriculum') }}
                                             </p>
@@ -322,11 +334,12 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div id="todaySessionsPagination" class="mt-4"></div>
                         @else
                             <div
-                                class="text-center py-12 bg-[#FAFAF9] rounded-2xl border border-dashed border-slate-200 space-y-3">
+                                class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 space-y-3">
                                 <span class="text-3xl"><i class="fa-solid fa-mug-hot"></i></span>
-                                <p class="text-sm font-semibold text-slate-700">
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                     {{ __('No teaching sessions scheduled for today.') }}</p>
                                 <button type="button" onclick="openCreateSessionModal()"
                                     class="text-xs font-bold text-teal-600 hover:text-teal-700 hover:underline">
@@ -337,26 +350,26 @@
                     </div>
 
                     {{-- Pending Grading Queue --}}
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <h2 class="font-heading text-xl font-black text-slate-900 flex items-center gap-2">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <h2 class="font-heading text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                                 <span><i class="fa-solid fa-pen-to-square"></i></span> {{ __('Pending Grading Queue') }}
                             </h2>
                             <span
-                                class="px-3 py-1 bg-orange-50 text-orange-700 font-mono text-xs font-bold rounded-full border border-orange-200">
+                                class="px-3 py-1 bg-orange-50 text-orange-700 font-mono text-xs font-bold rounded-full border border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800/60">
                                 {{ $pendingSubmissions->count() }} {{ __('Needs Review') }}
                             </span>
                         </div>
 
                         @if ($pendingSubmissions->count() > 0)
-                            <div class="divide-y divide-slate-100">
-                                @foreach ($pendingSubmissions->take(5) as $sub)
-                                    <div class="py-3.5 flex items-center justify-between gap-4">
+                            <div id="pendingSubmissionsContainer" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
+                                @foreach ($pendingSubmissions as $sub)
+                                    <div class="pending-sub-item py-3.5 flex items-center justify-between gap-4">
                                         <div class="space-y-1 min-w-0">
-                                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                                                 {{ $sub->studentUser?->name ?: __('Student') }}
                                             </h4>
-                                            <p class="text-xs text-slate-500 truncate">
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                                                 {{ $sub->assignment?->title ?: __('Assignment') }} • <span
                                                     class="font-mono text-[11px]">{{ $sub->submitted_at ? $sub->submitted_at->diffForHumans() : '' }}</span>
                                             </p>
@@ -373,9 +386,10 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div id="pendingSubmissionsPagination" class="mt-4"></div>
                         @else
-                            <div class="text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
-                                <p class="text-xs font-semibold text-slate-600">
+                            <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">
                                     {{ __('Great job! All student homework submissions are graded.') }}</p>
                             </div>
                         @endif
@@ -385,8 +399,8 @@
                 {{-- Sidebar Overview Column: Quick Student Roster Preview & Courses --}}
                 <div class="space-y-6">
                     {{-- Quick Students Roster Preview --}}
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                             <h3 class="font-heading font-black text-lg text-slate-900">{{ __('Recent Students') }}</h3>
                             <button type="button" onclick="switchTeacherTab('students')"
                                 class="text-xs font-bold text-teal-600 hover:underline">
@@ -395,9 +409,9 @@
                         </div>
 
                         @if ($assignedStudents->count() > 0)
-                            <div class="space-y-3">
-                                @foreach ($assignedStudents->take(5) as $st)
-                                    <div class="p-3 rounded-2xl bg-[#FAFAF9] border border-slate-200/80 flex items-center justify-between gap-3 hover:border-teal-400 transition-all cursor-pointer"
+                            <div id="recentStudentsContainer" class="space-y-3 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+                                @foreach ($assignedStudents as $st)
+                                    <div class="recent-student-item p-3 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 hover:border-teal-400 dark:hover:border-teal-500 transition-all cursor-pointer"
                                         onclick="openStudentDetailsModal({{ $st->user_id }})">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <div
@@ -418,17 +432,18 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div id="recentStudentsPagination" class="mt-3"></div>
                         @else
                             <p class="text-xs text-slate-400 text-center py-4">{{ __('No students assigned yet.') }}</p>
                         @endif
                     </div>
 
                     {{-- Active Teaching Courses --}}
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xl space-y-4">
-                        <h3 class="font-heading font-black text-lg text-slate-900 border-b border-slate-100 pb-3">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                        <h3 class="font-heading font-black text-lg text-slate-900 border-b border-slate-100 dark:border-slate-800 pb-3">
                             {{ __('Your Active Courses') }}</h3>
                         @if ($courses->count() > 0)
-                            <div class="space-y-2.5">
+                            <div id="overviewCoursesListContainer" class="space-y-2.5 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($courses as $c)
                                     @php
                                         $sessionCount = $c->sessions->count();
@@ -445,7 +460,7 @@
                                                 : 'Sessions');
                                     @endphp
                                     <div
-                                        class="p-3.5 rounded-2xl bg-[#FAFAF9] border border-slate-200/80 hover:border-teal-400 hover:bg-white transition-all flex items-center justify-between gap-3 group">
+                                        class="overview-course-item p-3.5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-500 hover:bg-white dark:hover:bg-slate-800 transition-all flex items-center justify-between gap-3 group">
                                         <div class="min-w-0 flex-1 space-y-1">
                                             <h4
                                                 class="font-heading font-black text-xs sm:text-sm text-slate-900 leading-snug line-clamp-2 group-hover:text-teal-700 transition-colors">
@@ -465,6 +480,7 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div id="overviewCoursesPagination" class="mt-3"></div>
                         @else
                             <p class="text-xs text-slate-400 text-center py-4">{{ __('No active courses configured.') }}
                             </p>
@@ -479,10 +495,10 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-students"
             class="teacher-tab-content {{ $activeTabKey === 'students' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 {{-- Tab Header --}}
                 <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="font-heading text-2xl font-black text-slate-900 flex items-center gap-2">
                             <span><i class="fa-solid fa-graduation-cap"></i></span> {{ __('app.teacher.my_students') }}
@@ -500,13 +516,13 @@
                 </div>
 
                 {{-- Multi-Faceted Student Filter & Search Bar --}}
-                <div class="p-4 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-3">
+                <div class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {{-- Live Search Input --}}
                         <div class="lg:col-span-2 relative">
                             <input type="text" id="studentSearchInput"
                                 placeholder="{{ __('app.teacher.search_placeholder') }}"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all pe-8">
+                                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all pe-8">
                             <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs"><i
                                     class="fa-solid fa-magnifying-glass"></i></span>
                         </div>
@@ -514,7 +530,7 @@
                         {{-- Filter by Course --}}
                         <div>
                             <select id="studentCourseFilter"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
+                                class="elite-custom-select w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                 <option value="">{{ __('app.teacher.all_courses') }}</option>
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->title }}</option>
@@ -525,7 +541,7 @@
                         {{-- Filter by Grade Level --}}
                         <div>
                             <select id="studentGradeFilter"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
+                                class="elite-custom-select w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                 <option value="">{{ __('app.teacher.all_grades') }}</option>
                                 @foreach ($gradeLevels ?? [] as $gl)
                                     <option value="{{ $gl->id }}">{{ $gl->name }}</option>
@@ -536,7 +552,7 @@
                         {{-- Filter by Attendance Health --}}
                         <div>
                             <select id="studentAttendanceFilter"
-                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
+                                class="elite-custom-select w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                 <option value="">{{ __('app.teacher.all_attendance') }}</option>
                                 <option value="good">{{ __('app.teacher.attendance_good') }}</option>
                                 <option value="risk">{{ __('app.teacher.attendance_risk') }}</option>
@@ -565,7 +581,7 @@
                                 $avgSc = $st->avg_score !== null ? (float) $st->avg_score : null;
                                 $studentCode = 'STU-' . str_pad((string) $st->user_id, 5, '0', STR_PAD_LEFT);
                             @endphp
-                            <div class="student-roster-card bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 hover:border-teal-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between space-y-4"
+                            <div class="student-roster-card bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between space-y-4"
                                 data-name="{{ strtolower($st->user?->name ?: '') }}"
                                 data-code="{{ strtolower($studentCode) }}"
                                 data-school="{{ strtolower($st->school_name ?: '') }}"
@@ -613,7 +629,7 @@
                                         <div class="flex flex-wrap gap-1 pt-1">
                                             @foreach (collect($st->enrolled_courses)->take(2) as $cMeta)
                                                 <span
-                                                    class="text-[10px] font-mono font-bold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 truncate max-w-[140px]">
+                                                    class="text-[10px] font-mono font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 truncate max-w-[140px]">
                                                     {{ $cMeta['title'] }}
                                                 </span>
                                             @endforeach
@@ -627,9 +643,9 @@
                                 </div>
 
                                 {{-- Card Bottom: KPIs & Action Button --}}
-                                <div class="space-y-3 pt-3 border-t border-slate-200/80">
+                                <div class="space-y-3 pt-3 border-t border-slate-200/80 dark:border-slate-700/80">
                                     <div class="grid grid-cols-2 gap-2 text-center font-mono text-[11px]">
-                                        <div class="p-2 bg-white rounded-xl border border-slate-200/80">
+                                        <div class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Attendance') }}</span>
                                             <span
@@ -637,7 +653,7 @@
                                                 {{ $attRate }}%
                                             </span>
                                         </div>
-                                        <div class="p-2 bg-white rounded-xl border border-slate-200/80">
+                                        <div class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Avg Score') }}</span>
                                             <span
@@ -657,6 +673,9 @@
                         @endforeach
                     </div>
 
+                    {{-- Section Responsive Pagination Container --}}
+                    <div id="studentsPagination" class="mt-6"></div>
+
                     {{-- Empty Search Result State --}}
                     <div id="studentEmptySearchState"
                         class="hidden text-center py-12 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-2">
@@ -668,7 +687,7 @@
                         </button>
                     </div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">
                             {{ __('No students enrolled in your courses yet.') }}</p>
                     </div>
@@ -681,9 +700,9 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-sessions"
             class="teacher-tab-content {{ $activeTabKey === 'sessions' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="font-heading text-2xl font-black text-slate-900 flex items-center gap-2">
                             <span><i class="fa-solid fa-calendar-days"></i></span>
@@ -693,23 +712,34 @@
                             {{ __('Manage your live sessions, recurring cohorts, update broadcast URLs, and reschedule classes.') }}
                         </p>
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <button type="button" onclick="openCreateRecurringModal()"
-                            class="btn-lift px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
-                            <span><i class="fa-solid fa-arrows-rotate"></i></span> {{ __('Create Recurring Schedule') }}
-                        </button>
-                        <button type="button" onclick="openCreateSessionModal()"
-                            class="btn-lift px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
-                            <span><i class="fa-solid fa-plus"></i></span> {{ __('Schedule Single Session') }}
-                        </button>
+                    <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="liveSessionSearchInput"
+                                placeholder="{{ __('Search session title, course, or date...') }}"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-teal-500 transition-all pe-8">
+                            <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+                            <button type="button" onclick="openCreateRecurringModal()"
+                                class="btn-lift px-3 py-2.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5 truncate">
+                                <span><i class="fa-solid fa-arrows-rotate"></i></span> <span class="truncate">{{ __('Create Recurring Schedule') }}</span>
+                            </button>
+                            <button type="button" onclick="openCreateSessionModal()"
+                                class="btn-lift px-3 py-2.5 sm:px-4 sm:py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5 truncate">
+                                <span><i class="fa-solid fa-plus"></i></span> <span class="truncate">{{ __('Schedule Single Session') }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 @if ($allSessions->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse">
+                    {{-- Desktop & Tablet Data Table View (>= 768px) --}}
+                    <div class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 720px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-200 text-xs font-mono font-bold text-slate-500 uppercase">
+                                <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
                                     <th class="py-3 px-4">{{ __('Session Details') }}</th>
                                     <th class="py-3 px-4">{{ __('Course') }}</th>
                                     <th class="py-3 px-4">{{ __('Date & Time') }}</th>
@@ -717,40 +747,43 @@
                                     <th class="py-3 px-4 text-right rtl:text-left">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 text-sm">
+                            <tbody id="sessionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                 @foreach ($allSessions as $session)
-                                    <tr class="hover:bg-slate-50/80 transition-colors">
-                                        <td class="py-4 px-4 font-bold text-slate-900">
+                                    <tr class="session-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
+                                        data-title="{{ strtolower($session->title ?? '') }}"
+                                        data-course="{{ strtolower($session->course?->title ?? '') }}"
+                                        data-date="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d') : '' }}">
+                                        <td class="py-4 px-4 font-bold text-slate-900 dark:text-white">
                                             <div class="space-y-1">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <p class="font-extrabold text-slate-900 text-xs sm:text-sm">
+                                                    <p class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
                                                         {{ $session->title ?: __('Live Class Session') }}</p>
                                                     @if ($session->recurring_schedule_id)
                                                         <span
-                                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                                                             <span><i class="fa-solid fa-arrows-rotate"></i></span>
                                                             {{ __('Recurring') }}
                                                         </span>
                                                     @endif
                                                     @if ($session->is_override)
                                                         <span
-                                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                                             <span><i class="fa-solid fa-triangle-exclamation"></i></span>
                                                             {{ __('Override') }}
                                                         </span>
                                                     @endif
                                                 </div>
-                                                <p class="text-xs text-slate-500 font-mono">
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
                                                     {{ $session->duration_minutes }} {{ __('minutes') }}</p>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-4 text-xs font-semibold text-teal-700">
+                                        <td class="py-4 px-4 text-xs font-semibold text-teal-700 dark:text-teal-400">
                                             {{ $session->course?->title ?: __('General Curriculum') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 whitespace-nowrap">
+                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                             {{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : __('Not Scheduled') }}
                                         </td>
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             @php
                                                 $statusText = match ($session->status) {
                                                     'scheduled' => __('Scheduled'),
@@ -764,7 +797,7 @@
                                                 };
                                             @endphp
                                             <span
-                                                class="px-2.5 py-1 text-[11px] font-mono font-bold rounded-full {{ in_array($session->status, ['cancelled', 'cancelled_by_teacher']) ? 'bg-red-100 text-red-700' : ($session->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : ($session->status === 'rescheduled' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-700')) }}">
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono font-bold rounded-full whitespace-nowrap {{ in_array($session->status, ['cancelled', 'cancelled_by_teacher']) ? 'bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300 dark:border dark:border-red-800/60' : ($session->status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border dark:border-emerald-800/60' : ($session->status === 'rescheduled' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 dark:border dark:border-amber-800/60' : 'bg-teal-100 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300 dark:border dark:border-teal-800/60')) }}">
                                                 {{ $statusText }}
                                             </span>
                                         </td>
@@ -777,26 +810,26 @@
                                                 data-meeting-link="{{ $session->meeting_link ?? '' }}"
                                                 data-notes="{{ $session->teacher_notes ?? '' }}"
                                                 onclick="openEditSessionOverrideModal({{ $session->id }}, this)"
-                                                class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                                                class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900/80 text-teal-800 dark:text-teal-300 text-xs font-bold rounded-lg border border-teal-200/70 dark:border-teal-800/60 transition-colors cursor-pointer"
                                                 title="{{ __('Edit or Override Session') }}">
                                                 <i class="fa-solid fa-pen"></i> {{ __('Edit Scope') }}
                                             </button>
                                             <button type="button" data-session-id="{{ $session->id }}"
                                                 data-meeting-link="{{ $session->meeting_link ?? '' }}"
                                                 onclick="openMeetingLinkModal({{ $session->id }}, this)"
-                                                class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition-colors cursor-pointer">
+                                                class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200/70 dark:border-slate-700 transition-colors cursor-pointer">
                                                 <i class="fa-solid fa-link"></i> {{ __('Link') }}
                                             </button>
                                             <button type="button" data-session-id="{{ $session->id }}"
                                                 data-scheduled-at="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}"
                                                 onclick="openRescheduleModal({{ $session->id }}, this)"
-                                                class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
+                                                class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/80 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-lg border border-blue-200/70 dark:border-blue-800/60 transition-colors cursor-pointer">
                                                 <i class="fa-solid fa-calendar-days"></i> {{ __('Reschedule') }}
                                             </button>
                                             @if (!in_array($session->status, ['cancelled', 'cancelled_by_teacher']))
                                                 <button type="button"
                                                     onclick="confirmCancelSession({{ $session->id }})"
-                                                    class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
+                                                    class="px-2.5 py-1 bg-red-50 hover:bg-red-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-red-700 dark:text-rose-300 text-xs font-bold rounded-lg border border-red-200/70 dark:border-rose-800/60 transition-colors cursor-pointer">
                                                     <i class="fa-solid fa-circle-xmark text-rose-500"></i>
                                                     {{ __('Cancel') }}
                                                 </button>
@@ -807,11 +840,120 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="pt-4 border-t border-slate-100">
-                        {{ $allSessions->links() }}
+
+                    {{-- Mobile-First Session Cards (< 768px) --}}
+                    <div class="block md:hidden space-y-3.5" id="sessionsMobileListContainer">
+                        @foreach ($allSessions as $session)
+                            @php
+                                $statusText = match ($session->status) {
+                                    'scheduled' => __('Scheduled'),
+                                    'link_visible' => __('Ready / Broadcast Link Live'),
+                                    'live' => __('Live Now'),
+                                    'completed' => __('Completed'),
+                                    'cancelled' => __('Cancelled'),
+                                    'cancelled_by_teacher' => __('Cancelled by Teacher'),
+                                    'rescheduled' => __('Rescheduled'),
+                                    default => __('Scheduled'),
+                                };
+                            @endphp
+                            <div class="session-mobile-card p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3"
+                                data-title="{{ strtolower($session->title ?? '') }}"
+                                data-course="{{ strtolower($session->course?->title ?? '') }}"
+                                data-date="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d') : '' }}">
+                                {{-- Card Header: Title & Status --}}
+                                <div class="flex items-start justify-between gap-2.5">
+                                    <div class="space-y-1 min-w-0 flex-1">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
+                                                {{ $session->title ?: __('Live Class Session') }}
+                                            </h4>
+                                            @if ($session->recurring_schedule_id)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                                                    <i class="fa-solid fa-arrows-rotate text-[9px]"></i>
+                                                    <span>{{ __('Recurring') }}</span>
+                                                </span>
+                                            @endif
+                                            @if ($session->is_override)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                                    <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
+                                                    <span>{{ __('Override') }}</span>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-full {{ in_array($session->status, ['cancelled', 'cancelled_by_teacher']) ? 'bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300' : ($session->status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300' : ($session->status === 'rescheduled' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300' : 'bg-teal-100 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300')) }}">
+                                        {{ $statusText }}
+                                    </span>
+                                </div>
+
+                                {{-- Card Meta: Course and Date --}}
+                                <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-400 font-semibold truncate">
+                                        <i class="fa-solid fa-book-open text-xs shrink-0 text-teal-600 dark:text-teal-400"></i>
+                                        <span class="truncate">{{ $session->course?->title ?: __('General Curriculum') }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-calendar-days text-slate-400 text-xs"></i>
+                                            <span>{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d • h:i A') : __('Not Scheduled') }}</span>
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i class="fa-solid fa-stopwatch text-slate-400 text-[10px]"></i>
+                                            <span>{{ $session->duration_minutes }} {{ __('min') }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {{-- Card Actions Grid --}}
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                                    <button type="button" data-session-id="{{ $session->id }}"
+                                        data-title="{{ $session->title }}"
+                                        data-scheduled-at="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}"
+                                        data-duration="{{ $session->duration_minutes ?: 60 }}"
+                                        data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                        data-notes="{{ $session->teacher_notes ?? '' }}"
+                                        onclick="openEditSessionOverrideModal({{ $session->id }}, this)"
+                                        class="px-2 py-2 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900/80 text-teal-800 dark:text-teal-300 text-xs font-bold rounded-xl border border-teal-200/70 dark:border-teal-800/60 transition-colors cursor-pointer flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                        <span>{{ __('Edit Scope') }}</span>
+                                    </button>
+                                    <button type="button" data-session-id="{{ $session->id }}"
+                                        data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                        onclick="openMeetingLinkModal({{ $session->id }}, this)"
+                                        class="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200/70 dark:border-slate-700 transition-colors cursor-pointer flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-link text-[10px]"></i>
+                                        <span>{{ __('Link') }}</span>
+                                    </button>
+                                    <button type="button" data-session-id="{{ $session->id }}"
+                                        data-scheduled-at="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}"
+                                        onclick="openRescheduleModal({{ $session->id }}, this)"
+                                        class="px-2 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/80 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-xl border border-blue-200/70 dark:border-blue-800/60 transition-colors cursor-pointer flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-calendar-days text-[10px]"></i>
+                                        <span>{{ __('Reschedule') }}</span>
+                                    </button>
+                                    @if (!in_array($session->status, ['cancelled', 'cancelled_by_teacher']))
+                                        <button type="button"
+                                            onclick="confirmCancelSession({{ $session->id }})"
+                                            class="px-2 py-2 bg-red-50 hover:bg-red-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-red-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-red-200/70 dark:border-rose-800/60 transition-colors cursor-pointer flex items-center justify-center gap-1">
+                                            <i class="fa-solid fa-circle-xmark text-rose-500 text-[10px]"></i>
+                                            <span>{{ __('Cancel') }}</span>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Desktop Pagination --}}
+                    <div id="sessionsPagination" class="hidden md:block mt-4"></div>
+                    {{-- Mobile Pagination --}}
+                    <div id="sessionsMobilePagination" class="block md:hidden mt-4"></div>
+
+                    <div id="sessionsEmptySearchState" class="hidden text-center py-8 text-xs text-slate-400 italic">
+                        {{ __('No teaching sessions match your current filter criteria.') }}
                     </div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-2">
+                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No sessions created yet.') }}</p>
                     </div>
                 @endif
@@ -824,9 +966,9 @@
         <div id="teacher-tab-assignments"
             class="teacher-tab-content {{ $activeTabKey === 'assignments' ? '' : 'hidden' }} space-y-8">
             {{-- Assignments Header & Publish Action --}}
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="font-heading text-2xl font-black text-slate-900">
                             {{ __('Assignments & Homework Manager') }}</h2>
@@ -840,7 +982,7 @@
                 </div>
 
                 @if ($assignments->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div id="assignmentsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach ($assignments as $assignment)
                             @php
                                 $subCount = $assignment->submissions->count();
@@ -857,7 +999,7 @@
                                         : 'Submissions');
                             @endphp
                             <div onclick="openAssignmentDetailsModal({{ $assignment->id }})"
-                                class="bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 space-y-3 flex flex-col justify-between hover:border-teal-400 hover:bg-white hover:shadow-lg transition-all group shadow-xs cursor-pointer">
+                                class="assignment-card bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-teal-400 dark:hover:border-teal-500 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all group shadow-xs cursor-pointer">
                                 <div class="space-y-2">
                                     <div class="flex items-center justify-between gap-3 text-xs">
                                         <span
@@ -876,7 +1018,7 @@
                                     </p>
                                 </div>
                                 <div
-                                    class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-mono text-slate-500">
+                                    class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs font-mono text-slate-500">
                                     <span class="truncate"><i class="fa-solid fa-calendar-days"></i>
                                         {{ __('Due') }}:
                                         {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
@@ -885,7 +1027,7 @@
                                             class="fa-solid fa-bullseye"></i> {{ $assignment->passing_score ?: 70 }}%
                                         {{ __('Pass') }}</span>
                                 </div>
-                                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                                     <span class="text-teal-600 font-bold group-hover:underline flex items-center gap-1.5">
                                         <i class="fa-solid fa-circle-info"></i> {{ __('View Details & Questions') }}
                                         &rarr;
@@ -899,22 +1041,26 @@
                             </div>
                         @endforeach
                     </div>
+
+                    {{-- Assignments Pagination Container --}}
+                    <div id="assignmentsPagination" class="mt-6"></div>
                 @else
-                    <div class="text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No assignments created yet.') }}</p>
                     </div>
                 @endif
             </div>
 
             {{-- Submissions Table --}}
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <h3 class="font-heading text-xl font-black text-slate-900">{{ __('All Student Submissions') }}</h3>
 
                 @if ($submissions->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse">
+                    {{-- Desktop & Tablet Data Table View (>= 768px) --}}
+                    <div class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 720px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-200 text-xs font-mono font-bold text-slate-500 uppercase">
+                                <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
                                     <th class="py-3 px-4">{{ __('Student') }}</th>
                                     <th class="py-3 px-4">{{ __('Assignment') }}</th>
                                     <th class="py-3 px-4">{{ __('Submitted At') }}</th>
@@ -922,7 +1068,7 @@
                                     <th class="py-3 px-4 text-right rtl:text-left">{{ __('Review Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 text-sm">
+                            <tbody id="submissionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                 @foreach ($submissions as $sub)
                                     @php
                                         $subVal =
@@ -933,25 +1079,27 @@
                                                     : (string) $sub->status);
                                         $isReviewed = $subVal === 'reviewed';
                                     @endphp
-                                    <tr class="hover:bg-slate-50/80 transition-colors">
-                                        <td class="py-4 px-4 font-bold text-slate-900">
+                                    <tr class="submission-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
+                                        data-student="{{ strtolower($sub->studentUser?->name ?? '') }}"
+                                        data-assignment="{{ strtolower($sub->assignment?->title ?? '') }}">
+                                        <td class="py-4 px-4 font-bold text-slate-900 dark:text-white">
                                             {{ $sub->studentUser?->name ?: __('Student') }}
                                         </td>
-                                        <td class="py-4 px-4 text-xs font-medium text-slate-700">
+                                        <td class="py-4 px-4 text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {{ $sub->assignment?->title ?: __('Assignment') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-500">
+                                        <td class="py-4 px-4 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                             {{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Draft' }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs">
+                                        <td class="py-4 px-4 font-mono text-xs whitespace-nowrap">
                                             @if ($sub->score !== null)
                                                 <span
-                                                    class="font-extrabold text-emerald-600">{{ number_format($sub->score, 1) }}%</span>
+                                                    class="font-extrabold text-emerald-600 dark:text-emerald-400">{{ number_format($sub->score, 1) }}%</span>
                                             @else
-                                                <span class="text-orange-500 italic">{{ __('Pending Grade') }}</span>
+                                                <span class="text-orange-500 dark:text-orange-400 italic">{{ __('Pending Grade') }}</span>
                                             @endif
                                         </td>
-                                        <td class="py-4 px-4 text-right rtl:text-left">
+                                        <td class="py-4 px-4 text-right rtl:text-left whitespace-nowrap">
                                             <button type="button" data-submission-id="{{ $sub->id }}"
                                                 data-student-name="{{ $sub->studentUser?->name ?: __('Student') }}"
                                                 data-assignment-title="{{ $sub->assignment?->title ?: __('Assignment') }}"
@@ -968,8 +1116,69 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Mobile-First Submissions Cards (< 768px) --}}
+                    <div class="block md:hidden space-y-3.5" id="submissionsMobileListContainer">
+                        @foreach ($submissions as $sub)
+                            @php
+                                $subVal =
+                                    $sub->status instanceof \App\Enums\SubmissionStatus
+                                        ? $sub->status->value
+                                        : (is_object($sub->status)
+                                            ? $sub->status->value ?? ''
+                                            : (string) $sub->status);
+                                $isReviewed = $subVal === 'reviewed';
+                            @endphp
+                            <div class="submission-mobile-card p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3"
+                                data-student="{{ strtolower($sub->studentUser?->name ?? '') }}"
+                                data-assignment="{{ strtolower($sub->assignment?->title ?? '') }}">
+                                <div class="flex items-start justify-between gap-2.5">
+                                    <div class="space-y-1 min-w-0 flex-1">
+                                        <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
+                                            {{ $sub->studentUser?->name ?: __('Student') }}
+                                        </h4>
+                                        <p class="text-xs font-semibold text-teal-700 dark:text-teal-400 truncate">
+                                            <i class="fa-solid fa-file-lines me-1"></i>{{ $sub->assignment?->title ?: __('Assignment') }}
+                                        </p>
+                                    </div>
+                                    <div class="shrink-0">
+                                        @if ($sub->score !== null)
+                                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-mono font-black rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                {{ number_format($sub->score, 1) }}%
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 text-[10px] font-mono font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                {{ __('Pending Grade') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                                    <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px] flex items-center gap-1.5">
+                                        <i class="fa-solid fa-clock text-slate-400"></i>
+                                        <span>{{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : __('Draft') }}</span>
+                                    </span>
+                                    <button type="button" data-submission-id="{{ $sub->id }}"
+                                        data-student-name="{{ $sub->studentUser?->name ?: __('Student') }}"
+                                        data-assignment-title="{{ $sub->assignment?->title ?: __('Assignment') }}"
+                                        data-score="{{ $sub->score }}"
+                                        data-evaluation-notes="{{ $sub->evaluation_notes }}"
+                                        onclick="openGradeModal({{ $sub->id }}, this)"
+                                        class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer flex items-center gap-1.5">
+                                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                                        <span>{{ $isReviewed ? __('Review & Grade') : __('Review Submission') }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Desktop Submissions Pagination --}}
+                    <div id="submissionsPagination" class="hidden md:block mt-4"></div>
+                    {{-- Mobile Submissions Pagination --}}
+                    <div id="submissionsMobilePagination" class="block md:hidden mt-4"></div>
                 @else
-                    <div class="text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No student submissions yet.') }}</p>
                     </div>
                 @endif
@@ -1029,7 +1238,7 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {{-- KPI 1: Overall Attendance Rate --}}
                 <div
-                    class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-2">
+                    class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all space-y-2">
                     <div class="flex items-center justify-between text-slate-400">
                         <span class="text-xs font-mono font-bold uppercase">{{ __('Cohort Attendance Rate') }}</span>
                         <span
@@ -1051,7 +1260,7 @@
 
                 {{-- KPI 2: Total Present Check-ins --}}
                 <div
-                    class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-2">
+                    class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all space-y-2">
                     <div class="flex items-center justify-between text-slate-400">
                         <span class="text-xs font-mono font-bold uppercase">{{ __('Present Check-Ins') }}</span>
                         <span
@@ -1070,7 +1279,7 @@
 
                 {{-- KPI 3: Absences & Excuses Logged --}}
                 <div
-                    class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-2">
+                    class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all space-y-2">
                     <div class="flex items-center justify-between text-slate-400">
                         <span class="text-xs font-mono font-bold uppercase">{{ __('Absences Logged') }}</span>
                         <span
@@ -1089,7 +1298,7 @@
 
                 {{-- KPI 4: Pending Check-In Sessions --}}
                 <div
-                    class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md hover:shadow-lg transition-all space-y-2">
+                    class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all space-y-2">
                     <div class="flex items-center justify-between text-slate-400">
                         <span class="text-xs font-mono font-bold uppercase">{{ __('Pending Check-In') }}</span>
                         <span
@@ -1108,10 +1317,10 @@
             </div>
 
             {{-- Main Attendance Container --}}
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
 
                 {{-- Toolbar: Multi-Faceted Filters, Search, & View Switchers --}}
-                <div class="p-4 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-3.5">
+                <div class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
                     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
                         {{-- Search & Dropdowns Container --}}
                         <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1119,7 +1328,7 @@
                             <div class="relative">
                                 <input type="text" id="attSearchInput"
                                     placeholder="{{ __('Search session title, course, or date...') }}"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all pe-8">
+                                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all pe-8">
                                 <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs"><i
                                         class="fa-solid fa-magnifying-glass"></i></span>
                             </div>
@@ -1127,7 +1336,7 @@
                             {{-- Filter by Course --}}
                             <div>
                                 <select id="attCourseFilter"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
+                                    class="elite-custom-select w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                     <option value="">{{ __('All Courses & Cohorts') }}</option>
                                     @foreach ($courses as $c)
                                         <option value="{{ $c->id }}">{{ $c->title }}</option>
@@ -1138,7 +1347,7 @@
                             {{-- Filter by Attendance Status --}}
                             <div>
                                 <select id="attStatusFilter"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
+                                    class="elite-custom-select w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                     <option value="">{{ __('All Attendance States') }}</option>
                                     <option value="recorded">{{ __('Attendance Recorded ✓') }}</option>
                                     <option value="pending">{{ __('Pending Check-In ⏳') }}</option>
@@ -1149,19 +1358,19 @@
 
                         {{-- View Switcher Buttons --}}
                         <div
-                            class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0 self-start lg:self-center">
+                            class="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 self-start lg:self-center">
                             <button type="button" onclick="switchAttView('cards')" id="attViewBtnCards"
                                 class="py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all bg-teal-600 text-white shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-grip"></i>
                                 <span>{{ __('Cards') }}</span>
                             </button>
                             <button type="button" onclick="switchAttView('table')" id="attViewBtnTable"
-                                class="py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                                class="py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-table-list"></i>
                                 <span>{{ __('Table') }}</span>
                             </button>
                             <button type="button" onclick="switchAttView('matrix')" id="attViewBtnMatrix"
-                                class="py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                                class="py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-users-viewfinder"></i>
                                 <span>{{ __('Learners') }}</span>
                             </button>
@@ -1170,7 +1379,7 @@
 
                     {{-- Status Info & Reset --}}
                     <div
-                        class="flex items-center justify-between text-xs font-mono text-slate-500 pt-1 border-t border-slate-200/60">
+                        class="flex items-center justify-between text-xs font-mono text-slate-500 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
                         <span id="attResultsCountText">{{ __('Showing all teaching sessions') }} (<span
                                 id="attCountBadge">{{ $attendanceSessions->count() }}</span>)</span>
                         <button type="button" onclick="resetAttendanceFilters()"
@@ -1210,7 +1419,7 @@
                                     );
                                     $sesTitleEscaped = addslashes($ses->title ?: __('Live Session'));
                                 @endphp
-                                <div class="att-session-card bg-[#FAFAF9] rounded-2xl p-5 border border-slate-200/90 hover:border-teal-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between space-y-4"
+                                <div class="att-session-card bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between space-y-4"
                                     id="attSessionCard_{{ $ses->id }}" data-title="{{ $searchStr }}"
                                     data-course="{{ $courseId }}" data-status="{{ $statusCategory }}"
                                     data-recorded="{{ $isRecorded ? '1' : '0' }}"
@@ -1278,21 +1487,21 @@
                                     </div>
 
                                     {{-- Card Body: Metric Badges Strip --}}
-                                    <div class="grid grid-cols-3 gap-2 text-center font-mono text-xs pt-1 border-t border-slate-200/70"
+                                    <div class="grid grid-cols-3 gap-2 text-center font-mono text-xs pt-1 border-t border-slate-200/70 dark:border-slate-700/70"
                                         id="attCardStats_{{ $ses->id }}">
-                                        <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Present') }}</span>
                                             <span
                                                 class="font-black text-emerald-600 text-sm att-stat-present">{{ $ses->present_count }}</span>
                                         </div>
-                                        <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Absent') }}</span>
                                             <span
                                                 class="font-black text-rose-600 text-sm att-stat-absent">{{ $ses->absent_count }}</span>
                                         </div>
-                                        <div class="p-2 rounded-xl bg-white border border-slate-200/80">
+                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Rate') }}</span>
                                             <span
@@ -1303,7 +1512,7 @@
                                     </div>
 
                                     {{-- Card Footer: Action Button --}}
-                                    <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between gap-3">
+                                    <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between gap-3">
                                         <div class="text-[11px] font-mono text-slate-500 truncate">
                                             <i class="fa-solid fa-graduation-cap text-teal-600"></i>
                                             {{ $ses->subject?->name ?: __('Curriculum Cohort') }}
@@ -1322,6 +1531,9 @@
                             @endforeach
                         </div>
 
+                        {{-- Attendance Cards Pagination --}}
+                        <div id="attCardsPagination" class="mt-6"></div>
+
                         {{-- Empty State for Search --}}
                         <div id="attEmptySearchState"
                             class="hidden text-center py-12 bg-[#FAFAF9] rounded-2xl border border-dashed border-slate-200 space-y-2">
@@ -1335,7 +1547,7 @@
                         </div>
                     @else
                         <div
-                            class="text-center py-16 bg-[#FAFAF9] rounded-2xl border border-dashed border-slate-200 space-y-3">
+                            class="text-center py-16 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 space-y-3">
                             <span class="text-4xl"><i class="fa-solid fa-calendar-xmark text-slate-400"></i></span>
                             <p class="text-base font-bold text-slate-800">
                                 {{ __('No teaching sessions found for attendance tracking.') }}</p>
@@ -1354,11 +1566,11 @@
                 {{-- VIEW 2: DETAILED TABLE ROSTER VIEW                              --}}
                 {{-- ════════════════════════════════════════════════════════════════ --}}
                 <div id="attViewTable" class="att-view-pane hidden space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse">
+                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 760px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
                                 <tr
-                                    class="border-b border-slate-200 text-xs font-mono font-bold text-slate-500 uppercase bg-slate-50/70">
+                                    class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/70 dark:bg-slate-800/70">
                                     <th class="py-3 px-4 rounded-s-xl">{{ __('Session Details') }}</th>
                                     <th class="py-3 px-4">{{ __('Course / Cohort') }}</th>
                                     <th class="py-3 px-4">{{ __('Scheduled Time') }}</th>
@@ -1367,7 +1579,7 @@
                                     <th class="py-3 px-4 text-right rtl:text-left rounded-e-xl">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                            <tbody id="attTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
                                 @foreach ($attendanceSessions as $ses)
                                     @php
                                         $isRecorded = $ses->is_recorded;
@@ -1388,7 +1600,7 @@
                                                 : 'pending');
                                         $sesTitleEscaped = addslashes($ses->title ?: __('Live Session'));
                                     @endphp
-                                    <tr class="att-table-row hover:bg-slate-50/80 transition-colors"
+                                    <tr class="att-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
                                         data-title="{{ $searchStr }}" data-course="{{ $courseId }}"
                                         data-status="{{ $statusCat }}">
                                         <td class="py-4 px-4 font-bold text-slate-900">
@@ -1400,30 +1612,30 @@
                                         <td class="py-4 px-4 text-xs font-semibold text-teal-700">
                                             {{ $ses->course?->title ?: __('General Cohort') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 whitespace-nowrap">
+                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                             {{ $ses->effective_start_at ? $ses->effective_start_at->format('Y-m-d h:i A') : __('Not Scheduled') }}
                                         </td>
-                                        <td class="py-4 px-4">
+                                        <td class="py-4 px-4 whitespace-nowrap">
                                             @if ($isRecorded)
                                                 <span
-                                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">
-                                                    <i class="fa-solid fa-circle-check text-emerald-600 text-[9px]"></i>
+                                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border dark:border-emerald-800/60 whitespace-nowrap">
+                                                    <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-[9px]"></i>
                                                     {{ __('Recorded') }}
                                                 </span>
                                             @else
                                                 <span
-                                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-800">
-                                                    <i class="fa-solid fa-clock text-amber-600 text-[9px]"></i>
+                                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 dark:border dark:border-amber-800/60 whitespace-nowrap">
+                                                    <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400 text-[9px]"></i>
                                                     {{ __('Pending') }}
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs">
-                                            <span class="text-emerald-600 font-bold">{{ $ses->present_count }}P</span> /
-                                            <span class="text-rose-600 font-bold">{{ $ses->absent_count }}A</span>
+                                        <td class="py-4 px-4 font-mono text-xs whitespace-nowrap">
+                                            <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ $ses->present_count }}P</span> /
+                                            <span class="text-rose-600 dark:text-rose-400 font-bold">{{ $ses->absent_count }}A</span>
                                             @if ($ses->session_rate !== null)
                                                 <span
-                                                    class="ms-1 text-slate-500 font-bold">({{ $ses->session_rate }}%)</span>
+                                                    class="ms-1 text-slate-500 dark:text-slate-400 font-bold">({{ $ses->session_rate }}%)</span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right rtl:text-left whitespace-nowrap">
@@ -1440,6 +1652,9 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Attendance Table Pagination --}}
+                    <div id="attTablePagination" class="mt-4"></div>
                 </div>
 
                 {{-- ════════════════════════════════════════════════════════════════ --}}
@@ -1456,13 +1671,13 @@
                             </p>
                         </div>
                         <span
-                            class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-white text-teal-900 border border-teal-200">
+                            class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-white dark:bg-slate-800 text-teal-900 dark:text-teal-200 border border-teal-200 dark:border-teal-700">
                             {{ $assignedStudents->count() }} {{ __('Total Learners') }}
                         </span>
                     </div>
 
                     @if ($assignedStudents->count() > 0)
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div id="attMatrixGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach ($assignedStudents as $st)
                                 @php
                                     $attRate = (int) ($st->attendance_rate ?? 100);
@@ -1471,7 +1686,7 @@
                                     $studentCode = 'STU-' . str_pad((string) $st->user_id, 5, '0', STR_PAD_LEFT);
                                 @endphp
                                 <div
-                                    class="p-4 rounded-2xl bg-[#FAFAF9] border border-slate-200/80 hover:border-teal-400 transition-all space-y-3">
+                                    class="att-matrix-card p-4 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-500 transition-all space-y-3">
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-2.5 min-w-0">
                                             <div
@@ -1479,38 +1694,41 @@
                                                 {{ mb_substr($st->user?->name ?: 'S', 0, 1) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <h4 class="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                                                <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                                                     {{ $st->user?->name }}</h4>
                                                 <p class="text-[10px] font-mono text-slate-400">#{{ $studentCode }} •
                                                     {{ $st->gradeLevel?->name ?: __('Secondary') }}</p>
                                             </div>
                                         </div>
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold {{ $isGood ? 'bg-emerald-100 text-emerald-800' : ($isRisk ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800') }}">
+                                            class="px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold {{ $isGood ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : ($isRisk ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300') }}">
                                             {{ $attRate }}%
                                         </span>
                                     </div>
 
                                     <div class="space-y-1">
-                                        <div class="flex justify-between text-[10px] font-mono text-slate-500">
+                                        <div class="flex justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
                                             <span>{{ __('Attendance Consistency') }}</span>
                                             <span
                                                 class="font-bold">{{ $isGood ? __('Good Standing') : ($isRisk ? __('Attention Required') : __('Critical Absence Risk')) }}</span>
                                         </div>
-                                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                                             <div class="h-full rounded-full {{ $isGood ? 'bg-emerald-500' : ($isRisk ? 'bg-amber-500' : 'bg-rose-500') }}"
                                                 style="width: {{ $attRate }}%"></div>
                                         </div>
                                     </div>
 
                                     <button type="button" onclick="openStudentDetailsModal({{ $st->user_id }})"
-                                        class="btn-lift w-full py-1.5 bg-white hover:bg-slate-50 text-slate-800 text-[11px] font-bold rounded-xl border border-slate-200 shadow-2xs cursor-pointer flex items-center justify-center gap-1.5">
+                                        class="btn-lift w-full py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer flex items-center justify-center gap-1.5">
                                         <i class="fa-solid fa-user-graduate text-teal-600"></i>
                                         {{ __('View Educational Profile') }}
                                     </button>
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- Attendance Matrix Pagination --}}
+                        <div id="attMatrixPagination" class="mt-4"></div>
                     @else
                         <p class="text-xs text-slate-400 italic text-center py-6">
                             {{ __('No student records available.') }}</p>
@@ -1524,8 +1742,8 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-notifications"
             class="teacher-tab-content {{ $activeTabKey === 'notifications' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="font-heading text-2xl font-black text-slate-900">
                             {{ __('Notification Feed & Alerts') }}</h2>
@@ -1535,24 +1753,22 @@
                 </div>
 
                 @if ($userNotifications->count() > 0)
-                    <div class="space-y-3">
+                    <div id="notifsListContainer" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
                         @foreach ($userNotifications as $notif)
                             <div
-                                class="p-4 rounded-2xl border transition-colors flex items-start justify-between gap-4 {{ $notif->is_read ? 'bg-[#FAFAF9] border-slate-200/70' : 'bg-teal-50/80 border-teal-200 font-semibold' }}">
+                                class="notif-feed-item p-4 rounded-2xl border transition-colors flex items-start justify-between gap-4 {{ $notif->is_read ? 'bg-[#FAFAF9] dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-800' : 'bg-teal-50/80 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 font-semibold' }}">
                                 <div class="space-y-1">
-                                    <h4 class="text-sm font-bold text-slate-900">{{ $notif->title }}</h4>
-                                    <p class="text-xs text-slate-600">{{ $notif->body }}</p>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ $notif->title }}</h4>
+                                    <p class="text-xs text-slate-600 dark:text-slate-300">{{ $notif->body }}</p>
                                     <p class="text-[10px] font-mono text-slate-400">
                                         {{ $notif->created_at ? $notif->created_at->diffForHumans() : '' }}</p>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                    <div class="pt-4 border-t border-slate-100">
-                        {{ $userNotifications->links() }}
-                    </div>
+                    <div id="notifsPagination" class="mt-4"></div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] rounded-2xl border border-slate-200">
+                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">
                             {{ __('You\'re all caught up! No new notifications.') }}</p>
                     </div>
@@ -1594,7 +1810,7 @@
             </div>
 
             {{-- ── Existing Recurring Schedules List ──────────────────────────────── --}}
-            <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xl space-y-4">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-heading text-lg font-black text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-rotate text-indigo-500"></i>
@@ -1605,7 +1821,7 @@
                 </div>
 
                 @if ($recurringSchedules->isEmpty())
-                    <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                    <div class="text-center py-12 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
                         <i class="fa-solid fa-calendar-xmark text-3xl text-slate-300 mb-2"></i>
                         <p class="text-sm font-semibold text-slate-500">{{ __('No recurring schedules created yet.') }}
                         </p>
@@ -1613,7 +1829,7 @@
                             {{ __('Create your first recurring schedule to auto-generate sessions.') }}</p>
                     </div>
                 @else
-                    <div class="space-y-3">
+                    <div id="schedulesListContainer" class="space-y-3 max-h-[550px] overflow-y-auto custom-scrollbar pr-1">
                         @foreach ($recurringSchedules as $rs)
                             @php
                                 $rsSessions = $rs->sessions ?? collect();
@@ -1625,7 +1841,7 @@
                                 $rsTotalCount = $rsSessions->count();
                             @endphp
                             <div
-                                class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-indigo-50/30 hover:border-indigo-200 transition-colors">
+                                class="schedule-item-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="space-y-1 min-w-0">
                                         <div class="flex items-center gap-2 flex-wrap">
@@ -1667,6 +1883,9 @@
                             </div>
                         @endforeach
                     </div>
+
+                    {{-- Schedules Pagination Container --}}
+                    <div id="schedulesPagination" class="mt-4"></div>
                 @endif
             </div>
         </div>
@@ -1678,16 +1897,16 @@
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="singleSessionModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white rounded-t-[28px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 max-h-[92dvh] flex flex-col overflow-hidden"
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
             style="padding-bottom: env(safe-area-inset-bottom)">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <h3 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i
                             class="fa-solid fa-plus text-sm"></i></span>
                     {{ __('Schedule Single Session') }}
                 </h3>
                 <button type="button" onclick="closeScheduleModal('singleSessionModal')"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             <form id="singleSessionPortalForm" class="flex-1 overflow-y-auto p-5 space-y-4">
@@ -1728,9 +1947,9 @@
                         class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Meeting Link') }}</label>
                     <input type="url" name="meeting_link" placeholder="https://..." class="input-mobile">
                 </div>
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
                     <button type="button" onclick="closeScheduleModal('singleSessionModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="singleSessionSubmitBtn"
                         class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
                         <i class="fa-solid fa-calendar-plus"></i> {{ __('Create Session') }}
@@ -1745,17 +1964,17 @@
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="recurringSchedulePortalModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white rounded-t-[28px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 max-h-[92dvh] flex flex-col overflow-hidden"
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
             style="padding-bottom: env(safe-area-inset-bottom)">
             {{-- Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <h3 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i
                             class="fa-solid fa-rotate text-sm"></i></span>
                     {{ __('Create Recurring Schedule') }}
                 </h3>
                 <button type="button" onclick="closeScheduleModal('recurringSchedulePortalModal')"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -1792,7 +2011,7 @@
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Enrolled Students') }}</label>
                         <div id="recPortalStudentsContainer"
-                            class="p-3 rounded-xl border border-slate-200 bg-slate-50 min-h-[56px] text-xs font-mono text-slate-400">
+                            class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 min-h-[56px] text-xs font-mono text-slate-400">
                             <span
                                 id="recPortalStudentsPlaceholder">{{ __('Select a course to load enrolled students') }}</span>
                             <div id="recPortalStudentsList" class="hidden space-y-1.5"></div>
@@ -1903,9 +2122,9 @@
 
                 {{-- Sticky Footer --}}
                 <div
-                    class="px-5 pb-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5 bg-white sticky bottom-0">
+                    class="px-5 pb-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-white dark:bg-slate-900 sticky bottom-0">
                     <button type="button" onclick="closeScheduleModal('recurringSchedulePortalModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="recPortalSubmitBtn"
                         class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
                         <i class="fa-solid fa-calendar-check"></i> {{ __('Create Schedule') }}
@@ -1921,7 +2140,7 @@
     <div id="studentProfileModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden relative my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden relative my-auto">
 
             {{-- Modal Top Bar / Header --}}
             <div
@@ -1953,7 +2172,7 @@
                         <span><i class="fa-solid fa-pen-nib"></i></span> {{ __('app.teacher.add_educational_note') }}
                     </button>
                     <button type="button" onclick="closeModal('studentProfileModal')"
-                        class="text-slate-300 hover:text-white font-bold text-xl p-1 cursor-pointer" aria-label="Close">
+                        class="text-slate-300 hover:text-white font-bold text-xl p-1 cursor-pointer" aria-label="{{ __('Close') }}">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -1961,37 +2180,37 @@
 
             {{-- Educational Profile Sub-Navigation Tabs --}}
             <div
-                class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-thin">
+                class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-thin">
                 <button type="button" onclick="switchSpTab('overview')" id="sp-tab-btn-overview"
                     class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap bg-teal-600 text-white shadow-xs">
                     <i class="fa-solid fa-chart-column"></i> {{ __('Overview') }}
                 </button>
                 <button type="button" onclick="switchSpTab('courses')" id="sp-tab-btn-courses"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-book-open"></i> {{ __('Courses') }}
                 </button>
                 <button type="button" onclick="switchSpTab('sessions')" id="sp-tab-btn-sessions"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-calendar-days"></i> {{ __('Sessions') }}
                 </button>
                 <button type="button" onclick="switchSpTab('attendance')" id="sp-tab-btn-attendance"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-clipboard-list"></i> {{ __('Attendance') }}
                 </button>
                 <button type="button" onclick="switchSpTab('assignments')" id="sp-tab-btn-assignments"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-pen-to-square"></i> {{ __('Assignments') }}
                 </button>
                 <button type="button" onclick="switchSpTab('assessments')" id="sp-tab-btn-assessments"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-bullseye"></i> {{ __('Assessments') }}
                 </button>
                 <button type="button" onclick="switchSpTab('progress')" id="sp-tab-btn-progress"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-chart-line"></i> {{ __('Progress') }}
                 </button>
                 <button type="button" onclick="switchSpTab('notes')" id="sp-tab-btn-notes"
-                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 hover:bg-slate-200/60">
+                    class="sp-subtab-btn px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
                     <i class="fa-solid fa-comments"></i> {{ __('Notes') }}
                 </button>
             </div>
@@ -2016,25 +2235,25 @@
                 <div id="sp-pane-overview" class="sp-tab-pane space-y-6 hidden">
                     {{-- KPI Summary Grid --}}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div class="p-4 rounded-2xl bg-teal-50 border border-teal-200/80 text-center space-y-0.5">
+                        <div class="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-teal-700 uppercase">{{ __('Attendance Rate') }}</span>
-                            <p id="spOverviewAttRate" class="font-heading font-black text-2xl text-teal-900">0%</p>
+                            <p id="spOverviewAttRate" class="font-heading font-black text-2xl text-teal-900 dark:text-teal-200">0%</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-center space-y-0.5">
+                        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-emerald-700 uppercase">{{ __('Average Grade') }}</span>
-                            <p id="spOverviewAvgGrade" class="font-heading font-black text-2xl text-emerald-900">0%</p>
+                            <p id="spOverviewAvgGrade" class="font-heading font-black text-2xl text-emerald-900 dark:text-emerald-200">0%</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200/80 text-center space-y-0.5">
+                        <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-blue-700 uppercase">{{ __('Total Sessions') }}</span>
-                            <p id="spOverviewTotalSessions" class="font-heading font-black text-2xl text-blue-900">0</p>
+                            <p id="spOverviewTotalSessions" class="font-heading font-black text-2xl text-blue-900 dark:text-blue-200">0</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-orange-50 border border-orange-200/80 text-center space-y-0.5">
+                        <div class="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-orange-700 uppercase">{{ __('Submissions') }}</span>
-                            <p id="spOverviewSubmissions" class="font-heading font-black text-2xl text-orange-900">0</p>
+                            <p id="spOverviewSubmissions" class="font-heading font-black text-2xl text-orange-900 dark:text-orange-200">0</p>
                         </div>
                     </div>
 
@@ -2070,17 +2289,17 @@
 
                 {{-- 3. SP SESSIONS TAB --}}
                 <div id="sp-pane-sessions" class="sp-tab-pane space-y-4 hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse text-xs">
+                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                        <table class="w-full min-w-[520px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
+                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Session') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Course') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Date') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Attendance') }}</th>
                                 </tr>
                             </thead>
-                            <tbody id="spSessionsTableBody" class="divide-y divide-slate-100">
+                            <tbody id="spSessionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
                                 {{-- Populated by JS --}}
                             </tbody>
                         </table>
@@ -2089,16 +2308,16 @@
 
                 {{-- 4. SP ATTENDANCE TAB --}}
                 <div id="sp-pane-attendance" class="sp-tab-pane space-y-4 hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse text-xs">
+                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                        <table class="w-full min-w-[480px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
+                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Session Title') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Date & Time') }}</th>
                                     <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Status') }}</th>
                                 </tr>
                             </thead>
-                            <tbody id="spAttendanceTableBody" class="divide-y divide-slate-100">
+                            <tbody id="spAttendanceTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
                                 {{-- Populated by JS --}}
                             </tbody>
                         </table>
@@ -2107,17 +2326,17 @@
 
                 {{-- 5. SP ASSIGNMENTS TAB --}}
                 <div id="sp-pane-assignments" class="sp-tab-pane space-y-4 hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left rtl:text-right border-collapse text-xs">
+                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                        <table class="w-full min-w-[560px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
+                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Assignment Title') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Submitted At') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Score') }}</th>
                                     <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Review Details') }}</th>
                                 </tr>
                             </thead>
-                            <tbody id="spAssignmentsTableBody" class="divide-y divide-slate-100">
+                            <tbody id="spAssignmentsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
                                 {{-- Populated by JS --}}
                             </tbody>
                         </table>
@@ -2140,7 +2359,7 @@
 
                 {{-- 8. SP NOTES TAB --}}
                 <div id="sp-pane-notes" class="sp-tab-pane space-y-4 hidden">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                         <h4 class="font-heading font-black text-sm text-slate-900">{{ __('Teacher Pedagogical Notes') }}
                         </h4>
                         <button type="button" onclick="openAddNoteModal()"
@@ -2156,7 +2375,7 @@
 
             {{-- Sticky Modal Footer --}}
             <div
-                class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                 <button type="button" onclick="openAddNoteModal()"
                     class="btn-lift px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-pen-nib"></i>
@@ -2176,16 +2395,16 @@
     <div id="addNoteModal"
         class="elite-modal fixed inset-0 z-60 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-pen-nib"></i></span>
                     <span>{{ __('app.teacher.add_educational_note') }}</span>
                 </h3>
                 <button type="button" onclick="closeModal('addNoteModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2198,7 +2417,7 @@
                     <div>
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Category') }}</label>
-                        <select name="category" required class="input-mobile bg-white text-xs">
+                        <select name="category" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                             <option value="academic">{{ __('app.teacher.note_category_academic') }}</option>
                             <option value="homework">{{ __('app.teacher.note_category_homework') }}</option>
                             <option value="participation">{{ __('app.teacher.note_category_participation') }}</option>
@@ -2212,7 +2431,7 @@
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Pedagogical Observation & Feedback') }}</label>
                         <textarea id="noteContentTextarea" name="note" rows="4" required
                             placeholder="{{ __('Write your educational observations and advisory comments...') }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono focus:bg-white focus:outline-none focus:border-teal-600 transition-colors"></textarea>
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs font-mono text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:border-teal-600 transition-colors"></textarea>
 
                         {{-- Real-time Phone Security Warning Banner --}}
                         <div id="notePhoneWarning"
@@ -2225,9 +2444,9 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('addNoteModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="saveNoteBtn"
                         class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Save Note') }} &rarr;
@@ -2243,16 +2462,16 @@
     <div id="createSessionModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                     <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-calendar-plus"></i></span>
                     <span>{{ __('Schedule New Live Session') }}</span>
                 </h3>
                 <button type="button" onclick="closeModal('createSessionModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2266,7 +2485,7 @@
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                             *</label>
-                        <select name="course_id" required class="input-mobile bg-white text-xs">
+                        <select name="course_id" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                             @foreach ($courses as $c)
                                 <option value="{{ $c->id }}">{{ $c->title }} ({{ $c->subject?->name }})
                                 </option>
@@ -2279,7 +2498,7 @@
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Session Title') }}
                             *</label>
                         <input type="text" name="title"
-                            placeholder="e.g. Session 4: Electromagnetism & Ohm's Law" required class="input-mobile">
+                            placeholder="{{ __('e.g. Session 4: Electromagnetism & Ohm\'s Law') }}" required class="input-mobile">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2315,9 +2534,9 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('createSessionModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit"
                         class="btn-lift px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Create Session') }} &rarr;
@@ -2333,9 +2552,9 @@
     <div id="recurringScheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <div>
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                         <span
@@ -2348,7 +2567,7 @@
                 </div>
                 <button type="button" onclick="closeModal('recurringScheduleModal')"
                     aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2362,7 +2581,7 @@
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
                             *</label>
                         <input type="text" id="recTitle" name="title"
-                            placeholder="e.g. Physics Secondary 3 - Weekly Interactive Cohort" required
+                            placeholder="{{ __('e.g. Physics Secondary 3 - Weekly Interactive Cohort') }}" required
                             class="input-mobile">
                     </div>
 
@@ -2371,7 +2590,7 @@
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                                 *</label>
-                            <select id="recCourseId" name="course_id" required class="input-mobile bg-white text-xs">
+                            <select id="recCourseId" name="course_id" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->title }}
                                         ({{ $c->subject?->name }})
@@ -2383,7 +2602,7 @@
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Target Student (Optional)') }}</label>
                             <select id="recStudentUserId" name="student_user_id"
-                                class="input-mobile bg-white text-xs">
+                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 <option value="">{{ __('All Enrolled Course Students (General Cohort)') }}
                                 </option>
                                 @foreach ($assignedStudents as $st)
@@ -2401,7 +2620,7 @@
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
                                 *</label>
                             <select id="recType" name="recurrence_type" required
-                                class="input-mobile bg-white text-xs" onchange="toggleRecurrenceFields(this.value)">
+                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white" onchange="toggleRecurrenceFields(this.value)">
                                 <option value="weekly" selected>{{ __('Weekly') }}</option>
                                 <option value="monthly">{{ __('Monthly') }}</option>
                                 <option value="multi_month">{{ __('Multiple Months (3-6 Months)') }}</option>
@@ -2419,7 +2638,7 @@
                     </div>
 
                     {{-- Days of Week Selection (For Weekly / Multi-Month / Yearly) --}}
-                    <div id="recDaysContainer" class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <div id="recDaysContainer" class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <label
                             class="block text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">{{ __('Select Days of Week') }}
                             *</label>
@@ -2437,7 +2656,7 @@
                             @endphp
                             @foreach ($weekDaysList as $wd)
                                 <label
-                                    class="p-2 bg-white rounded-xl border border-slate-200 hover:border-teal-400 cursor-pointer flex flex-col items-center gap-1.5 transition-all has-checked:bg-teal-50 has-checked:border-teal-500 has-checked:text-teal-800">
+                                    class="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500 cursor-pointer flex flex-col items-center gap-1.5 transition-all has-checked:bg-teal-50 dark:has-checked:bg-teal-950/40 has-checked:border-teal-500 has-checked:text-teal-800 dark:has-checked:text-teal-300">
                                     <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
                                         {{ in_array($wd['val'], [6, 0]) ? 'checked' : '' }}
                                         class="rounded border-slate-300 text-teal-600 focus:ring-teal-500 rec-day-checkbox">
@@ -2475,7 +2694,7 @@
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Meeting Broadcast Link (Optional)') }}</label>
                         <input type="url" id="recMeetingLink" name="meeting_link"
-                            placeholder="https://zoom.us/j/... or classroom stream link" class="input-mobile">
+                            placeholder="{{ __('https://zoom.us/j/... or classroom stream link') }}" class="input-mobile">
                     </div>
 
                     {{-- Live Schedule Preview & Conflict Feedback Area --}}
@@ -2488,7 +2707,7 @@
                     </div>
 
                     <div id="recPreviewContainer"
-                        class="hidden space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 max-h-56 overflow-y-auto">
+                        class="hidden space-y-3 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 max-h-56 overflow-y-auto">
                         <div class="flex items-center justify-between">
                             <span id="recPreviewSummary" class="text-xs font-bold text-slate-800"></span>
                             <span id="recConflictStatusBadge"
@@ -2497,8 +2716,8 @@
                         <div id="recConflictWarning"
                             class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
                         </div>
-                        <div id="recPreviewTableWrapper" class="overflow-x-auto">
-                            <table class="w-full text-xs text-left rtl:text-right border-collapse">
+                        <div id="recPreviewTableWrapper" class="table-responsive w-full overflow-x-auto custom-scrollbar">
+                            <table style="min-width: 460px;" class="w-full text-xs text-left rtl:text-right border-collapse">
                                 <thead>
                                     <tr class="border-b border-slate-200 text-[10px] font-mono text-slate-400 uppercase">
                                         <th class="py-1 px-2">{{ __('Date') }}</th>
@@ -2507,7 +2726,7 @@
                                         <th class="py-1 px-2">{{ __('Status') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recPreviewTableBody" class="divide-y divide-slate-100 font-mono text-[11px]">
+                                <tbody id="recPreviewTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
                                 </tbody>
                             </table>
                         </div>
@@ -2516,9 +2735,9 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('recurringScheduleModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="saveRecurringBtn"
                         class="btn-lift px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Create Recurring Schedule') }} &rarr;
@@ -2534,9 +2753,9 @@
     <div id="editSessionOverrideModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                     <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-sliders"></i></span>
@@ -2544,7 +2763,7 @@
                 </h3>
                 <button type="button" onclick="closeModal('editSessionOverrideModal')"
                     aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2555,13 +2774,13 @@
                 {{-- Scrollable Form Body --}}
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
                     {{-- Scope Selection (3 Options) --}}
-                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <label
                             class="block text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">{{ __('Modification Scope') }}
                             *</label>
                         <div class="space-y-2">
                             <label
-                                class="p-3 bg-white rounded-xl border border-slate-200 hover:border-teal-400 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 has-checked:border-teal-500">
+                                class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 dark:has-checked:bg-teal-950/40 has-checked:border-teal-500">
                                 <input type="radio" name="scope" value="this_only" checked
                                     class="mt-0.5 text-teal-600 focus:ring-teal-500">
                                 <div class="text-xs">
@@ -2573,7 +2792,7 @@
                             </label>
 
                             <label
-                                class="p-3 bg-white rounded-xl border border-slate-200 hover:border-teal-400 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 has-checked:border-teal-500">
+                                class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 dark:has-checked:bg-teal-950/40 has-checked:border-teal-500">
                                 <input type="radio" name="scope" value="this_and_future"
                                     class="mt-0.5 text-teal-600 focus:ring-teal-500">
                                 <div class="text-xs">
@@ -2585,7 +2804,7 @@
                             </label>
 
                             <label
-                                class="p-3 bg-white rounded-xl border border-slate-200 hover:border-teal-400 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 has-checked:border-teal-500">
+                                class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500 cursor-pointer flex items-start gap-3 transition-all has-checked:bg-teal-50 dark:has-checked:bg-teal-950/40 has-checked:border-teal-500">
                                 <input type="radio" name="scope" value="all"
                                     class="mt-0.5 text-teal-600 focus:ring-teal-500">
                                 <div class="text-xs">
@@ -2639,9 +2858,9 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('editSessionOverrideModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="saveOverrideBtn"
                         class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Save Changes') }} &rarr;
@@ -2657,14 +2876,14 @@
     <div id="cancelSessionModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-rose-600 flex items-center gap-2">
                     <span><i class="fa-solid fa-circle-xmark text-rose-500"></i></span> {{ __('Cancel Session') }}
                 </h3>
                 <button type="button" onclick="closeModal('cancelSessionModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2690,9 +2909,9 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('cancelSessionModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Keep Session') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Keep Session') }}</button>
                     <button type="submit"
                         class="btn-lift px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Confirm Cancellation') }} &rarr;
@@ -2708,16 +2927,16 @@
     <div id="meetingLinkModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-video"></i></span>
                     <span>{{ __('Update Live Stream Link') }}</span>
                 </h3>
                 <button type="button" onclick="closeModal('meetingLinkModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2729,20 +2948,23 @@
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Meeting Broadcast URL') }}</label>
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Meeting Broadcast URL') }}</label>
                         <input type="url" id="meetingUrlInput" name="meeting_link"
-                            placeholder="https://vimeo.com/... or Zoom link" required class="input-mobile">
+                            placeholder="https://vimeo.com/... or Zoom link" required
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                     </div>
                 </div>
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('meetingLinkModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit"
-                        class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md">
-                        {{ __('Save Meeting Link') }} &rarr;
+                        class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
+                        <span>{{ __('Save Meeting Link') }}</span>
+                        <i class="fa-solid fa-arrow-left rtl:inline-block ltr:hidden text-xs"></i>
+                        <i class="fa-solid fa-arrow-right rtl:hidden ltr:inline-block text-xs"></i>
                     </button>
                 </div>
             </form>
@@ -2755,16 +2977,16 @@
     <div id="rescheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-calendar-days"></i></span>
                     <span>{{ __('Reschedule Teaching Session') }}</span>
                 </h3>
                 <button type="button" onclick="closeModal('rescheduleModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -2776,27 +2998,29 @@
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('New Scheduled Date & Time') }}</label>
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('New Scheduled Date & Time') }}</label>
                         <input type="datetime-local" id="rescheduleDateTime" name="scheduled_at" required
-                            class="input-mobile">
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     </div>
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Reason for Rescheduling') }}</label>
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Reason for Rescheduling') }}</label>
                         <input type="text" id="rescheduleReason" name="reason"
                             placeholder="{{ __('e.g. Time adjustment for upcoming exam revision') }}"
-                            class="input-mobile">
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     </div>
                 </div>
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('rescheduleModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit"
-                        class="btn-lift px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md">
-                        {{ __('Confirm Reschedule') }} &rarr;
+                        class="btn-lift px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
+                        <span>{{ __('Confirm Reschedule') }}</span>
+                        <i class="fa-solid fa-arrow-left rtl:inline-block ltr:hidden text-xs"></i>
+                        <i class="fa-solid fa-arrow-right rtl:hidden ltr:inline-block text-xs"></i>
                     </button>
                 </div>
             </form>
@@ -2804,28 +3028,33 @@
     </div>
 
     {{-- ════════════════════════════════════════════════════════════════════════════ --}}
-    {{-- MODAL 4: PUBLISH ASSIGNMENT                                                  --}}
+    {{-- MODAL 4: CREATE ASSIGNMENT & QUIZ                                            --}}
     {{-- ════════════════════════════════════════════════════════════════════════════ --}}
     <div id="createAssignmentModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-                <div>
-                    <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
-                        <span
-                            class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
-                                class="fa-solid fa-file-signature"></i></span>
-                        <span>{{ __('Publish New Assignment & Quiz') }}</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 font-mono mt-0.5">
-                        {{ __('Create homework assignments or interactive MSQ quizzes for your students.') }}</p>
+            <div
+                class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white flex items-center justify-between shrink-0 border-b border-teal-800/40">
+                <div class="flex items-center gap-3.5">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-400/30 text-teal-300 flex items-center justify-center shrink-0 shadow-sm text-base">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <div class="space-y-0.5">
+                        <h3 class="font-heading font-black text-lg sm:text-xl text-white tracking-tight">
+                            {{ __('Publish New Assignment & Quiz') }}
+                        </h3>
+                        <p class="text-xs text-teal-200/90 font-mono">
+                            {{ __('Create homework assignments or interactive MSQ quizzes for your students.') }}
+                        </p>
+                    </div>
                 </div>
-                <button type="button" onclick="closeModal('createAssignmentModal')"
-                    aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
-                        class="fa-solid fa-xmark text-sm"></i></button>
+                <button type="button" onclick="closeModal('createAssignmentModal')" aria-label="{{ __('Close') }}"
+                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
             </div>
 
             <form id="createAssignmentForm" action="{{ route('ajax.teacher.assignments.create') }}" method="POST"
@@ -2833,13 +3062,17 @@
                 @csrf
 
                 {{-- Scrollable Form Body --}}
-                <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                <div class="p-5 sm:p-7 overflow-y-auto flex-1 custom-scrollbar space-y-5">
+                    {{-- Row 1: Target Course & Live Session Dropdowns --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Target Course') }}
-                                *</label>
-                            <select name="course_id" required class="input-mobile bg-white text-xs">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-book-open text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Target Course') }} *</span>
+                            </label>
+                            <select name="course_id" required
+                                class="elite-custom-select w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->title }}</option>
                                 @endforeach
@@ -2847,8 +3080,12 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Live Session (Optional)') }}</label>
-                            <select name="live_session_id" class="input-mobile bg-white text-xs">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-video text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Live Session (Optional)') }}</span>
+                            </label>
+                            <select name="live_session_id"
+                                class="elite-custom-select w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500">
                                 <option value="">{{ __('None / General Course Assignment') }}</option>
                                 @foreach ($todaySessions->merge($allSessions)->unique('id') as $ls)
                                     <option value="{{ $ls->id }}">{{ $ls->title ?: __('Live Session') }}
@@ -2858,59 +3095,97 @@
                         </div>
                     </div>
 
+                    {{-- Row 2: Title --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Assignment Title') }}
-                            *</label>
-                        <input type="text" name="title" placeholder="e.g. Unit 2: Physics Waves & Optics Quiz"
-                            required class="input-mobile">
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-heading text-teal-600 dark:text-teal-400 text-xs"></i>
+                            <span>{{ __('Assignment Title') }} *</span>
+                        </label>
+                        <input type="text" name="title"
+                            placeholder="{{ __('e.g. Unit 2: Physics Waves & Optics Quiz') }}" required
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                     </div>
 
+                    {{-- Row 3: Description / Guidelines --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Description / Instructions') }}</label>
-                        <textarea name="description" rows="2"
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-align-left text-teal-600 dark:text-teal-400 text-xs"></i>
+                            <span>{{ __('Description / Instructions') }}</span>
+                        </label>
+                        <textarea name="description" rows="3"
                             placeholder="{{ __('Provide guidelines, instructions, or reading materials...') }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono focus:bg-white focus:outline-none focus:border-teal-600"></textarea>
+                            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all custom-scrollbar"></textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
+                    {{-- Row 4: Due Date, Duration, and Passing Score (Optimized Proportions) --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
+                        <div class="sm:col-span-6">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Due Date & Time') }}
-                                *</label>
-                            <input type="datetime-local" name="due_at" required class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-calendar-day text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Due Date & Time') }} *</span>
+                            </label>
+                            <input type="datetime-local" name="due_at" required
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
-                        <div>
+                        <div class="sm:col-span-3">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Duration (Minutes)') }}</label>
-                            <input type="number" name="duration_minutes" value="30" min="5"
-                                max="300" class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Duration (Minutes)') }}</span>
+                            </label>
+                            <input type="number" name="duration_minutes" value="30" min="5" max="300"
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
-                        <div>
+                        <div class="sm:col-span-3">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Passing Score (%)') }}</label>
-                            <input type="number" name="passing_score" value="70" min="0"
-                                max="100" class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Passing Score (%)') }}</span>
+                            </label>
+                            <input type="number" name="passing_score" value="70" min="0" max="100"
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
                     </div>
 
                     {{-- Interactive Multiple Choice Quiz Questions Builder --}}
-                    <div class="pt-3 border-t border-slate-100 space-y-3">
-                        <div class="flex items-center justify-between">
+                    <div
+                        class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/70 space-y-3">
+                        <div class="flex items-center justify-between gap-3 flex-wrap">
                             <div>
-                                <h4 class="font-heading font-black text-sm text-slate-900">
-                                    {{ __('Questions & Quiz Builder') }}</h4>
-                                <p class="text-[11px] text-slate-500 font-mono">
-                                    {{ __('Add interactive multiple choice questions with automated answer key.') }}</p>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white">
+                                        {{ __('Questions & Quiz Builder') }}
+                                    </h4>
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60">
+                                        {{ __('Optional') }}
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                                    {{ __('Add interactive multiple choice questions with automated answer key.') }}
+                                </p>
                             </div>
                             <button type="button" onclick="addTeacherQuestion()"
-                                class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-extrabold text-xs rounded-xl border border-teal-200 cursor-pointer transition-all">
-                                + {{ __('Add Question') }}
+                                class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>{{ __('Add Question') }}</span>
                             </button>
                         </div>
 
-                        <div id="teacherQuestionsContainer" class="space-y-4 pt-2">
+                        <div id="teacherQuestionsEmptyState"
+                            class="p-5 text-center border border-dashed border-slate-300/80 dark:border-slate-700 rounded-xl space-y-1.5 bg-white dark:bg-slate-900/60">
+                            <i class="fa-solid fa-clipboard-question text-2xl text-teal-600/70 dark:text-teal-400/70"></i>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {{ __('No quiz questions attached yet.') }}</p>
+                            <p class="text-[11px] text-slate-400 font-mono">
+                                {{ __('Leave empty to publish a standard homework task, or click "+ Add Question" to attach interactive questions.') }}
+                            </p>
+                        </div>
+
+                        <div id="teacherQuestionsContainer" class="space-y-4 pt-1">
                             {{-- Dynamically Appended Question Blocks --}}
                         </div>
                     </div>
@@ -2918,12 +3193,16 @@
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('createAssignmentModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
+                        {{ __('Cancel') }}
+                    </button>
                     <button type="submit"
-                        class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
-                        {{ __('Publish Assignment') }} &rarr;
+                        class="btn-lift px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-teal-600/25 cursor-pointer flex items-center gap-2">
+                        <span>{{ __('Publish Assignment') }}</span>
+                        <i class="fa-solid fa-arrow-left rtl:inline-block ltr:hidden text-xs"></i>
+                        <i class="fa-solid fa-arrow-right rtl:hidden ltr:inline-block text-xs"></i>
                     </button>
                 </div>
             </form>
@@ -2936,7 +3215,7 @@
     <div id="assignmentDetailsModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Top Header --}}
             <div
                 class="p-4 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white flex items-start justify-between gap-4 shrink-0 relative overflow-hidden">
@@ -3034,8 +3313,8 @@
 
                     {{-- Tab Pane 2: Student Submissions Roster --}}
                     <div id="ad-pane-submissions" class="ad-pane hidden space-y-4">
-                        <div id="adSubmissionsTableContainer" class="overflow-x-auto">
-                            <table class="w-full text-left rtl:text-right border-collapse text-xs">
+                        <div id="adSubmissionsTableContainer" class="table-responsive w-full overflow-x-auto custom-scrollbar">
+                            <table style="min-width: 540px;" class="w-full text-left rtl:text-right border-collapse text-xs">
                                 <thead>
                                     <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
                                         <th class="py-2.5 px-3">{{ __('Student') }}</th>
@@ -3045,7 +3324,7 @@
                                         <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Review Action') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody id="adSubmissionsTableBody" class="divide-y divide-slate-100 font-mono"></tbody>
+                                <tbody id="adSubmissionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
                             </table>
                         </div>
                         <div id="adNoSubmissionsNotice"
@@ -3059,7 +3338,7 @@
 
             {{-- Modal Footer --}}
             <div
-                class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                 <button type="button" onclick="closeModal('assignmentDetailsModal')"
                     class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer">
                     {{ __('Close') }}
@@ -3074,9 +3353,9 @@
     <div id="gradeModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <div>
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                         <span
@@ -3087,7 +3366,7 @@
                     <p id="gradeStudentName" class="text-xs text-teal-600 font-mono font-bold mt-0.5"></p>
                 </div>
                 <button type="button" onclick="closeModal('gradeModal')" aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -3109,13 +3388,13 @@
                         </div>
                     </div>
 
-                    <div class="space-y-4 pt-3 border-t border-slate-100">
+                    <div class="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                         <div>
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Overall Grade Score (0 - 100%)') }}
                                 *</label>
                             <input type="number" id="gradeScoreInput" name="score" step="0.1"
-                                min="0" max="100" required placeholder="e.g. 85.0"
+                                min="0" max="100" required placeholder="{{ __('e.g. 85.0') }}"
                                 class="input-mobile font-mono font-bold text-lg">
                         </div>
 
@@ -3124,16 +3403,16 @@
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Pedagogical Feedback & Notes to Student') }}</label>
                             <textarea id="gradeEvaluationNotes" name="evaluation_notes" rows="3"
                                 placeholder="{{ __('Provide detailed feedback, remarks, or praise for the student...') }}"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono focus:bg-white focus:outline-none focus:border-teal-600"></textarea>
+                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs font-mono text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:border-teal-600"></textarea>
                         </div>
                     </div>
                 </div>
 
                 {{-- Sticky Modal Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <button type="button" onclick="closeModal('gradeModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit"
                         class="btn-lift px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer">
                         {{ __('Save & Finalize Grade') }} &rarr;
@@ -3150,7 +3429,7 @@
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300"
         style="z-index: 99999;">
         <div
-            class="elite-modal-dialog bg-white rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
 
             {{-- Header --}}
             <div
@@ -3186,7 +3465,7 @@
 
             {{-- Sub-header with Fast Bulk Controls & Search --}}
             <div
-                class="px-4 sm:px-6 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-2.5 shrink-0 flex-wrap">
+                class="px-4 sm:px-6 py-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2.5 shrink-0 flex-wrap">
                 <div class="flex items-center gap-2">
                     <span
                         class="text-[11px] sm:text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">{{ __('COHORT LEARNERS') }}</span>
@@ -3215,12 +3494,12 @@
             </div>
 
             {{-- In-Modal Search --}}
-            <div class="px-4 sm:px-6 py-2 bg-white border-b border-slate-100">
+            <div class="px-4 sm:px-6 py-2 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
                 <div class="relative">
                     <input type="text" id="attModalSearchInput"
                         placeholder="{{ __('Search student in roster by name, code or grade...') }}"
                         oninput="filterAttendanceModalStudents(this.value)"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:bg-white focus:border-teal-500 transition-all pe-8">
+                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-teal-500 transition-all pe-8">
                     <span class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 text-xs"><i
                             class="fa-solid fa-magnifying-glass"></i></span>
                 </div>
@@ -3232,14 +3511,14 @@
 
                 {{-- Dynamic Scrollable Students Container --}}
                 <div id="attendanceStudentsContainer"
-                    class="divide-y divide-slate-100 overflow-y-auto flex-1 p-4 sm:p-6 space-y-2 custom-scrollbar">
+                    class="divide-y divide-slate-100 dark:divide-slate-800 overflow-y-auto flex-1 p-4 sm:p-6 space-y-2 custom-scrollbar">
                     {{-- Populated dynamically in real-time via AJAX --}}
                 </div>
 
                 {{-- Sticky Action Footer --}}
                 {{-- Sticky Action Footer --}}
                 <div
-                    class="p-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
                     <div class="text-xs font-mono text-slate-500 hidden sm:flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved text-teal-600"></i>
                         <span>{{ __('Absence notices sent automatically') }}</span>
@@ -3264,61 +3543,77 @@
 @push('styles')
     <style>
         /* ── Teacher Portal Dark Mode Overrides ─────────────────────────── */
-        html.dark #teacher-portal-root .bg-white {
+        html.dark #teacher-portal-root .bg-white,
+        html.dark .elite-modal .bg-white {
             background-color: #0F172A !important;
         }
 
-        html.dark #teacher-portal-root .bg-\[#FAFAF9\] {
+        html.dark #teacher-portal-root .bg-\[#FAFAF9\],
+        html.dark .elite-modal .bg-\[#FAFAF9\] {
             background-color: #0B0F19 !important;
         }
 
-        html.dark #teacher-portal-root .bg-slate-50 {
+        html.dark #teacher-portal-root .bg-slate-50,
+        html.dark .elite-modal .bg-slate-50 {
             background-color: #162032 !important;
         }
 
-        html.dark #teacher-portal-root .bg-slate-50\/50 {
+        html.dark #teacher-portal-root .bg-slate-50\/50,
+        html.dark .elite-modal .bg-slate-50\/50 {
             background-color: rgba(22, 32, 50, 0.5) !important;
         }
 
         html.dark #teacher-portal-root .border-slate-200\/90,
-        html.dark #teacher-portal-root .border-slate-200 {
+        html.dark #teacher-portal-root .border-slate-200,
+        html.dark .elite-modal .border-slate-200\/90,
+        html.dark .elite-modal .border-slate-200 {
             border-color: #1E293B !important;
         }
 
-        html.dark #teacher-portal-root .border-slate-100 {
+        html.dark #teacher-portal-root .border-slate-100,
+        html.dark .elite-modal .border-slate-100 {
             border-color: rgba(30, 41, 59, 0.7) !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-900 {
+        html.dark #teacher-portal-root .text-slate-900,
+        html.dark .elite-modal .text-slate-900 {
             color: #F8FAFC !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-800 {
+        html.dark #teacher-portal-root .text-slate-800,
+        html.dark .elite-modal .text-slate-800 {
             color: #E2E8F0 !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-700 {
+        html.dark #teacher-portal-root .text-slate-700,
+        html.dark .elite-modal .text-slate-700 {
             color: #CBD5E1 !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-600 {
+        html.dark #teacher-portal-root .text-slate-600,
+        html.dark .elite-modal .text-slate-600 {
             color: #94A3B8 !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-500 {
+        html.dark #teacher-portal-root .text-slate-500,
+        html.dark .elite-modal .text-slate-500 {
             color: #64748B !important;
         }
 
-        html.dark #teacher-portal-root .text-slate-400 {
+        html.dark #teacher-portal-root .text-slate-400,
+        html.dark .elite-modal .text-slate-400 {
             color: #475569 !important;
         }
 
         html.dark #teacher-portal-root .shadow-xl,
-        html.dark #teacher-portal-root .shadow-md {
+        html.dark #teacher-portal-root .shadow-md,
+        html.dark .elite-modal .shadow-xl,
+        html.dark .elite-modal .shadow-md {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
         }
 
-        html.dark #teacher-portal-root .divide-slate-100>*+* {
+        html.dark #teacher-portal-root .divide-slate-100>*+*,
+        html.dark .elite-modal .divide-slate-100>*+* {
             border-color: rgba(30, 41, 59, 0.6) !important;
         }
 
@@ -3329,17 +3624,22 @@
 
         /* Input & select dark */
         html.dark #teacher-portal-root select.bg-white,
-        html.dark #teacher-portal-root input.bg-white {
+        html.dark #teacher-portal-root input.bg-white,
+        html.dark .elite-modal select,
+        html.dark .elite-modal input:not([type="checkbox"]):not([type="radio"]),
+        html.dark .elite-modal textarea {
             background-color: #1E293B !important;
             color: #F8FAFC !important;
             border-color: #334155 !important;
         }
 
-        html.dark #teacher-portal-root .bg-slate-100 {
+        html.dark #teacher-portal-root .bg-slate-100,
+        html.dark .elite-modal .bg-slate-100 {
             background-color: #1E293B !important;
         }
 
-        html.dark #teacher-portal-root .hover\:bg-slate-100:hover {
+        html.dark #teacher-portal-root .hover\:bg-slate-100:hover,
+        html.dark .elite-modal .hover\:bg-slate-100:hover {
             background-color: #1E293B !important;
         }
     </style>
@@ -3555,9 +3855,9 @@
                     data.sessions.slice(0, 3).forEach(s => {
                         const attColor = s.attendance_status === 'present' ? 'text-emerald-600' : (s
                             .attendance_status === 'late' ? 'text-amber-600' : 'text-rose-600');
-                        sHtml += `<div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between">
+                        sHtml += `<div class="p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        <p class="font-bold text-slate-900">${s.title}</p>
+                        <p class="font-bold text-slate-900 dark:text-white">${s.title}</p>
                         <p class="text-[10px] text-slate-400">${s.date}</p>
                     </div>
                     <span class="font-bold uppercase text-[10px] ${attColor}">${s.attendance_status || 'scheduled'}</span>
@@ -3575,9 +3875,9 @@
                         const scoreText = sub.score !== null ?
                             `<span class="font-bold text-emerald-600">${sub.score}%</span>` :
                             `<span class="text-orange-500 italic">${i18n.pendingReview}</span>`;
-                        subHtml += `<div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between">
+                        subHtml += `<div class="p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        <p class="font-bold text-slate-900">${sub.assignment_title}</p>
+                        <p class="font-bold text-slate-900 dark:text-white">${sub.assignment_title}</p>
                         <p class="text-[10px] text-slate-400">${sub.submitted_at || 'Draft'}</p>
                     </div>
                     <div>${scoreText}</div>
@@ -3595,7 +3895,7 @@
                     data.courses.forEach(c => {
                         cHtml += `<div class="p-4 rounded-2xl bg-[#FAFAF9] border border-slate-200/90 space-y-2">
                     <div class="flex items-center justify-between">
-                        <h4 class="font-heading font-bold text-sm text-slate-900">${c.title}</h4>
+                        <h4 class="font-heading font-bold text-sm text-slate-900 dark:text-white">${c.title}</h4>
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 text-teal-800">${c.status}</span>
                     </div>
                     <p class="text-xs font-mono text-slate-500">${c.subject} • ${c.grade} • Enrolled: ${c.enrolled_at}</p>
@@ -3627,8 +3927,8 @@
                                 '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold"><i class="fa-solid fa-circle text-amber-500 text-[10px]"></i> Late</span>' :
                                 '<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full font-bold"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> Absent</span>'
                             );
-                        sesHtml += `<tr class="hover:bg-slate-50">
-                    <td class="py-2.5 px-3 font-bold text-slate-900">${s.title}</td>
+                        sesHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td class="py-2.5 px-3 font-bold text-slate-900 dark:text-slate-100">${s.title}</td>
                     <td class="py-2.5 px-3 text-slate-600">${s.course_title}</td>
                     <td class="py-2.5 px-3 font-mono text-slate-500">${s.date}</td>
                     <td class="py-2.5 px-3 font-mono">${attBadge}</td>
@@ -3646,8 +3946,8 @@
                     let attHtml = '';
                     data.attendance.forEach(a => {
                         const statusStr = a.attendance_status || 'scheduled';
-                        attHtml += `<tr class="hover:bg-slate-50">
-                    <td class="py-2.5 px-3 font-bold text-slate-900">${a.title}</td>
+                        attHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td class="py-2.5 px-3 font-bold text-slate-900 dark:text-slate-100">${a.title}</td>
                     <td class="py-2.5 px-3 font-mono text-slate-500">${a.date}</td>
                     <td class="py-2.5 px-3 font-mono text-right rtl:text-left">
                         <span class="font-bold uppercase text-[10px] px-2 py-0.5 rounded-full ${statusStr === 'present' ? 'bg-emerald-100 text-emerald-800' : (statusStr === 'late' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')}">${statusStr}</span>
@@ -3668,8 +3968,8 @@
                         const scoreDisplay = sub.score !== null ?
                             `<span class="font-bold text-emerald-600">${sub.score}%</span>` :
                             `<span class="text-orange-500 italic">${i18n.pendingReview}</span>`;
-                        assHtml += `<tr class="hover:bg-slate-50">
-                    <td class="py-2.5 px-3 font-bold text-slate-900">${sub.assignment_title}</td>
+                        assHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td class="py-2.5 px-3 font-bold text-slate-900 dark:text-slate-100">${sub.assignment_title}</td>
                     <td class="py-2.5 px-3 font-mono text-slate-500">${sub.submitted_at || 'Draft'}</td>
                     <td class="py-2.5 px-3 font-mono">${scoreDisplay}</td>
                     <td class="py-2.5 px-3 text-right rtl:text-left">
@@ -3698,7 +3998,7 @@
                             );
                         assessHtml += `<div class="p-3.5 rounded-2xl bg-[#FAFAF9] border border-slate-200/90 flex items-center justify-between gap-3 text-xs">
                     <div>
-                        <p class="font-bold text-slate-900">${ass.assignment_title}</p>
+                        <p class="font-bold text-slate-900 dark:text-white">${ass.assignment_title}</p>
                         <p class="text-[10px] font-mono text-slate-500">${ass.course_title} • ${ass.submitted_at}</p>
                     </div>
                     <div class="flex items-center gap-3">
@@ -3717,13 +4017,13 @@
                 const progContainer = document.getElementById('spProgressContainer');
                 progContainer.innerHTML = `
             <div class="p-5 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-3">
-                <h4 class="font-heading font-black text-sm text-slate-900">Comprehensive Academic Health</h4>
+                <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white">Comprehensive Academic Health</h4>
                 <div class="grid grid-cols-2 gap-3 text-center text-xs font-mono">
-                    <div class="p-3 bg-white rounded-xl border border-slate-200/80">
+                    <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700">
                         <span class="text-slate-400 block text-[10px] uppercase">Attendance Consistency</span>
                         <span class="font-extrabold text-base text-emerald-600">${metrics.attendance_rate || 100}%</span>
                     </div>
-                    <div class="p-3 bg-white rounded-xl border border-slate-200/80">
+                    <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700">
                         <span class="text-slate-400 block text-[10px] uppercase">Assessment Pass Rate</span>
                         <span class="font-extrabold text-base text-teal-600">${metrics.pass_rate || 100}%</span>
                     </div>
@@ -3778,6 +4078,169 @@
             window.openModal('addNoteModal');
         }
 
+                // ════════════════════════════════════════════════════════════════════════
+        // UNIVERSAL RESPONSIVE SECTION PAGINATOR ENGINE
+        // ════════════════════════════════════════════════════════════════════════
+        class EliteSectionPaginator {
+            constructor(options) {
+                this.container = typeof options.containerId === 'string' ? document.getElementById(options.containerId) : options.containerId;
+                this.itemSelector = options.itemSelector;
+                this.paginationContainer = typeof options.paginationId === 'string' ? document.getElementById(options.paginationId) : options.paginationId;
+                this.pageSize = options.pageSize || 9;
+                this.currentPage = 1;
+                this.scrollToTop = options.scrollToTop || false;
+                this.onPageChange = options.onPageChange || null;
+                this.filterFn = options.filterFn || ((el) => el.getAttribute('data-filtered-out') !== '1');
+                this.update();
+            }
+
+            getMatchingItems() {
+                if (!this.container) return [];
+                const allItems = Array.from(this.container.querySelectorAll(this.itemSelector));
+                return allItems.filter(el => this.filterFn(el));
+            }
+
+            goToPage(page) {
+                const matching = this.getMatchingItems();
+                const totalPages = Math.max(1, Math.ceil(matching.length / this.pageSize));
+                this.currentPage = Math.max(1, Math.min(page, totalPages));
+                this.update();
+                if (this.scrollToTop && this.container) {
+                    this.container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                if (typeof this.onPageChange === 'function') {
+                    this.onPageChange(this.currentPage, totalPages);
+                }
+            }
+
+            reset() {
+                this.currentPage = 1;
+                this.update();
+            }
+
+            update() {
+                if (!this.container) return;
+                const allItems = Array.from(this.container.querySelectorAll(this.itemSelector));
+                const matching = [];
+
+                allItems.forEach(el => {
+                    if (this.filterFn(el)) {
+                        matching.push(el);
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+
+                const totalItems = matching.length;
+                const totalPages = Math.max(1, Math.ceil(totalItems / this.pageSize));
+                if (this.currentPage > totalPages) this.currentPage = totalPages;
+
+                const startIndex = (this.currentPage - 1) * this.pageSize;
+                const endIndex = startIndex + this.pageSize;
+
+                matching.forEach((el, idx) => {
+                    if (idx >= startIndex && idx < endIndex) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+
+                this.renderControls(totalItems, totalPages, totalItems > 0 ? startIndex + 1 : 0, Math.min(endIndex, totalItems));
+            }
+
+            renderControls(totalItems, totalPages, startNum, endNum) {
+                if (!this.paginationContainer) return;
+                if (totalItems <= this.pageSize) {
+                    this.paginationContainer.innerHTML = '';
+                    this.paginationContainer.classList.add('hidden');
+                    return;
+                }
+
+                this.paginationContainer.classList.remove('hidden');
+
+                const isAr = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang === 'ar';
+                const prevText = isAr ? 'السابق' : 'Previous';
+                const nextText = isAr ? 'التالي' : 'Next';
+                const showingText = isAr 
+                    ? `عرض <span class="font-bold text-slate-900 dark:text-white">${startNum}</span> إلى <span class="font-bold text-slate-900 dark:text-white">${endNum}</span> من أصل <span class="font-bold text-slate-900 dark:text-white">${totalItems}</span>` 
+                    : `Showing <span class="font-bold text-slate-900 dark:text-white">${startNum}</span> to <span class="font-bold text-slate-900 dark:text-white">${endNum}</span> of <span class="font-bold text-slate-900 dark:text-white">${totalItems}</span>`;
+
+                let pagesHtml = '';
+                const maxButtons = 5;
+                let startPage = Math.max(1, this.currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+                if (endPage - startPage < maxButtons - 1) {
+                    startPage = Math.max(1, endPage - maxButtons + 1);
+                }
+
+                if (startPage > 1) {
+                    pagesHtml += `<button type="button" data-page="1" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">1</button>`;
+                    if (startPage > 2) {
+                        pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
+                    }
+                }
+
+                for (let p = startPage; p <= endPage; p++) {
+                    const isActive = p === this.currentPage;
+                    pagesHtml += `
+                        <button type="button" data-page="${p}" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all ${
+                            isActive 
+                                ? 'bg-teal-600 text-white shadow-xs font-black' 
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }">${p}</button>
+                    `;
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
+                    }
+                    pagesHtml += `<button type="button" data-page="${totalPages}" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">${totalPages}</button>`;
+                }
+
+                this.paginationContainer.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800 w-full">
+                        <div class="text-xs font-mono text-slate-500 dark:text-slate-400">
+                            ${showingText}
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" data-page="${this.currentPage - 1}" class="elite-prev-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 ${
+                                this.currentPage <= 1 
+                                    ? 'opacity-40 pointer-events-none text-slate-400' 
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer'
+                            }">
+                                <i class="fa-solid fa-chevron-${isAr ? 'right' : 'left'} text-[10px]"></i>
+                                <span>${prevText}</span>
+                            </button>
+                            <div class="flex items-center gap-1">
+                                ${pagesHtml}
+                            </div>
+                            <button type="button" data-page="${this.currentPage + 1}" class="elite-next-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 ${
+                                this.currentPage >= totalPages 
+                                    ? 'opacity-40 pointer-events-none text-slate-400' 
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer'
+                            }">
+                                <span>${nextText}</span>
+                                <i class="fa-solid fa-chevron-${isAr ? 'left' : 'right'} text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                this.paginationContainer.querySelectorAll('.elite-page-btn, .elite-prev-btn, .elite-next-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetPage = parseInt(btn.getAttribute('data-page'), 10);
+                        if (targetPage && targetPage !== this.currentPage && targetPage >= 1 && targetPage <= totalPages) {
+                            this.goToPage(targetPage);
+                        }
+                    });
+                });
+            }
+        }
+        window.EliteSectionPaginator = EliteSectionPaginator;
+
         // ── Client-Side Real-Time Filter for My Students Roster ───────────────────────
         function applyStudentFilters() {
             const searchVal = (document.getElementById('studentSearchInput')?.value || '').trim().toLowerCase();
@@ -3804,16 +4267,20 @@
                     attendance < 80);
 
                 if (matchSearch && matchCourse && matchGrade && matchAtt) {
-                    card.classList.remove('hidden');
+                    card.setAttribute('data-filtered-out', '0');
                     visibleCount++;
                 } else {
-                    card.classList.add('hidden');
+                    card.setAttribute('data-filtered-out', '1');
                 }
             });
 
+            if (window.studentPaginator) {
+                window.studentPaginator.reset();
+            }
+
             const emptyState = document.getElementById('studentEmptySearchState');
             if (emptyState) {
-                if (visibleCount === 0) {
+                if (visibleCount === 0 && cards.length > 0) {
                     emptyState.classList.remove('hidden');
                 } else {
                     emptyState.classList.add('hidden');
@@ -3822,16 +4289,21 @@
 
             const countText = document.getElementById('studentFilterCountText');
             if (countText) {
-                countText.textContent = `Showing ${visibleCount} of ${cards.length} students`;
+                countText.textContent = isArLocale 
+                    ? `عرض ${visibleCount} من أصل ${cards.length} طالباً`
+                    : `Showing ${visibleCount} of ${cards.length} students`;
             }
         }
 
         function resetStudentFilters() {
             if (document.getElementById('studentSearchInput')) document.getElementById('studentSearchInput').value = '';
-            if (document.getElementById('studentCourseFilter')) document.getElementById('studentCourseFilter').value = '';
-            if (document.getElementById('studentGradeFilter')) document.getElementById('studentGradeFilter').value = '';
-            if (document.getElementById('studentAttendanceFilter')) document.getElementById('studentAttendanceFilter')
-                .value = '';
+            ['studentCourseFilter', 'studentGradeFilter', 'studentAttendanceFilter'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = '';
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
             applyStudentFilters();
         }
 
@@ -3908,14 +4380,14 @@
                         (q.options || []).forEach(opt => {
                             const isCorrect = opt.is_correct;
                             optsHtml += `
-                        <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold shadow-2xs' : 'bg-white border-slate-200 text-slate-700'} flex items-start justify-between gap-2 text-xs">
+                        <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-bold shadow-2xs' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'} flex items-start justify-between gap-2 text-xs">
                             <div class="flex items-center gap-2 min-w-0">
                                 <span class="w-5 h-5 rounded-lg ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center shrink-0 text-[10px]">
                                     ${isCorrect ? '<i class="fa-solid fa-check"></i>' : '•'}
                                 </span>
                                 <span class="break-words">${escapeHtml(opt.option_text)}</span>
                             </div>
-                            ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-900 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __('Correct Answer') }}</span>' : ''}
+                            ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-900 dark:text-emerald-200 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __('Correct Answer') }}</span>' : ''}
                         </div>
                     `;
                         });
@@ -3926,7 +4398,7 @@
                             <span class="font-heading font-black text-xs text-teal-800 bg-teal-100/70 px-2.5 py-1 rounded-lg">#${idx + 1}</span>
                             <span class="text-[11px] font-mono font-bold text-slate-500">${q.points} {{ __('pts') }}</span>
                         </div>
-                        <p class="text-sm font-bold text-slate-900 leading-snug">${escapeHtml(q.question_text)}</p>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">${escapeHtml(q.question_text)}</p>
                         <div class="space-y-1.5 pt-1">
                             ${optsHtml}
                         </div>
@@ -3958,9 +4430,9 @@
                             'bg-amber-100 text-amber-800';
 
                         subHtml += `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
+                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                         <td class="py-3 px-3">
-                            <p class="font-bold text-slate-900">${escapeHtml(s.student_name)}</p>
+                            <p class="font-bold text-slate-900 dark:text-white">${escapeHtml(s.student_name)}</p>
                             <p class="text-[10px] text-slate-500 font-mono">${escapeHtml(s.student_email)}</p>
                         </td>
                         <td class="py-3 px-3 font-mono text-slate-600">${s.submitted_at || 'Draft'}</td>
@@ -4072,7 +4544,7 @@
             if (container) {
                 container.innerHTML = `
             <div class="py-8 space-y-3">
-                <div class="flex items-center gap-3 p-3.5 bg-slate-50 rounded-2xl animate-pulse">
+                <div class="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl animate-pulse">
                     <div class="w-11 h-11 rounded-xl bg-slate-200 shrink-0"></div>
                     <div class="flex-1 space-y-2">
                         <div class="h-3.5 bg-slate-200 rounded-md w-1/3"></div>
@@ -4080,7 +4552,7 @@
                     </div>
                     <div class="w-48 h-8 bg-slate-200 rounded-xl shrink-0"></div>
                 </div>
-                <div class="flex items-center gap-3 p-3.5 bg-slate-50 rounded-2xl animate-pulse">
+                <div class="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl animate-pulse">
                     <div class="w-11 h-11 rounded-xl bg-slate-200 shrink-0"></div>
                     <div class="flex-1 space-y-2">
                         <div class="h-3.5 bg-slate-200 rounded-md w-1/2"></div>
@@ -4169,7 +4641,7 @@
                     const isAbsent = curStatus === 'absent';
 
                     html += `
-                <div class="att-student-item p-3.5 sm:p-4 rounded-2xl bg-white hover:bg-slate-50/80 transition-all border border-slate-200/80 hover:border-teal-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs"
+                <div class="att-student-item p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/90 hover:bg-slate-50/80 dark:hover:bg-slate-700/60 transition-all border border-slate-200/80 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs"
                      data-student-name="${escapeHtml(st.name || '')}"
                      data-student-code="${escapeHtml(st.code || st.student_code || '')}"
                      data-student-school="${escapeHtml(st.school || '')}">
@@ -4179,7 +4651,7 @@
                             ${(st.name || 'S').substring(0, 1).toUpperCase()}
                         </div>
                         <div class="min-w-0 space-y-0.5">
-                            <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(st.name)}</p>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">${escapeHtml(st.name)}</p>
                             <p class="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1.5 flex-wrap">
                                 <span>${escapeHtml(st.school || 'Elite Academy')}</span>
                                 ${st.grade ? `<span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span><span>${escapeHtml(st.grade)}</span>` : ''}
@@ -4237,7 +4709,7 @@
                         <p class="text-xs font-bold text-rose-700">${isArLocale ? 'تعذر تحميل كشف حضور الطلاب في الوقت الفعلي.' : 'Failed to load real-time attendance roster.'}</p>
                         <p class="text-[11px] font-mono text-slate-400">${isArLocale ? 'يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.' : 'Please check your connection and try again.'}</p>
                     </div>
-                    <button type="button" onclick="openAttendanceModal(${sessionId}, '${escapeJs(sessionTitle)}')" class="btn-lift px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs cursor-pointer">
+                    <button type="button" onclick="openAttendanceModal(${sessionId}, '${escapeJs(sessionTitle)}')" class="btn-lift px-3.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer">
                         <i class="fa-solid fa-rotate-right"></i> ${isArLocale ? 'إعادة المحاولة' : 'Retry'}
                     </button>
                 </div>
@@ -4357,6 +4829,14 @@
                 activeBtn.classList.remove('text-slate-600');
                 activeBtn.classList.add('bg-teal-600', 'text-white', 'shadow-2xs');
             }
+
+            if (viewType === 'cards' && window.attCardsPaginator) {
+                window.attCardsPaginator.update();
+            } else if (viewType === 'table' && window.attTablePaginator) {
+                window.attTablePaginator.update();
+            } else if (viewType === 'matrix' && window.attMatrixPaginator) {
+                window.attMatrixPaginator.update();
+            }
         };
 
         window.applyAttendanceFilters = function() {
@@ -4382,10 +4862,10 @@
                 else if (statusVal === 'today') matchStatus = isToday;
 
                 if (matchSearch && matchCourse && matchStatus) {
-                    card.classList.remove('hidden');
+                    card.setAttribute('data-filtered-out', '0');
                     visibleCount++;
                 } else {
-                    card.classList.add('hidden');
+                    card.setAttribute('data-filtered-out', '1');
                 }
             });
 
@@ -4403,11 +4883,15 @@
                 else if (statusVal === 'today') matchStatus = isToday;
 
                 if (matchSearch && matchCourse && matchStatus) {
-                    row.classList.remove('hidden');
+                    row.setAttribute('data-filtered-out', '0');
                 } else {
-                    row.classList.add('hidden');
+                    row.setAttribute('data-filtered-out', '1');
                 }
             });
+
+            if (window.attCardsPaginator) window.attCardsPaginator.reset();
+            if (window.attTablePaginator) window.attTablePaginator.reset();
+            if (window.attMatrixPaginator) window.attMatrixPaginator.reset();
 
             const emptyState = document.getElementById('attEmptySearchState');
             if (emptyState) {
@@ -4426,14 +4910,20 @@
             const sel = document.getElementById('attStatusFilter');
             if (sel) {
                 sel.value = type;
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
                 applyAttendanceFilters();
             }
         };
 
         window.resetAttendanceFilters = function() {
             if (document.getElementById('attSearchInput')) document.getElementById('attSearchInput').value = '';
-            if (document.getElementById('attCourseFilter')) document.getElementById('attCourseFilter').value = '';
-            if (document.getElementById('attStatusFilter')) document.getElementById('attStatusFilter').value = '';
+            ['attCourseFilter', 'attStatusFilter'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = '';
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
             applyAttendanceFilters();
         };
 
@@ -4543,11 +5033,11 @@
 
                             if (opt.is_correct && opt.is_selected) {
                                 optStyle =
-                                    'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold';
+                                    'bg-emerald-50 border-emerald-300 text-emerald-900 dark:text-emerald-200 font-bold';
                                 badge =
                                     `<span class="text-emerald-600 font-mono text-[10px]">${i18n.studentCorrectPick}</span>`;
                             } else if (opt.is_correct) {
-                                optStyle = 'bg-teal-50 border-teal-300 text-teal-900 font-bold';
+                                optStyle = 'bg-teal-50 border-teal-300 text-teal-900 dark:text-teal-200 font-bold';
                                 badge =
                                     `<span class="text-teal-600 font-mono text-[10px]">${i18n.correctKey}</span>`;
                             } else if (opt.is_selected) {
@@ -4569,7 +5059,7 @@
 
                         html += `<div class="p-3.5 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-2">
                     <div class="flex items-center justify-between text-xs">
-                        <span class="font-bold text-slate-900">Q${idx + 1}: ${escapeHtml(q.question_text || i18n.question)}</span>
+                        <span class="font-bold text-slate-900 dark:text-white">Q${idx + 1}: ${escapeHtml(q.question_text || i18n.question)}</span>
                         ${statusBadge}
                     </div>
                     <div class="space-y-1.5 pt-1">
@@ -4599,15 +5089,15 @@
             const isAr = @json(app()->getLocale() === 'ar');
 
             const html = `
-    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 relative" id="teacherQCard_${qIdx}">
+    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 relative" id="teacherQCard_${qIdx}">
         <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-extrabold text-teal-900 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">
+            <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">
                 ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
             </span>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-1 text-xs font-mono">
                     <span class="text-slate-500">${isAr ? 'الدرجة:' : 'Pts:'}</span>
-                    <input type="number" step="0.5" name="questions[${qIdx}][points]" value="1" min="0.5" class="w-14 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-center">
+                    <input type="number" step="0.5" name="questions[${qIdx}][points]" value="1" min="0.5" class="w-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2 py-1 text-xs font-bold text-center">
                 </div>
                 <button type="button" onclick="removeTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer">
                     <i class="fa-solid fa-xmark"></i> ${isAr ? 'حذف' : 'Remove'}
@@ -4616,14 +5106,14 @@
         </div>
 
         <div>
-            <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600"></textarea>
+            <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600"></textarea>
         </div>
 
-        <div class="space-y-2 pt-1 border-t border-slate-200/60">
+        <div class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
             <p class="text-[10px] font-mono text-slate-500 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 ${[0, 1, 2, 3].map(optIdx => `
-                                                <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                                                <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
                                                     <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
                                                     <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800">
                                                 </div>
@@ -4733,7 +5223,206 @@
                 }, 30);
             });
 
-            // 4. Attach Student Search & Filter Listeners
+            // 4. Initialize Universal Real-Time Section Paginators
+            if (document.getElementById('todaySessionsListContainer')) {
+                window.todaySessionsPaginator = new EliteSectionPaginator({
+                    containerId: 'todaySessionsListContainer',
+                    itemSelector: '.today-session-item',
+                    paginationId: 'todaySessionsPagination',
+                    pageSize: 4,
+                    scrollToTop: false
+                });
+            }
+
+            if (document.getElementById('pendingSubmissionsContainer')) {
+                window.pendingSubmissionsPaginator = new EliteSectionPaginator({
+                    containerId: 'pendingSubmissionsContainer',
+                    itemSelector: '.pending-sub-item',
+                    paginationId: 'pendingSubmissionsPagination',
+                    pageSize: 5,
+                    scrollToTop: false
+                });
+            }
+
+            if (document.getElementById('recentStudentsContainer')) {
+                window.recentStudentsPaginator = new EliteSectionPaginator({
+                    containerId: 'recentStudentsContainer',
+                    itemSelector: '.recent-student-item',
+                    paginationId: 'recentStudentsPagination',
+                    pageSize: 5,
+                    scrollToTop: false
+                });
+            }
+
+            if (document.getElementById('overviewCoursesListContainer')) {
+                window.overviewCoursesPaginator = new EliteSectionPaginator({
+                    containerId: 'overviewCoursesListContainer',
+                    itemSelector: '.overview-course-item',
+                    paginationId: 'overviewCoursesPagination',
+                    pageSize: 4,
+                    scrollToTop: false
+                });
+            }
+
+            if (document.getElementById('studentsGridContainer')) {
+                window.studentPaginator = new EliteSectionPaginator({
+                    containerId: 'studentsGridContainer',
+                    itemSelector: '.student-roster-card',
+                    paginationId: 'studentsPagination',
+                    pageSize: 9,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('sessionsTableBody')) {
+                window.sessionsPaginator = new EliteSectionPaginator({
+                    containerId: 'sessionsTableBody',
+                    itemSelector: '.session-table-row',
+                    paginationId: 'sessionsPagination',
+                    pageSize: 10,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('sessionsMobileListContainer')) {
+                window.sessionsMobilePaginator = new EliteSectionPaginator({
+                    containerId: 'sessionsMobileListContainer',
+                    itemSelector: '.session-mobile-card',
+                    paginationId: 'sessionsMobilePagination',
+                    pageSize: 6,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('assignmentsGridContainer')) {
+                window.assignmentsPaginator = new EliteSectionPaginator({
+                    containerId: 'assignmentsGridContainer',
+                    itemSelector: '.assignment-card',
+                    paginationId: 'assignmentsPagination',
+                    pageSize: 6,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('submissionsTableBody')) {
+                window.submissionsPaginator = new EliteSectionPaginator({
+                    containerId: 'submissionsTableBody',
+                    itemSelector: '.submission-table-row',
+                    paginationId: 'submissionsPagination',
+                    pageSize: 10,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('submissionsMobileListContainer')) {
+                window.submissionsMobilePaginator = new EliteSectionPaginator({
+                    containerId: 'submissionsMobileListContainer',
+                    itemSelector: '.submission-mobile-card',
+                    paginationId: 'submissionsMobilePagination',
+                    pageSize: 6,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('attCardsGrid')) {
+                window.attCardsPaginator = new EliteSectionPaginator({
+                    containerId: 'attCardsGrid',
+                    itemSelector: '.att-session-card',
+                    paginationId: 'attCardsPagination',
+                    pageSize: 8,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('attTableBody')) {
+                window.attTablePaginator = new EliteSectionPaginator({
+                    containerId: 'attTableBody',
+                    itemSelector: '.att-table-row',
+                    paginationId: 'attTablePagination',
+                    pageSize: 10,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('attMatrixGrid')) {
+                window.attMatrixPaginator = new EliteSectionPaginator({
+                    containerId: 'attMatrixGrid',
+                    itemSelector: '.att-matrix-card',
+                    paginationId: 'attMatrixPagination',
+                    pageSize: 9,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('notifsListContainer')) {
+                window.notifsPaginator = new EliteSectionPaginator({
+                    containerId: 'notifsListContainer',
+                    itemSelector: '.notif-feed-item',
+                    paginationId: 'notifsPagination',
+                    pageSize: 6,
+                    scrollToTop: true
+                });
+            }
+
+            if (document.getElementById('schedulesListContainer')) {
+                window.schedulesPaginator = new EliteSectionPaginator({
+                    containerId: 'schedulesListContainer',
+                    itemSelector: '.schedule-item-card',
+                    paginationId: 'schedulesPagination',
+                    pageSize: 6,
+                    scrollToTop: true
+                });
+            }
+
+            // Real-Time Live Session Search Listener (Desktop & Mobile)
+            const liveSessionSearch = document.getElementById('liveSessionSearchInput');
+            if (liveSessionSearch) {
+                liveSessionSearch.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    const rows = document.querySelectorAll('#sessionsTableBody .session-table-row');
+                    const cards = document.querySelectorAll('#sessionsMobileListContainer .session-mobile-card');
+                    let visibleCount = 0;
+                    rows.forEach(r => {
+                        const title = r.getAttribute('data-title') || '';
+                        const course = r.getAttribute('data-course') || '';
+                        const date = r.getAttribute('data-date') || '';
+                        const match = !term || title.includes(term) || course.includes(term) || date.includes(term);
+                        if (match) {
+                            r.removeAttribute('data-filtered-out');
+                            visibleCount++;
+                        } else {
+                            r.setAttribute('data-filtered-out', '1');
+                        }
+                    });
+                    cards.forEach(c => {
+                        const title = c.getAttribute('data-title') || '';
+                        const course = c.getAttribute('data-course') || '';
+                        const date = c.getAttribute('data-date') || '';
+                        const match = !term || title.includes(term) || course.includes(term) || date.includes(term);
+                        if (match) {
+                            c.removeAttribute('data-filtered-out');
+                        } else {
+                            c.setAttribute('data-filtered-out', '1');
+                        }
+                    });
+                    const empty = document.getElementById('sessionsEmptySearchState');
+                    if (empty) {
+                        if (visibleCount === 0 && (rows.length > 0 || cards.length > 0)) {
+                            empty.classList.remove('hidden');
+                        } else {
+                            empty.classList.add('hidden');
+                        }
+                    }
+                    if (window.sessionsPaginator) {
+                        window.sessionsPaginator.reset();
+                    }
+                    if (window.sessionsMobilePaginator) {
+                        window.sessionsMobilePaginator.reset();
+                    }
+                });
+            }
+
+            // 5. Attach Student Search & Filter Listeners
             const sInput = document.getElementById('studentSearchInput');
             if (sInput) sInput.addEventListener('input', applyStudentFilters);
             const cFilter = document.getElementById('studentCourseFilter');
@@ -4764,6 +5453,21 @@
                     }
                 }
             });
+
+            // Initialize Elite Custom Selects for all filter dropdowns
+            if (typeof window.initEliteCustomSelects === 'function') {
+                window.initEliteCustomSelects();
+            }
+
+            // Clean up obsolete server-pagination query parameters from browser URL
+            try {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('notif_page') || url.searchParams.has('sessions_page')) {
+                    url.searchParams.delete('notif_page');
+                    url.searchParams.delete('sessions_page');
+                    window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : ''));
+                }
+            } catch(e) {}
 
             // Helper function to detect phone numbers in client JS
             function clientHasPhoneNumber(text) {
@@ -4966,7 +5670,7 @@
 
                     if (tableBody) {
                         tableBody.innerHTML = (data.dates || []).map(d => `
-                    <tr class="hover:bg-white/80 ${d.has_conflict ? 'bg-rose-50/60 text-rose-900' : ''}">
+                    <tr class="hover:bg-white/80 dark:hover:bg-slate-800/60 ${d.has_conflict ? 'bg-rose-50/60 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200' : ''}">
                         <td class="py-1.5 px-2 font-bold">${d.date}</td>
                         <td class="py-1.5 px-2 text-slate-500">${d.day_name}</td>
                         <td class="py-1.5 px-2">${d.start_time} - ${d.end_time}</td>
@@ -5265,19 +5969,11 @@
 
             // Open / close schedule modals
             window.openScheduleModal = function(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    document.body.classList.add('overflow-hidden');
-                }
+                window.openModal(modalId);
             };
 
             window.closeScheduleModal = function(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                }
+                window.closeModal(modalId);
             };
 
             // Close modals on backdrop click

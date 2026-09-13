@@ -5,65 +5,77 @@
 <style>
 /* Elite Academy Signature Teal/Emerald Theme System */
 .quiz-page-bg {
-    background-color: #FAFAF9;
+    background-color: var(--color-background);
     min-height: 100vh;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .quiz-main-card {
-    background: #FFFFFF;
+    background: var(--color-surface);
     border-radius: 32px;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06), 0 0 1px rgba(15, 23, 42, 0.1);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xl);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .option-card-elite {
-    border: 2px solid #E2E8F0;
+    border: 2px solid var(--color-border);
     border-radius: 20px;
-    background: #FFFFFF;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
 }
 
 .option-card-elite:hover {
-    border-color: #0D9488;
-    background-color: #F0FDF4;
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
 }
 
 .option-card-elite.selected {
-    border-color: #0D9488 !important;
-    background-color: #F0FDF4 !important;
-    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.15) !important;
+    border-color: var(--color-primary) !important;
+    background-color: var(--color-primary-light) !important;
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.25) !important;
 }
 
 .btn-elite-primary {
-    background-color: #0D9488;
-    color: #FFFFFF;
-    border-radius: 14px;
-    transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  font-weight: 700;
+  min-height: var(--touch-target-min);
+  border-radius: 14px;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
 .btn-elite-primary:hover {
-    background-color: #0F766E;
+    background-color: var(--color-primary-hover);
     transform: translateY(-1px);
     box-shadow: 0 8px 16px rgba(13, 148, 136, 0.25);
 }
 
 .btn-elite-nav {
-    border: 2px solid #E2E8F0;
-    background: #FFFFFF;
-    color: #1E293B;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    min-height: var(--touch-target-min);
     border-radius: 14px;
     transition: all 0.2s ease;
+    user-select: none;
 }
 
 .btn-elite-nav:hover:not(:disabled) {
-    border-color: #0D9488;
-    background: #F0FDF4;
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 .btn-elite-nav.active-step {
-    background-color: #0D9488 !important;
-    border-color: #0D9488 !important;
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
     color: #FFFFFF !important;
     box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
 }
@@ -84,19 +96,19 @@
         {{-- Top Elite Academy Brand & User Profile Header --}}
         <div class="flex items-center justify-between px-2">
             <div class="flex items-center gap-3">
-                <a href="{{ route('student-portal') }}" class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight hover:opacity-80 transition-opacity flex items-center gap-2">
-                    <span class="text-teal-600">Elite</span> Academy<span class="text-teal-500">.</span>
+                <a href="{{ route('student-portal') }}" class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight hover:opacity-80 transition-opacity flex items-center gap-2">
+                    <span class="text-teal-600 dark:text-teal-400">Elite</span> Academy<span class="text-teal-500">.</span>
                 </a>
             </div>
 
             {{-- User Profile Pill --}}
-            <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div class="w-10 h-10 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-sm overflow-hidden border-2 border-teal-300">
                     {{ mb_substr(auth()->user()->name ?? 'S', 0, 1) }}
                 </div>
-                <div class="text-left text-xs leading-tight">
-                    <h4 class="font-extrabold text-slate-900">{{ auth()->user()->name ?? 'Learner' }}</h4>
-                    <span class="font-mono text-slate-500 text-[11px] block">ID: {{ auth()->user()->id ?? '1001' }}</span>
+                <div class="text-start text-xs leading-tight">
+                    <h4 class="font-extrabold text-slate-900 dark:text-white">{{ auth()->user()->name ?? 'Learner' }}</h4>
+                    <span class="font-mono text-slate-500 dark:text-slate-400 text-[11px] block">ID: {{ auth()->user()->id ?? '1001' }}</span>
                 </div>
             </div>
         </div>
@@ -109,27 +121,27 @@
             <div class="quiz-main-card p-6 sm:p-10 md:p-12 relative overflow-hidden space-y-8">
                 
                 {{-- Quiz Top Bar: Timer & Submit Button --}}
-                <div class="flex items-center justify-between border-b border-slate-100 pb-6">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200/80 flex items-center justify-center text-teal-700 text-xl shadow-xs">
-                            <i class="fa-solid fa-clock"></i>
+                        <div class="w-10 h-10 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800 flex items-center justify-center text-teal-700 dark:text-teal-300 text-xl shadow-xs">
+                            <i class="fa-solid fa-clock" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <span class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">Time remaining</span>
+                            <span class="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">{{ app()->getLocale() === 'ar' ? 'الوقت المتبقي' : 'Time remaining' }}</span>
                             @php
                                 $dispRemaining = $remainingSeconds ?? 1800;
                                 $dispHrs = floor($dispRemaining / 3600);
                                 $dispMins = floor(($dispRemaining % 3600) / 60);
                                 $dispSecs = $dispRemaining % 60;
                             @endphp
-                            <span id="quizTimer" class="font-mono font-black text-slate-900 text-base sm:text-lg">
+                            <span id="quizTimer" class="font-mono font-black text-slate-900 dark:text-white text-base sm:text-lg">
                                 {{ sprintf('%02d : %02d : %02d', $dispHrs, $dispMins, $dispSecs) }}
                             </span>
                         </div>
                     </div>
 
                     <button type="submit" id="submitQuizBtn" class="btn-elite-primary px-8 py-3 font-bold text-sm shadow-md cursor-pointer flex items-center gap-2">
-                        Submit
+                        <span>{{ app()->getLocale() === 'ar' ? 'تسليم الاختبار' : 'Submit' }}</span>
                     </button>
                 </div>
 
@@ -143,16 +155,16 @@
                                 
                                 {{-- Question Number Tag --}}
                                 <div class="space-y-1">
-                                    <span class="text-xs font-mono font-extrabold text-slate-500 block">
-                                        Question <span class="text-teal-700">{{ $index + 1 }}</span> of {{ count($assignment->questions) }}
+                                    <span class="text-xs font-mono font-extrabold text-slate-500 dark:text-slate-400 block">
+                                        {{ app()->getLocale() === 'ar' ? 'السؤال' : 'Question' }} <span class="text-teal-600 dark:text-teal-400">{{ $index + 1 }}</span> {{ app()->getLocale() === 'ar' ? 'من' : 'of' }} {{ count($assignment->questions) }}
                                     </span>
-                                    <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 leading-snug math-render">
+                                    <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white leading-snug math-render">
                                         {{ $q->question_text }}
                                     </h3>
 
                                     @if($q->image_path)
-                                        <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-3 max-w-lg my-3 shadow-xs">
-                                            <img src="{{ asset('storage/' . $q->image_path) }}" class="max-h-56 rounded-xl object-contain pointer-events-none">
+                                        <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-3 max-w-lg my-3 shadow-xs">
+                                            <img src="{{ asset('storage/' . $q->image_path) }}" class="max-h-56 rounded-xl object-contain pointer-events-none" alt="Question Image">
                                         </div>
                                     @endif
                                 </div>
@@ -170,19 +182,19 @@
                                             $savedOptIdsInt = array_map('intval', (array) $savedOptIds);
                                             $isChecked = in_array((int) $opt->id, $savedOptIdsInt, true);
                                         @endphp
-                                        <label class="option-label option-card-elite p-4 sm:p-5 flex items-center justify-between cursor-pointer text-sm font-semibold text-slate-800 shadow-xs {{ $isChecked ? 'selected' : '' }}">
+                                        <label class="option-label option-card-elite p-4 sm:p-5 flex items-center justify-between cursor-pointer text-sm font-semibold shadow-xs {{ $isChecked ? 'selected' : '' }}">
                                             <div class="flex items-center gap-3">
                                                 <input type="{{ $inputType }}" name="answers[{{ $q->id }}][]" value="{{ $opt->id }}" {{ $isChecked ? 'checked' : '' }} class="option-input accent-teal-600 w-4 h-4 cursor-pointer">
                                                 
-                                                <span class="option-letter-badge font-mono font-bold text-slate-400 w-6">
+                                                <span class="option-letter-badge font-mono font-bold text-slate-400 dark:text-slate-500 w-6">
                                                     {{ $letter }}.
                                                 </span>
 
-                                                <span class="math-render leading-relaxed text-sm sm:text-base font-bold text-slate-800">{{ $opt->option_text }}</span>
+                                                <span class="math-render leading-relaxed text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">{{ $opt->option_text }}</span>
                                             </div>
 
                                             @if($opt->image_path)
-                                                <img src="{{ asset('storage/' . $opt->image_path) }}" class="h-8 rounded border border-slate-200 pointer-events-none">
+                                                <img src="{{ asset('storage/' . $opt->image_path) }}" class="h-8 rounded border border-slate-200 dark:border-slate-700 pointer-events-none" alt="Option Image">
                                             @endif
                                         </label>
                                     @endforeach
@@ -190,8 +202,8 @@
 
                             </div>
                         @empty
-                            <div class="py-12 text-center text-slate-500 font-mono text-xs">
-                                No questions configured for this assignment yet.
+                            <div class="py-12 text-center text-slate-500 dark:text-slate-400 font-mono text-xs">
+                                {{ app()->getLocale() === 'ar' ? 'لا توجد أسئلة مضافة لهذا الاختبار بعد.' : 'No questions configured for this assignment yet.' }}
                             </div>
                         @endforelse
                     </div>
@@ -200,12 +212,12 @@
                     <div class="lg:col-span-4 flex flex-col items-center justify-center p-4">
                         <div class="relative w-44 h-44 flex items-center justify-center">
                             <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="48" stroke="#E2E8F0" stroke-width="12" fill="transparent" />
+                                <circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width="12" fill="transparent" class="text-slate-200 dark:text-slate-800" />
                                 <circle id="gaugeRingFill" cx="60" cy="60" r="48" stroke="#0D9488" stroke-width="12" fill="transparent"
                                         stroke-dasharray="301.59" stroke-dashoffset="271.43" stroke-linecap="round" class="transition-all duration-500 ease-out" />
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                <span id="gaugeText" class="font-heading font-black text-3xl sm:text-4xl text-slate-900 tracking-tight">1/{{ count($assignment->questions) }}</span>
+                                <span id="gaugeText" class="font-heading font-black text-3xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">1/{{ count($assignment->questions) }}</span>
                             </div>
                         </div>
                     </div>
@@ -213,22 +225,22 @@
                 </div>
 
                 {{-- Bottom Navigation Toolbar --}}
-                <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-100">
-                    <button type="button" id="prevBtn" disabled class="btn-elite-nav px-6 py-3 text-xs font-bold font-mono disabled:opacity-40 disabled:cursor-not-allowed">
-                        Prev
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" id="prevBtn" disabled class="btn-elite-nav px-6 py-3 text-xs font-bold font-mono disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        {{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}
                     </button>
 
                     {{-- Question Numbers Grid Map (1, 2, 3, 4...) --}}
                     <div class="flex flex-wrap items-center justify-center gap-2 overflow-x-auto py-1" id="dotsContainer">
                         @foreach($assignment->questions as $i => $q)
-                            <button type="button" data-step-index="{{ $i }}" class="dot-item btn-elite-nav w-10 h-10 text-xs font-bold font-mono flex items-center justify-center {{ $i === 0 ? 'active-step' : '' }}">
+                            <button type="button" data-step-index="{{ $i }}" class="dot-item btn-elite-nav w-10 h-10 text-xs font-bold font-mono flex items-center justify-center cursor-pointer {{ $i === 0 ? 'active-step' : '' }}">
                                 {{ $i + 1 }}
                             </button>
                         @endforeach
                     </div>
 
-                    <button type="button" id="nextBtn" class="btn-elite-nav px-8 py-3 text-xs font-bold font-mono">
-                        Next
+                    <button type="button" id="nextBtn" class="btn-elite-nav px-8 py-3 text-xs font-bold font-mono cursor-pointer">
+                        {{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}
                     </button>
                 </div>
 
@@ -240,16 +252,16 @@
 
 {{-- Result Breakdown Modal (Displays Full Scores & Evaluation Breakdown on Screen) --}}
 <div id="resultModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
-    <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200/90 text-center space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 text-center space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
         
         {{-- Passed/Failed Icon Badge --}}
         <div id="resultIconBadge" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md border-4">
-            <i class="fa-solid fa-sparkles text-amber-400"></i>
+            <i class="fa-solid fa-sparkles text-amber-400" aria-hidden="true"></i>
         </div>
 
         <div class="space-y-2">
-            <h3 id="resultTitle" class="font-heading font-black text-2xl text-slate-900">Assignment Evaluated</h3>
-            <p id="resultMessage" class="text-xs font-mono text-slate-600 leading-relaxed"></p>
+            <h3 id="resultTitle" class="font-heading font-black text-2xl text-slate-900 dark:text-white">{{ app()->getLocale() === 'ar' ? 'نتيجة الاختبار' : 'Assignment Evaluated' }}</h3>
+            <p id="resultMessage" class="text-xs font-mono text-slate-600 dark:text-slate-300 leading-relaxed"></p>
         </div>
 
         {{-- Score Numbers Breakdown Grid --}}

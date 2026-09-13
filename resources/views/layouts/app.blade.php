@@ -23,14 +23,42 @@
     <link rel="alternate" hreflang="en" href="{{ url()->current() }}">
     <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
 
-    {{-- Ensure Pure Light Mode Across All Pages --}}
+    {{-- Universal Theme Engine & FOUC Prevention --}}
     <script>
         (function () {
             try {
-                localStorage.removeItem('theme');
-                document.documentElement.classList.remove('dark');
+                var stored = localStorage.getItem('elite_theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
             } catch (e) { }
         })();
+
+        window.EliteTheme = {
+            get: function () {
+                return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            },
+            set: function (theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    try { localStorage.setItem('elite_theme', 'dark'); } catch (e) {}
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    try { localStorage.setItem('elite_theme', 'light'); } catch (e) {}
+                }
+                window.dispatchEvent(new CustomEvent('elite-theme-changed', { detail: { theme: theme } }));
+            },
+            toggle: function () {
+                this.set(this.get() === 'dark' ? 'light' : 'dark');
+            }
+        };
     </script>
 
     {{-- Open Graph / Facebook Meta Tags --}}

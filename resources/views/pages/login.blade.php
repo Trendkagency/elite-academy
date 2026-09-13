@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="py-12 md:py-20 px-4 bg-[#FAFAF9] min-h-[calc(100vh-140px)] flex items-center justify-center">
-    <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl space-y-6">
+<section class="py-12 md:py-20 px-4 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-140px)] flex items-center justify-center transition-colors">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 shadow-xs">
-                <i class="fa-solid fa-key"></i>
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 dark:border-teal-800 shadow-xs">
+                <i class="fa-solid fa-key" aria-hidden="true"></i>
             </div>
-            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
-                {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول للمنصة' : 'Sign In to Portal' }}
+            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
+                {{ __('auth.login_title') }}
             </h1>
-            <p class="text-xs text-slate-500 font-mono">
-                {{ app()->getLocale() === 'ar' ? 'أدخل معلومات حسابك للوصول لبوابة المقررات والأداء الأكاديمي.' : 'Access your courses, grades, and academic dashboard.' }}
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {{ __('auth.login_subtitle') }}
             </p>
         </div>
 
@@ -25,8 +25,8 @@
             {{-- Email Input with Real-time Validation --}}
             <div class="space-y-1.5" id="group-email">
                 <div class="flex justify-between items-center">
-                    <label for="login-email" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }}
+                    <label for="login-email" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.email_label') }}
                     </label>
                     <span id="email-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                 </div>
@@ -38,9 +38,9 @@
                         required 
                         autocomplete="email"
                         placeholder="student@eliteacademy.edu.eg" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
-                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600">
+                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600 dark:text-teal-400">
                         <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -53,10 +53,10 @@
             {{-- Password Input with Show/Hide Toggle & Real-time Validation --}}
             <div class="space-y-1.5" id="group-password">
                 <div class="flex justify-between items-center">
-                    <label for="login-password" class="text-xs font-bold text-slate-700">
-                        {{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}
+                    <label for="login-password" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.password_label') }}
                     </label>
-                    <a href="#" class="text-xs text-teal-600 hover:underline font-bold">{{ app()->getLocale() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?' }}</a>
+                    <a href="#" class="text-xs text-teal-600 dark:text-teal-400 hover:underline font-bold">{{ __('auth.forgot_password') }}</a>
                 </div>
                 <div class="relative">
                     <input 
@@ -66,30 +66,30 @@
                         required 
                         autocomplete="current-password"
                         placeholder="••••••••" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none pe-10"
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none pe-10"
                     >
                     <button 
                         type="button" 
                         id="togglePasswordBtn"
-                        aria-label="Toggle password visibility"
-                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 p-1 rounded-lg focus:outline-none text-sm transition-colors"
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'إظهار / إخفاء كلمة المرور' : 'Toggle password visibility' }}"
+                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg focus:outline-none text-sm transition-colors cursor-pointer"
                     >
-                        <i class="fa-solid fa-eye" id="togglePasswordIcon"></i>
+                        <i class="fa-solid fa-eye" id="togglePasswordIcon" aria-hidden="true"></i>
                     </button>
                 </div>
                 <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
             </div>
 
             <div class="flex items-center justify-between text-xs pt-1">
-                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 font-medium">
-                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
-                    <span>{{ app()->getLocale() === 'ar' ? 'تذكرني على هذا الجهاز' : 'Remember me' }}</span>
+                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 font-medium">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500">
+                    <span>{{ __('auth.remember_me') }}</span>
                 </label>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/20 touch-press mt-2 flex items-center justify-center gap-2 font-bold py-3.5 rounded-2xl transition-all">
-                <span id="btnText">{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In to Portal' }}</span>
-                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon"></i>
+            <button type="submit" id="submitBtn" class="btn-primary w-full py-3.5 text-xs font-bold rounded-2xl transition-all">
+                <span id="btnText">{{ __('auth.sign_in_btn') }}</span>
+                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-xs" id="btnIcon" aria-hidden="true"></i>
                 <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -98,12 +98,12 @@
         </form>
 
         {{-- Separate Register Link --}}
-        <div class="pt-6 border-t border-slate-100 text-center">
-            <p class="text-xs text-slate-500 font-mono">
-                {{ app()->getLocale() === 'ar' ? 'ليس لديك حساب حتى الآن؟' : "Don't have an account yet?" }}
-                <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline ms-1 inline-flex items-center gap-1">
-                    <span>{{ app()->getLocale() === 'ar' ? 'إنشاء حساب جديد' : 'Create an Account' }}</span>
-                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]"></i>
+        <div class="pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {{ __('auth.dont_have_account') }}
+                <a href="{{ route('register') }}" class="font-bold text-teal-600 dark:text-teal-400 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span>{{ __('auth.create_account_link') }}</span>
+                    <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px]" aria-hidden="true"></i>
                 </a>
             </p>
         </div>

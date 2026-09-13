@@ -76,7 +76,7 @@
                 <div class="relative z-20 flex-1 flex {{ $position[0] }} {{ $position[1] }}
                             max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
 
-                    <div class="hero-content max-w-2xl space-y-5 flex flex-col {{ $align }}">
+                    <div class="hero-content max-w-3xl lg:max-w-4xl xl:max-w-5xl space-y-4 sm:space-y-5 flex flex-col {{ $align }}">
 
                         {{-- Badge --}}
                         @if($slide->track_label)
@@ -94,8 +94,8 @@
 
                         {{-- Headline --}}
                         <h1 class="hero-anim-title font-heading font-extrabold
-                                   text-[28px] sm:text-[40px] md:text-5xl lg:text-6xl xl:text-7xl
-                                   text-white tracking-tight leading-[1.08] drop-shadow-lg">
+                                   text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl
+                                   text-white tracking-tight leading-[1.18] sm:leading-[1.15] lg:leading-[1.12] drop-shadow-lg">
                             {!! $slide->getLocalizedTitle() !!}
                         </h1>
 
@@ -162,7 +162,7 @@
 
             <div class="relative z-20 flex-1 flex justify-start items-center
                         max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
-                <div class="hero-content max-w-2xl space-y-5 flex flex-col items-start text-left">
+                <div class="hero-content max-w-3xl lg:max-w-4xl xl:max-w-5xl space-y-4 sm:space-y-5 flex flex-col items-start text-start rtl:text-right">
                     <div class="hero-anim-badge inline-flex items-center gap-2.5 px-4 py-2 rounded-full
                                 bg-teal-500/20 border border-teal-400/30 text-teal-300
                                 text-xs font-bold tracking-widest backdrop-blur-md shadow-md">
@@ -170,8 +170,8 @@
                         <span>{!! SiteSetting::getLocalized('landing_hero_badge', "🚀 EGYPT'S #1 ACADEMIC PLATFORM") !!}</span>
                     </div>
                     <h1 class="hero-anim-title font-heading font-extrabold
-                               text-[28px] sm:text-[40px] md:text-5xl lg:text-6xl xl:text-7xl
-                               text-white tracking-tight leading-[1.08] drop-shadow-lg">
+                               text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl
+                               text-white tracking-tight leading-[1.18] sm:leading-[1.15] lg:leading-[1.12] drop-shadow-lg">
                         {{ SiteSetting::getLocalized('landing_hero_title', 'Empowering Future Leaders') }}
                     </h1>
                     <p class="hero-anim-sub text-slate-200 text-[16px] sm:text-lg lg:text-xl
