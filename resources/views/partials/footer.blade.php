@@ -22,6 +22,7 @@
         ? json_decode($quickLinksRaw, true)
         : [
             ['label_ar' => 'الرئيسية', 'label_en' => 'Home', 'url' => '/'],
+            ['label_ar' => 'التقييمات والآراء', 'label_en' => 'Reviews & Ratings', 'url' => '/reviews'],
             ['label_ar' => 'الأسئلة الشائعة', 'label_en' => 'FAQ & Help', 'url' => '/faq'],
             ['label_ar' => 'من نحن', 'label_en' => 'About Us', 'url' => '/about'],
             ['label_ar' => 'المعلمون', 'label_en' => 'Teachers', 'url' => '/teachers'],

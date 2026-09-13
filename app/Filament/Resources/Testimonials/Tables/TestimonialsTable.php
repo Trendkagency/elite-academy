@@ -25,6 +25,7 @@ class TestimonialsTable
                     ->color(fn (string $state): string => match ($state) {
                         'student' => 'info',
                         'parent' => 'warning',
+                        'teacher' => 'success',
                         default => 'gray',
                     }),
                 TextColumn::make('course_name')

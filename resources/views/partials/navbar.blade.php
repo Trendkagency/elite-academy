@@ -10,6 +10,7 @@
         $navLink('subjects', 'subjects', __('Subjects')),
         $navLink('courses', 'courses', __('Courses')),
         $navLink('teachers', 'teachers', __('Teachers')),
+        $navLink('reviews', 'reviews', __('Reviews & Ratings')),
         $navLink('blog', 'blog', __('Blog')),
         $navLink('faq', 'faq', __('FAQ')),
         $navLink('about', 'about', __('About')),

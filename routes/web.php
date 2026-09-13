@@ -56,6 +56,10 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::post('/ajax/contact/submit', [\App\Http\Controllers\Cms\ContactController::class, 'submitAjax'])->middleware('throttle:contact')->name('ajax.contact.submit');
     Route::get('/faq', [PageController::class, 'show'])->defaults('page', 'faq')->name('faq');
 
+    // Reviews & Ratings Page
+    Route::get('/reviews', [\App\Http\Controllers\Review\ReviewController::class, 'index'])->name('reviews');
+    Route::post('/ajax/reviews/submit', [\App\Http\Controllers\Review\ReviewController::class, 'submitAjax'])->middleware('throttle:contact')->name('ajax.reviews.submit');
+
     // 2. Authentication Domain Routes (Protected with Brute Force & Rate Limit Protection)
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/ajax/login', [LoginController::class, 'login'])->middleware('throttle:login')->name('ajax.login');

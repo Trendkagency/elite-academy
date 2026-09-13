@@ -24,6 +24,7 @@ class TestimonialForm
                     ->options([
                         'student' => 'Student (طالب)',
                         'parent' => 'Parent (ولي أمر)',
+                        'teacher' => 'Teacher / Instructor (معلم / مدرب)',
                     ])
                     ->default('student')
                     ->required(),
