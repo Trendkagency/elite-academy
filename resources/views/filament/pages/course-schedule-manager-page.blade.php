@@ -976,11 +976,13 @@
             <div class="sch-mobile-feed">
                 @forelse ($this->sessionsList as $session)
                     @php
-                        $stripBg = match ($session->status) {
-                            'completed' => '#10B981',
-                            'in_progress', 'link_visible' => '#0D9488',
-                            'scheduled' => '#F59E0B',
-                            'cancelled' => '#E11D48',
+                        $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher']) || $session->lifecycle_state === 'cancelled';
+                        $isCompleted = $session->status === 'completed' || $session->lifecycle_state === 'completed';
+                        $stripBg = match (true) {
+                            $isCompleted => '#10B981',
+                            $isCancelled => '#E11D48',
+                            in_array($session->status, ['in_progress', 'link_visible']) => '#0D9488',
+                            $session->status === 'scheduled' => '#F59E0B',
                             default => '#64748B',
                         };
                     @endphp
@@ -1001,8 +1003,8 @@
                                 </span>
                             </div>
 
-                            <span class="sch-badge {{ $session->status === 'completed' ? 'sch-badge-completed' : ($session->status === 'cancelled' ? 'sch-badge-cancelled' : 'sch-badge-scheduled') }}">
-                                {{ $session->status === 'completed' ? __('Completed') : ($session->status === 'cancelled' ? __('Cancelled') : __('Scheduled')) }}
+                            <span class="sch-badge {{ $isCompleted ? 'sch-badge-completed' : ($isCancelled ? 'sch-badge-cancelled' : 'sch-badge-scheduled') }}">
+                                {{ $isCompleted ? __('Completed') : ($isCancelled ? __('Cancelled') : __('Scheduled')) }}
                             </span>
                         </div>
 
@@ -1045,25 +1047,35 @@
                                 <span>{{ __('Meeting Link') }}</span>
                             </button>
 
-                            <button type="button" wire:click="openReschedule({{ $session->id }})"
-                                style="flex: 1; padding: 0.5rem; border-radius: 0.625rem; background: rgba(37, 99, 235, 0.12); color: #2563EB; font-weight: 700; font-size: 0.75rem; border: 1px solid rgba(37, 99, 235, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-                                <span>{{ __('Reschedule') }}</span>
-                            </button>
+                            @if (! $isCancelled && ! $isCompleted)
+                                <button type="button" wire:click="openReschedule({{ $session->id }})"
+                                    style="flex: 1; padding: 0.5rem; border-radius: 0.625rem; background: rgba(37, 99, 235, 0.12); color: #2563EB; font-weight: 700; font-size: 0.75rem; border: 1px solid rgba(37, 99, 235, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span>{{ __('Reschedule') }}</span>
+                                </button>
 
-                            <button type="button" wire:click="markAttendance({{ $session->id }}, 'present')"
-                                class="sch-icon-btn sch-icon-btn-check" title="{{ __('Mark Present') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                </svg>
-                            </button>
+                                <button type="button" wire:click="markAttendance({{ $session->id }}, 'present')"
+                                    class="sch-icon-btn sch-icon-btn-check" title="{{ __('Mark Present') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                </button>
 
-                            <button type="button" wire:click="openCancelModal({{ $session->id }})"
-                                class="sch-icon-btn sch-icon-btn-cancel" title="{{ __('Cancel Session') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                <button type="button" wire:click="openCancelModal({{ $session->id }})"
+                                    class="sch-icon-btn sch-icon-btn-cancel" title="{{ __('Cancel Session') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <button type="button" wire:click="deleteSession({{ $session->id }})"
+                                wire:confirm="{{ __('Are you sure you want to delete this session?') }}"
+                                class="sch-icon-btn" style="color: #94A3B8;" title="{{ __('Delete Session') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1rem; height: 1rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                 </svg>
                             </button>
                         </div>
@@ -1135,8 +1147,12 @@
                                         {{ $session->duration_minutes }} {{ __('mins') }}
                                     </td>
                                     <td class="sch-td" style="white-space: nowrap;">
-                                        <span class="sch-badge {{ $session->status === 'completed' ? 'sch-badge-completed' : ($session->status === 'cancelled' ? 'sch-badge-cancelled' : 'sch-badge-scheduled') }}">
-                                            {{ $session->status === 'completed' ? __('Completed') : ($session->status === 'cancelled' ? __('Cancelled') : __('Scheduled')) }}
+                                        @php
+                                            $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher']) || $session->lifecycle_state === 'cancelled';
+                                            $isCompleted = $session->status === 'completed' || $session->lifecycle_state === 'completed';
+                                        @endphp
+                                        <span class="sch-badge {{ $isCompleted ? 'sch-badge-completed' : ($isCancelled ? 'sch-badge-cancelled' : 'sch-badge-scheduled') }}">
+                                            {{ $isCompleted ? __('Completed') : ($isCancelled ? __('Cancelled') : __('Scheduled')) }}
                                         </span>
                                     </td>
                                     <td class="sch-td" style="white-space: nowrap;">
@@ -1158,27 +1174,38 @@
                                                 </svg>
                                             </button>
 
-                                            <button type="button" wire:click="openReschedule({{ $session->id }})"
-                                                title="{{ __('Reschedule Session') }}"
-                                                class="sch-icon-btn sch-icon-btn-time">
+                                            @if (! $isCancelled && ! $isCompleted)
+                                                <button type="button" wire:click="openReschedule({{ $session->id }})"
+                                                    title="{{ __('Reschedule Session') }}"
+                                                    class="sch-icon-btn sch-icon-btn-time">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                    </svg>
+                                                </button>
+
+                                                <button type="button" wire:click="markAttendance({{ $session->id }}, 'present')"
+                                                    title="{{ __('Mark Present') }}"
+                                                    class="sch-icon-btn sch-icon-btn-check">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                    </svg>
+                                                </button>
+
+                                                <button type="button" wire:click="openCancelModal({{ $session->id }})"
+                                                    title="{{ __('Cancel Session') }}"
+                                                    class="sch-icon-btn sch-icon-btn-cancel">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            @endif
+
+                                            <button type="button" wire:click="deleteSession({{ $session->id }})"
+                                                wire:confirm="{{ __('Are you sure you want to delete this session?') }}"
+                                                title="{{ __('Delete Session') }}"
+                                                class="sch-icon-btn" style="color: #94A3B8;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                            </button>
-
-                                            <button type="button" wire:click="markAttendance({{ $session->id }}, 'present')"
-                                                title="{{ __('Mark Present') }}"
-                                                class="sch-icon-btn sch-icon-btn-check">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                                </svg>
-                                            </button>
-
-                                            <button type="button" wire:click="openCancelModal({{ $session->id }})"
-                                                title="{{ __('Cancel Session') }}"
-                                                class="sch-icon-btn sch-icon-btn-cancel">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                 </svg>
                                             </button>
                                         </div>

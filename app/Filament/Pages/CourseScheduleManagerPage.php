@@ -279,7 +279,11 @@ class CourseScheduleManagerPage extends Page
         }
 
         if ($this->selectedStatus !== 'all') {
-            $query->where('status', $this->selectedStatus);
+            if ($this->selectedStatus === 'cancelled') {
+                $query->whereIn('status', ['cancelled', 'cancelled_by_teacher']);
+            } else {
+                $query->where('status', $this->selectedStatus);
+            }
         }
 
         if ($this->dateFrom) {
@@ -335,7 +339,7 @@ class CourseScheduleManagerPage extends Page
         $effectiveTeacherId = ($this->isTeacherOnly && $this->teacherProfileId) ? $this->teacherProfileId : $this->selectedTeacherId;
 
         $sessionsQ = LiveSession::query();
-        $upcomingQ = LiveSession::where('scheduled_at', '>=', now())->where('status', '!=', 'cancelled');
+        $upcomingQ = LiveSession::where('scheduled_at', '>=', now())->whereNotIn('status', ['cancelled', 'cancelled_by_teacher']);
         $recurringQ = RecurringSchedule::where('status', 'active');
         $enrollmentsQ = CourseEnrollment::where('status', 'active');
 
@@ -796,10 +800,20 @@ class CourseScheduleManagerPage extends Page
         ]);
 
         $session = LiveSession::findOrFail($this->cancelSessionId);
-        $session->update([
-            'status' => 'cancelled',
-            'cancellation_reason' => trim($this->cancelReason),
-        ]);
+        $user = auth()->user();
+        if ($user) {
+            app(\App\Services\Session\RecurringScheduleService::class)->cancelSession($session, trim($this->cancelReason), $user);
+            $session->update([
+                'status' => 'cancelled',
+                'lifecycle_state' => 'cancelled',
+            ]);
+        } else {
+            $session->update([
+                'status' => 'cancelled',
+                'lifecycle_state' => 'cancelled',
+                'cancellation_reason' => trim($this->cancelReason),
+            ]);
+        }
 
         $this->showCancelModal = false;
 
@@ -807,6 +821,18 @@ class CourseScheduleManagerPage extends Page
             ->title(__('Session Cancelled'))
             ->body(__('Enrolled learners and teachers will be alerted.'))
             ->warning()
+            ->send();
+    }
+
+    public function deleteSession(int $sessionId): void
+    {
+        $session = LiveSession::findOrFail($sessionId);
+        $session->delete();
+
+        Notification::make()
+            ->title(__('Session Deleted'))
+            ->body(__('Session has been deleted successfully.'))
+            ->success()
             ->send();
     }
 
