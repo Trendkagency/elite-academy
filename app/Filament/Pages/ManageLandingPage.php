@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\SiteSetting;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
+
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -113,6 +114,26 @@ class ManageLandingPage extends Page implements HasForms
             'social_linkedin',
             'social_youtube',
             'theme_primary_color',
+            'theme_secondary_color',
+            'theme_accent_color',
+            'theme_surface_mode',
+            'theme_btn_radius',
+            'theme_btn_style',
+            'theme_btn_hover',
+            'theme_btn_font_weight',
+            'theme_card_radius',
+            'theme_card_style',
+            'theme_card_shadow',
+            'theme_card_hover',
+            'theme_badge_radius',
+            'theme_badge_style',
+            'theme_slider_overlay_opacity',
+            'theme_slider_indicator_style',
+            'theme_slider_kenburns',
+            'theme_nav_style',
+            'theme_nav_blur',
+            'theme_font_family_en',
+            'theme_font_family_ar',
         ];
 
         $formData = [];
@@ -244,6 +265,26 @@ class ManageLandingPage extends Page implements HasForms
             'social_linkedin' => 'https://linkedin.com',
             'social_youtube' => 'https://youtube.com',
             'theme_primary_color' => '#0d9488',
+            'theme_secondary_color' => '#6366f1',
+            'theme_accent_color' => '#f59e0b',
+            'theme_surface_mode' => 'dark-glass',
+            'theme_btn_radius' => 'full',
+            'theme_btn_style' => 'gradient',
+            'theme_btn_hover' => 'lift-glow',
+            'theme_btn_font_weight' => 'bold',
+            'theme_card_radius' => '2xl',
+            'theme_card_style' => 'glass',
+            'theme_card_shadow' => 'glow-soft',
+            'theme_card_hover' => 'lift',
+            'theme_badge_radius' => 'full',
+            'theme_badge_style' => 'glass-glow',
+            'theme_slider_overlay_opacity' => '55',
+            'theme_slider_indicator_style' => 'dynamic-pill',
+            'theme_slider_kenburns' => '1',
+            'theme_nav_style' => 'glass-sticky',
+            'theme_nav_blur' => 'md',
+            'theme_font_family_en' => 'Cairo',
+            'theme_font_family_ar' => 'Cairo',
             default => '',
         };
     }
@@ -254,46 +295,24 @@ class ManageLandingPage extends Page implements HasForms
             ->components([
                 Tabs::make('SettingsTabs')
                     ->tabs([
-                        Tabs\Tab::make('Hero Banner (EN & AR)')
-                            ->icon('heroicon-o-sparkles')
+                        Tabs\Tab::make('Hero Slides ✨')
+                            ->icon('heroicon-o-presentation-chart-line')
                             ->schema([
-                                Section::make('Main Hero Banner Content (English & Arabic)')
-                                    ->description('Configure multi-lingual titles, subtitles, badges, and action buttons for the main landing hero banner.')
+                                Section::make('🎬 Hero Slider — Managed via Hero Slides')
+                                    ->description('The hero slider on the landing page is now fully dynamic. Each slide has its own image, headline, badge, CTA buttons, accent color, overlay, and position.')
                                     ->schema([
-                                        Grid::make(2)->schema([
-                                            TextInput::make('landing_hero_badge_ar')
-                                                ->label('Hero Badge (Arabic / بالعربية)')
-                                                ->placeholder('🚀 المنصة الأكاديمية الأولى في مصر'),
-                                            TextInput::make('landing_hero_badge_en')
-                                                ->label('Hero Badge (English)')
-                                                ->placeholder('🚀 EGYPT’S #1 ACADEMIC PLATFORM'),
-                                        ]),
-                                        Grid::make(2)->schema([
-                                            TextInput::make('landing_hero_title_ar')
-                                                ->label('Main Title / Headline (Arabic / بالعربية)')
-                                                ->required(),
-                                            TextInput::make('landing_hero_title_en')
-                                                ->label('Main Title / Headline (English)')
-                                                ->required(),
-                                        ]),
-                                        Grid::make(2)->schema([
-                                            Textarea::make('landing_hero_subtitle_ar')
-                                                ->label('Subtitle / Description (Arabic / بالعربية)')
-                                                ->rows(3),
-                                            Textarea::make('landing_hero_subtitle_en')
-                                                ->label('Subtitle / Description (English)')
-                                                ->rows(3),
-                                        ]),
-                                        Grid::make(3)->schema([
-                                            TextInput::make('landing_cta_primary_text_ar')
-                                                ->label('Primary Button Text (Arabic / بالعربية)'),
-                                            TextInput::make('landing_cta_primary_text_en')
-                                                ->label('Primary Button Text (English)'),
-                                            TextInput::make('landing_cta_primary_link')
-                                                ->label('Primary Button Link / URL'),
-                                        ]),
+                                        \Filament\Schemas\Components\Html::make(new \Illuminate\Support\HtmlString(
+                                            '<div style="border:1px solid rgba(45,212,191,0.25); background:rgba(20,184,166,0.08); border-radius:12px; padding:28px 24px; text-align:center;">'
+                                            . '<div style="font-size:48px; margin-bottom:12px;">🎠</div>'
+                                            . '<h3 style="font-size:17px; font-weight:700; color:#2dd4bf; margin:0 0 10px;">Hero Slides Resource</h3>'
+                                            . '<p style="color:#94a3b8; font-size:13px; max-width:480px; margin:0 auto 8px; line-height:1.6;">Create, edit, <strong style="color:#e2e8f0;">reorder (drag &amp; drop)</strong>, and toggle visibility of slides directly from the <strong style="color:#e2e8f0;">Hero Slides</strong> section in the sidebar under <em>Landing Page CMS</em>.</p>'
+                                            . '<p style="color:#64748b; font-size:12px; margin:0 auto 18px; max-width:520px; line-height:1.6;">Each slide supports: background image, badge label &amp; icon, headline, subtitle, primary &amp; secondary CTA buttons (with custom labels), accent color palette (teal / purple / orange / rose / sky / amber), overlay opacity, text alignment, and a 9-point content position grid.</p>'
+                                            . '<a href="' . (class_exists(\App\Filament\Resources\HeroSlides\HeroSlideResource::class) ? \App\Filament\Resources\HeroSlides\HeroSlideResource::getUrl('index') : url('/admin/hero-slides')) . '" style="display:inline-flex; align-items:center; gap:8px; padding:10px 22px; border-radius:8px; background:#14b8a6; color:#0f172a; font-weight:700; font-size:13px; text-decoration:none;">🎯 Manage Hero Slides &rarr;</a>'
+                                            . '</div>'
+                                        )),
                                     ]),
                             ]),
+
 
                         Tabs\Tab::make('Statistics & Metrics')
                             ->icon('heroicon-o-chart-bar')
@@ -596,11 +615,254 @@ class ManageLandingPage extends Page implements HasForms
                         Tabs\Tab::make('Theme & Branding Colors')
                             ->icon('heroicon-o-paint-brush')
                             ->schema([
-                                Section::make('Visual Theme Customization')
+                                // ── LIVE INTERACTIVE COMPONENT PREVIEW ──
+                                \Filament\Schemas\Components\View::make('filament.components.theme-preview')
+                                    ->columnSpanFull(),
+
+                                // ── 1. BRAND COLORS & SURFACE ──
+                                Section::make('🎨 Brand Color Palette & Surface Mode')
+                                    ->description('Customize core brand colors, secondary accents, and overall visual mode.')
+                                    ->columns(2)
                                     ->schema([
                                         ColorPicker::make('theme_primary_color')
-                                            ->label('Primary Brand Accent Color')
-                                            ->default('#0d9488'),
+                                            ->label('Primary Brand Color')
+                                            ->default('#0d9488')
+                                            ->required(),
+
+                                        ColorPicker::make('theme_secondary_color')
+                                            ->label('Secondary Accent Color')
+                                            ->default('#6366f1')
+                                            ->required(),
+
+                                        ColorPicker::make('theme_accent_color')
+                                            ->label('Highlight / Warning Accent')
+                                            ->default('#f59e0b')
+                                            ->required(),
+
+                                        Select::make('theme_surface_mode')
+                                            ->label('Surface & Depth Theme')
+                                            ->options([
+                                                'dark-glass'  => '🌌 Dark Glassmorphism (Default)',
+                                                'deep-slate'  => '🌑 Deep Slate Modern',
+                                                'pure-dark'   => '🖤 Pure OLED Black',
+                                                'clean-light' => '☀️ Clean Light Surface',
+                                            ])
+                                            ->default('dark-glass')
+                                            ->native(false),
+                                    ]),
+
+                                // ── 2. BUTTONS & CTA ELEMENTS ──
+                                Section::make('🔘 Button & CTA Styles (mtns / Buttons)')
+                                    ->description('Global button curvature, gradient effects, hover animations, and typography.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('theme_btn_radius')
+                                            ->label('Button Corner Radius')
+                                            ->options([
+                                                'full' => '💊 Full Pill (9999px)',
+                                                'lg'   => '🔲 Large Rounded (12px)',
+                                                'md'   => '⏹ Medium Rounded (8px)',
+                                                'sm'   => '◽ Small Rounded (4px)',
+                                                'none' => '⬛ Sharp Square (0px)',
+                                            ])
+                                            ->default('full')
+                                            ->native(false),
+
+                                        Select::make('theme_btn_style')
+                                            ->label('Button Visual Variant')
+                                            ->options([
+                                                'gradient' => '✨ Radiant Dual Gradient',
+                                                'solid'    => '🎨 Solid Bold Color',
+                                                'glow'     => '🔮 Neon Ambient Glow',
+                                                'glass'    => '🪟 Translucent Glass',
+                                            ])
+                                            ->default('gradient')
+                                            ->native(false),
+
+                                        Select::make('theme_btn_hover')
+                                            ->label('Hover Interaction Effect')
+                                            ->options([
+                                                'lift-glow' => '🚀 Float Up + Expand Glow',
+                                                'lift'      => '⬆ Smooth Float Up',
+                                                'glow'      => '🌟 Aura Glow Intensify',
+                                                'scale'     => '🔍 Subtle Scale Pop',
+                                            ])
+                                            ->default('lift-glow')
+                                            ->native(false),
+
+                                        Select::make('theme_btn_font_weight')
+                                            ->label('Button Font Weight')
+                                            ->options([
+                                                'extrabold' => 'Extra Bold (800)',
+                                                'bold'      => 'Bold (700)',
+                                                'semibold'  => 'Semi Bold (600)',
+                                                'medium'    => 'Medium (500)',
+                                            ])
+                                            ->default('bold')
+                                            ->native(false),
+                                    ]),
+
+                                // ── 3. CARDS & CONTAINERS ──
+                                Section::make('🎴 Cards, Containers & Glassmorphism')
+                                    ->description('Configure shape, background styling, shadow depth, and float animations for all cards.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('theme_card_radius')
+                                            ->label('Card Corner Radius')
+                                            ->options([
+                                                '3xl' => 'Extra Large Rounded (24px)',
+                                                '2xl' => 'Large Rounded (16px)',
+                                                'xl'  => 'Medium-Large (12px)',
+                                                'lg'  => 'Standard (8px)',
+                                            ])
+                                            ->default('2xl')
+                                            ->native(false),
+
+                                        Select::make('theme_card_style')
+                                            ->label('Card Surface Style')
+                                            ->options([
+                                                'glass'    => '🪟 Translucent Frosted Glass',
+                                                'solid'    => '⬛ Solid Deep Slate',
+                                                'bordered' => '🔲 Highlighted Border Glow',
+                                                'elevated' => '📦 3D Elevated Layer',
+                                            ])
+                                            ->default('glass')
+                                            ->native(false),
+
+                                        Select::make('theme_card_shadow')
+                                            ->label('Card Shadow & Glow Depth')
+                                            ->options([
+                                                'glow-soft' => '✨ Soft Ambient Accent Glow',
+                                                'lg'        => '🌑 Deep 3D Shadow',
+                                                'md'        => '☁ Medium Soft Shadow',
+                                                'none'      => 'Flat (No Shadow)',
+                                            ])
+                                            ->default('glow-soft')
+                                            ->native(false),
+
+                                        Select::make('theme_card_hover')
+                                            ->label('Card Hover Animation')
+                                            ->options([
+                                                'lift'  => '⬆ Float Up Smoothly',
+                                                'glow'  => '💡 Accent Border Illuminates',
+                                                'scale' => '🔍 Subtle Scale',
+                                                'none'  => 'Static',
+                                            ])
+                                            ->default('lift')
+                                            ->native(false),
+                                    ]),
+
+                                // ── 4. BADGES & STATUS TAGS ──
+                                Section::make('🏷️ Badges & Indicator Tags')
+                                    ->description('Appearance of category badges, rating badges, and live indicator tags.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('theme_badge_radius')
+                                            ->label('Badge Corner Radius')
+                                            ->options([
+                                                'full' => '💊 Pill Shape (9999px)',
+                                                'md'   => '⏹ Rounded (8px)',
+                                                'sm'   => '◽ Compact (4px)',
+                                            ])
+                                            ->default('full')
+                                            ->native(false),
+
+                                        Select::make('theme_badge_style')
+                                            ->label('Badge Visual Style')
+                                            ->options([
+                                                'glass-glow' => '✨ Glass + Ambient Glow',
+                                                'solid'      => '🎨 Solid Accent Pill',
+                                                'outline'    => '🔲 Crisp Outline Border',
+                                                'minimal'    => '🫧 Subtle Tint',
+                                            ])
+                                            ->default('glass-glow')
+                                            ->native(false),
+                                    ]),
+
+                                // ── 5. HERO SLIDER VISUALS ──
+                                Section::make('🖼️ Hero Slider & Banners Defaults')
+                                    ->description('Default overlay darkness and indicator behavior for the landing page hero slider.')
+                                    ->columns(3)
+                                    ->schema([
+                                        TextInput::make('theme_slider_overlay_opacity')
+                                            ->label('Default Overlay Darkness (0–100)')
+                                            ->numeric()
+                                            ->minValue(0)
+                                            ->maxValue(100)
+                                            ->default(55)
+                                            ->suffix('%'),
+
+                                        Select::make('theme_slider_indicator_style')
+                                            ->label('Slide Indicator Style')
+                                            ->options([
+                                                'dynamic-pill' => '━ Dynamic Elongating Bar',
+                                                'dots'         => '● Classic Dots',
+                                                'numbers'      => '01/04 Numeric Counter',
+                                            ])
+                                            ->default('dynamic-pill')
+                                            ->native(false),
+
+                                        Toggle::make('theme_slider_kenburns')
+                                            ->label('Ken-Burns Zoom Animation')
+                                            ->default(true)
+                                            ->inline(false),
+                                    ]),
+
+                                // ── 6. HEADER & NAVIGATION ──
+                                Section::make('🧭 Header & Navigation Bar')
+                                    ->description('Styling and blur depth for the top navigation bar.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('theme_nav_style')
+                                            ->label('Navbar Layout Style')
+                                            ->options([
+                                                'glass-sticky'  => '🪟 Sticky Frosted Glass (Default)',
+                                                'solid'         => '⬛ Solid Deep Navbar',
+                                                'floating-pill' => '💊 Floating Island Pill',
+                                            ])
+                                            ->default('glass-sticky')
+                                            ->native(false),
+
+                                        Select::make('theme_nav_blur')
+                                            ->label('Backdrop Blur Strength')
+                                            ->options([
+                                                'lg' => 'Heavy Blur (20px)',
+                                                'md' => 'Medium Blur (12px)',
+                                                'sm' => 'Light Blur (6px)',
+                                            ])
+                                            ->default('md')
+                                            ->native(false),
+                                    ]),
+
+                                // ── 7. TYPOGRAPHY & FONTS ──
+                                Section::make('✍️ Typography & Font Families')
+                                    ->description('Curated Google Fonts for headlines, body text, and multilingual rendering.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('theme_font_family_en')
+                                            ->label('English Font Family')
+                                            ->options([
+                                                'Cairo'             => 'Cairo (Default)',
+                                                'Inter'             => 'Inter (Clean & Modern)',
+                                                'Outfit'            => 'Outfit (Tech & Premium)',
+                                                'Plus Jakarta Sans' => 'Plus Jakarta Sans (Editorial)',
+                                                'Poppins'           => 'Poppins (Geometric & Bold)',
+                                                'Roboto'            => 'Roboto (Standard)',
+                                            ])
+                                            ->default('Cairo')
+                                            ->native(false),
+
+                                        Select::make('theme_font_family_ar')
+                                            ->label('Arabic Font Family')
+                                            ->options([
+                                                'Cairo'                => 'Cairo (الافتراضي)',
+                                                'Alexandria'           => 'Alexandria (الاسكندرية)',
+                                                'Tajawal'              => 'Tajawal (تجوال)',
+                                                'Almarai'              => 'Almarai (المراعي)',
+                                                'IBM Plex Sans Arabic' => 'IBM Plex Sans Arabic',
+                                            ])
+                                            ->default('Cairo')
+                                            ->native(false),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

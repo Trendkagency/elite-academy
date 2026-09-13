@@ -40,11 +40,12 @@ class AppServiceProvider extends ServiceProvider
         }
 
         if (
-            $this->app->environment('production', 'staging') ||
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
-            (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-            str_starts_with((string) config('app.url'), 'https://') ||
-            env('FORCE_HTTPS', true)
+            !$this->app->environment('local') && (
+                $this->app->environment('production', 'staging') ||
+                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+                (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+                env('FORCE_HTTPS', false) === true
+            )
         ) {
             URL::forceScheme('https');
         }
@@ -117,16 +118,17 @@ class AppServiceProvider extends ServiceProvider
         if (! $this->app->runningInConsole() && $this->app->bound('request')) {
             $req = request();
             if (
-                $this->app->environment('production', 'staging') ||
-                $req->header('X-Forwarded-Proto') === 'https' ||
-                $req->header('X-Forwarded-Ssl') === 'on' ||
-                $req->secure() ||
-                env('FORCE_HTTPS', true) ||
-                str_contains(config('app.url'), 'https://')
+                !$this->app->environment('local') && (
+                    $this->app->environment('production', 'staging') ||
+                    $req->header('X-Forwarded-Proto') === 'https' ||
+                    $req->header('X-Forwarded-Ssl') === 'on' ||
+                    $req->secure() ||
+                    env('FORCE_HTTPS', false) === true
+                )
             ) {
                 URL::forceScheme('https');
             }
-        } elseif (env('FORCE_HTTPS', true) || str_contains(config('app.url'), 'https://')) {
+        } elseif (!$this->app->environment('local') && env('FORCE_HTTPS', false) === true) {
             URL::forceScheme('https');
         }
     }
