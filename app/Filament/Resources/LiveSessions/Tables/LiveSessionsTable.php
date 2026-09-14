@@ -217,6 +217,6 @@ class LiveSessionsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('scheduled_at', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
 }

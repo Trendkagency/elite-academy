@@ -38,6 +38,9 @@ class CourseScheduleManagerPage extends Page
     #[Url(as: 'status')]
     public string $selectedStatus = 'all';
 
+    #[Url(as: 'sort')]
+    public string $sortBy = 'latest_created'; // 'latest_created', 'scheduled_asc', 'scheduled_desc'
+
     public string $searchQuery = '';
 
     public string $activeTab = 'sessions'; // 'sessions', 'recurring', 'timetable'
@@ -181,6 +184,7 @@ class CourseScheduleManagerPage extends Page
         $this->selectedTeacherId = $this->isTeacherOnly ? $this->teacherProfileId : null;
         $this->selectedCourseId = null;
         $this->selectedStatus = 'all';
+        $this->sortBy = 'latest_created';
         $this->searchQuery = '';
         $this->dateFrom = null;
         $this->dateTo = null;
@@ -305,7 +309,16 @@ class CourseScheduleManagerPage extends Page
             });
         }
 
-        return $query->orderBy('scheduled_at', 'desc')->take(150)->get();
+        if ($this->sortBy === 'scheduled_asc') {
+            $query->orderBy('scheduled_at', 'asc')->orderBy('id', 'asc');
+        } elseif ($this->sortBy === 'scheduled_desc') {
+            $query->orderBy('scheduled_at', 'desc')->orderBy('id', 'desc');
+        } else {
+            // Default: 'latest_created' (Shows newly created sessions first)
+            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+        }
+
+        return $query->take(200)->get();
     }
 
     // Recurring Schedules Query

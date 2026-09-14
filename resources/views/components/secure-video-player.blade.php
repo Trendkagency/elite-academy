@@ -10,18 +10,14 @@
     $vData = $videoData ?: ($course ? $course->getVideoEmbedData() : ['type' => 'mp4', 'embed_url' => asset('videos/physics_demo.mp4')]);
     $poster = $posterImage ?: ($course && $course->image ? media_url($course->image, 'images/course_ai.webp') : asset('images/course_ai.webp'));
     $user = auth()->user();
-    $userName = $user ? $user->name : 'Guest Student';
-    $userPhone = $user ? ($user->phone ?: 'ID: ' . $user->id) : 'ID: Guest';
-    $userIp = request()->ip();
+    $userId = $user ? $user->id : 'Guest';
 @endphp
 
 <div x-data="secureVideoPlayer({
         courseId: {{ $cId }},
         videoType: '{{ $vData['type'] }}',
         rawEmbedUrl: '{{ $vData['embed_url'] }}',
-        userName: '{{ addslashes($userName) }}',
-        userPhone: '{{ addslashes($userPhone) }}',
-        userIp: '{{ $userIp }}',
+        userId: '{{ $userId }}',
         tokenRoute: '{{ route('ajax.secure-video.token', $cId) }}'
     })"
     x-init="initPlayer()"
@@ -48,17 +44,12 @@
         </button>
     </div>
 
-    {{-- Dynamic Identity Watermark Overlay --}}
+    {{-- Dynamic Identity Watermark Overlay (Showing Only ID) --}}
     <div x-ref="watermark"
-         class="absolute z-40 pointer-events-none select-none px-3 py-1.5 rounded-lg bg-slate-900/70 backdrop-blur-md border border-teal-500/30 text-[10px] font-mono text-teal-300 shadow-xl transition-all duration-1000 flex items-center gap-2"
+         class="absolute z-40 pointer-events-none select-none px-3.5 py-1.5 rounded-lg bg-slate-900/75 backdrop-blur-md border border-teal-500/30 text-xs sm:text-sm font-mono font-bold text-teal-300 shadow-xl transition-all duration-1000 flex items-center gap-1.5 tracking-wider"
          :style="watermarkStyle">
-        <span class="font-bold text-orange-400">{{ $userName }}</span>
-        <span class="opacity-40">|</span>
-        <span>{{ $userPhone }}</span>
-        <span class="opacity-40">|</span>
-        <span>IP: {{ $userIp }}</span>
-        <span class="opacity-40">|</span>
-        <span x-text="currentTimeStr"></span>
+        <span class="text-teal-400 font-black">ID:</span>
+        <span class="text-teal-200">{{ $userId }}</span>
     </div>
 
     {{-- Video Render Canvas & Custom Controls --}}
@@ -146,9 +137,7 @@ function secureVideoPlayer(config) {
         courseId: config.courseId,
         videoType: config.videoType,
         rawEmbedUrl: config.rawEmbedUrl,
-        userName: config.userName,
-        userPhone: config.userPhone,
-        userIp: config.userIp,
+        userId: config.userId,
         activeStreamUrl: config.rawEmbedUrl || '{{ asset('videos/appropriate-sharing.mp4') }}',
         isBlurred: false,
         isPlaying: false,
@@ -157,23 +146,15 @@ function secureVideoPlayer(config) {
         duration: 0,
         volume: 1,
         watermarkStyle: 'top: 15%; left: 10%;',
-        currentTimeStr: '',
         watermarkInterval: null,
-        clockInterval: null,
 
         initPlayer() {
-            this.updateClock();
             this.moveWatermark();
 
             // 1. Watermark repositioning every 4 seconds
             this.watermarkInterval = setInterval(() => {
                 this.moveWatermark();
             }, 4000);
-
-            // 2. Realtime timestamp ticker
-            this.clockInterval = setInterval(() => {
-                this.updateClock();
-            }, 1000);
 
             // 3. Tab Visibility Protection (Only blur when switching away from tab)
             document.addEventListener('visibilitychange', () => {

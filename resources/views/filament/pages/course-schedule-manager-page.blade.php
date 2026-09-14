@@ -910,7 +910,22 @@
                         class="sch-search-input">
                 </div>
 
-                @if ($selectedStudentId || $selectedTeacherId || $selectedCourseId || $selectedStatus !== 'all' || $searchQuery)
+                {{-- Sort Order Selector --}}
+                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0;">
+                    <label class="sch-label" style="margin: 0; white-space: nowrap; font-size: 0.75rem; font-weight: 800;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem; color: #0D9488;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                        </svg>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الترتيب' : 'Sort' }}</span>
+                    </label>
+                    <select wire:model.live="sortBy" class="sch-select" style="min-width: 170px; padding: 0.45rem 0.75rem; font-size: 0.75rem; font-weight: 800;">
+                        <option value="latest_created">⚡ {{ app()->getLocale() === 'ar' ? 'أحدث إنشاء أولاً (الأحدث)' : 'Latest Created First' }}</option>
+                        <option value="scheduled_asc">📅 {{ app()->getLocale() === 'ar' ? 'موعد الحصة: الأقرب أولاً' : 'Session Date: Nearest First' }}</option>
+                        <option value="scheduled_desc">📅 {{ app()->getLocale() === 'ar' ? 'موعد الحصة: الأبعد أولاً' : 'Session Date: Furthest First' }}</option>
+                    </select>
+                </div>
+
+                @if ($selectedStudentId || $selectedTeacherId || $selectedCourseId || $selectedStatus !== 'all' || $searchQuery || $sortBy !== 'latest_created')
                     <button type="button" wire:click="resetFilters" class="sch-btn-reset">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.9rem; height: 0.9rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
