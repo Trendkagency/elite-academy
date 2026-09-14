@@ -182,25 +182,25 @@
         </div>
 
         {{-- Mobile Hamburger, Theme & Language Controls (below lg) --}}
-        <div class="flex items-center gap-2 lg:hidden">
+        <div class="flex items-center gap-1.5 sm:gap-2 lg:hidden">
             <button type="button"
                     onclick="window.EliteTheme ? window.EliteTheme.toggle() : null"
-                    class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 cursor-pointer"
                     aria-label="{{ app()->getLocale() === 'ar' ? 'تبديل المظهر' : 'Toggle Theme' }}">
-                <i class="fa-solid fa-moon hidden dark:inline-block text-amber-300 text-xs"></i>
-                <i class="fa-solid fa-sun inline-block dark:hidden text-amber-500 text-xs"></i>
+                <i class="fa-solid fa-moon hidden dark:inline-block text-amber-300 text-sm"></i>
+                <i class="fa-solid fa-sun inline-block dark:hidden text-amber-500 text-sm"></i>
             </button>
 
             <a href="{{ route('lang.switch', ['locale' => $otherLocale]) }}"
-               class="px-2.5 py-1.5 rounded-lg text-xs font-sans font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 uppercase border border-slate-200 dark:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+               class="h-10 px-3 rounded-xl flex items-center justify-center text-xs font-sans font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 uppercase border border-slate-200 dark:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 shadow-xs"
                aria-label="Switch Language to {{ strtoupper($otherLocale) }}">
                 <i class="fa-solid fa-globe"></i> {{ strtoupper($otherLocale) }}
             </a>
 
             <label for="mobile-drawer-toggle"
-                   class="p-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer touch-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
-                   aria-label="Toggle Navigation Menu" aria-controls="mobile-drawer-panel" role="button" tabindex="0">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                   class="w-10 h-10 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer touch-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                   aria-label="{{ app()->getLocale() === 'ar' ? 'فتح القائمة الرئيسية' : 'Toggle Navigation Menu' }}" aria-controls="mobile-drawer-panel">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </label>
@@ -214,7 +214,7 @@
 {{-- Drawer Backdrop --}}
 <label for="mobile-drawer-toggle"
        class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 lg:hidden cursor-pointer"
-       aria-label="Close Mobile Navigation Menu" role="button"></label>
+       aria-label="Close Mobile Navigation Menu"></label>
 
 {{-- Drawer Content Panel (Scrollable with Momentum Scrolling) --}}
 <div id="mobile-drawer-panel"
@@ -230,8 +230,8 @@
                     <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="160" height="36" class="h-12 sm:h-14 w-auto object-contain" loading="lazy">
                 </a>
                 <label for="mobile-drawer-toggle"
-                       class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer font-bold text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
-                       aria-label="Close Mobile Navigation Menu" role="button" tabindex="0">
+                       class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer font-bold text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                       aria-label="Close Mobile Navigation Menu">
                     <i class="fa-solid fa-xmark"></i>
                 </label>
             </div>

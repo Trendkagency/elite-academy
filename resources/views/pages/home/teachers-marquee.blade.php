@@ -121,9 +121,16 @@
         dots = Array.from(document.querySelectorAll('#teachersSwiperDots .teacher-dot'));
         if (!track) return;
 
-        // Active Dot Observer on Scroll
+        // Throttled Active Dot Observer on Scroll
+        let scrollTicking = false;
         track.addEventListener('scroll', () => {
-            updateActiveDot();
+            if (!scrollTicking) {
+                requestAnimationFrame(() => {
+                    updateActiveDot();
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
+            }
         }, { passive: true });
 
         // Mouse Drag to Swipe
@@ -141,14 +148,14 @@
             track.classList.remove('cursor-grabbing');
             track.classList.add('cursor-grab');
             startAutoPlay();
-        });
+        }, { passive: true });
 
         track.addEventListener('mouseup', () => {
             isDown = false;
             track.classList.remove('cursor-grabbing');
             track.classList.add('cursor-grab');
             startAutoPlay();
-        });
+        }, { passive: true });
 
         track.addEventListener('mousemove', (e) => {
             if (!isDown) return;
@@ -162,7 +169,22 @@
         track.addEventListener('mouseenter', stopAutoPlay, { passive: true });
         track.addEventListener('mouseleave', startAutoPlay, { passive: true });
 
-        startAutoPlay();
+        // Only autoplay when section is visible
+        const section = document.getElementById('teachers-marquee-section') || track.closest('section');
+        if ('IntersectionObserver' in window && section) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startAutoPlay();
+                    } else {
+                        stopAutoPlay();
+                    }
+                });
+            }, { rootMargin: '100px 0px' });
+            observer.observe(section);
+        } else {
+            startAutoPlay();
+        }
     }
 
     function updateActiveDot() {

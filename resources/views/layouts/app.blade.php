@@ -144,18 +144,27 @@
     <link rel="preload" as="image" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     @stack('head_preloads')
 
-    {{-- Performance: Google Fonts --}}
+    {{-- Performance: Preconnect CDNs --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-    {{-- Google Fonts --}}
+    {{-- Google Fonts with font-display: swap --}}
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 
-    {{-- Font Awesome 6 --}}
+    {{-- Font Awesome 6 (Non-blocking Async Load) --}}
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
+        crossorigin="anonymous" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous">
+    </noscript>
 
     {{-- Dynamic Theme System --}}
     @include('partials.theme-styles')
@@ -476,9 +485,13 @@
             background: rgba(13, 148, 136, 0.7);
         }
     </style>
-    <script src="{{ asset('js/toast.js') }}?v={{ time() }}"></script>
-    <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
+    @php
+        $cssVer = file_exists(public_path('dist/output.css')) ? filemtime(public_path('dist/output.css')) : '1.0';
+        $toastVer = file_exists(public_path('js/toast.js')) ? filemtime(public_path('js/toast.js')) : '1.0';
+    @endphp
+    <script defer src="{{ asset('js/toast.js') }}?v={{ $toastVer }}"></script>
+    <link rel="preload" as="style" href="{{ asset('dist/output.css') }}?v={{ $cssVer }}">
+    <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ $cssVer }}">
     @stack('head')
     @include('partials.inp-optimizer')
 </head>

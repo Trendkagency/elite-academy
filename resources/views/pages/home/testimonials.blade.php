@@ -230,15 +230,23 @@
         let scrollPos = 0;
         let rafId = null;
         let hasMoved = false;
+        let isSectionVisible = false;
+        let cachedTrackWidth = track.offsetWidth + 24;
 
-        function getTrackWidth() {
-            return track.offsetWidth + 24; // width + gap
+        function updateTrackWidth() {
+            cachedTrackWidth = track.offsetWidth + 24;
         }
+        window.addEventListener('resize', updateTrackWidth, { passive: true });
 
         function loop() {
+            if (!isSectionVisible) {
+                rafId = null;
+                return;
+            }
+
             if (!isHovered && !isDragging) {
                 scrollPos += speed;
-                const trackWidth = getTrackWidth();
+                const trackWidth = cachedTrackWidth || 1200;
 
                 if (scrollPos >= trackWidth) {
                     scrollPos -= trackWidth;
@@ -254,13 +262,19 @@
             rafId = requestAnimationFrame(loop);
         }
 
+        function ensureLoopRunning() {
+            if (isSectionVisible && !rafId) {
+                rafId = requestAnimationFrame(loop);
+            }
+        }
+
         // ── Hover to Pause ──────────────────────────────────────────
-        viewport.addEventListener('mouseenter', () => { isHovered = true; });
+        viewport.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
         viewport.addEventListener('mouseleave', () => { 
             isHovered = false; 
             isDragging = false;
             viewport.classList.remove('active:cursor-grabbing');
-        });
+        }, { passive: true });
 
         // ── Mouse Drag & Touch Swipe Swapper ────────────────────────
         viewport.addEventListener('mousedown', (e) => {
@@ -280,7 +294,7 @@
             if (Math.abs(walk) > 5) hasMoved = true;
             
             let newScroll = startScrollLeft - walk;
-            const trackWidth = getTrackWidth();
+            const trackWidth = cachedTrackWidth || 1200;
 
             if (newScroll >= trackWidth) {
                 newScroll -= trackWidth;
@@ -315,7 +329,7 @@
             const x = e.touches[0].pageX - viewport.offsetLeft;
             const walk = (x - startX) * 1.5;
             let newScroll = startScrollLeft - walk;
-            const trackWidth = getTrackWidth();
+            const trackWidth = cachedTrackWidth || 1200;
 
             if (newScroll >= trackWidth) {
                 newScroll -= trackWidth;
@@ -332,7 +346,7 @@
         viewport.addEventListener('touchend', () => {
             isDragging = false;
             setTimeout(() => { isHovered = false; }, 2000);
-        });
+        }, { passive: true });
 
         // Prevent accidental link clicks when dragging
         viewport.addEventListener('click', (e) => {
@@ -350,7 +364,7 @@
         if (btnPrev) {
             btnPrev.addEventListener('click', () => {
                 let target = viewport.scrollLeft - cardStep;
-                const trackWidth = getTrackWidth();
+                const trackWidth = cachedTrackWidth || 1200;
                 if (target < 0) target += trackWidth;
                 viewport.scrollTo({ left: target, behavior: 'smooth' });
                 scrollPos = target;
@@ -360,15 +374,33 @@
         if (btnNext) {
             btnNext.addEventListener('click', () => {
                 let target = viewport.scrollLeft + cardStep;
-                const trackWidth = getTrackWidth();
+                const trackWidth = cachedTrackWidth || 1200;
                 if (target >= trackWidth) target -= trackWidth;
                 viewport.scrollTo({ left: target, behavior: 'smooth' });
                 scrollPos = target;
             });
         }
 
-        // Start infinite animation loop
-        rafId = requestAnimationFrame(loop);
+        // ── Viewport Observer: ONLY run when visible ──────────────
+        const section = document.getElementById('testimonials-infinite-section');
+        if ('IntersectionObserver' in window && section) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isSectionVisible = entry.isIntersecting;
+                    if (isSectionVisible) {
+                        updateTrackWidth();
+                        ensureLoopRunning();
+                    } else if (rafId) {
+                        cancelAnimationFrame(rafId);
+                        rafId = null;
+                    }
+                });
+            }, { rootMargin: '200px 0px' });
+            observer.observe(section);
+        } else {
+            isSectionVisible = true;
+            ensureLoopRunning();
+        }
     }
 
     if (document.readyState === 'loading') {

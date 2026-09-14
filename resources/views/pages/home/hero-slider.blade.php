@@ -249,8 +249,8 @@
                 <span id="hero-active-num" class="text-teal-400 text-base sm:text-lg font-extrabold tabular-nums">01</span>
                 <div class="w-20 sm:w-36 h-1 bg-white/20 rounded-full relative overflow-hidden">
                     <div id="hero-progress-fill"
-                         class="absolute inset-y-0 left-0 bg-teal-400 rounded-full transition-none"
-                         style="width: 0%;">
+                         class="absolute inset-0 bg-teal-400 rounded-full transition-none w-full origin-left rtl:origin-right"
+                         style="transform: scaleX(0); will-change: transform;">
                     </div>
                 </div>
                 <span class="text-slate-400">{{ str_pad($totalSlides, 2, '0', STR_PAD_LEFT) }}</span>
@@ -464,8 +464,11 @@
         const animated = slide.querySelectorAll('.hero-anim-badge,.hero-anim-title,.hero-anim-sub,.hero-anim-btns');
         animated.forEach(el => {
             el.style.animation = 'none';
-            el.offsetHeight; // reflow
-            el.style.animation = '';
+        });
+        requestAnimationFrame(() => {
+            animated.forEach(el => {
+                el.style.animation = '';
+            });
         });
     }
 
@@ -473,8 +476,9 @@
         const img = slide.querySelector('.hero-bg-img');
         if (!img) return;
         img.classList.remove('kb-active');
-        img.offsetHeight; // reflow
-        img.classList.add('kb-active');
+        requestAnimationFrame(() => {
+            img.classList.add('kb-active');
+        });
     }
 
     // ── Dot Nav Indicators ─────────────────────────────────────────
@@ -498,11 +502,11 @@
         if (el) el.textContent = String(idx + 1).padStart(2, '0');
     }
 
-    // ── Countdown Progress Bar ─────────────────────────────────────
+    // ── Countdown Progress Bar (Composited GPU Transform) ───────────
     function resetProgress() {
         cancelAnimationFrame(progTimer);
         const fill = getFillEl();
-        if (fill) fill.style.width = '0%';
+        if (fill) fill.style.transform = 'scaleX(0)';
         progStart = null;
     }
 
@@ -513,10 +517,10 @@
         function tick(now) {
             if (paused || !progStart) return;
             const elapsed = now - progStart;
-            const pct = Math.min((elapsed / AUTOPLAY) * 100, 100);
+            const scale = Math.min(elapsed / AUTOPLAY, 1);
             const fill = getFillEl();
-            if (fill) fill.style.width = pct + '%';
-            if (pct < 100) {
+            if (fill) fill.style.transform = `scaleX(${scale})`;
+            if (scale < 1) {
                 progTimer = requestAnimationFrame(tick);
             }
         }
