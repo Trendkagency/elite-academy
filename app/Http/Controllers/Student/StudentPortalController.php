@@ -57,7 +57,7 @@ class StudentPortalController extends Controller
                       $cQuery->where('is_active', true);
                   });
             })
-            ->with(['teacherProfile.user', 'subject', 'course'])
+            ->with(['teacherProfile.user', 'subject', 'course', 'attendances'])
             ->orderBy('scheduled_at', 'asc')
             ->get()
             ->filter(function ($session) use ($user, $hasActivePackage) {
@@ -73,6 +73,56 @@ class StudentPortalController extends Controller
             })
             ->unique('id')
             ->values() : collect();
+
+        // Categorize sessions for professional tabs & clean pagination
+        $now = now();
+        $startingSoonSessions = collect();
+        $upcomingScheduledSessions = collect();
+        $endedSessionsHistory = collect();
+
+        foreach ($upcomingSessions as $session) {
+            $state = $session->evaluateState($user, $now);
+            $startAt = $session->effective_start_at;
+            $endAt = $session->effective_end_at;
+            $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher'], true);
+            $isCompleted = $session->status === 'completed' || $state === \App\Enums\LiveSessionState::ENDED;
+            $isPast = ($endAt && $endAt->isPast()) || ($startAt && $startAt->isPast() && (!$endAt || $endAt->isPast()));
+
+            // 1. Ended & Past Session History
+            if ($isCompleted || $isCancelled || ($isPast && $state !== \App\Enums\LiveSessionState::LIVE)) {
+                $endedSessionsHistory->push($session);
+                continue;
+            }
+
+            // 2. Starting Soon & Live (Live right now, or starting today, or within the next 24 hours)
+            $isLive = ($state === \App\Enums\LiveSessionState::LIVE) || in_array($session->status, ['in_progress', 'link_visible'], true);
+            $isSoon = $startAt && ($startAt->isToday() || ($startAt->isFuture() && $startAt->diffInHours($now) <= 24));
+
+            if ($isLive || $isSoon) {
+                $startingSoonSessions->push($session);
+                continue;
+            }
+
+            // 3. Upcoming Scheduled Sessions (Future dates beyond 24h)
+            $upcomingScheduledSessions->push($session);
+        }
+
+        // Sort Starting Soon: LIVE sessions first, then earliest startAt
+        $startingSoonSessions = $startingSoonSessions->sortBy(function ($s) use ($user, $now) {
+            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE) || in_array($s->status, ['in_progress', 'link_visible'], true);
+            $ts = $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+            return $isLive ? 0 : $ts;
+        })->values();
+
+        // Sort Upcoming Scheduled by chronological order
+        $upcomingScheduledSessions = $upcomingScheduledSessions->sortBy(function ($s) {
+            return $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+        })->values();
+
+        // Sort Ended History: most recently ended/held first
+        $endedSessionsHistory = $endedSessionsHistory->sortByDesc(function ($s) {
+            return $s->effective_end_at ? $s->effective_end_at->timestamp : ($s->effective_start_at ? $s->effective_start_at->timestamp : 0);
+        })->values();
 
         $submissions = $user ? AssignmentSubmission::where('student_user_id', $user->id)
             ->with([
@@ -253,7 +303,10 @@ class StudentPortalController extends Controller
             'studentSubjects'        => $studentProfile?->subjects ?: collect(),
             'package'                => $package,
             'hasActivePackage'       => $hasActivePackage,
-            'upcomingSessions'       => $upcomingSessions,
+            'upcomingSessions'          => $upcomingSessions,
+            'startingSoonSessions'      => $startingSoonSessions,
+            'upcomingScheduledSessions' => $upcomingScheduledSessions,
+            'endedSessionsHistory'      => $endedSessionsHistory,
             'enrollments'            => $enrollments,
             'enrollmentCards'        => $enrollmentCards,
             'enrolledCoursesDataMap' => $enrolledCoursesDataMap,

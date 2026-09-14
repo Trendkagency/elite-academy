@@ -202,185 +202,532 @@
                 {{-- Main Dashboard Column --}}
                 <div class="lg:col-span-8 space-y-8 lg:space-y-10">
 
-                    {{-- 1. Upcoming Live Sessions Section --}}
+                    {{-- 1. Interactive Live Sessions Hub --}}
+                    @php
+                        $userAuth = auth()->user();
+                        $liveCount = $startingSoonSessions->filter(function($s) use ($userAuth) {
+                            $st = $s->evaluateState($userAuth);
+                            return $st === \App\Enums\LiveSessionState::LIVE || in_array($s->status, ['in_progress', 'link_visible'], true);
+                        })->count();
+
+                        if (count($startingSoonSessions) > 0) {
+                            $initialTab = 'soon';
+                        } elseif (count($upcomingScheduledSessions) > 0) {
+                            $initialTab = 'upcoming';
+                        } elseif (count($endedSessionsHistory) > 0) {
+                            $initialTab = 'history';
+                        } else {
+                            $initialTab = 'soon';
+                        }
+                    @endphp
                     <div id="liveSessions"
-                        class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-1 scroll-mt-28">
-                        <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                        class="glass-card rounded-3xl p-4 sm:p-7 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-1 scroll-mt-28">
+                        
+                        {{-- Hub Header --}}
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                             <div>
-                                <h2
-                                    class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                    <span><i class="fa-solid fa-calendar-days"></i></span>
-                                    {{ __('app.portal.upcoming_sessions') }}
+                                <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2.5">
+                                    <span class="w-9 h-9 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center text-lg shadow-2xs">
+                                        <i class="fa-solid fa-satellite-dish"></i>
+                                    </span>
+                                    {{ app()->getLocale() === 'ar' ? 'مركز الحصص وبث الفصول التفاعلية' : 'Interactive Sessions & Live Stream Hub' }}
                                 </h2>
                                 <p class="text-xs font-mono text-slate-500 mt-1">
-                                    {{ app()->getLocale() === 'ar' ? 'رابط الحصة التفاعلية يتفعل قبل موعد البث بـ 30 دقيقة بشرط تسليم الواجب أو طلب استثناء.' : 'Stream link activates 30 mins before start time provided homework or exception request is fulfilled.' }}
+                                    {{ app()->getLocale() === 'ar' ? 'متابعة البث المباشر، الحصص التي ستبدأ قريباً، المواعيد المجدولة وسجل الحصص السابقة.' : 'Live streams, starting soon sessions, scheduled upcoming dates, and past session history.' }}
                                 </p>
                             </div>
-                            <span
-                                class="text-xs font-mono font-bold bg-teal-50 text-teal-800 px-3.5 py-1.5 rounded-full border border-teal-200/80 self-start sm:self-auto shadow-2xs">
-                                <i class="fa-solid fa-shield-halved"></i> 30-Min & Prerequisite Rules Active
-                            </span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if($liveCount > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-black bg-rose-600 text-white shadow-md shadow-rose-600/30 animate-pulse">
+                                        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                        {{ $liveCount }} {{ app()->getLocale() === 'ar' ? 'بث مباشر الآن' : 'LIVE NOW' }}
+                                    </span>
+                                @endif
+                                <span class="text-xs font-mono font-bold bg-teal-50 text-teal-800 px-3.5 py-1.5 rounded-full border border-teal-200/80 shadow-2xs">
+                                    <i class="fa-solid fa-shield-halved"></i> 30-Min & Prerequisite Rules Active
+                                </span>
+                            </div>
                         </div>
 
-                        <div id="upcomingSessionsContainer" class="space-y-4">
-                            @if(!$hasActivePackage)
-                                                <div
-                                                    class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-                                                    <div class="flex items-start gap-3">
-                                                        <span class="text-2xl leading-none"><i
-                                                                class="fa-solid fa-triangle-exclamation"></i></span>
-                                                        <div>
-                                                            <h4 class="font-bold text-sm text-amber-900">
-                                                                {{ app()->getLocale() === 'ar' ? 'تنبيه الحصص التجريبية والباقات:' : 'Demo & Package Subscription Alert:' }}
-                                                            </h4>
-                                                            <p class="text-xs font-mono text-amber-800 mt-0.5">
-                                                                {{ app()->getLocale() === 'ar'
-                                ? 'الكورس لا يتضمن حصة تجريبية مجانية. يلزم الاشتراك في باقة حصص لتفعيل ودخول الحصص المباشرة والمنهجية.'
-                                : 'Course does not have a free demo session. An active package subscription is required to unlock live streams and curriculum sessions.' }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <a href="{{ route('courses') }}"
-                                                        class="btn-lift px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold font-mono shadow-sm flex items-center gap-1.5 whitespace-nowrap self-stretch sm:self-auto justify-center">
-                                                        <span><i class="fa-solid fa-cart-shopping"></i></span>
-                                                        {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
-                                                    </a>
-                                                </div>
-                            @endif
-
-                            @forelse($upcomingSessions as $s)
-                                @php
-                                    $state = $s->evaluateState(auth()->user());
-                                    $startAt = $s->effective_start_at;
-                                    $endAt = $s->effective_end_at;
-                                    $joinableAt = $s->joinable_at;
-                                @endphp
-                                <div
-                                    class="p-5 bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                        <div class="flex items-center gap-2.5">
-                                            @if($state === \App\Enums\LiveSessionState::LIVE)
-                                                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-                                            @else
-                                                <span class="w-3 h-3 rounded-full bg-slate-400"></span>
-                                            @endif
-                                            <h3 class="font-bold text-base text-slate-900">
-                                                {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
-                                            </h3>
-                                        </div>
-                                        <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                            <span
-                                                class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap">
-                                                <i class="fa-solid fa-calendar-days"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}:
-                                                {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
-                                            </span>
-                                            @if($startAt && $startAt->isFuture())
-                                                <span
-                                                    class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
-                                                    data-start-time="{{ $startAt->toIso8601String() }}"
-                                                    data-join-time="{{ $joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String() }}">
-                                                    <span><i class="fa-solid fa-hourglass-half"></i></span>
-                                                    <span
-                                                        class="countdown-text">{{ app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...' }}</span>
-                                                </span>
-                                            @endif
-                                            @if($endAt)
-                                                <span
-                                                    class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
-                                                    <i class="fa-solid fa-stopwatch"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}:
-                                                    {{ $endAt->format('h:i A') }}
-                                                </span>
-                                            @endif
-                                            @php
-                                                $halfAt = $startAt ? $startAt->copy()->addMinutes((int) ceil(($s->duration_minutes ?: 60) / 2)) : null;
-                                            @endphp
-                                            @if($halfAt)
-                                                <span
-                                                    class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
-                                                    <i class="fa-solid fa-hourglass-half"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}:
-                                                    {{ $halfAt->format('h:i A') }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
-                                        <div class="flex flex-wrap items-center gap-4">
-                                            <span><i class="fa-solid fa-chalkboard-user"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
-                                                <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong></span>
-                                            <span><i class="fa-solid fa-book-open"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
-                                                <strong>{{ $s->subject?->name ?: 'Physics' }}</strong></span>
-                                        </div>
-
-                                        @if($state === \App\Enums\LiveSessionState::LIVE)
-                                            <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}"
-                                                class="btn-lift px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-2">
-                                                <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span>
-                                                {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الان' : 'Join Live Stream' }}
-                                            </a>
-                                        @elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE)
-                                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                                <span
-                                                    class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time' }}">
-                                                    <span><i class="fa-solid fa-lock"></i></span>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:' }}</span>
-                                                    <span
-                                                        class="text-teal-700 font-extrabold">{{ $joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before') }}</span>
-                                                </span>
-                                            </div>
-                                        @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
-                                            <a href="{{ route('courses') }}"
-                                                class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
-                                                <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
-                                            </a>
-                                        @elseif($state === \App\Enums\LiveSessionState::ENDED)
-                                            <span
-                                                class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                                <span><i class="fa-solid fa-stop"></i>️</span> {{ $state->label() }}
-                                            </span>
-                                        @elseif($state === \App\Enums\LiveSessionState::PREREQUISITE_REQUIRED)
-                                            <span
-                                                class="text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                                <span><i class="fa-solid fa-triangle-exclamation"></i></span> {{ $state->label() }}
-                                            </span>
-                                        @else
-                                            <span
-                                                class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                                <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
-                                            </span>
-                                        @endif
+                        {{-- Package Alert if missing --}}
+                        @if(!$hasActivePackage)
+                            <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-2xl leading-none text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-amber-900">
+                                            {{ app()->getLocale() === 'ar' ? 'تنبيه الحصص التجريبية والباقات:' : 'Demo & Package Subscription Alert:' }}
+                                        </h4>
+                                        <p class="text-xs font-mono text-amber-800 mt-0.5">
+                                            {{ app()->getLocale() === 'ar'
+                                                ? 'الكورس لا يتضمن حصة تجريبية مجانية. يلزم الاشتراك في باقة حصص لتفعيل ودخول الحصص المباشرة والمنهجية.'
+                                                : 'Course does not have a free demo session. An active package subscription is required to unlock live streams and curriculum sessions.' }}
+                                        </p>
                                     </div>
                                 </div>
-                            @empty
-                                                <div
-                                                    class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
-                                                    <div class="text-4xl"><i class="fa-solid fa-graduation-cap"></i></div>
-                                                    <h3 class="font-bold text-slate-800 text-base">
-                                                        {{ app()->getLocale() === 'ar' ? 'لا توجد حصص مجانية متوفرة حالياً' : 'No Free Demo Sessions Currently Available' }}
-                                                    </h3>
-                                                    <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
-                                                        {{ app()->getLocale() === 'ar'
-                                ? 'تم إغلاق الحصص التجريبية المجانية لهذه الكورسات. للانضمام للحصص المنهجية المباشرة والمتابعة الأكاديمية، يرجى تفعيل باقة حصص.'
-                                : 'Free trial demo sessions for these courses are closed. Please subscribe to an active session package to join live streams.' }}
-                                                    </p>
-                                                    <div class="pt-2">
-                                                        <a href="{{ route('courses') }}"
-                                                            class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-indigo-600/20">
-                                                            <span><i class="fa-solid fa-rocket"></i></span>
-                                                            {{ app()->getLocale() === 'ar' ? 'استكشاف الكورسات والباقات المتاحة' : 'Explore Available Courses & Packages' }}
-                                                        </a>
+                                <a href="{{ route('courses') }}"
+                                    class="btn-lift px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold font-mono shadow-sm flex items-center gap-1.5 whitespace-nowrap self-stretch sm:self-auto justify-center">
+                                    <span><i class="fa-solid fa-cart-shopping"></i></span>
+                                    {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
+                                </a>
+                            </div>
+                        @endif
+
+                        {{-- Professional Responsive Tabs Bar --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80">
+                            {{-- Tab 1: Starting Soon & Live (FIRST!) --}}
+                            <button type="button" onclick="switchSessionTab('soon')" id="tabBtn_soon"
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'soon' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="relative flex h-2.5 w-2.5 shrink-0">
+                                        @if($liveCount > 0)
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                                        @else
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+                                        @endif
+                                    </span>
+                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'حصص قريبة وبث مباشر' : 'Starting Soon & Live' }}</span>
+                                </div>
+                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'soon' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
+                                    {{ count($startingSoonSessions) }}
+                                </span>
+                            </button>
+
+                            {{-- Tab 2: Upcoming Scheduled Dates --}}
+                            <button type="button" onclick="switchSessionTab('upcoming')" id="tabBtn_upcoming"
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'upcoming' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="shrink-0 text-slate-400"><i class="fa-solid fa-calendar-days"></i></span>
+                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'مواعيد الحصص القادمة' : 'Upcoming Dates' }}</span>
+                                </div>
+                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'upcoming' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
+                                    {{ count($upcomingScheduledSessions) }}
+                                </span>
+                            </button>
+
+                            {{-- Tab 3: Ended Sessions & History --}}
+                            <button type="button" onclick="switchSessionTab('history')" id="tabBtn_history"
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'history' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="shrink-0 text-slate-400"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'سجل الحصص المنتهية' : 'Session History' }}</span>
+                                </div>
+                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'history' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
+                                    {{ count($endedSessionsHistory) }}
+                                </span>
+                            </button>
+                        </div>
+
+                        {{-- Sessions Container (Maintained id for dynamic polling compatibility) --}}
+                        <div id="upcomingSessionsContainer">
+                            
+                            {{-- ===================== TAB PANE 1: STARTING SOON & LIVE ===================== --}}
+                            <div id="pane_soon" class="session-pane space-y-4 {{ $initialTab === 'soon' ? '' : 'hidden' }}">
+                                @forelse($startingSoonSessions as $s)
+                                    @php
+                                        $state = $s->evaluateState($userAuth);
+                                        $startAt = $s->effective_start_at;
+                                        $endAt = $s->effective_end_at;
+                                        $joinableAt = $s->joinable_at;
+                                        $isLive = ($state === \App\Enums\LiveSessionState::LIVE) || in_array($s->status, ['in_progress', 'link_visible'], true);
+                                    @endphp
+                                    <div class="session-card-item p-5 bg-gradient-to-r {{ $isLive ? 'from-emerald-50/70 via-white to-teal-50/50 border-emerald-300 shadow-md ring-1 ring-emerald-400/30' : 'from-slate-50/90 to-white border-slate-200/90' }} rounded-2xl border space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3">
+                                                @if($isLive)
+                                                    <span class="relative flex h-3.5 w-3.5">
+                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                                                    </span>
+                                                @else
+                                                    <span class="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center text-[8px] text-amber-950 font-bold">
+                                                        <i class="fa-solid fa-clock"></i>
+                                                    </span>
+                                                @endif
+                                                <div>
+                                                    <div class="flex items-center gap-2">
+                                                        <h3 class="font-bold text-base text-slate-900">
+                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
+                                                        </h3>
+                                                        @if($isLive)
+                                                            <span class="text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow-xs animate-pulse">
+                                                                {{ app()->getLocale() === 'ar' ? 'مباشر الآن' : 'LIVE NOW' }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md border border-amber-200">
+                                                                {{ app()->getLocale() === 'ar' ? 'تبدأ قريباً' : 'Starting Soon' }}
+                                                            </span>
+                                                        @endif
                                                     </div>
+                                                    @if($s->course)
+                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
+                                                            {{ $s->course->title }}
+                                                        </p>
+                                                    @endif
                                                 </div>
-                            @endforelse
+                                            </div>
+
+                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
+                                                <span class="bg-blue-100/90 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap shadow-2xs">
+                                                    <i class="fa-solid fa-calendar-days"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}:
+                                                    {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
+                                                </span>
+                                                @if($startAt && $startAt->isFuture())
+                                                    <span class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
+                                                        data-start-time="{{ $startAt->toIso8601String() }}"
+                                                        data-join-time="{{ $joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String() }}">
+                                                        <span><i class="fa-solid fa-hourglass-half"></i></span>
+                                                        <span class="countdown-text">{{ app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...' }}</span>
+                                                    </span>
+                                                @endif
+                                                @if($endAt)
+                                                    <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
+                                                        <i class="fa-solid fa-stopwatch"></i>
+                                                        {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}:
+                                                        {{ $endAt->format('h:i A') }}
+                                                    </span>
+                                                @endif
+                                                @php
+                                                    $halfAt = $startAt ? $startAt->copy()->addMinutes((int) ceil(($s->duration_minutes ?: 60) / 2)) : null;
+                                                @endphp
+                                                @if($halfAt)
+                                                    <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap"
+                                                        title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
+                                                        <i class="fa-solid fa-door-closed"></i>
+                                                        {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}:
+                                                        {{ $halfAt->format('h:i A') }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
+                                            <div class="flex flex-wrap items-center gap-4">
+                                                <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
+                                                    <strong class="text-slate-900">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
+                                                </span>
+                                                <span><i class="fa-solid fa-book-open text-teal-600"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
+                                                    <strong class="text-slate-900">{{ $s->subject?->name ?: 'Physics' }}</strong>
+                                                </span>
+                                            </div>
+
+                                            @if($isLive)
+                                                <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}"
+                                                    class="btn-lift px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-black text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-2">
+                                                    <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                                                    {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الآن' : 'Join Live Stream Now' }}
+                                                </a>
+                                            @elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE)
+                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs"
+                                                    title="{{ app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time' }}">
+                                                    <span><i class="fa-solid fa-lock text-slate-500"></i></span>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:' }}</span>
+                                                    <span class="text-teal-700 font-extrabold">{{ $joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before') }}</span>
+                                                </span>
+                                            @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
+                                                <a href="{{ route('courses') }}"
+                                                    class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
+                                                    <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
+                                                </a>
+                                            @elseif($state === \App\Enums\LiveSessionState::PREREQUISITE_REQUIRED)
+                                                <span class="text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                                                    <span><i class="fa-solid fa-triangle-exclamation text-amber-600"></i></span> {{ $state->label() }}
+                                                </span>
+                                            @else
+                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-1.5">
+                                                    <span><i class="fa-solid fa-lock text-slate-500"></i></span> {{ $state->label() }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
+                                        <div class="text-4xl text-teal-600/70"><i class="fa-solid fa-satellite-dish"></i></div>
+                                        <h3 class="font-bold text-slate-800 text-base">
+                                            {{ app()->getLocale() === 'ar' ? 'لا توجد حصص بث مباشر جارية أو تبدأ اليوم' : 'No Live Streams or Sessions Starting Today' }}
+                                        </h3>
+                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
+                                            {{ app()->getLocale() === 'ar'
+                                                ? 'لا يوجد بث تفاعلي نشط حالياً. يمكنك تصفح مواعيد الحصص القادمة المجدولة أو مراجعة سجل الحصص السابقة.'
+                                                : 'No live stream is active right now. You can browse upcoming scheduled dates or check your past session history.' }}
+                                        </p>
+                                        <div class="pt-2 flex flex-wrap items-center justify-center gap-2">
+                                            @if(count($upcomingScheduledSessions) > 0)
+                                                <button type="button" onclick="switchSessionTab('upcoming')"
+                                                    class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-teal-600/20 cursor-pointer">
+                                                    <span><i class="fa-solid fa-calendar-days"></i></span>
+                                                    {{ app()->getLocale() === 'ar' ? 'مواعيد الحصص القادمة' : 'View Upcoming Dates' }} ({{ count($upcomingScheduledSessions) }})
+                                                </button>
+                                            @endif
+                                            @if(count($endedSessionsHistory) > 0)
+                                                <button type="button" onclick="switchSessionTab('history')"
+                                                    class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-slate-800/20 cursor-pointer">
+                                                    <span><i class="fa-solid fa-clock-rotate-left"></i></span>
+                                                    {{ app()->getLocale() === 'ar' ? 'سجل الحصص المنتهية' : 'View Session History' }} ({{ count($endedSessionsHistory) }})
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforelse
+
+                                {{-- Tab 1 Pagination Controls --}}
+                                <div id="paginationBar_soon" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($startingSoonSessions) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_soon" class="text-slate-600 text-center sm:text-start">
+                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($startingSoonSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($startingSoonSessions) }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button id="prevBtn_soon" type="button" onclick="changeSessionPage('soon', -1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
+                                        </button>
+                                        <div id="pagePills_soon" class="flex items-center gap-1"></div>
+                                        <button id="nextBtn_soon" type="button" onclick="changeSessionPage('soon', 1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- ===================== TAB PANE 2: UPCOMING SCHEDULED DATES ===================== --}}
+                            <div id="pane_upcoming" class="session-pane space-y-4 {{ $initialTab === 'upcoming' ? '' : 'hidden' }}">
+                                @forelse($upcomingScheduledSessions as $s)
+                                    @php
+                                        $state = $s->evaluateState($userAuth);
+                                        $startAt = $s->effective_start_at;
+                                        $endAt = $s->effective_end_at;
+                                        $daysRemaining = $startAt ? (int) max(1, ceil(now()->diffInDays($startAt, false))) : null;
+                                    @endphp
+                                    <div class="session-card-item p-5 bg-slate-50/90 hover:bg-white rounded-2xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3.5">
+                                                {{-- Calendar Date Chip --}}
+                                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-teal-50 border border-teal-200/80 text-teal-900 shadow-2xs shrink-0">
+                                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-600">
+                                                        {{ $startAt ? $startAt->translatedFormat('M') : 'SCH' }}
+                                                    </span>
+                                                    <span class="text-lg font-heading font-black leading-none text-slate-900">
+                                                        {{ $startAt ? $startAt->format('d') : '--' }}
+                                                    </span>
+                                                    <span class="text-[9px] font-mono text-slate-500 leading-none pt-0.5">
+                                                        {{ $startAt ? $startAt->translatedFormat('D') : '' }}
+                                                    </span>
+                                                </div>
+
+                                                <div>
+                                                    <div class="flex items-center gap-2">
+                                                        <h3 class="font-bold text-base text-slate-900">
+                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة منهجية قادمة' : 'Scheduled Curriculum Session') }}
+                                                        </h3>
+                                                        @if($daysRemaining)
+                                                            <span class="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200/80">
+                                                                {{ app()->getLocale() === 'ar' ? 'خلال ' . $daysRemaining . ' يوم' : 'In ' . $daysRemaining . ' days' }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    @if($s->course)
+                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
+                                                            {{ $s->course->title }}
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
+                                                <span class="bg-blue-100/90 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap shadow-2xs">
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    {{ $startAt ? $startAt->format('h:i A') : 'Scheduled' }}
+                                                    @if($endAt)
+                                                        — {{ $endAt->format('h:i A') }}
+                                                    @endif
+                                                </span>
+                                                @if($s->duration_minutes)
+                                                    <span class="bg-slate-200/80 text-slate-700 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
+                                                        <i class="fa-solid fa-hourglass"></i> {{ $s->duration_minutes }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'mins' }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
+                                            <div class="flex flex-wrap items-center gap-4">
+                                                <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
+                                                    <strong class="text-slate-900">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
+                                                </span>
+                                                <span><i class="fa-solid fa-book-open text-teal-600"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
+                                                    <strong class="text-slate-900">{{ $s->subject?->name ?: 'Physics' }}</strong>
+                                                </span>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300/80 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                                                    title="{{ app()->getLocale() === 'ar' ? 'يتفعل زر الدخول التفاعلي قبل بداية الحصة بـ 30 دقيقة' : 'Stream access opens 30 minutes before start time' }}">
+                                                    <span><i class="fa-solid fa-calendar-check text-teal-600"></i></span>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'موعد مجدول' : 'Scheduled' }}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
+                                        <div class="text-4xl text-slate-400"><i class="fa-solid fa-calendar-xmark"></i></div>
+                                        <h3 class="font-bold text-slate-800 text-base">
+                                            {{ app()->getLocale() === 'ar' ? 'لا توجد مواعيد مجدولة بتواريخ مستقبلية حالياً' : 'No Scheduled Upcoming Dates Currently' }}
+                                        </h3>
+                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
+                                            {{ app()->getLocale() === 'ar'
+                                                ? 'سيقوم المعلمون بجدولة الحصص القادمة وفقاً لخطة الفصل الدراسي. يمكنك مراجعة الكورسات أو سجل الحصص السابقة.'
+                                                : 'Teachers will schedule upcoming sessions according to the term curriculum. Check back soon or review your history.' }}
+                                        </p>
+                                    </div>
+                                @endforelse
+
+                                {{-- Tab 2 Pagination Controls --}}
+                                <div id="paginationBar_upcoming" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($upcomingScheduledSessions) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_upcoming" class="text-slate-600 text-center sm:text-start">
+                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($upcomingScheduledSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($upcomingScheduledSessions) }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button id="prevBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', -1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
+                                        </button>
+                                        <div id="pagePills_upcoming" class="flex items-center gap-1"></div>
+                                        <button id="nextBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', 1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- ===================== TAB PANE 3: ENDED SESSIONS & HISTORY ===================== --}}
+                            <div id="pane_history" class="session-pane space-y-4 hidden">
+                                @forelse($endedSessionsHistory as $s)
+                                    @php
+                                        $startAt = $s->effective_start_at;
+                                        $endAt = $s->effective_end_at;
+                                        $isCancelled = in_array($s->status, ['cancelled', 'cancelled_by_teacher'], true);
+                                        $userAttendance = $s->attendances ? $s->attendances->firstWhere('student_user_id', $userAuth->id) : null;
+                                        $attended = $userAttendance && in_array($userAttendance->status, ['attended', 'present', 'completed'], true);
+                                    @endphp
+                                    <div class="session-card-item p-5 bg-slate-50/70 hover:bg-white rounded-2xl border border-slate-200/80 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-slate-600 flex items-center justify-center shrink-0 text-base shadow-2xs">
+                                                    @if($isCancelled)
+                                                        <i class="fa-solid fa-ban text-rose-500"></i>
+                                                    @elseif($attended)
+                                                        <i class="fa-solid fa-check text-emerald-600"></i>
+                                                    @else
+                                                        <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
+                                                    @endif
+                                                </div>
+
+                                                <div>
+                                                    <div class="flex items-center gap-2">
+                                                        <h3 class="font-bold text-base text-slate-800">
+                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة مباشرة سابقة' : 'Past Live Session') }}
+                                                        </h3>
+                                                        @if($isCancelled)
+                                                            <span class="text-[10px] font-mono font-bold bg-rose-100 text-rose-900 px-2.5 py-0.5 rounded-full border border-rose-200">
+                                                                {{ app()->getLocale() === 'ar' ? 'ملغاة' : 'Cancelled' }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-[10px] font-mono font-bold bg-slate-200/80 text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-300/80">
+                                                                {{ app()->getLocale() === 'ar' ? 'منتهية' : 'Ended' }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    @if($s->course)
+                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
+                                                            {{ $s->course->title }}
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
+                                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                                                    <i class="fa-solid fa-calendar-day"></i>
+                                                    {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Recorded' }}
+                                                </span>
+                                                @if($s->duration_minutes)
+                                                    <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                                                        <i class="fa-solid fa-stopwatch"></i> {{ $s->duration_minutes }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'mins' }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
+                                            <div class="flex flex-wrap items-center gap-4">
+                                                <span><i class="fa-solid fa-chalkboard-user text-slate-500"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
+                                                    <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
+                                                </span>
+                                                <span><i class="fa-solid fa-book-open text-slate-500"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
+                                                    <strong>{{ $s->subject?->name ?: 'Physics' }}</strong>
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                @if($isCancelled)
+                                                    <span class="text-xs font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-xl">
+                                                        <i class="fa-solid fa-circle-xmark"></i> {{ app()->getLocale() === 'ar' ? 'تم إلغاء الجلسة' : 'Session Cancelled' }}
+                                                    </span>
+                                                @elseif($attended)
+                                                    <span class="text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-xl shadow-2xs">
+                                                        <i class="fa-solid fa-circle-check text-emerald-600"></i> {{ app()->getLocale() === 'ar' ? 'تم الحضور بنجاح' : 'Attended' }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-xl">
+                                                        <i class="fa-solid fa-circle-check text-slate-400"></i> {{ app()->getLocale() === 'ar' ? 'انعقدت الحصة' : 'Completed' }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
+                                        <div class="text-4xl text-slate-400"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                        <h3 class="font-bold text-slate-800 text-base">
+                                            {{ app()->getLocale() === 'ar' ? 'لا يوجد سجل لحصص سابقة حتى الآن' : 'No Session History Recorded Yet' }}
+                                        </h3>
+                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
+                                            {{ app()->getLocale() === 'ar'
+                                                ? 'عند انتهاء أي حصة بث مباشر، سيتم تسجيلها وحفظ حالتها في هذا الأرشيف تلقائياً.'
+                                                : 'Once any live session concludes, its record and attendance status will appear here automatically.' }}
+                                        </p>
+                                    </div>
+                                @endforelse
+
+                                {{-- Tab 3 Pagination Controls --}}
+                                <div id="paginationBar_history" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($endedSessionsHistory) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_history" class="text-slate-600 text-center sm:text-start">
+                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($endedSessionsHistory) . ' حصة' : 'Showing 1 - 4 of ' . count($endedSessionsHistory) }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button id="prevBtn_history" type="button" onclick="changeSessionPage('history', -1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
+                                        </button>
+                                        <div id="pagePills_history" class="flex items-center gap-1"></div>
+                                        <button id="nextBtn_history" type="button" onclick="changeSessionPage('history', 1)"
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -848,22 +1195,6 @@
                         </div>
                     </div>
 
-                    <script>
-                        // Real-Time Polling for Interactive Live Sessions & Demo Changes
-                        setInterval(() => {
-                            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                                .then(res => res.text())
-                                .then(html => {
-                                    const parser = new DOMParser();
-                                    const doc = parser.parseFromString(html, 'text/html');
-                                    const newContainer = doc.querySelector('#upcomingSessionsContainer');
-                                    const currentContainer = document.querySelector('#upcomingSessionsContainer');
-                                    if (newContainer && currentContainer && newContainer.innerHTML.trim() !== currentContainer.innerHTML.trim()) {
-                                        currentContainer.innerHTML = newContainer.innerHTML;
-                                    }
-                                }).catch(() => { });
-                        }, 8000);
-                    </script>
 
                     {{-- Teacher Pedagogical Notes Section --}}
                     <div id="teacher-notes"
@@ -1899,10 +2230,165 @@
             });
         }
 
+        // ── Session Tabs & Non-Overscroll Pagination Architecture ──
+        let currentSessionTab = @json($initialTab);
+        let sessionPages = {
+            soon: 1,
+            upcoming: 1,
+            history: 1
+        };
+        const SESSIONS_PER_PAGE = 4;
+
+        function switchSessionTab(tab) {
+            currentSessionTab = tab;
+            const tabs = ['soon', 'upcoming', 'history'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tabBtn_${t}`);
+                const pane = document.getElementById(`pane_${t}`);
+                const badge = btn ? btn.querySelector('.tab-count-badge') : null;
+                if (t === tab) {
+                    if (btn) {
+                        btn.classList.add('bg-white', 'text-teal-900', 'shadow-sm', 'border', 'border-teal-200/60');
+                        btn.classList.remove('text-slate-600', 'hover:bg-white/60');
+                    }
+                    if (badge) {
+                        badge.classList.add('bg-teal-100', 'text-teal-900');
+                        badge.classList.remove('bg-slate-200', 'text-slate-700');
+                    }
+                    if (pane) pane.classList.remove('hidden');
+                } else {
+                    if (btn) {
+                        btn.classList.remove('bg-white', 'text-teal-900', 'shadow-sm', 'border', 'border-teal-200/60');
+                        btn.classList.add('text-slate-600', 'hover:bg-white/60');
+                    }
+                    if (badge) {
+                        badge.classList.remove('bg-teal-100', 'text-teal-900');
+                        badge.classList.add('bg-slate-200', 'text-slate-700');
+                    }
+                    if (pane) pane.classList.add('hidden');
+                }
+            });
+            renderSessionPagination(tab);
+        }
+
+        function renderSessionPagination(tab) {
+            const pane = document.getElementById(`pane_${tab}`);
+            if (!pane) return;
+            const items = pane.querySelectorAll('.session-card-item');
+            const totalItems = items.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / SESSIONS_PER_PAGE));
+            let currentPage = sessionPages[tab] || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+            sessionPages[tab] = currentPage;
+
+            items.forEach((item, idx) => {
+                const page = Math.floor(idx / SESSIONS_PER_PAGE) + 1;
+                if (page === currentPage) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            const paginationBar = document.getElementById(`paginationBar_${tab}`);
+            if (!paginationBar) return;
+
+            if (totalItems <= SESSIONS_PER_PAGE) {
+                paginationBar.classList.add('hidden');
+                return;
+            }
+            paginationBar.classList.remove('hidden');
+
+            const prevBtn = document.getElementById(`prevBtn_${tab}`);
+            const nextBtn = document.getElementById(`nextBtn_${tab}`);
+            const pageText = document.getElementById(`pageText_${tab}`);
+            const pagePills = document.getElementById(`pagePills_${tab}`);
+
+            if (prevBtn) prevBtn.disabled = (currentPage <= 1);
+            if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+
+            const startItem = Math.min((currentPage - 1) * SESSIONS_PER_PAGE + 1, totalItems);
+            const endItem = Math.min(currentPage * SESSIONS_PER_PAGE, totalItems);
+
+            const isAr = @json(app()->getLocale() === 'ar');
+            if (pageText) {
+                pageText.innerHTML = isAr 
+                    ? `عرض <strong class="text-teal-700">${startItem} - ${endItem}</strong> من <strong class="text-slate-900">${totalItems}</strong> حصة`
+                    : `Showing <strong class="text-teal-700">${startItem} - ${endItem}</strong> of <strong class="text-slate-900">${totalItems}</strong> sessions`;
+            }
+
+            if (pagePills) {
+                let pillsHtml = '';
+                for (let p = 1; p <= totalPages; p++) {
+                    if (p === currentPage) {
+                        pillsHtml += `<button type="button" class="w-7 h-7 rounded-lg bg-teal-600 text-white font-bold text-xs shadow-xs">${p}</button>`;
+                    } else {
+                        pillsHtml += `<button type="button" onclick="goToSessionPage('${tab}', ${p})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all shadow-2xs">${p}</button>`;
+                    }
+                }
+                pagePills.innerHTML = pillsHtml;
+            }
+        }
+
+        function changeSessionPage(tab, delta) {
+            sessionPages[tab] = (sessionPages[tab] || 1) + delta;
+            renderSessionPagination(tab);
+            const container = document.getElementById('liveSessions');
+            if (container && container.getBoundingClientRect().top < 0) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function goToSessionPage(tab, page) {
+            sessionPages[tab] = page;
+            renderSessionPagination(tab);
+            const container = document.getElementById('liveSessions');
+            if (container && container.getBoundingClientRect().top < 0) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function initSessionTabsAndPagination() {
+            ['soon', 'upcoming', 'history'].forEach(tab => {
+                renderSessionPagination(tab);
+            });
+            switchSessionTab(currentSessionTab);
+        }
+
+        // Safe Real-Time Polling that preserves active tab and page
+        function initSessionPolling() {
+            setInterval(() => {
+                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(res => res.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContainer = doc.querySelector('#upcomingSessionsContainer');
+                        const currentContainer = document.querySelector('#upcomingSessionsContainer');
+                        if (newContainer && currentContainer && newContainer.innerHTML.trim() !== currentContainer.innerHTML.trim()) {
+                            const savedTab = currentSessionTab;
+                            const savedPages = Object.assign({}, sessionPages);
+                            currentContainer.innerHTML = newContainer.innerHTML;
+                            currentSessionTab = savedTab;
+                            sessionPages = savedPages;
+                            initSessionTabsAndPagination();
+                            if (typeof initSessionCountdowns === 'function') initSessionCountdowns();
+                        }
+                    }).catch(() => { });
+            }, 10000);
+        }
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initSessionCountdowns);
+            document.addEventListener('DOMContentLoaded', () => {
+                initSessionTabsAndPagination();
+                initSessionCountdowns();
+                initSessionPolling();
+            });
         } else {
+            initSessionTabsAndPagination();
             initSessionCountdowns();
+            initSessionPolling();
         }
     </script>
 @endsection
