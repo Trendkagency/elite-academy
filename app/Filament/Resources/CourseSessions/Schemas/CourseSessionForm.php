@@ -16,35 +16,42 @@ class CourseSessionForm
         return $schema
             ->components([
                 Select::make('course_id')
+                    ->label(__('Course'))
                     ->relationship('course', 'title')
                     ->required(),
                 TextInput::make('title')
+                    ->label(__('Session Title'))
                     ->required(),
                 DateTimePicker::make('scheduled_at')
-                    ->label('Scheduled Date & Time (تاريخ وتوقيت الحصة المحددة)')
+                    ->label(__('Scheduled Date & Time'))
                     ->nullable(),
                 DateTimePicker::make('start_at')
-                    ->label('Start Date & Time (وقت البدء الرسمية)')
+                    ->label(__('Start Date & Time'))
                     ->nullable(),
                 DateTimePicker::make('end_at')
-                    ->label('End Date & Time (وقت الانتهاء)')
+                    ->label(__('End Date & Time'))
                     ->nullable(),
                 TextInput::make('sort_order')
+                    ->label(__('Sort Order'))
                     ->required()
                     ->numeric()
                     ->default(1),
                 TextInput::make('duration_minutes')
+                    ->label(__('Session Duration (Minutes)'))
                     ->required()
                     ->numeric()
                     ->default(60),
                 TextInput::make('video_url')
+                    ->label(__('Video URL'))
                     ->url(),
                 Textarea::make('description')
+                    ->label(__('Description'))
                     ->columnSpanFull(),
                 Textarea::make('content')
+                    ->label(__('Content'))
                     ->columnSpanFull(),
                 Toggle::make('is_free_demo')
-                    ->label('🎓 First Session Free Trial (حصة تجريبية مجانية)')
+                    ->label(__('First Session Free Trial'))
                     ->default(false),
             ]);
     }

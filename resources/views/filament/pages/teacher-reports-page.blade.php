@@ -811,7 +811,7 @@
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Price') }}</div>
-                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->price ? $c->price . ' EGP' : __('Standard') }}</div>
+                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->price ? format_currency($c->price) : __('Standard') }}</div>
                                             </div>
                                         </div>
                                     </div>

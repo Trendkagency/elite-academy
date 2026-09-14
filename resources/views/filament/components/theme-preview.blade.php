@@ -209,7 +209,7 @@
 
             <div style="display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
                 <div style="font-size:14px; font-weight:800; color:#ffffff;">
-                    <span>450 EGP</span> <span style="font-size:10px; color:#64748b; font-weight:normal;">/ month</span>
+                    <span>{{ format_currency(450) }}</span> <span style="font-size:10px; color:#64748b; font-weight:normal;">/ {{ app()->getLocale() === 'ar' ? 'شهرياً' : 'month' }}</span>
                 </div>
                 <button type="button" class="pv-btn-primary" style="padding:6px 14px; font-size:11px;">
                     Enroll Now

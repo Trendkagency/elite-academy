@@ -31,8 +31,11 @@ class ArticlesTable
                     ->label(__('Image')),
                 TextColumn::make('title')
                     ->label(__('Title'))
+                    ->weight('bold')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap()
+                    ->lineClamp(2),
                 TextColumn::make('category')
                     ->label(__('Category'))
                     ->badge()

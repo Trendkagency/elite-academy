@@ -27,7 +27,9 @@ class CoursesTable
                     ->label(__('Course Title'))
                     ->weight('bold')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap()
+                    ->lineClamp(2),
                 TextColumn::make('subject.category.name')
                     ->label(__('Category'))
                     ->badge()

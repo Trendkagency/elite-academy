@@ -15,22 +15,33 @@ class ContactMessageForm
         return $schema
             ->components([
                 TextInput::make('full_name')
+                    ->label(__('Full Name'))
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label(__('Email address'))
                     ->email()
                     ->required(),
                 TextInput::make('phone')
+                    ->label(__('Phone'))
                     ->tel(),
-                TextInput::make('subject'),
+                TextInput::make('subject')
+                    ->label(__('Subject')),
                 Textarea::make('message')
+                    ->label(__('Message'))
                     ->required()
                     ->columnSpanFull(),
                 Select::make('status')
-                    ->options(['new' => 'New', 'read' => 'Read', 'replied' => 'Replied', 'archived' => 'Archived'])
+                    ->label(__('Status'))
+                    ->options([
+                        'new' => __('New'),
+                        'read' => __('Read'),
+                        'replied' => __('Replied'),
+                        'archived' => __('Archived'),
+                    ])
                     ->default('new')
                     ->required(),
-                DateTimePicker::make('replied_at'),
+                DateTimePicker::make('replied_at')
+                    ->label(__('Replied At')),
             ]);
     }
 }

@@ -36,6 +36,11 @@ class TestimonialResource extends Resource
         return app()->getLocale() === 'ar' ? 'تقييم / رأي' : 'Testimonial';
     }
 
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'التقييمات والآراء' : 'Testimonials & Reviews';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TestimonialForm::configure($schema);

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class HeroSlideForm
 {
@@ -21,7 +22,7 @@ class HeroSlideForm
             ->components([
 
                 // ── SLIDE CONTENT ───────────────────────────────────────
-                Section::make('📝 Slide Content')
+                Section::make(new HtmlString('<i class="fa-solid fa-pen-to-square text-teal-500 me-2"></i>' . __('Slide Content')))
                     ->description('Main visible text content for this slide.')
                     ->columns(2)
                     ->schema([
@@ -50,7 +51,7 @@ class HeroSlideForm
                     ]),
 
                 // ── CALL-TO-ACTION BUTTONS ───────────────────────────────
-                Section::make('🔗 Call-to-Action Buttons')
+                Section::make(new HtmlString('<i class="fa-solid fa-link text-indigo-500 me-2"></i>' . __('Call-to-Action Buttons')))
                     ->description('Configure up to two action buttons. Leave URL blank to hide a button.')
                     ->columns(2)
                     ->schema([
@@ -74,7 +75,7 @@ class HeroSlideForm
                     ]),
 
                 // ── BACKGROUND IMAGE ─────────────────────────────────────
-                Section::make('🖼️ Background Image')
+                Section::make(new HtmlString('<i class="fa-solid fa-image text-purple-500 me-2"></i>' . __('Background Image')))
                     ->description('Upload a high-quality image (1920×1080 recommended). Supports drag & drop.')
                     ->schema([
                         FileUpload::make('image')
@@ -94,19 +95,19 @@ class HeroSlideForm
                     ]),
 
                 // ── DESIGN & LAYOUT ──────────────────────────────────────
-                Section::make('🎨 Design & Layout')
+                Section::make(new HtmlString('<i class="fa-solid fa-palette text-amber-500 me-2"></i>' . __('Design & Layout')))
                     ->description('Control accent colors, overlay darkness, text alignment, and content position on the slide.')
                     ->columns(2)
                     ->schema([
                         Select::make('accent_color')
                             ->label(__('Accent Color'))
                             ->options([
-                                'teal'   => '🩵 Teal (Default)',
-                                'purple' => '💜 Purple',
-                                'orange' => '🧡 Orange',
-                                'rose'   => '🌹 Rose',
-                                'sky'    => '🔵 Sky Blue',
-                                'amber'  => '💛 Amber',
+                                'teal'   => 'Teal (Default)',
+                                'purple' => 'Purple',
+                                'orange' => 'Orange',
+                                'rose'   => 'Rose',
+                                'sky'    => 'Sky Blue',
+                                'amber'  => 'Amber',
                             ])
                             ->default('teal')
                             ->native(false)
@@ -115,9 +116,9 @@ class HeroSlideForm
                         Select::make('text_align')
                             ->label(__('Text Alignment'))
                             ->options([
-                                'left'   => '⬅️ Left',
-                                'center' => '↔️ Center',
-                                'right'  => '➡️ Right',
+                                'left'   => 'Left',
+                                'center' => 'Center',
+                                'right'  => 'Right',
                             ])
                             ->default('left')
                             ->native(false)
@@ -152,7 +153,7 @@ class HeroSlideForm
                     ]),
 
                 // ── ORDER & STATUS ───────────────────────────────────────
-                Section::make('⚙️ Order & Visibility')
+                Section::make(new HtmlString('<i class="fa-solid fa-sliders text-cyan-500 me-2"></i>' . __('Order & Visibility')))
                     ->columns(2)
                     ->schema([
                         TextInput::make('sort_order')

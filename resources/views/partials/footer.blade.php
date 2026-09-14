@@ -122,29 +122,34 @@
         </div>
 
         {{-- Bottom Footer: Social Links & Copyright Notice --}}
+        @php
+            $socialNetworks = [
+                ['key' => 'social_facebook', 'icon' => 'fa-brands fa-facebook-f', 'label' => 'Facebook', 'hover' => 'hover:bg-[#1877F2] hover:border-[#1877F2]'],
+                ['key' => 'social_twitter', 'icon' => 'fa-brands fa-x-twitter', 'label' => 'Twitter / X', 'hover' => 'hover:bg-[#0F1419] hover:border-slate-500'],
+                ['key' => 'social_instagram', 'icon' => 'fa-brands fa-instagram', 'label' => 'Instagram', 'hover' => 'hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] hover:border-transparent'],
+                ['key' => 'social_linkedin', 'icon' => 'fa-brands fa-linkedin-in', 'label' => 'LinkedIn', 'hover' => 'hover:bg-[#0A66C2] hover:border-[#0A66C2]'],
+                ['key' => 'social_youtube', 'icon' => 'fa-brands fa-youtube', 'label' => 'YouTube', 'hover' => 'hover:bg-[#FF0000] hover:border-[#FF0000]'],
+                ['key' => 'social_whatsapp', 'icon' => 'fa-brands fa-whatsapp', 'label' => 'WhatsApp', 'hover' => 'hover:bg-[#25D366] hover:border-[#25D366]'],
+                ['key' => 'social_tiktok', 'icon' => 'fa-brands fa-tiktok', 'label' => 'TikTok', 'hover' => 'hover:bg-[#000000] hover:border-slate-500'],
+                ['key' => 'social_telegram', 'icon' => 'fa-brands fa-telegram', 'label' => 'Telegram', 'hover' => 'hover:bg-[#229ED9] hover:border-[#229ED9]'],
+            ];
+        @endphp
         <div
-            class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
-            <div class="flex items-center gap-4">
-                <a href="{{ \App\Models\SiteSetting::get('social_facebook', '#') }}" target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300"
-                    aria-label="Follow Elite Academy on Facebook">f</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_twitter', '#') }}" target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300"
-                    aria-label="Follow Elite Academy on Twitter">𝕏</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_instagram', '#') }}" target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300"
-                    aria-label="Follow Elite Academy on Instagram">ig</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_linkedin', '#') }}" target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300"
-                    aria-label="Connect with Elite Academy on LinkedIn">in</a>
-                <a href="{{ \App\Models\SiteSetting::get('social_youtube', '#') }}" target="_blank"
-                    rel="noopener noreferrer"
-                    class="social-icon w-9 h-9 rounded-full bg-slate-800 hover:bg-teal-600 text-white flex items-center justify-center font-bold text-sm transition-all duration-300"
-                    aria-label="Subscribe to Elite Academy on YouTube">yt</a>
+            class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
+            <div class="flex items-center flex-wrap justify-center gap-3">
+                @foreach ($socialNetworks as $net)
+                    @php
+                        $linkUrl = \App\Models\SiteSetting::get($net['key']);
+                    @endphp
+                    @if (! empty($linkUrl) && $linkUrl !== '#')
+                        <a href="{{ $linkUrl }}" target="_blank"
+                            rel="noopener noreferrer"
+                            class="social-icon w-10 h-10 rounded-full bg-slate-900 border border-slate-700/60 {{ $net['hover'] }} text-slate-300 hover:text-white flex items-center justify-center text-sm shadow-md transition-all duration-300 hover:scale-110"
+                            aria-label="{{ $net['label'] }}">
+                            <i class="{{ $net['icon'] }}"></i>
+                        </a>
+                    @endif
+                @endforeach
             </div>
             <p>{{ $rights }}</p>
         </div>

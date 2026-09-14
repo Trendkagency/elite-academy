@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    {{-- Temporary commented out per user request --}}
+    {{--
     <div class="max-w-4xl space-y-6">
         <div class="p-6 bg-slate-900 text-white rounded-3xl border border-teal-500/40 shadow-xl space-y-2">
             <div class="flex items-center gap-2">
@@ -24,4 +26,5 @@
             </div>
         </form>
     </div>
+    --}}
 </x-filament-panels::page>

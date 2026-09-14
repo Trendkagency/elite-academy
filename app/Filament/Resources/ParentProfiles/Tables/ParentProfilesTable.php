@@ -21,21 +21,24 @@ class ParentProfilesTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Parent Name')
+                    ->label(__('Parent Name'))
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('user.email')
-                    ->label('Parent Email')
-                    ->searchable(),
+                    ->label(__('Parent Email'))
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('user.phone')
-                    ->label('Phone Number')
+                    ->label(__('Phone Number'))
                     ->searchable(),
                 TextColumn::make('students.name')
-                    ->label('Linked Children')
+                    ->label(__('Linked Children'))
                     ->badge()
-                    ->separator(', '),
+                    ->separator(', ')
+                    ->wrap(),
                 TextColumn::make('user.status')
-                    ->label('Account Status')
+                    ->label(__('Account Status'))
                     ->badge(),
             ])
             ->filters([
@@ -43,16 +46,16 @@ class ParentProfilesTable
             ])
             ->recordActions([
                 \Filament\Actions\Action::make('approveAccount')
-                    ->label('Approve Parent')
+                    ->label(__('Approve Parent'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(function ($record) {
                         $record->user?->update(['status' => \App\Enums\AccountStatus::APPROVED]);
-                        \Filament\Notifications\Notification::make()->title('Parent Approved')->success()->send();
+                        \Filament\Notifications\Notification::make()->title(__('Parent Approved'))->success()->send();
                     })
                     ->visible(fn ($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
                 \Filament\Actions\Action::make('rejectAccount')
-                    ->label('Reject Parent')
+                    ->label(__('Reject Parent'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
@@ -62,7 +65,7 @@ class ParentProfilesTable
                     })
                     ->visible(fn ($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
                 EditAction::make(),
-                DeleteAction::make()->label('Recycle Bin (Move to Trash)'),
+                DeleteAction::make(),
                 RestoreAction::make(),
                 ForceDeleteAction::make(),
             ])

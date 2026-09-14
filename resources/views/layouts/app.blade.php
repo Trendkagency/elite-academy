@@ -9,6 +9,32 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
     <link rel="shortcut icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
+
+    {{-- Defensive protection against buggy browser extensions calling removeChild on mismatched parents --}}
+    <script>
+        (function() {
+            var origRemoveChild = Node.prototype.removeChild;
+            Node.prototype.removeChild = function(child) {
+                if (!child || child.parentNode !== this) {
+                    if (child && child.parentNode) {
+                        return child.parentNode.removeChild(child);
+                    }
+                    return child;
+                }
+                return origRemoveChild.call(this, child);
+            };
+        })();
+    </script>
+
+    {{-- Web App Manifest & Mobile PWA / iOS Web Push Support --}}
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v={{ @filemtime(public_path('manifest.json')) ?: '2' }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    @if(preg_match('/iPhone|iPad|iPod|Macintosh.*AppleWebKit/i', request()->userAgent() ?? ''))
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    @endif
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Elite Academy">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <title>{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt' }}</title>
     <meta name="description"
         content="{{ $pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.' }}">

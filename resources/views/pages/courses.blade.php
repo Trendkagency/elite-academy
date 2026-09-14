@@ -69,7 +69,7 @@
                             'instructorBorder' => 'border-teal-500',
                             'title' => $isModel ? $c->title : ($c['title'] ?? 'Course Title'),
                             'description' => $isModel ? ($c->description ?: ($isArabic ? 'مقرر تعليمي تفاعلي شامل للمرحلة الثانوية.' : 'Interactive curriculum with hands-on labs.')) : ($c['description'] ?? 'Course description'),
-                            'price' => '$290',
+                            'price' => format_currency($isModel ? ($c->price ?: 290) : ($c['price'] ?? 290)),
                             'route' => route('course-details', ['slug' => $slug]),
                             'course_id' => $courseId,
                             'hasFreeDemo' => $isModel ? (bool) $c->has_free_demo : true,

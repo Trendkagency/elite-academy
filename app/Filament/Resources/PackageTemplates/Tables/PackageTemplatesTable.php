@@ -22,23 +22,23 @@ class PackageTemplatesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Package Plan Name')
+                    ->label(__('Package Plan Name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('sessions_count')
-                    ->label('Sessions Included')
+                    ->label(__('Sessions Included'))
                     ->badge()
                     ->color('info')
                     ->sortable(),
                 TextColumn::make('price')
-                    ->label('Price')
-                    ->money('USD')
+                    ->label(__('Price'))
+                    ->formatStateUsing(fn ($state) => format_currency($state))
                     ->sortable(),
                 IconColumn::make('is_active')
-                    ->label('Active Status')
+                    ->label(__('Active Status'))
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('Created At'))
                     ->dateTime()
                     ->sortable(),
             ])

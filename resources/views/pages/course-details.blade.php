@@ -46,7 +46,7 @@
                     'offers' => [
                         '@type' => 'Offer',
                         'category' => 'Educational Track',
-                        'priceCurrency' => 'EGP',
+                        'priceCurrency' => app_currency(),
                         'price' => (string) ($course?->price ?? '0'),
                         'availability' => 'https://schema.org/InStock',
                     ],
@@ -247,9 +247,9 @@
 
                     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
                         <div class="space-y-2 border-b border-slate-100 pb-4">
-                            <span class="text-xs font-mono font-extrabold text-slate-400 uppercase">Tuition Fee</span>
-                            <p class="font-mono text-3xl font-extrabold text-slate-900">$290 <span
-                                    class="text-xs text-slate-400 font-normal">/ term</span></p>
+                            <span class="text-xs font-mono font-extrabold text-slate-400 uppercase">{{ app()->getLocale() === 'ar' ? 'رسوم الدورة' : 'Tuition Fee' }}</span>
+                            <p class="font-mono text-3xl font-extrabold text-slate-900">{{ format_currency($course?->price ?: 290) }} <span
+                                    class="text-xs text-slate-400 font-normal">/ {{ app()->getLocale() === 'ar' ? 'فصل دراسي' : 'term' }}</span></p>
                         </div>
 
                         <div id="enrollAlert" class="hidden p-3 rounded-xl text-xs font-semibold"></div>

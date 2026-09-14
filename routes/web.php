@@ -183,6 +183,8 @@ Route::middleware(SetLocale::class)->group(function () {
 
         $configObject = "{\n  " . implode(",\n  ", $configPairs) . "\n}";
 
+        $defaultIcon = asset('images/icon-192.png');
+
         $swContent = <<<JS
 // Firebase Messaging Service Worker for Elite Academy LMS
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
@@ -197,8 +199,8 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'Elite Academy Notification');
   const notificationOptions = {
     body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : ''),
-    icon: (payload.notification && payload.notification.image) || (payload.data && payload.data.icon) || '/images/logo_500.webp',
-    badge: '/images/logo_500.webp',
+    icon: (payload.notification && payload.notification.image) || (payload.data && payload.data.icon) || '{$defaultIcon}',
+    badge: '{$defaultIcon}',
     vibrate: [100, 50, 100],
     data: payload.data || { url: '/student-portal' }
   };

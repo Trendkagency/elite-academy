@@ -788,12 +788,6 @@
                                     Alerts
                                 </span>
                             </div>
-
-                            <button type="button" onclick="window.triggerTestPush(this)"
-                                class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-slate-950 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer">
-                                <i class="fa-solid fa-bolt text-amber-950"></i>
-                                <span>{{ __('Test Real-Time Alert') }}</span>
-                            </button>
                         </div>
 
                         <div class="space-y-3 transition-opacity duration-200" id="notificationsFeedContainer">

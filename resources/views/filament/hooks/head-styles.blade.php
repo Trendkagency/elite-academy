@@ -311,12 +311,54 @@
         color: #0F172A !important;
     }
 
-    .fi-ta-table {
-        border-collapse: separate !important;
-        border-spacing: 0 !important;
+    .fi-ta-content-ctn,
+    .fi-ta-content {
+        overflow-x: auto !important;
+        max-width: 100% !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(148, 163, 184, 0.4) transparent !important;
     }
 
-    .fi-ta-header-cell {
+    .fi-ta-content-ctn::-webkit-scrollbar,
+    .fi-ta-content::-webkit-scrollbar {
+        height: 7px !important;
+    }
+
+    .fi-ta-content-ctn::-webkit-scrollbar-track,
+    .fi-ta-content::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+
+    .fi-ta-content-ctn::-webkit-scrollbar-thumb,
+    .fi-ta-content::-webkit-scrollbar-thumb {
+        background-color: rgba(148, 163, 184, 0.4) !important;
+        border-radius: 9999px !important;
+    }
+
+    .fi-ta-content-ctn::-webkit-scrollbar-thumb:hover,
+    .fi-ta-content::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(148, 163, 184, 0.7) !important;
+    }
+
+    .fi-ta-table {
+        width: 100% !important;
+        min-width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        table-layout: auto !important;
+    }
+
+    .fi-ta-table thead,
+    .fi-ta-table thead tr {
+        background-color: #F8FAFC !important;
+    }
+
+    .fi-ta-table thead th,
+    .fi-ta-header-cell,
+    .fi-ta-actions-header-cell,
+    .fi-ta-empty-header-cell,
+    .fi-ta-selection-cell {
         background-color: #F8FAFC !important;
         padding: 0.875rem 1rem !important;
         font-family: 'Cairo', sans-serif !important;
@@ -326,6 +368,25 @@
         text-transform: uppercase !important;
         color: #475569 !important;
         border-bottom: 1.5px solid #E2E8F0 !important;
+        vertical-align: middle !important;
+    }
+
+    /* Actions Column Header & Complete Header Styling */
+    .fi-ta-actions-header-cell {
+        text-align: end !important;
+        white-space: nowrap !important;
+        width: 1% !important;
+    }
+
+    .fi-ta-actions-header-cell::after {
+        content: "{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'ACTIONS' }}";
+        display: inline-block;
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.03em !important;
+        text-transform: uppercase !important;
+        color: #475569 !important;
     }
 
     .fi-ta-row {
@@ -342,6 +403,84 @@
         font-weight: 600 !important;
         color: #1E293B !important;
         border-bottom: 1px solid #F1F5F9 !important;
+        vertical-align: middle !important;
+    }
+
+    /* Column Responsive Protection - Prevent primary text/title columns from collapsing into 1-word columns */
+    .fi-ta-table th.fi-ta-header-cell-title,
+    .fi-ta-table td.fi-ta-cell-title,
+    .fi-ta-table th[class*="header-cell-title"],
+    .fi-ta-table td[class*="cell-title"],
+    .fi-ta-table th[class*="header-cell-name"],
+    .fi-ta-table td[class*="cell-name"],
+    .fi-ta-table td[class*="cell-message"],
+    .fi-ta-table th[class*="header-cell-message"],
+    .fi-ta-table th.fi-wrapped,
+    .fi-ta-table td.fi-wrapped,
+    .fi-ta-table th:has(.fi-wrapped),
+    .fi-ta-table td:has(.fi-wrapped) {
+        min-width: 250px !important;
+    }
+
+    /* Badges inside cells should be tidy and not monopolize table width */
+    .fi-ta-cell .fi-badge {
+        max-width: 280px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Ensure date and scheduled time columns don't break awkwardly */
+    .fi-ta-cell[class*="scheduled-at"],
+    .fi-ta-header-cell[class*="scheduled-at"],
+    .fi-ta-cell[class*="created-at"],
+    .fi-ta-header-cell[class*="created-at"],
+    .fi-ta-cell[class*="date"],
+    .fi-ta-header-cell[class*="date"] {
+        white-space: nowrap !important;
+        min-width: 155px !important;
+    }
+
+    /* Actions Column Content - Tight, elegant, no dead space */
+    .fi-ta-actions-cell {
+        width: 1% !important;
+        white-space: nowrap !important;
+        text-align: end !important;
+        padding: 0.875rem 1rem !important;
+    }
+
+    .fi-ta-actions-cell > .fi-ta-actions,
+    .fi-ta-actions-cell .fi-ta-actions {
+        display: inline-flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        white-space: nowrap !important;
+    }
+
+    .fi-ta-actions .fi-btn {
+        white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+    }
+
+    [dir="rtl"] .fi-ta-actions-header-cell,
+    [dir="rtl"] .fi-ta-actions-cell {
+        text-align: left !important;
+    }
+
+    [dir="rtl"] .fi-ta-actions-cell > .fi-ta-actions,
+    [dir="rtl"] .fi-ta-actions-cell .fi-ta-actions {
+        justify-content: flex-start !important;
+    }
+
+    [dir="ltr"] .fi-ta-actions-header-cell,
+    [dir="ltr"] .fi-ta-actions-cell {
+        text-align: right !important;
+    }
+
+    [dir="ltr"] .fi-ta-actions-cell > .fi-ta-actions,
+    [dir="ltr"] .fi-ta-actions-cell .fi-ta-actions {
+        justify-content: flex-end !important;
     }
 
     /* --- Form Sections & Cards --- */
@@ -638,10 +777,20 @@
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
     }
 
-    html.dark .fi-ta-header-cell {
+    html.dark .fi-ta-table thead,
+    html.dark .fi-ta-table thead tr,
+    html.dark .fi-ta-table thead th,
+    html.dark .fi-ta-header-cell,
+    html.dark .fi-ta-actions-header-cell,
+    html.dark .fi-ta-empty-header-cell,
+    html.dark .fi-ta-selection-cell {
         background-color: #1E293B !important;
         color: #94A3B8 !important;
-        border-bottom-color: rgba(51, 65, 85, 0.8) !important;
+        border-bottom: 1.5px solid rgba(51, 65, 85, 0.8) !important;
+    }
+
+    html.dark .fi-ta-actions-header-cell::after {
+        color: #94A3B8 !important;
     }
 
     html.dark .fi-ta-header-heading {
@@ -655,6 +804,21 @@
     html.dark .fi-ta-cell {
         color: #E2E8F0 !important;
         border-bottom-color: rgba(30, 41, 59, 0.8) !important;
+    }
+
+    html.dark .fi-ta-content-ctn,
+    html.dark .fi-ta-content {
+        scrollbar-color: rgba(100, 116, 139, 0.5) transparent !important;
+    }
+
+    html.dark .fi-ta-content-ctn::-webkit-scrollbar-thumb,
+    html.dark .fi-ta-content::-webkit-scrollbar-thumb {
+        background-color: rgba(100, 116, 139, 0.4) !important;
+    }
+
+    html.dark .fi-ta-content-ctn::-webkit-scrollbar-thumb:hover,
+    html.dark .fi-ta-content::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(100, 116, 139, 0.7) !important;
     }
 
     html.dark .fi-section {

@@ -155,22 +155,14 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        {{-- ⚡ Instant Test Button --}}
-                        <button type="button" 
-                                onclick="window.triggerTestPush(this)"
-                                class="px-2.5 py-1 text-[11px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900/80 rounded-xl border border-teal-200 dark:border-teal-800 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-                                title="{{ __('Test Real-Time Alert') }}">
-                            <i class="fa-solid fa-bolt text-amber-500"></i>
-                            <span class="hidden sm:inline">{{ __('Test Push') }}</span>
-                        </button>
-
                         {{-- Mark All Read --}}
                         <button x-show="unreadCount > 0"
                                 @click="markAll()" 
                                 type="button"
-                                class="px-2 py-1 text-[11px] font-mono font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+                                class="px-2.5 py-1 text-[11px] font-mono font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50"
                                 title="{{ __('Mark all as read') }}">
-                            <i class="fa-solid fa-check-double"></i>
+                            <i class="fa-solid fa-check-double text-teal-600 dark:text-teal-400"></i>
+                            <span class="text-[10px] hidden sm:inline">{{ __('Mark all read') }}</span>
                         </button>
                     </div>
                 </div>
@@ -184,9 +176,6 @@
                             </div>
                             <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
                                 {{ __('No notifications yet') }}
-                            </p>
-                            <p class="text-[11px] font-mono text-slate-400">
-                                {{ __('Click "Test Push" above to test live alerts!') }}
                             </p>
                         </div>
                     </template>

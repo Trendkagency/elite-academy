@@ -21,26 +21,31 @@ class AssignmentsTable
         return $table
             ->columns([
                 TextColumn::make('session.course.title')
-                    ->label('Course')
+                    ->label(__('Course'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('session.title')
-                    ->label('Session')
+                    ->label(__('Session'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
-                    ->label('Assignment Title')
-                    ->searchable(),
+                    ->label(__('Assignment Title'))
+                    ->weight('bold')
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(2),
                 TextColumn::make('passing_grade')
-                    ->label('Passing Grade (%)')
+                    ->label(__('Passing Grade (%)'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('submissions_count')
                     ->counts('submissions')
-                    ->label('Submissions'),
+                    ->label(__('Submissions')),
                 TextColumn::make('status')
+                    ->label(__('Status'))
                     ->badge(),
                 TextColumn::make('due_at')
+                    ->label(__('Due Date'))
                     ->dateTime()
                     ->sortable(),
             ])

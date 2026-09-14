@@ -66,6 +66,12 @@
                         </div>
                     </div>
 
+                    {{-- iOS Guidance Notice (Shown dynamically on iPhone / iPad) --}}
+                    <div id="fcm-ios-prompt-tip" class="hidden my-1.5 p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/25 text-[11px] text-teal-300 flex items-center gap-2">
+                        <i class="fa-brands fa-apple text-base text-teal-400 flex-shrink-0"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'مستخدمو iOS (آيفون/آيباد): اضغط هنا لعرض خطوات التثبيت وتفعيل الإشعارات.' : 'iOS users: tap here to see quick setup steps for Apple devices.' }}</span>
+                    </div>
+
                     {{-- Action Buttons: YES / NO --}}
                     <div class="flex items-center gap-2.5 pt-2">
                         {{-- YES Button --}}
@@ -99,7 +105,9 @@
             <p class="text-xs text-slate-300 mb-4 leading-relaxed">
                 {{ __('Your browser has notifications blocked for this site. To receive alerts, please allow notifications in your browser settings:') }}
             </p>
-            <div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 text-xs text-slate-300 space-y-2 mb-4">
+
+            {{-- Default Desktop / Android Steps --}}
+            <div id="fcm-blocked-default-steps" class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 text-xs text-slate-300 space-y-2 mb-4">
                 <div class="flex items-center gap-2">
                     <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">1</span>
                     <span>{{ __('Click the lock / tune icon (🔒) in your browser address bar.') }}</span>
@@ -113,10 +121,130 @@
                     <span>{{ __('Refresh the page to activate.') }}</span>
                 </div>
             </div>
+
+            {{-- iOS Specific Steps --}}
+            <div id="fcm-blocked-ios-steps" class="hidden bg-slate-950/60 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300 space-y-2.5 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">1</span>
+                    <span>{{ app()->getLocale() === 'ar' ? 'افتح تطبيق الإعدادات (Settings) على جهازك.' : 'Open Settings on your iPhone / iPad.' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">2</span>
+                    <span>{{ app()->getLocale() === 'ar' ? 'اضغط على "الإشعارات" (Notifications) ثم اختر "Elite Academy".' : 'Tap "Notifications" and select "Elite Academy".' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">3</span>
+                    <span>{{ app()->getLocale() === 'ar' ? 'فعّل خيار "السماح بالإشعارات" (Allow Notifications).' : 'Turn on "Allow Notifications".' }}</span>
+                </div>
+            </div>
+
             <button type="button" onclick="window.closeModal ? window.closeModal('fcm-blocked-modal') : document.getElementById('fcm-blocked-modal').classList.add('hidden')"
                 class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer">
                 {{ __('Understood') }}
             </button>
+        </div>
+    </div>
+
+    {{-- Dedicated iOS Web Push Setup & Activation Guidance Modal --}}
+    <div id="fcm-ios-install-modal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/80 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog relative bg-slate-900 text-white p-6 sm:p-7 rounded-[32px] max-w-lg w-full border border-teal-500/30 shadow-2xl overflow-hidden ring-1 ring-white/10">
+            {{-- Ambient Glow --}}
+            <div class="absolute -top-20 -end-20 w-44 h-44 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -start-20 w-44 h-44 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            {{-- Close Button --}}
+            <button type="button" onclick="document.getElementById('fcm-ios-install-modal').classList.add('hidden')"
+                class="absolute top-4 end-4 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/80 transition-colors cursor-pointer"
+                aria-label="{{ __('Close') }}">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            {{-- Modal Header --}}
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/20 to-indigo-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+                    <i class="fa-brands fa-apple"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-heading font-bold text-base sm:text-lg text-white">
+                            {{ app()->getLocale() === 'ar' ? 'تفعيل الإشعارات على أجهزة Apple (iOS)' : 'Enable Notifications on iOS' }}
+                        </h4>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                            iOS 16.4+
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400">
+                        {{ app()->getLocale() === 'ar' ? 'خطوات سهلة لتشغيل إشعارات الحصص والتنبيهات المباشرة' : 'Quick steps to enable real-time alerts on your Apple device' }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Step by Step Cards --}}
+            <div class="space-y-2.5 mb-5 text-xs text-slate-300">
+                {{-- Step 1 --}}
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-teal-500/20 text-teal-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        1
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'اضغط على زر المشاركة (Share)' : 'Tap the Share Button' }}</span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-teal-400 text-[11px] border border-slate-700">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            {{ app()->getLocale() === 'ar' ? 'في متصفح Safari بالأسفل (أو بأعلى شاشة iPad)، اضغط على أيقونة المشاركة (مربع يخرج منه سهم للأعلى).' : 'In Safari, tap the Share icon at the bottom of your screen (or top on iPad).' }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Step 2 --}}
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-teal-500/20 text-teal-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        2
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"' }}</span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 text-[11px] border border-slate-700">
+                                <i class="fa-regular fa-square-plus"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            {{ app()->getLocale() === 'ar' ? 'مرر القائمة لأسفل واختر "إضافة إلى الصفحة الرئيسية" ثم اضغط "إضافة (Add)" في أعلى اليمين.' : 'Scroll down in the share sheet and tap "Add to Home Screen", then tap "Add".' }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Step 3 --}}
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        3
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'افتح التطبيق وفعّل الإشعارات' : 'Open the App & Allow Alerts' }}</span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 text-[11px] border border-slate-700">
+                                <i class="fa-solid fa-bell"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            {{ app()->getLocale() === 'ar' ? 'افتح تطبيق Elite Academy من شاشتك الرئيسية، وسيطلب منك السماح بالإشعارات بنقرة واحدة لتصلك تنبيهات الحصص والمواعيد فوراً!' : 'Launch Elite Academy from your home screen and tap "Allow" to receive instant alerts even when the device is locked!' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Action / Understood Button --}}
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="document.getElementById('fcm-ios-install-modal').classList.add('hidden')"
+                    class="flex-1 py-3 bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-300 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-xs sm:text-sm shadow-lg shadow-teal-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'فهمت الخطوات، سأقوم بالتفعيل الآن' : 'Got it, I will enable it now' }}</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -137,45 +265,85 @@
         // ─────────────────────────────────────────────────────────────────────────
         // 1. Crystal-Clear Web Audio API Notification Chime (Zero External Files)
         // ─────────────────────────────────────────────────────────────────────────
-        window.playNotificationChime = function () {
-            try {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-                const ctx = new AudioCtx();
-                if (ctx.state === 'suspended') {
-                    ctx.resume();
-                }
-                const now = ctx.currentTime;
+        (function () {
+            let sharedAudioCtx = null;
+            let audioUnlocked = false;
 
-                // Primary Tone: D5 (587.33 Hz)
-                const osc1 = ctx.createOscillator();
-                const gain1 = ctx.createGain();
-                osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(587.33, now);
-                gain1.gain.setValueAtTime(0, now);
-                gain1.gain.linearRampToValueAtTime(0.2, now + 0.04);
-                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                osc1.connect(gain1);
-                gain1.connect(ctx.destination);
-                osc1.start(now);
-                osc1.stop(now + 0.35);
-
-                // Harmonious Second Tone: A5 (880 Hz)
-                const osc2 = ctx.createOscillator();
-                const gain2 = ctx.createGain();
-                osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(880, now + 0.12);
-                gain2.gain.setValueAtTime(0, now + 0.12);
-                gain2.gain.linearRampToValueAtTime(0.25, now + 0.16);
-                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-                osc2.connect(gain2);
-                gain2.connect(ctx.destination);
-                osc2.start(now + 0.12);
-                osc2.stop(now + 0.55);
-            } catch (err) {
-                console.debug('[Audio] Chime playback note:', err);
+            function unlockAudio() {
+                if (audioUnlocked) return;
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioCtx) return;
+                    if (!sharedAudioCtx) {
+                        sharedAudioCtx = new AudioCtx();
+                    }
+                    if (sharedAudioCtx.state === 'suspended') {
+                        sharedAudioCtx.resume().then(() => {
+                            audioUnlocked = true;
+                        }).catch(() => {});
+                    } else {
+                        audioUnlocked = true;
+                    }
+                } catch (e) {}
             }
-        };
+
+            // Silently listen for any user gesture to unlock AudioContext compliant with autoplay policies
+            ['click', 'keydown', 'touchstart', 'pointerdown'].forEach(evt => {
+                document.addEventListener(evt, unlockAudio, { once: true, passive: true, capture: true });
+            });
+
+            window.playNotificationChime = function () {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioCtx) return;
+
+                    // Prevent Chrome autoplay warning before user has interacted with the page
+                    if (!audioUnlocked && !sharedAudioCtx) {
+                        return;
+                    }
+
+                    if (!sharedAudioCtx) {
+                        sharedAudioCtx = new AudioCtx();
+                    }
+
+                    if (sharedAudioCtx.state === 'suspended') {
+                        sharedAudioCtx.resume().catch(() => {});
+                        return;
+                    }
+
+                    const ctx = sharedAudioCtx;
+                    const now = ctx.currentTime;
+
+                    // Primary Tone: D5 (587.33 Hz)
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(587.33, now);
+                    gain1.gain.setValueAtTime(0, now);
+                    gain1.gain.linearRampToValueAtTime(0.2, now + 0.04);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.35);
+
+                    // Harmonious Second Tone: A5 (880 Hz)
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(880, now + 0.12);
+                    gain2.gain.setValueAtTime(0, now + 0.12);
+                    gain2.gain.linearRampToValueAtTime(0.25, now + 0.16);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start(now + 0.12);
+                    osc2.stop(now + 0.55);
+                } catch (err) {
+                    console.debug('[Audio] Chime playback note:', err);
+                }
+            };
+        })();
 
         // ─────────────────────────────────────────────────────────────────────────
         // 2. Real-Time Notification Poller & Dispatch Engine
@@ -185,6 +353,12 @@
             const fcmTokenKey = 'elite_fcm_token_' + currentUserId;
             const dismissedKey = 'fcm_prompt_dismissed_until_' + currentUserId;
 
+            // iOS and Standalone (PWA) Detection
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isStandalone = ('standalone' in window.navigator && window.navigator.standalone) || 
+                                 window.matchMedia('(display-mode: standalone)').matches;
+
             const modal = document.getElementById('fcm-permission-modal');
             const btnEnable = document.getElementById('btn-enable-fcm');
             const btnDismiss = document.getElementById('btn-dismiss-fcm');
@@ -192,10 +366,22 @@
             const floatingBellBtn = document.getElementById('fcm-floating-bell-btn');
             const statusIndicator = document.getElementById('fcm-status-indicator');
             const blockedModal = document.getElementById('fcm-blocked-modal');
+            const iosModal = document.getElementById('fcm-ios-install-modal');
+            const iosPromptTip = document.getElementById('fcm-ios-prompt-tip');
+            const blockedIosSteps = document.getElementById('fcm-blocked-ios-steps');
+            const blockedDefaultSteps = document.getElementById('fcm-blocked-default-steps');
 
             let messaging = null;
             let latestNotificationId = 0;
             let isPollingActive = false;
+
+            // Global iOS Notification Setup Guide Trigger
+            window.openIosNotificationGuide = function () {
+                hideModal();
+                if (iosModal) {
+                    iosModal.classList.remove('hidden');
+                }
+            };
 
             // Global Real-Time Poller
             window.pollNotifications = async function (forceImmediate = false) {
@@ -245,7 +431,7 @@
                                     try {
                                         new Notification(n.title, {
                                             body: n.body,
-                                            icon: '/images/logo_500.webp'
+                                            icon: '{{ asset('images/icon-192.png') }}'
                                         });
                                     } catch (e) {}
                                 }
@@ -382,7 +568,7 @@
 
                     const icon = (payload.notification && payload.notification.image) ||
                         (payload.data && payload.data.icon) ||
-                        '/images/logo_500.webp';
+                        '{{ asset('images/icon-192.png') }}';
 
                     window.playNotificationChime();
 
@@ -437,7 +623,7 @@
                     },
                     body: JSON.stringify({
                         token: token,
-                        device_type: 'web_browser'
+                        device_type: isIOS ? 'ios_safari' : 'web_browser'
                     })
                 })
                     .then(res => res.json())
@@ -451,7 +637,19 @@
 
             // Request Live Firebase Token
             window.requestLiveFirebaseToken = async function (isUserInitiated = true) {
+                // If iOS and NOT running in standalone (PWA) mode, Apple requires adding to Home Screen first
+                if (isIOS && !isStandalone) {
+                    hideModal();
+                    if (iosModal) iosModal.classList.remove('hidden');
+                    return;
+                }
+
                 if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
+                    if (isIOS) {
+                        hideModal();
+                        if (iosModal) iosModal.classList.remove('hidden');
+                        return;
+                    }
                     if (isUserInitiated && window.Toast) {
                         window.Toast.error(@json(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications'));
                     }
@@ -467,9 +665,18 @@
                 }
 
                 try {
-                    const permission = (isUserInitiated && Notification.permission !== 'granted')
-                        ? await Notification.requestPermission()
-                        : Notification.permission;
+                    let permission;
+                    if (isUserInitiated && Notification.permission !== 'granted') {
+                        // iOS Safari & modern browsers: await Promise or callback
+                        const req = Notification.requestPermission();
+                        if (req && typeof req.then === 'function') {
+                            permission = await req;
+                        } else {
+                            permission = await new Promise(resolve => Notification.requestPermission(resolve));
+                        }
+                    } else {
+                        permission = Notification.permission;
+                    }
 
                     if (permission === 'granted') {
                         initFirebase();
@@ -509,8 +716,15 @@
                     } else if (permission === 'denied') {
                         hideModal();
                         updateIndicatorState('denied');
-                        if (isUserInitiated && window.Toast) {
-                            window.Toast.warning(@json(app()->getLocale() === 'ar' ? 'تم حظر الإشعارات في المتصفح' : 'Notifications were blocked in your browser'));
+                        if (isUserInitiated) {
+                            if (isIOS) {
+                                if (blockedIosSteps) blockedIosSteps.classList.remove('hidden');
+                                if (blockedDefaultSteps) blockedDefaultSteps.classList.add('hidden');
+                            } else {
+                                if (blockedIosSteps) blockedIosSteps.classList.add('hidden');
+                                if (blockedDefaultSteps) blockedDefaultSteps.classList.remove('hidden');
+                            }
+                            if (blockedModal) blockedModal.classList.remove('hidden');
                         }
                     } else {
                         hideModal();
@@ -570,20 +784,39 @@
                     sendFcmTokenToServer(savedToken);
                 }
 
+                // Setup iOS specific tips and settings helpers
+                if (isIOS) {
+                    if (iosPromptTip && !isStandalone) {
+                        iosPromptTip.classList.remove('hidden');
+                        iosPromptTip.classList.add('cursor-pointer');
+                        iosPromptTip.addEventListener('click', function () {
+                            window.openIosNotificationGuide();
+                        });
+                    }
+
+                    if (blockedIosSteps && blockedDefaultSteps) {
+                        blockedIosSteps.classList.remove('hidden');
+                        blockedDefaultSteps.classList.add('hidden');
+                    }
+                }
+
+                const dismissedUntil = localStorage.getItem(dismissedKey);
+                const now = Date.now();
+                const isDismissed = dismissedUntil && now <= parseInt(dismissedUntil, 10);
+
                 if ('Notification' in window) {
                     updateIndicatorState(Notification.permission);
 
-                    if (Notification.permission === 'default') {
-                        const dismissedUntil = localStorage.getItem(dismissedKey);
-                        const now = Date.now();
-                        if (!dismissedUntil || now > parseInt(dismissedUntil, 10)) {
-                            setTimeout(showModal, 1500);
-                        }
+                    if (Notification.permission === 'default' && !isDismissed) {
+                        setTimeout(showModal, 1500);
                     } else if (Notification.permission === 'granted') {
                         if (!savedToken && messaging) {
                             window.requestLiveFirebaseToken(false);
                         }
                     }
+                } else if (isIOS && !isStandalone && !isDismissed) {
+                    // Show prompt on iOS Safari so user can easily tap to see how to enable notifications
+                    setTimeout(showModal, 1500);
                 }
 
                 // Button Event Listeners
@@ -607,15 +840,33 @@
 
                 if (floatingBellBtn) {
                     floatingBellBtn.addEventListener('click', function () {
+                        if (isIOS && !isStandalone) {
+                            window.openIosNotificationGuide();
+                            return;
+                        }
+
                         if ('Notification' in window) {
                             if (Notification.permission === 'granted') {
                                 if (window.Toast) {
                                     window.Toast.info(@json(app()->getLocale() === 'ar' ? 'الإشعارات مفعلة بالفعل على هذا الجهاز 🔔' : 'Push notifications are already active on this device 🔔'));
                                 }
                             } else if (Notification.permission === 'denied') {
+                                if (isIOS) {
+                                    if (blockedIosSteps) blockedIosSteps.classList.remove('hidden');
+                                    if (blockedDefaultSteps) blockedDefaultSteps.classList.add('hidden');
+                                } else {
+                                    if (blockedIosSteps) blockedIosSteps.classList.add('hidden');
+                                    if (blockedDefaultSteps) blockedDefaultSteps.classList.remove('hidden');
+                                }
                                 if (blockedModal) blockedModal.classList.remove('hidden');
                             } else {
                                 showModal();
+                            }
+                        } else {
+                            if (isIOS) {
+                                window.openIosNotificationGuide();
+                            } else if (window.Toast) {
+                                window.Toast.error(@json(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح' : 'Browser does not support notifications'));
                             }
                         }
                     });

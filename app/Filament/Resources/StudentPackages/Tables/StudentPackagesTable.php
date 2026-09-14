@@ -27,37 +27,37 @@ class StudentPackagesTable
         return $table
             ->columns([
                 TextColumn::make('studentUser.name')
-                    ->label('Student')
+                    ->label(__('Student'))
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->studentUser?->email ?? '—'),
 
                 TextColumn::make('packageTemplate.name')
-                    ->label('Package Plan')
-                    ->placeholder('— Custom Plan —')
+                    ->label(__('Package Plan'))
+                    ->placeholder(__('— Custom Plan —'))
                     ->searchable()
                     ->badge()
                     ->color('info'),
 
                 TextColumn::make('course.title')
-                    ->label('Restricted Course')
-                    ->placeholder('All Courses')
+                    ->label(__('Restricted Course'))
+                    ->placeholder(__('All Courses'))
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('remaining_sessions')
-                    ->label('Remaining')
+                    ->label(__('Remaining'))
                     ->badge()
                     ->color(fn (int $state): string => match (true) {
                         $state > 5  => 'success',
                         $state > 0  => 'warning',
                         default     => 'danger',
                     })
-                    ->formatStateUsing(fn (int $state) => "{$state} sessions")
+                    ->formatStateUsing(fn (int $state) => "{$state} " . __('sessions'))
                     ->sortable(),
 
                 TextColumn::make('total_sessions')
-                    ->label('Total / Used')
+                    ->label(__('Total / Used'))
                     ->formatStateUsing(fn ($state, $record) => "{$record->total_sessions} / {$record->used_sessions}")
                     ->sortable(),
 
@@ -118,7 +118,7 @@ class StudentPackagesTable
                                     ->label(__('Package Template (Optional)'))
                                     ->options(fn () => \App\Models\PackageTemplate::where('is_active', true)
                                         ->get()
-                                        ->mapWithKeys(fn ($t) => [$t->id => "{$t->name} — {$t->sessions_count} sessions" . ($t->price ? " ({$t->price} SAR)" : '')])
+                                        ->mapWithKeys(fn ($t) => [$t->id => "{$t->name} — {$t->sessions_count} sessions" . ($t->price ? " (" . format_currency($t->price) . ")" : '')])
                                         ->toArray()
                                     )
                                     ->live()
@@ -235,22 +235,22 @@ class StudentPackagesTable
 
                 // ── Quick: Deduct 1 Session ──────────────────────────────────
                 Action::make('deductCredit')
-                    ->label('Deduct 1')
+                    ->label(__('Deduct 1 Session'))
                     ->icon('heroicon-o-minus-circle')
                     ->color('gray')
                     ->requiresConfirmation()
-                    ->modalHeading('Deduct 1 Session Credit')
-                    ->modalDescription(fn ($record) => "This will remove 1 session credit from {$record->studentUser?->name}. Current balance: {$record->remaining_sessions}.")
+                    ->modalHeading(__('Deduct 1 Session Credit'))
+                    ->modalDescription(fn ($record) => __('This will remove 1 session credit from :name. Current balance: :count.', ['name' => $record->studentUser?->name, 'count' => $record->remaining_sessions]))
                     ->action(function ($record) {
                         $success = $record->deductSession(null, 'Manual Admin Deduction');
                         if ($success) {
-                            Notification::make()->title('1 session credit deducted')->success()->send();
+                            Notification::make()->title(__('1 session credit deducted'))->success()->send();
                         } else {
-                            Notification::make()->title('Cannot deduct — no credits or package inactive')->danger()->send();
+                            Notification::make()->title(__('Cannot deduct — no credits or package inactive'))->danger()->send();
                         }
                     }),
 
-                EditAction::make()->label('Edit'),
+                EditAction::make()->label(__('Edit')),
                 DeleteAction::make(),
                 RestoreAction::make(),
                 ForceDeleteAction::make(),
@@ -264,8 +264,8 @@ class StudentPackagesTable
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
-            ->emptyStateHeading('No packages assigned yet')
-            ->emptyStateDescription('Use the "Assign Package to Student" button above to issue the first package.')
+            ->emptyStateHeading(__('No packages assigned yet'))
+            ->emptyStateDescription(__('Use the "Assign Package to Student" button above to issue the first package.'))
             ->emptyStateIcon('heroicon-o-credit-card');
     }
 }

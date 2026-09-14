@@ -14,24 +14,25 @@ class PackageTemplateForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Package Plan Name (e.g., Monthly Pro 12 Sessions)')
+                    ->label(__('Package Plan Name'))
+                    ->placeholder(__('e.g., Monthly Pro 12 Sessions'))
                     ->required(),
                 TextInput::make('sessions_count')
-                    ->label('Total Included Sessions')
+                    ->label(__('Total Included Sessions'))
                     ->required()
                     ->numeric()
                     ->default(12),
                 TextInput::make('price')
-                    ->label('Price')
+                    ->label(__('Price'))
                     ->required()
                     ->numeric()
                     ->default(150.00)
-                    ->prefix('$'),
+                    ->prefix(fn () => currency_symbol()),
                 Textarea::make('description')
-                    ->label('Package Plan Details & Perks')
+                    ->label(__('Package Plan Details & Perks'))
                     ->columnSpanFull(),
                 Toggle::make('is_active')
-                    ->label('Is Active / Available for Enrollment')
+                    ->label(__('Is Active / Available for Enrollment'))
                     ->default(true)
                     ->required(),
             ]);

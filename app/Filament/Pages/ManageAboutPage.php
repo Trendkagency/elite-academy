@@ -18,11 +18,20 @@ class ManageAboutPage extends Page implements HasForms
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-information-circle';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'CMS Management';
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS';
+    }
 
-    protected static ?string $navigationLabel = 'About Page CMS & Live Preview';
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'صفحة من نحن والمعاينة' : 'About Page CMS & Live Preview';
+    }
 
-    protected static ?string $title = 'Manage About Page Content & iFrame Live Preview';
+    public function getTitle(): string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة محتوى صفحة من نحن والمعاينة المباشرة' : 'Manage About Page Content & iFrame Live Preview';
+    }
 
     protected string $view = 'filament.pages.manage-about-page';
 

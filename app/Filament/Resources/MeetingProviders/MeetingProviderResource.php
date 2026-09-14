@@ -31,6 +31,16 @@ class MeetingProviderResource extends Resource
         return app()->getLocale() === 'ar' ? 'مزودو الاجتماعات المباشرة' : 'Meeting Providers';
     }
 
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مزود اجتماعات' : 'Meeting Provider';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'مزودو الاجتماعات' : 'Meeting Providers';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

@@ -16,14 +16,21 @@ use Filament\Schemas\Schema;
 class SendFcmBroadcastPage extends Page implements HasForms
 {
     use InteractsWithForms;
+    // Commented out per user request - hidden from navigation
+    // protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-paper-airplane';
+    // protected static \UnitEnum|string|null $navigationGroup = 'CMS & Communications';
+    // protected static ?int $navigationSort = 3;
+    // protected static ?string $navigationLabel = 'Custom FCM Push Broadcast';
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-paper-airplane';
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
-    protected static \UnitEnum|string|null $navigationGroup = 'CMS & Communications';
-
-    protected static ?int $navigationSort = 3;
-
-    protected static ?string $navigationLabel = 'Custom FCM Push Broadcast';
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 
     protected static ?string $title = 'Custom FCM Push Broadcast & Target Audience Dispatcher';
 

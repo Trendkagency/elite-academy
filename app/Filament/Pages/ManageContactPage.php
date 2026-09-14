@@ -19,11 +19,20 @@ class ManageContactPage extends Page implements HasForms
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-phone';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'CMS Management';
+    public static function getNavigationGroup(): ?string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS';
+    }
 
-    protected static ?string $navigationLabel = 'Contact Page CMS & Live Preview';
+    public static function getNavigationLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'صفحة اتصل بنا والمعاينة' : 'Contact Page CMS & Live Preview';
+    }
 
-    protected static ?string $title = 'Manage Contact Page Content & iFrame Live Preview';
+    public function getTitle(): string
+    {
+        return app()->getLocale() === 'ar' ? 'إدارة محتوى صفحة اتصل بنا والمعاينة المباشرة' : 'Manage Contact Page Content & iFrame Live Preview';
+    }
 
     protected string $view = 'filament.pages.manage-contact-page';
 

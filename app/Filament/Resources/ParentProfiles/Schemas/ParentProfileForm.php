@@ -17,8 +17,8 @@ class ParentProfileForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Parent Account Information')
-                    ->description('Link parent account with registered student children')
+                Section::make(__('Parent Account Information'))
+                    ->description(__('Link parent account with registered student children'))
                     ->columnSpanFull()
                     ->components([
                         Select::make('user_id')
@@ -44,52 +44,52 @@ class ParentProfileForm
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
-                            ->label('Parent User Account')
-                            ->helperText('Select an existing parent account, or click (+) to register a new parent directly.')
+                            ->label(__('Parent User Account'))
+                            ->helperText(__('Select an existing parent account, or click (+) to register a new parent directly.'))
                             ->searchable(['name', 'email', 'phone'])
                             ->preload()
                             ->required()
                             ->unique(ParentProfile::class, 'user_id', ignoreRecord: true)
                             ->createOptionForm([
                                 \Filament\Forms\Components\TextInput::make('name')
-                                    ->label('Parent Full Name')
-                                    ->placeholder('e.g. Mahmoud Ali')
+                                    ->label(__('Parent Full Name'))
+                                    ->placeholder(__('e.g. Mahmoud Ali'))
                                     ->required()
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('email')
-                                    ->label('Email Address')
+                                    ->label(__('Email Address'))
                                     ->email()
                                     ->placeholder('parent@elite-academy.com')
                                     ->required()
                                     ->unique(\App\Models\User::class, 'email')
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('phone')
-                                    ->label('Phone Number')
+                                    ->label(__('Phone Number'))
                                     ->tel()
                                     ->placeholder('+201000000000')
                                     ->unique(\App\Models\User::class, 'phone')
                                     ->maxLength(30),
                                 \Filament\Forms\Components\TextInput::make('password')
-                                    ->label('Account Password')
+                                    ->label(__('Account Password'))
                                     ->password()
                                     ->revealable()
                                     ->default('Password123!')
-                                    ->helperText('Default temporary password. The parent can change it later.')
+                                    ->helperText(__('Default temporary password. The parent can change it later.'))
                                     ->required()
                                     ->maxLength(255),
                                 Select::make('status')
-                                    ->label('Account Approval Status')
+                                    ->label(__('Account Approval Status'))
                                     ->options([
-                                        'approved' => '✅ Approved (مقبول)',
-                                        'pending' => '⏳ Pending Approval (قيد المراجعة)',
+                                        'approved' => __('Approved'),
+                                        'pending' => __('Pending Approval'),
                                     ])
                                     ->default('approved')
                                     ->required(),
                             ])
                             ->createOptionAction(fn ($action) => $action
-                                ->modalHeading('Register & Link New Parent Account')
-                                ->modalDescription('Create a new parent user account and attach it to this parent profile.')
-                                ->modalSubmitActionLabel('Create Account')
+                                ->modalHeading(__('Register & Link New Parent Account'))
+                                ->modalDescription(__('Create a new parent user account and attach it to this parent profile.'))
+                                ->modalSubmitActionLabel(__('Create Account'))
                                 ->modalWidth('lg')
                             ),
                         Select::make('students')
@@ -102,14 +102,14 @@ class ParentProfileForm
                                     ->latest('created_at')
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})" . ($record->phone ? " — {$record->phone}" : ''))
-                            ->label('Linked Children / Students (Select & Manage)')
+                            ->label(__('Linked Children / Students (Select & Manage)'))
                             ->multiple()
                             ->preload()
                             ->searchable(['name', 'email', 'phone']),
                     ]),
 
-                Section::make('Linked Children Detailed Academic Overview (تفاصيل أبناء ولي الأمر)')
-                    ->description('View detailed academic status, active package credits, and grade level for each linked child with interactive visual cards')
+                Section::make(__('Linked Children Detailed Academic Overview'))
+                    ->description(__('View detailed academic status, active package credits, and grade level for each linked child with interactive visual cards'))
                     ->columnSpanFull()
                     ->visible(fn (string $operation) => $operation === 'edit')
                     ->components([

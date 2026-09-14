@@ -28,12 +28,17 @@ class LiveSessionsTable
                     ->weight('bold')
                     ->searchable()
                     ->sortable()
+                    ->wrap()
+                    ->lineClamp(2)
+                    ->extraHeaderAttributes(['style' => 'min-width: 260px;'])
+                    ->extraCellAttributes(['style' => 'min-width: 260px;'])
                     ->description(fn (LiveSession $record): string => $record->recurring_schedule_id ? '🔄 ' . ($record->recurringSchedule?->title ?: 'Recurring Cohort') : 'Single Session'),
 
                 TextColumn::make('course.title')
                     ->label(app()->getLocale() === 'ar' ? 'الكورس' : 'Course')
                     ->badge()
                     ->color('primary')
+                    ->limit(35)
                     ->searchable()
                     ->sortable(),
 
@@ -50,12 +55,15 @@ class LiveSessionsTable
                 TextColumn::make('scheduled_at')
                     ->label(app()->getLocale() === 'ar' ? 'موعد الحصة' : 'Scheduled At')
                     ->dateTime('Y-m-d h:i A')
-                    ->sortable(),
+                    ->sortable()
+                    ->extraHeaderAttributes(['style' => 'white-space: nowrap; min-width: 165px;'])
+                    ->extraCellAttributes(['style' => 'white-space: nowrap; min-width: 165px;']),
 
                 TextColumn::make('duration_minutes')
                     ->label(app()->getLocale() === 'ar' ? 'المدة' : 'Duration')
                     ->suffix(' ' . (app()->getLocale() === 'ar' ? 'د' : 'min'))
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('meeting_platform')
                     ->label(app()->getLocale() === 'ar' ? 'المنصة' : 'Platform')
@@ -66,14 +74,16 @@ class LiveSessionsTable
                         'success' => 'google_meet',
                         'warning' => 'microsoft_teams',
                         'gray' => 'other',
-                    ]),
+                    ])
+                    ->toggleable(),
 
                 TextColumn::make('meeting_link')
                     ->label(app()->getLocale() === 'ar' ? 'الرابط' : 'Link')
                     ->copyable()
                     ->copyMessage(app()->getLocale() === 'ar' ? 'تم نسخ الرابط' : 'Meeting link copied')
-                    ->limit(25)
-                    ->placeholder('—'),
+                    ->limit(20)
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 TextColumn::make('status')
                     ->label(app()->getLocale() === 'ar' ? 'الحالة' : 'Status')
@@ -83,7 +93,8 @@ class LiveSessionsTable
                         'warning' => fn ($state) => in_array($state, ['link_visible', 'rescheduled']),
                         'success' => fn ($state) => in_array($state, ['in_progress', 'completed']),
                         'danger' => fn ($state) => in_array($state, ['cancelled', 'cancelled_by_teacher']),
-                    ]),
+                    ])
+                    ->sortable(),
 
                 IconColumn::make('is_free_demo')
                     ->label(app()->getLocale() === 'ar' ? 'مجانية' : 'Demo')

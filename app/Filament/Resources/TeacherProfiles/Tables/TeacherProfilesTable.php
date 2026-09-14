@@ -25,57 +25,62 @@ class TeacherProfilesTable
                     ->getStateUsing(fn($record) => $record->photo_url)
                     ->defaultImageUrl(fn($record) => $record?->photo_url ?? 'https://ui-avatars.com/api/?name=Teacher&background=4F46E5&color=fff'),
                 TextColumn::make('user.name')
-                    ->label('Teacher Name')
+                    ->label(__('Teacher Name'))
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
-                    ->label('Title')
-                    ->searchable(),
+                    ->label(__('Title'))
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(2),
                 TextColumn::make('specialization')
-                    ->label('Specialization')
+                    ->label(__('Specialization'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('years_experience')
-                    ->label('Exp. (Years)')
+                    ->label(__('Exp. (Years)'))
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('rating_avg')
-                    ->label('Rating')
+                    ->label(__('Rating'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('students_count')
-                    ->label('Students')
+                    ->label(__('Students'))
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('user.status')
-                    ->label('Account Status')
+                    ->label(__('Account Status'))
                     ->badge(),
                 ToggleColumn::make('is_public')
-                    ->label('Publicly Visible'),
+                    ->label(__('Publicly Visible')),
                 ToggleColumn::make('is_featured')
-                    ->label('Featured'),
+                    ->label(__('Featured')),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 \Filament\Actions\Action::make('approveAccount')
-                    ->label('Approve Teacher')
+                    ->label(__('Approve Teacher'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(function ($record) {
                         $record->user?->update(['status' => \App\Enums\AccountStatus::APPROVED]);
-                        \Filament\Notifications\Notification::make()->title('Teacher Approved')->success()->send();
+                        \Filament\Notifications\Notification::make()->title(__('Teacher Approved'))->success()->send();
                     })
                     ->visible(fn($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
                 \Filament\Actions\Action::make('rejectAccount')
-                    ->label('Reject Teacher')
+                    ->label(__('Reject Teacher'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         $record->user?->update(['status' => \App\Enums\AccountStatus::REJECTED]);
-                        \Filament\Notifications\Notification::make()->title('Teacher Rejected')->warning()->send();
+                        \Filament\Notifications\Notification::make()->title(__('Teacher Rejected'))->warning()->send();
                     })
                     ->visible(fn($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
                 EditAction::make(),

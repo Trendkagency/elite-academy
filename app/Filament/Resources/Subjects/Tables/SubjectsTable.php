@@ -38,7 +38,8 @@ class SubjectsTable
                     ->label(__('Slug'))
                     ->badge()
                     ->color('gray')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('image')
                     ->label(__('Image')),
                 TextColumn::make('active_courses_count')

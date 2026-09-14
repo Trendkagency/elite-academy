@@ -18,36 +18,42 @@ class CourseForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('📚 Course Basic Information')
+                Section::make(__('Course Basic Information'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
                         Select::make('subject_id')
+                            ->label(__('Subject'))
                             ->relationship('subject', 'name', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->latest('created_at'))
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('grade_level_id')
+                            ->label(__('Grade Level'))
                             ->relationship('gradeLevel', 'name', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('sort_order', 'asc'))
                             ->searchable()
                             ->preload()
                             ->nullable(),
                         Select::make('teacher_id')
+                            ->label(__('Teacher'))
                             ->relationship('teacher', modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with('user')->latest('created_at'))
                             ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: $record->title ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
                             ->searchable()
                             ->preload()
                             ->required(),
                         TextInput::make('title')
+                            ->label(__('Course Title'))
                             ->required()
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
                         TextInput::make('slug')
+                            ->label(__('Slug'))
                             ->required()
                             ->maxLength(150)
                             ->unique(ignoreRecord: true)
                             ->helperText(__('Unique URL identifier for this course.')),
                         Textarea::make('description')
+                            ->label(__('Description'))
                             ->columnSpanFull(),
                         FileUpload::make('image')
                             ->label(__('Course Thumbnail Image'))
@@ -63,31 +69,31 @@ class CourseForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('🎓 First Free Demo Session & Live Attendance Policy')
-                    ->description('Manage whether the 1st session of this course is a free trial demo. Students can attend the 1st live session without an active paid package.')
+                Section::make(__('First Free Demo Session & Live Attendance Policy'))
+                    ->description(__('Manage whether the 1st session of this course is a free trial demo. Students can attend the 1st live session without an active paid package.'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
                         Toggle::make('has_free_demo')
-                            ->label('🎓 First Session Free Trial (حصّة أولى مجانيّة)')
-                            ->helperText('When enabled, students can attend the 1st live session for free without consuming package credits.')
+                            ->label(__('First Session Free Trial'))
+                            ->helperText(__('When enabled, students can attend the 1st live session for free without consuming package credits.'))
                             ->default(true),
 
                         Toggle::make('is_active')
-                            ->label('Active Status (مُفعل)')
+                            ->label(__('Active Status'))
                             ->default(true),
 
                         Toggle::make('is_accredited')
-                            ->label('Accredited Course (معتمد)'),
+                            ->label(__('Accredited Course')),
 
                         TextInput::make('sessions_count')
-                            ->label('Total Course Sessions')
+                            ->label(__('Total Course Sessions'))
                             ->numeric()
                             ->default(12)
                             ->required(),
 
                         TextInput::make('session_duration_minutes')
-                            ->label('Session Duration (Minutes)')
+                            ->label(__('Session Duration (Minutes)'))
                             ->numeric()
                             ->default(60)
                             ->required(),

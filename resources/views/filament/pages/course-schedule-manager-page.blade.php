@@ -136,6 +136,13 @@
                 transform: translateY(-1px);
                 box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
             }
+            .sch-btn-primary:disabled, .sch-btn-primary[disabled] {
+                opacity: 0.65 !important;
+                cursor: not-allowed !important;
+                pointer-events: none !important;
+                transform: none !important;
+                box-shadow: none !important;
+            }
             .sch-btn-secondary {
                 background: var(--sch-bg-surface-subtle);
                 color: var(--sch-text-primary) !important;
@@ -154,6 +161,12 @@
             .sch-btn-secondary:hover {
                 border-color: var(--sch-border-focus);
                 transform: translateY(-1px);
+            }
+            .sch-btn-secondary:disabled, .sch-btn-secondary[disabled] {
+                opacity: 0.6 !important;
+                cursor: not-allowed !important;
+                pointer-events: none !important;
+                transform: none !important;
             }
 
             /* ── Form Inputs & Selects ── */
@@ -735,13 +748,29 @@
                 border-radius: 1.5rem;
                 width: 100%;
                 max-width: 38rem;
-                max-height: calc(100dvh - 2rem);
+                max-height: min(92vh, 52rem);
                 display: flex;
                 flex-direction: column;
+                min-height: 0;
                 overflow: hidden;
                 box-shadow: var(--sch-shadow-lg);
                 border: 1.5px solid var(--sch-border);
                 animation: schModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            .sch-conflict-preview-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(20, 184, 166, 0.4) transparent;
+                -webkit-overflow-scrolling: touch;
+            }
+            .sch-conflict-preview-scroll::-webkit-scrollbar {
+                width: 6px;
+            }
+            .sch-conflict-preview-scroll::-webkit-scrollbar-thumb {
+                background: rgba(20, 184, 166, 0.4);
+                border-radius: 6px;
+            }
+            .sch-conflict-preview-scroll::-webkit-scrollbar-track {
+                background: transparent;
             }
             @keyframes schModalIn {
                 from { opacity: 0; transform: scale(0.96) translateY(12px); }
@@ -1438,8 +1467,12 @@
                         </div>
 
                         <div style="padding: 1rem 1.25rem; background: var(--sch-bg-surface-subtle); border-top: 1.5px solid var(--sch-border); display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;">
-                            <button type="button" wire:click="closeCreateSessionModal" class="sch-btn-secondary">{{ __('Cancel') }}</button>
-                            <button type="submit" class="sch-btn-primary">{{ __('Schedule Session') }} &rarr;</button>
+                            <button type="button" wire:click="closeCreateSessionModal" wire:loading.attr="disabled" wire:target="createSingleSession" class="sch-btn-secondary">{{ __('Cancel') }}</button>
+                            <button type="submit" wire:loading.attr="disabled" wire:target="createSingleSession" class="sch-btn-primary" style="min-width: 10rem; justify-content: center;">
+                                <i class="fa-solid fa-circle-notch fa-spin" wire:loading wire:target="createSingleSession"></i>
+                                <span wire:loading.remove wire:target="createSingleSession">{{ __('Schedule Session') }} &rarr;</span>
+                                <span wire:loading wire:target="createSingleSession">{{ __('Saving...') }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1449,13 +1482,11 @@
         {{-- ── 7. MODAL: GENERATE FULL RECURRING SCHEDULE ── --}}
         @if ($showRecurringModal)
             <div class="sch-modal-overlay">
-                <div class="sch-modal-dialog" style="max-width: 42rem;">
-                    <div style="padding: 1.25rem; border-bottom: 1.5px solid var(--sch-border); display: flex; align-items: center; justify-content: space-between;">
+                <div class="sch-modal-dialog" style="max-width: 44rem; max-height: min(92vh, 52rem);">
+                    <div style="padding: 1.25rem; border-bottom: 1.5px solid var(--sch-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
                         <div>
                             <h3 style="font-weight: 900; font-size: 1.15rem; color: var(--sch-text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.25rem; height: 1.25rem; color: #0D9488;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                </svg>
+                                <i class="fa-solid fa-arrows-rotate text-teal-500"></i>
                                 <span>{{ __('Generate Full Recurring Schedule') }}</span>
                             </h3>
                             <p style="font-size: 0.75rem; color: var(--sch-text-muted); margin: 0.15rem 0 0 0;">{{ __('Automatically populate weekly/monthly schedules for student(s).') }}</p>
@@ -1463,8 +1494,8 @@
                         <button type="button" wire:click="closeRecurringModal" style="background: none; border: none; font-size: 1.25rem; font-weight: 800; color: var(--sch-text-muted); cursor: pointer;">✕</button>
                     </div>
 
-                    <form wire:submit="submitRecurringSchedule" style="display: flex; flex-direction: column; overflow: hidden; margin: 0; flex: 1;">
-                        <div style="padding: 1.25rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <form wire:submit="submitRecurringSchedule" style="display: flex; flex-direction: column; overflow: hidden; margin: 0; flex: 1 1 auto; min-height: 0;">
+                        <div style="padding: 1.25rem; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 1rem;">
                             <div class="sch-form-group">
                                 <label class="sch-label">{{ __('Schedule Title') }} *</label>
                                 <input type="text" wire:model="recTitle" required placeholder="{{ __('Schedule Title') }}" class="sch-input">
@@ -1590,42 +1621,85 @@
                             </div>
 
                             {{-- Conflict Preview Button --}}
-                            <div>
-                                <button type="button" wire:click="previewRecurringSchedule" class="sch-btn-secondary" style="width: 100%; justify-content: center;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 1rem; height: 1rem; color: #0D9488;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                    </svg>
+                            <div style="margin-top: 0.25rem;">
+                                <button type="button" wire:click="previewRecurringSchedule" wire:loading.attr="disabled" class="sch-btn-secondary" style="width: 100%; justify-content: center; gap: 0.5rem; font-weight: 800; padding: 0.65rem 1rem;">
+                                    <i class="fa-solid fa-magnifying-glass text-teal-500" wire:loading.remove wire:target="previewRecurringSchedule"></i>
+                                    <i class="fa-solid fa-circle-notch fa-spin text-teal-500" wire:loading wire:target="previewRecurringSchedule"></i>
                                     <span>{{ __('Preview Generated Dates & Check Conflicts') }}</span>
                                 </button>
                             </div>
 
                             @if ($recConflictWarning)
-                                <div style="padding: 0.75rem 1rem; border-radius: 0.75rem; background: #FEF3C7; border: 1px solid #FDE68A; color: #92400E; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1.25rem; height: 1.25rem; flex-shrink: 0; color: #D97706;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                    </svg>
+                                <div style="padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(245, 158, 11, 0.15); border: 1.5px solid rgba(245, 158, 11, 0.4); color: #B45309; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-500" style="font-size: 1.1rem; flex-shrink: 0;"></i>
                                     <span>{{ $recConflictWarning }}</span>
                                 </div>
                             @endif
 
                             @if (! empty($recPreviewList))
-                                <div style="background: var(--sch-bg-surface-subtle); border: 1px solid var(--sch-border); border-radius: 0.75rem; padding: 0.75rem; max-height: 10rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem;">
-                                    @foreach ($recPreviewList as $p)
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.25rem; border-bottom: 1px solid var(--sch-border);">
-                                            <strong style="color: var(--sch-text-primary);">{{ $p['date'] }} ({{ $p['day'] }})</strong>
-                                            <span style="color: var(--sch-text-secondary); font-family: monospace;">{{ $p['time'] }}</span>
-                                            <span style="font-weight: 800; color: {{ $p['has_conflict'] ? '#E11D48' : '#059669' }};">
-                                                {{ $p['has_conflict'] ? '⚠️ ' . $p['conflict_reason'] : '✅ OK' }}
+                                @php
+                                    $conflictsCount = collect($recPreviewList)->where('has_conflict', true)->count();
+                                @endphp
+                                <div x-data x-init="$nextTick(() => { $el.scrollIntoView({ behavior: 'smooth', block: 'end' }); })" style="display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; margin-top: 0.25rem;">
+                                    {{-- Preview Box Header --}}
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.25rem 0.2rem;">
+                                        <span style="font-weight: 800; font-size: 0.85rem; color: var(--sch-text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                                            <i class="fa-solid fa-calendar-days text-teal-500"></i>
+                                            <span>{{ __('Generated Schedule Dates Preview') }} ({{ count($recPreviewList) }})</span>
+                                        </span>
+                                        @if ($conflictsCount > 0)
+                                            <span style="padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(225, 29, 72, 0.15); border: 1px solid rgba(225, 29, 72, 0.35); color: #E11D48; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem;">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ $conflictsCount }} {{ __('Conflicts Detected') }}</span>
                                             </span>
-                                        </div>
-                                    @endforeach
+                                        @else
+                                            <span style="padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #059669; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem;">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                                <span>{{ __('All Dates Clear') }}</span>
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Scrollable List of Preview Dates --}}
+                                    <div class="sch-conflict-preview-scroll" style="background: var(--sch-bg-surface-subtle); border: 1.5px solid var(--sch-border); border-radius: 0.875rem; padding: 0.75rem; min-height: 180px; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 0.5rem;">
+                                        @foreach ($recPreviewList as $p)
+                                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.85rem; border-radius: 0.6rem; transition: all 0.15s; background: {{ $p['has_conflict'] ? 'rgba(225, 29, 72, 0.1)' : 'var(--sch-bg-surface)' }}; border: 1px solid {{ $p['has_conflict'] ? 'rgba(225, 29, 72, 0.35)' : 'var(--sch-border)' }};">
+                                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                                    <i class="{{ $p['has_conflict'] ? 'fa-solid fa-triangle-exclamation text-rose-500' : 'fa-solid fa-circle-check text-emerald-500' }}" style="font-size: 0.95rem;"></i>
+                                                    <div>
+                                                        <div style="font-weight: 800; font-size: 0.825rem; color: var(--sch-text-primary);">
+                                                            {{ $p['date'] }} <span style="font-weight: 600; color: var(--sch-text-secondary);">({{ $p['day'] }})</span>
+                                                        </div>
+                                                        @if ($p['has_conflict'] && ! empty($p['conflict_reason']))
+                                                            <div style="font-size: 0.72rem; color: #E11D48; font-weight: 700; margin-top: 0.1rem;">
+                                                                {{ $p['conflict_reason'] }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                    <span style="color: var(--sch-text-secondary); font-family: ui-monospace, monospace; font-weight: 700; font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 0.15rem 0.45rem; border-radius: 0.35rem;">{{ $p['time'] }}</span>
+                                                    <span style="font-weight: 900; font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 0.4rem; color: {{ $p['has_conflict'] ? '#E11D48' : '#059669' }}; background: {{ $p['has_conflict'] ? 'rgba(225, 29, 72, 0.15)' : 'rgba(16, 185, 129, 0.15)' }};">
+                                                        {{ $p['has_conflict'] ? __('Conflict') : __('Available') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--sch-text-muted); text-align: center;">
+                                        <i class="fa-solid fa-arrows-up-down me-1"></i> {{ __('Scroll inside list to view all dates') }}
+                                    </div>
                                 </div>
                             @endif
                         </div>
 
                         <div style="padding: 1rem 1.25rem; background: var(--sch-bg-surface-subtle); border-top: 1.5px solid var(--sch-border); display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;">
-                            <button type="button" wire:click="closeRecurringModal" class="sch-btn-secondary">{{ __('Cancel') }}</button>
-                            <button type="submit" class="sch-btn-primary">{{ __('Generate Full Schedule') }} &rarr;</button>
+                            <button type="button" wire:click="closeRecurringModal" wire:loading.attr="disabled" wire:target="submitRecurringSchedule" class="sch-btn-secondary">{{ __('Cancel') }}</button>
+                            <button type="submit" wire:loading.attr="disabled" wire:target="submitRecurringSchedule" class="sch-btn-primary" style="min-width: 12rem; justify-content: center;">
+                                <i class="fa-solid fa-circle-notch fa-spin" wire:loading wire:target="submitRecurringSchedule"></i>
+                                <span wire:loading.remove wire:target="submitRecurringSchedule">{{ __('Generate Full Schedule') }} &rarr;</span>
+                                <span wire:loading wire:target="submitRecurringSchedule">{{ __('Generating Sessions...') }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1658,8 +1732,12 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-                            <button type="button" wire:click="$set('showRescheduleModal', false)" class="sch-btn-secondary">{{ __('Cancel') }}</button>
-                            <button type="submit" class="sch-btn-primary" style="background: #2563EB;">{{ __('Confirm Reschedule') }}</button>
+                            <button type="button" wire:click="$set('showRescheduleModal', false)" wire:loading.attr="disabled" wire:target="confirmReschedule" class="sch-btn-secondary">{{ __('Cancel') }}</button>
+                            <button type="submit" wire:loading.attr="disabled" wire:target="confirmReschedule" class="sch-btn-primary" style="background: #2563EB;">
+                                <i class="fa-solid fa-circle-notch fa-spin" wire:loading wire:target="confirmReschedule"></i>
+                                <span wire:loading.remove wire:target="confirmReschedule">{{ __('Confirm Reschedule') }}</span>
+                                <span wire:loading wire:target="confirmReschedule">{{ __('Processing...') }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1691,8 +1769,12 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-                            <button type="button" wire:click="$set('showCancelModal', false)" class="sch-btn-secondary">{{ __('Keep Session') }}</button>
-                            <button type="submit" style="background: #E11D48; color: #FFFFFF; border: none; border-radius: 0.75rem; padding: 0.65rem 1.25rem; font-weight: 800; font-size: 0.85rem; cursor: pointer;">{{ __('Cancel Session') }}</button>
+                            <button type="button" wire:click="$set('showCancelModal', false)" wire:loading.attr="disabled" wire:target="confirmCancel" class="sch-btn-secondary">{{ __('Keep Session') }}</button>
+                            <button type="submit" wire:loading.attr="disabled" wire:target="confirmCancel" style="background: #E11D48; color: #FFFFFF; border: none; border-radius: 0.75rem; padding: 0.65rem 1.25rem; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-circle-notch fa-spin" wire:loading wire:target="confirmCancel"></i>
+                                <span wire:loading.remove wire:target="confirmCancel">{{ __('Cancel Session') }}</span>
+                                <span wire:loading wire:target="confirmCancel">{{ __('Cancelling...') }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1720,8 +1802,12 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-                            <button type="button" wire:click="$set('showLinkModal', false)" class="sch-btn-secondary">{{ __('Cancel') }}</button>
-                            <button type="submit" class="sch-btn-primary">{{ __('Save Link') }}</button>
+                            <button type="button" wire:click="$set('showLinkModal', false)" wire:loading.attr="disabled" wire:target="saveMeetingLink" class="sch-btn-secondary">{{ __('Cancel') }}</button>
+                            <button type="submit" wire:loading.attr="disabled" wire:target="saveMeetingLink" class="sch-btn-primary">
+                                <i class="fa-solid fa-circle-notch fa-spin" wire:loading wire:target="saveMeetingLink"></i>
+                                <span wire:loading.remove wire:target="saveMeetingLink">{{ __('Save Link') }}</span>
+                                <span wire:loading wire:target="saveMeetingLink">{{ __('Saving...') }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>

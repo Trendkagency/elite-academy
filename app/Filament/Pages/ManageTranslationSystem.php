@@ -37,12 +37,12 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إعدادات النظام والترجمة' : 'Settings';
+        return app()->getLocale() === 'ar' ? 'الإعدادات العامة' : 'Settings';
     }
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة التراجم واللغات (Translation Management)' : 'Translation Management';
+        return app()->getLocale() === 'ar' ? 'إدارة التراجم واللغات' : 'Translation Management';
     }
 
     protected string $view = 'filament.pages.manage-translation-system';

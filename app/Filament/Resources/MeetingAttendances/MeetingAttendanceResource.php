@@ -27,6 +27,16 @@ class MeetingAttendanceResource extends Resource
         return app()->getLocale() === 'ar' ? 'سجل حضور البث المباشر' : 'Live Meeting Attendance';
     }
 
+    public static function getModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'سجل حضور' : 'Meeting Attendance';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'سجلات حضور البث' : 'Meeting Attendances';
+    }
+
     public static function table(Table $table): Table
     {
         return $table

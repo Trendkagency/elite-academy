@@ -58,6 +58,8 @@ class CourseScheduleManagerPage extends Page
     public string $singleMeetingPlatform = 'agora';
     public bool $singleIsFreeDemo = false;
 
+    public bool $isSubmitting = false;
+
     // Create Recurring Schedule Modal State
     public bool $showRecurringModal = false;
     public array $recStudentIds = [];
@@ -437,45 +439,55 @@ class CourseScheduleManagerPage extends Page
 
     public function createSingleSession(): void
     {
-        $this->validate([
-            'singleCourseId' => 'required|exists:courses,id',
-            'singleTitle' => 'required|string|max:255',
-            'singleScheduledAt' => 'required|date',
-            'singleDuration' => 'required|numeric|min:15|max:300',
-            'singleStudentId' => 'nullable|exists:users,id',
-            'singleMeetingLink' => 'nullable|url|max:500',
-        ], [
-            'singleCourseId.required' => __('Please select a course.'),
-            'singleTitle.required' => __('Please enter a session title.'),
-            'singleScheduledAt.required' => __('Please select a valid scheduled date & time.'),
-            'singleDuration.min' => __('Session duration must be at least 15 minutes.'),
-            'singleDuration.max' => __('Session duration cannot exceed 300 minutes.'),
-        ]);
+        if ($this->isSubmitting) {
+            return;
+        }
 
-        $course = Course::findOrFail($this->singleCourseId);
-        $teacherId = $this->singleTeacherId ?? $course->teacher_id;
+        $this->isSubmitting = true;
 
-        $session = LiveSession::create([
-            'course_id' => $course->id,
-            'subject_id' => $course->subject_id,
-            'teacher_profile_id' => $teacherId,
-            'student_user_id' => $this->singleStudentId ?: null,
-            'title' => trim($this->singleTitle),
-            'scheduled_at' => Carbon::parse($this->singleScheduledAt),
-            'duration_minutes' => $this->singleDuration,
-            'meeting_link' => $this->singleMeetingLink ? trim($this->singleMeetingLink) : null,
-            'meeting_platform' => $this->singleMeetingPlatform ?: 'agora',
-            'status' => 'scheduled',
-            'is_free_demo' => $this->singleIsFreeDemo,
-        ]);
+        try {
+            $this->validate([
+                'singleCourseId' => 'required|exists:courses,id',
+                'singleTitle' => 'required|string|max:255',
+                'singleScheduledAt' => 'required|date',
+                'singleDuration' => 'required|numeric|min:15|max:300',
+                'singleStudentId' => 'nullable|exists:users,id',
+                'singleMeetingLink' => 'nullable|url|max:500',
+            ], [
+                'singleCourseId.required' => __('Please select a course.'),
+                'singleTitle.required' => __('Please enter a session title.'),
+                'singleScheduledAt.required' => __('Please select a valid scheduled date & time.'),
+                'singleDuration.min' => __('Session duration must be at least 15 minutes.'),
+                'singleDuration.max' => __('Session duration cannot exceed 300 minutes.'),
+            ]);
 
-        $this->showCreateSessionModal = false;
+            $course = Course::findOrFail($this->singleCourseId);
+            $teacherId = $this->singleTeacherId ?? $course->teacher_id;
 
-        Notification::make()
-            ->title(__('Live Session Scheduled Successfully'))
-            ->body(__("Session ':title' has been created and assigned.", ['title' => $session->title]))
-            ->success()
-            ->send();
+            $session = LiveSession::create([
+                'course_id' => $course->id,
+                'subject_id' => $course->subject_id,
+                'teacher_profile_id' => $teacherId,
+                'student_user_id' => $this->singleStudentId ?: null,
+                'title' => trim($this->singleTitle),
+                'scheduled_at' => Carbon::parse($this->singleScheduledAt),
+                'duration_minutes' => $this->singleDuration,
+                'meeting_link' => $this->singleMeetingLink ? trim($this->singleMeetingLink) : null,
+                'meeting_platform' => $this->singleMeetingPlatform ?: 'agora',
+                'status' => 'scheduled',
+                'is_free_demo' => $this->singleIsFreeDemo,
+            ]);
+
+            $this->showCreateSessionModal = false;
+
+            Notification::make()
+                ->title(__('Live Session Scheduled Successfully'))
+                ->body(__("Session ':title' has been created and assigned.", ['title' => $session->title]))
+                ->success()
+                ->send();
+        } finally {
+            $this->isSubmitting = false;
+        }
     }
 
     public function updatedRecCourseId(?int $courseId): void
@@ -698,58 +710,68 @@ class CourseScheduleManagerPage extends Page
 
     public function submitRecurringSchedule(RecurringScheduleService $service): void
     {
-        $this->validate([
-            'recCourseId' => 'required|exists:courses,id',
-            'recTitle' => 'required|string|max:255',
-            'recStartDate' => 'required|date',
-            'recEndDate' => 'required|date|after_or_equal:recStartDate',
-            'recStartTime' => 'required',
-            'recDuration' => 'required|numeric|min:15|max:300',
-            'recDays' => 'required|array|min:1',
-            'recMeetingLink' => 'nullable|url|max:500',
-        ], [
-            'recCourseId.required' => __('Please select a course.'),
-            'recTitle.required' => __('Please enter a schedule title.'),
-            'recStartDate.required' => __('Please select a valid start date.'),
-            'recEndDate.required' => __('Please select a valid end date.'),
-            'recEndDate.after_or_equal' => __('The end date must be equal to or after the start date.'),
-            'recStartTime.required' => __('Please select a start time.'),
-            'recDays.min' => __('Please select at least one day of the week for recurrence.'),
-        ]);
-
-        $course = Course::findOrFail($this->recCourseId);
-        $teacherId = $this->recTeacherId ?? $course->teacher_id;
-        $studentIds = ! empty($this->recStudentIds) ? $this->recStudentIds : [null];
-
-        $totalGenerated = 0;
-
-        foreach ($studentIds as $stuId) {
-            $studentTitle = $stuId ? (' - Student #' . $stuId) : '';
-            $schedule = $service->createSchedule([
-                'course_id' => $course->id,
-                'teacher_profile_id' => $teacherId,
-                'student_user_id' => $stuId ?: null,
-                'title' => trim($this->recTitle) . $studentTitle,
-                'recurrence_type' => $this->recType,
-                'days_of_week' => $this->recDays,
-                'start_time' => $this->recStartTime,
-                'duration_minutes' => $this->recDuration,
-                'start_date' => $this->recStartDate,
-                'end_date' => $this->recEndDate,
-                'meeting_link' => $this->recMeetingLink ? trim($this->recMeetingLink) : null,
-                'meeting_platform' => $this->recMeetingPlatform ?: 'agora',
-            ], auth()->user());
-
-            $totalGenerated += $schedule->liveSessions()->count();
+        if ($this->isSubmitting) {
+            return;
         }
 
-        $this->showRecurringModal = false;
+        $this->isSubmitting = true;
 
-        Notification::make()
-            ->title(__('Recurring Schedule Created & Populated'))
-            ->body(__("Successfully created recurring rule and generated :count live sessions.", ['count' => $totalGenerated]))
-            ->success()
-            ->send();
+        try {
+            $this->validate([
+                'recCourseId' => 'required|exists:courses,id',
+                'recTitle' => 'required|string|max:255',
+                'recStartDate' => 'required|date',
+                'recEndDate' => 'required|date|after_or_equal:recStartDate',
+                'recStartTime' => 'required',
+                'recDuration' => 'required|numeric|min:15|max:300',
+                'recDays' => 'required|array|min:1',
+                'recMeetingLink' => 'nullable|url|max:500',
+            ], [
+                'recCourseId.required' => __('Please select a course.'),
+                'recTitle.required' => __('Please enter a schedule title.'),
+                'recStartDate.required' => __('Please select a valid start date.'),
+                'recEndDate.required' => __('Please select a valid end date.'),
+                'recEndDate.after_or_equal' => __('The end date must be equal to or after the start date.'),
+                'recStartTime.required' => __('Please select a start time.'),
+                'recDays.min' => __('Please select at least one day of the week for recurrence.'),
+            ]);
+
+            $course = Course::findOrFail($this->recCourseId);
+            $teacherId = $this->recTeacherId ?? $course->teacher_id;
+            $studentIds = ! empty($this->recStudentIds) ? $this->recStudentIds : [null];
+
+            $totalGenerated = 0;
+
+            foreach ($studentIds as $stuId) {
+                $studentTitle = $stuId ? (' - Student #' . $stuId) : '';
+                $schedule = $service->createSchedule([
+                    'course_id' => $course->id,
+                    'teacher_profile_id' => $teacherId,
+                    'student_user_id' => $stuId ?: null,
+                    'title' => trim($this->recTitle) . $studentTitle,
+                    'recurrence_type' => $this->recType,
+                    'days_of_week' => $this->recDays,
+                    'start_time' => $this->recStartTime,
+                    'duration_minutes' => $this->recDuration,
+                    'start_date' => $this->recStartDate,
+                    'end_date' => $this->recEndDate,
+                    'meeting_link' => $this->recMeetingLink ? trim($this->recMeetingLink) : null,
+                    'meeting_platform' => $this->recMeetingPlatform ?: 'agora',
+                ], auth()->user());
+
+                $totalGenerated += $schedule->liveSessions()->count();
+            }
+
+            $this->showRecurringModal = false;
+
+            Notification::make()
+                ->title(__('Recurring Schedule Created & Populated'))
+                ->body(__("Successfully created recurring rule and generated :count live sessions.", ['count' => $totalGenerated]))
+                ->success()
+                ->send();
+        } finally {
+            $this->isSubmitting = false;
+        }
     }
 
     // --- Quick Inline Session Actions ---

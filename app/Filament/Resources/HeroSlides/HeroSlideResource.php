@@ -33,7 +33,12 @@ class HeroSlideResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'شرائح البانر' : 'Hero Slide';
+        return app()->getLocale() === 'ar' ? 'شريحة سلايدر' : 'Hero Slide';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return app()->getLocale() === 'ar' ? 'شرائح السلايدر' : 'Hero Slides';
     }
 
     public static function form(Schema $schema): Schema

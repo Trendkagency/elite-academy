@@ -134,6 +134,10 @@ class ManageLandingPage extends Page implements HasForms
             'theme_nav_blur',
             'theme_font_family_en',
             'theme_font_family_ar',
+            'currency_code',
+            'currency_symbol_en',
+            'currency_symbol_ar',
+            'currency_position',
         ];
 
         $formData = [];
@@ -285,6 +289,10 @@ class ManageLandingPage extends Page implements HasForms
             'theme_nav_blur' => 'md',
             'theme_font_family_en' => 'Cairo',
             'theme_font_family_ar' => 'Cairo',
+            'currency_code' => 'EGP',
+            'currency_symbol_en' => 'EGP',
+            'currency_symbol_ar' => 'ج.م',
+            'currency_position' => 'after',
             default => '',
         };
     }
@@ -295,19 +303,25 @@ class ManageLandingPage extends Page implements HasForms
             ->components([
                 Tabs::make('SettingsTabs')
                     ->tabs([
-                        Tabs\Tab::make('Hero Slides ✨')
+                        Tabs\Tab::make(app()->getLocale() === 'ar' ? 'شرائح الهيرو' : 'Hero Slides')
                             ->icon('heroicon-o-presentation-chart-line')
                             ->schema([
-                                Section::make('🎬 Hero Slider — Managed via Hero Slides')
-                                    ->description('The hero slider on the landing page is now fully dynamic. Each slide has its own image, headline, badge, CTA buttons, accent color, overlay, and position.')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-film text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'سلايدر الهيرو الرئيسي — يدار عبر شرائح الهيرو' : 'Hero Slider — Managed via Hero Slides')))
+                                    ->description(app()->getLocale() === 'ar' ? 'سلايدر الهيرو في الصفحة الرئيسية الآن ديناميكي بالكامل. كل شريحة لها صورتها، عنوانها، شارتها، أزرارها، وموضعها.' : 'The hero slider on the landing page is now fully dynamic. Each slide has its own image, headline, badge, CTA buttons, accent color, overlay, and position.')
                                     ->schema([
                                         \Filament\Schemas\Components\Html::make(new \Illuminate\Support\HtmlString(
-                                            '<div style="border:1px solid rgba(45,212,191,0.25); background:rgba(20,184,166,0.08); border-radius:12px; padding:28px 24px; text-align:center;">'
-                                            . '<div style="font-size:48px; margin-bottom:12px;">🎠</div>'
-                                            . '<h3 style="font-size:17px; font-weight:700; color:#2dd4bf; margin:0 0 10px;">Hero Slides Resource</h3>'
-                                            . '<p style="color:#94a3b8; font-size:13px; max-width:480px; margin:0 auto 8px; line-height:1.6;">Create, edit, <strong style="color:#e2e8f0;">reorder (drag &amp; drop)</strong>, and toggle visibility of slides directly from the <strong style="color:#e2e8f0;">Hero Slides</strong> section in the sidebar under <em>Landing Page CMS</em>.</p>'
-                                            . '<p style="color:#64748b; font-size:12px; margin:0 auto 18px; max-width:520px; line-height:1.6;">Each slide supports: background image, badge label &amp; icon, headline, subtitle, primary &amp; secondary CTA buttons (with custom labels), accent color palette (teal / purple / orange / rose / sky / amber), overlay opacity, text alignment, and a 9-point content position grid.</p>'
-                                            . '<a href="' . (class_exists(\App\Filament\Resources\HeroSlides\HeroSlideResource::class) ? \App\Filament\Resources\HeroSlides\HeroSlideResource::getUrl('index') : url('/admin/hero-slides')) . '" style="display:inline-flex; align-items:center; gap:8px; padding:10px 22px; border-radius:8px; background:#14b8a6; color:#0f172a; font-weight:700; font-size:13px; text-decoration:none;">🎯 Manage Hero Slides &rarr;</a>'
+                                            '<div style="border:1.5px solid rgba(45,212,191,0.3); background:linear-gradient(145deg, rgba(20,184,166,0.08) 0%, rgba(15,23,42,0.2) 100%); border-radius:16px; padding:36px 28px; text-align:center;">'
+                                            . '<div style="display:inline-flex; align-items:center; justify-content:center; width:82px; height:82px; border-radius:22px; background:linear-gradient(135deg, rgba(20,184,166,0.2) 0%, rgba(13,148,136,0.35) 100%); border:2px solid rgba(45,212,191,0.4); color:#2dd4bf; font-size:36px; margin-bottom:18px; box-shadow:0 12px 28px -6px rgba(20,184,166,0.35);">'
+                                            . '<i class="fa-solid fa-photo-film"></i>'
+                                            . '</div>'
+                                            . '<h3 style="font-size:18px; font-weight:800; color:#2dd4bf; margin:0 0 10px; letter-spacing:-0.01em;">' . (app()->getLocale() === 'ar' ? 'قسم إدارة شرائح الهيرو' : 'Hero Slides Resource') . '</h3>'
+                                            . '<p style="color:#94a3b8; font-size:14px; max-width:520px; margin:0 auto 10px; line-height:1.7;">' . (app()->getLocale() === 'ar' ? 'يمكنك إنشاء، تعديل، <strong style="color:#e2e8f0;">إعادة ترتيب (بالسحب والإفلات)</strong>، والتحكم في ظهور الشرائح مباشرة من قسم <strong style="color:#e2e8f0;">Hero Slides</strong> في القائمة الجانبية.' : 'Create, edit, <strong style="color:#e2e8f0;">reorder (drag &amp; drop)</strong>, and toggle visibility of slides directly from the <strong style="color:#e2e8f0;">Hero Slides</strong> section in the sidebar under <em>Landing Page CMS</em>.') . '</p>'
+                                            . '<p style="color:#64748b; font-size:12.5px; margin:0 auto 22px; max-width:560px; line-height:1.6;">' . (app()->getLocale() === 'ar' ? 'تدعم كل شريحة: صورة الخلفية، نص الشارة والأيقونة، العنوان الرئيسي والفرعي، أزرار الدعوة لاتخاذ إجراء، تدرجات الألوان، شفافية الغطاء، ومحاذاة المحتوى.' : 'Each slide supports: background image, badge label &amp; icon, headline, subtitle, primary &amp; secondary CTA buttons (with custom labels), accent color palette (teal / purple / orange / rose / sky / amber), overlay opacity, text alignment, and a 9-point content position grid.') . '</p>'
+                                            . '<a href="' . (class_exists(\App\Filament\Resources\HeroSlides\HeroSlideResource::class) ? \App\Filament\Resources\HeroSlides\HeroSlideResource::getUrl('index') : url('/admin/hero-slides')) . '" style="display:inline-flex; align-items:center; gap:10px; padding:12px 26px; border-radius:10px; background:linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); color:#ffffff; font-weight:700; font-size:14px; text-decoration:none; box-shadow:0 6px 20px -2px rgba(20,184,166,0.4); transition:all 0.2s ease;">'
+                                            . '<i class="fa-solid fa-sliders"></i>'
+                                            . '<span>' . (app()->getLocale() === 'ar' ? 'إدارة شرائح الهيرو (Hero Slides)' : 'Manage Hero Slides') . '</span>'
+                                            . '<i class="fa-solid ' . (app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right') . '"></i>'
+                                            . '</a>'
                                             . '</div>'
                                         )),
                                     ]),
@@ -317,7 +331,7 @@ class ManageLandingPage extends Page implements HasForms
                         Tabs\Tab::make('Statistics & Metrics')
                             ->icon('heroicon-o-chart-bar')
                             ->schema([
-                                Section::make('📊 Statistics Counters & Dynamic Metrics')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-chart-pie text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'إحصائيات المنصة وأرقام الإنجاز' : 'Statistics Counters & Dynamic Metrics')))
                                     ->description('Manage numbers and multi-lingual labels for active students, accredited courses, expert teachers, parent satisfaction, and global certifications.')
                                     ->schema([
                                         Repeater::make('landing_stats_counters')
@@ -581,7 +595,7 @@ class ManageLandingPage extends Page implements HasForms
                         Tabs\Tab::make('Section Layout & Visibility')
                             ->icon('heroicon-o-arrows-up-down')
                             ->schema([
-                                Section::make('🔀 Landing Page Layout & Section Visibility')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-layer-group text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'ترتيب الأقسام والظهور' : 'Landing Page Layout & Section Visibility')))
                                     ->schema([
                                         Repeater::make('sections_layout')
                                             ->label('Landing Page Sections Order & Visibility')
@@ -620,7 +634,7 @@ class ManageLandingPage extends Page implements HasForms
                                     ->columnSpanFull(),
 
                                 // ── 1. BRAND COLORS & SURFACE ──
-                                Section::make('🎨 Brand Color Palette & Surface Mode')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-palette text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'لوحة ألوان الهوية والمظهر' : 'Brand Color Palette & Surface Mode')))
                                     ->description('Customize core brand colors, secondary accents, and overall visual mode.')
                                     ->columns(2)
                                     ->schema([
@@ -630,40 +644,40 @@ class ManageLandingPage extends Page implements HasForms
                                             ->required(),
 
                                         ColorPicker::make('theme_secondary_color')
-                                            ->label('Secondary Accent Color')
+                                            ->label('Secondary Brand Accent')
                                             ->default('#6366f1')
                                             ->required(),
 
                                         ColorPicker::make('theme_accent_color')
-                                            ->label('Highlight / Warning Accent')
+                                            ->label('Highlight & Badge Glow Accent')
                                             ->default('#f59e0b')
                                             ->required(),
 
                                         Select::make('theme_surface_mode')
-                                            ->label('Surface & Depth Theme')
+                                            ->label('Global Surface Aesthetic')
                                             ->options([
-                                                'dark-glass'  => '🌌 Dark Glassmorphism (Default)',
-                                                'deep-slate'  => '🌑 Deep Slate Modern',
-                                                'pure-dark'   => '🖤 Pure OLED Black',
-                                                'clean-light' => '☀️ Clean Light Surface',
+                                                'dark-glass'  => 'Dark Futuristic Glass (Default)',
+                                                'deep-slate'  => 'Deep Slate Modern',
+                                                'pure-dark'   => 'Pure OLED Black',
+                                                'clean-light' => 'Clean Light Surface',
                                             ])
                                             ->default('dark-glass')
                                             ->native(false),
                                     ]),
 
                                 // ── 2. BUTTONS & CTA ELEMENTS ──
-                                Section::make('🔘 Button & CTA Styles (mtns / Buttons)')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-toggle-on text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'أنماط أزرار الإجراء (Buttons & CTA)' : 'Button & CTA Styles')))
                                     ->description('Global button curvature, gradient effects, hover animations, and typography.')
                                     ->columns(2)
                                     ->schema([
                                         Select::make('theme_btn_radius')
                                             ->label('Button Corner Radius')
                                             ->options([
-                                                'full' => '💊 Full Pill (9999px)',
-                                                'lg'   => '🔲 Large Rounded (12px)',
-                                                'md'   => '⏹ Medium Rounded (8px)',
-                                                'sm'   => '◽ Small Rounded (4px)',
-                                                'none' => '⬛ Sharp Square (0px)',
+                                                'full' => 'Full Pill (9999px)',
+                                                'lg'   => 'Large Rounded (12px)',
+                                                'md'   => 'Medium Rounded (8px)',
+                                                'sm'   => 'Small Rounded (4px)',
+                                                'none' => 'Sharp Square (0px)',
                                             ])
                                             ->default('full')
                                             ->native(false),
@@ -671,10 +685,10 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_btn_style')
                                             ->label('Button Visual Variant')
                                             ->options([
-                                                'gradient' => '✨ Radiant Dual Gradient',
-                                                'solid'    => '🎨 Solid Bold Color',
-                                                'glow'     => '🔮 Neon Ambient Glow',
-                                                'glass'    => '🪟 Translucent Glass',
+                                                'gradient' => 'Radiant Dual Gradient',
+                                                'solid'    => 'Solid Bold Color',
+                                                'glow'     => 'Neon Ambient Glow',
+                                                'glass'    => 'Translucent Glass',
                                             ])
                                             ->default('gradient')
                                             ->native(false),
@@ -682,10 +696,10 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_btn_hover')
                                             ->label('Hover Interaction Effect')
                                             ->options([
-                                                'lift-glow' => '🚀 Float Up + Expand Glow',
-                                                'lift'      => '⬆ Smooth Float Up',
-                                                'glow'      => '🌟 Aura Glow Intensify',
-                                                'scale'     => '🔍 Subtle Scale Pop',
+                                                'lift-glow' => 'Float Up + Expand Glow',
+                                                'lift'      => 'Smooth Float Up',
+                                                'glow'      => 'Aura Glow Intensify',
+                                                'scale'     => 'Subtle Scale Pop',
                                             ])
                                             ->default('lift-glow')
                                             ->native(false),
@@ -703,7 +717,7 @@ class ManageLandingPage extends Page implements HasForms
                                     ]),
 
                                 // ── 3. CARDS & CONTAINERS ──
-                                Section::make('🎴 Cards, Containers & Glassmorphism')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-table-cells-large text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'البطاقات والحاويات والتأثير الزجاجي' : 'Cards, Containers & Glassmorphism')))
                                     ->description('Configure shape, background styling, shadow depth, and float animations for all cards.')
                                     ->columns(2)
                                     ->schema([
@@ -721,10 +735,10 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_card_style')
                                             ->label('Card Surface Style')
                                             ->options([
-                                                'glass'    => '🪟 Translucent Frosted Glass',
-                                                'solid'    => '⬛ Solid Deep Slate',
-                                                'bordered' => '🔲 Highlighted Border Glow',
-                                                'elevated' => '📦 3D Elevated Layer',
+                                                'glass'    => 'Translucent Frosted Glass',
+                                                'solid'    => 'Solid Deep Slate',
+                                                'bordered' => 'Highlighted Border Glow',
+                                                'elevated' => '3D Elevated Layer',
                                             ])
                                             ->default('glass')
                                             ->native(false),
@@ -732,9 +746,9 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_card_shadow')
                                             ->label('Card Shadow & Glow Depth')
                                             ->options([
-                                                'glow-soft' => '✨ Soft Ambient Accent Glow',
-                                                'lg'        => '🌑 Deep 3D Shadow',
-                                                'md'        => '☁ Medium Soft Shadow',
+                                                'glow-soft' => 'Soft Ambient Accent Glow',
+                                                'lg'        => 'Deep 3D Shadow',
+                                                'md'        => 'Medium Soft Shadow',
                                                 'none'      => 'Flat (No Shadow)',
                                             ])
                                             ->default('glow-soft')
@@ -743,9 +757,9 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_card_hover')
                                             ->label('Card Hover Animation')
                                             ->options([
-                                                'lift'  => '⬆ Float Up Smoothly',
-                                                'glow'  => '💡 Accent Border Illuminates',
-                                                'scale' => '🔍 Subtle Scale',
+                                                'lift'  => 'Float Up Smoothly',
+                                                'glow'  => 'Accent Border Illuminates',
+                                                'scale' => 'Subtle Scale',
                                                 'none'  => 'Static',
                                             ])
                                             ->default('lift')
@@ -753,16 +767,16 @@ class ManageLandingPage extends Page implements HasForms
                                     ]),
 
                                 // ── 4. BADGES & STATUS TAGS ──
-                                Section::make('🏷️ Badges & Indicator Tags')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-tag text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'الشارات والشريط الترويجي' : 'Badges & Indicator Tags')))
                                     ->description('Appearance of category badges, rating badges, and live indicator tags.')
                                     ->columns(2)
                                     ->schema([
                                         Select::make('theme_badge_radius')
                                             ->label('Badge Corner Radius')
                                             ->options([
-                                                'full' => '💊 Pill Shape (9999px)',
-                                                'md'   => '⏹ Rounded (8px)',
-                                                'sm'   => '◽ Compact (4px)',
+                                                'full' => 'Pill Shape (9999px)',
+                                                'md'   => 'Rounded (8px)',
+                                                'sm'   => 'Compact (4px)',
                                             ])
                                             ->default('full')
                                             ->native(false),
@@ -770,17 +784,17 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_badge_style')
                                             ->label('Badge Visual Style')
                                             ->options([
-                                                'glass-glow' => '✨ Glass + Ambient Glow',
-                                                'solid'      => '🎨 Solid Accent Pill',
-                                                'outline'    => '🔲 Crisp Outline Border',
-                                                'minimal'    => '🫧 Subtle Tint',
+                                                'glass-glow' => 'Glass + Ambient Glow',
+                                                'solid'      => 'Solid Accent Pill',
+                                                'outline'    => 'Crisp Outline Border',
+                                                'minimal'    => 'Subtle Tint',
                                             ])
                                             ->default('glass-glow')
                                             ->native(false),
                                     ]),
 
                                 // ── 5. HERO SLIDER VISUALS ──
-                                Section::make('🖼️ Hero Slider & Banners Defaults')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-images text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'إعدادات شرائح وبانرات الهيرو' : 'Hero Slider & Banners Defaults')))
                                     ->description('Default overlay darkness and indicator behavior for the landing page hero slider.')
                                     ->columns(3)
                                     ->schema([
@@ -795,8 +809,8 @@ class ManageLandingPage extends Page implements HasForms
                                         Select::make('theme_slider_indicator_style')
                                             ->label('Slide Indicator Style')
                                             ->options([
-                                                'dynamic-pill' => '━ Dynamic Elongating Bar',
-                                                'dots'         => '● Classic Dots',
+                                                'dynamic-pill' => 'Dynamic Elongating Bar',
+                                                'dots'         => 'Classic Dots',
                                                 'numbers'      => '01/04 Numeric Counter',
                                             ])
                                             ->default('dynamic-pill')
@@ -809,16 +823,16 @@ class ManageLandingPage extends Page implements HasForms
                                     ]),
 
                                 // ── 6. HEADER & NAVIGATION ──
-                                Section::make('🧭 Header & Navigation Bar')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-compass text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'شريط التنقل العلوي (Header & Nav)' : 'Header & Navigation Bar')))
                                     ->description('Styling and blur depth for the top navigation bar.')
                                     ->columns(2)
                                     ->schema([
                                         Select::make('theme_nav_style')
                                             ->label('Navbar Layout Style')
                                             ->options([
-                                                'glass-sticky'  => '🪟 Sticky Frosted Glass (Default)',
-                                                'solid'         => '⬛ Solid Deep Navbar',
-                                                'floating-pill' => '💊 Floating Island Pill',
+                                                'glass-sticky'  => 'Sticky Frosted Glass (Default)',
+                                                'solid'         => 'Solid Deep Navbar',
+                                                'floating-pill' => 'Floating Island Pill',
                                             ])
                                             ->default('glass-sticky')
                                             ->native(false),
@@ -835,7 +849,7 @@ class ManageLandingPage extends Page implements HasForms
                                     ]),
 
                                 // ── 7. TYPOGRAPHY & FONTS ──
-                                Section::make('✍️ Typography & Font Families')
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-font text-teal-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'الخطوط والتايبوجرافي' : 'Typography & Font Families')))
                                     ->description('Curated Google Fonts for headlines, body text, and multilingual rendering.')
                                     ->columns(2)
                                     ->schema([
@@ -863,6 +877,69 @@ class ManageLandingPage extends Page implements HasForms
                                             ])
                                             ->default('Cairo')
                                             ->native(false),
+                                    ]),
+                            ]),
+
+                        Tabs\Tab::make(app()->getLocale() === 'ar' ? 'العملة والأسعار' : 'Currency & Pricing')
+                            ->icon('heroicon-o-banknotes')
+                            ->schema([
+                                Section::make(new \Illuminate\Support\HtmlString('<i class="fa-solid fa-coins text-amber-400 me-2"></i>' . (app()->getLocale() === 'ar' ? 'إعدادات العملة والأسعار بالنظام' : 'System Currency & Pricing Configuration')))
+                                    ->description(app()->getLocale() === 'ar' 
+                                        ? 'التحكم في العملة الافتراضية للنظام (الافتراضي: الجنيه المصري EGP / ج.م) وطريقة عرض الأسعار في كافة أجزاء الموقع واللوحة.' 
+                                        : 'Control default platform currency (Default: Egyptian Pound EGP / ج.م) and formatting across all courses, packages, and reports.')
+                                    ->schema([
+                                        Grid::make(3)->schema([
+                                            Select::make('currency_code')
+                                                ->label(app()->getLocale() === 'ar' ? 'رمز العملة القياسي (ISO Code)' : 'Currency Code (ISO)')
+                                                ->options([
+                                                    'EGP' => 'EGP — Egyptian Pound (الجنيه المصري)',
+                                                    'USD' => 'USD — US Dollar (الدولار الأمريكي)',
+                                                    'SAR' => 'SAR — Saudi Riyal (الريال السعودي)',
+                                                    'AED' => 'AED — UAE Dirham (الدرهم الإماراتي)',
+                                                    'KWD' => 'KWD — Kuwaiti Dinar (الدينار الكويتي)',
+                                                    'QAR' => 'QAR — Qatari Riyal (الريال القطري)',
+                                                    'EUR' => 'EUR — Euro (اليورو الأوروبي)',
+                                                    'GBP' => 'GBP — British Pound (الجنيه الإسترليني)',
+                                                ])
+                                                ->default('EGP')
+                                                ->required()
+                                                ->native(false),
+
+                                            TextInput::make('currency_symbol_ar')
+                                                ->label(app()->getLocale() === 'ar' ? 'رمز العملة (بالعربية)' : 'Currency Symbol (Arabic)')
+                                                ->default('ج.م')
+                                                ->placeholder('ج.م')
+                                                ->required(),
+
+                                            TextInput::make('currency_symbol_en')
+                                                ->label(app()->getLocale() === 'ar' ? 'رمز العملة (بالإنجليزية)' : 'Currency Symbol (English)')
+                                                ->default('EGP')
+                                                ->placeholder('EGP')
+                                                ->required(),
+                                        ]),
+
+                                        Grid::make(2)->schema([
+                                            Select::make('currency_position')
+                                                ->label(app()->getLocale() === 'ar' ? 'موضع رمز العملة' : 'Symbol Position')
+                                                ->options([
+                                                    'after'  => app()->getLocale() === 'ar' ? 'بعد المبلغ (مثال: 290 ج.م / 290 EGP)' : 'After Amount (e.g. 290 EGP / 290 ج.م)',
+                                                    'before' => app()->getLocale() === 'ar' ? 'قبل المبلغ (مثال: ج.م 290 / EGP 290)' : 'Before Amount (e.g. EGP 290 / $ 290)',
+                                                ])
+                                                ->default('after')
+                                                ->required()
+                                                ->native(false),
+                                        ]),
+
+                                        \Filament\Schemas\Components\Html::make(new \Illuminate\Support\HtmlString(
+                                            '<div style="background: rgba(20, 184, 166, 0.08); border: 1px solid rgba(20, 184, 166, 0.25); border-radius: 1rem; padding: 1.25rem; margin-top: 0.5rem;">'
+                                            . '<div style="font-weight: 800; font-size: 0.85rem; color: #0D9488; margin-bottom: 0.35rem;"><i class="fa-solid fa-wand-magic-sparkles text-teal-500 me-2"></i>' . (app()->getLocale() === 'ar' ? 'معاينة فورية لعرض الأسعار:' : 'Live Currency Display Preview:') . '</div>'
+                                            . '<div style="display: flex; gap: 1rem; font-family: monospace; font-size: 1.1rem; font-weight: 800; color: #0F172A;" class="dark:text-white">'
+                                            . '<span>' . (app()->getLocale() === 'ar' ? 'بالعربية: ' : 'Arabic: ') . '<span style="color: #0D9488;">' . format_currency(290, 'ar') . '</span></span>'
+                                            . '<span> | </span>'
+                                            . '<span>' . (app()->getLocale() === 'ar' ? 'بالإنجليزية: ' : 'English: ') . '<span style="color: #0D9488;">' . format_currency(290, 'en') . '</span></span>'
+                                            . '</div>'
+                                            . '</div>'
+                                        )),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

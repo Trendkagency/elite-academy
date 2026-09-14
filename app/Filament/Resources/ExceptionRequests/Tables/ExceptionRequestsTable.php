@@ -25,29 +25,29 @@ class ExceptionRequestsTable
         return $table
             ->columns([
                 TextColumn::make('studentUser.name')
-                    ->label('Student Name')
+                    ->label(__('Student Name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('scope')
-                    ->label('Scope')
+                    ->label(__('Scope'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'global' => 'purple',
                         default => 'info',
                     }),
                 TextColumn::make('course.title')
-                    ->label('Specific Course')
-                    ->placeholder('Global System Exemption')
+                    ->label(__('Specific Course'))
+                    ->placeholder(__('Global System Exemption'))
                     ->searchable(),
                 IconColumn::make('is_global')
-                    ->label('Is Global')
+                    ->label(__('Is Global'))
                     ->boolean(),
                 TextColumn::make('reason')
-                    ->label('Reason / Excuse')
+                    ->label(__('Reason / Excuse'))
                     ->limit(35)
                     ->searchable(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'approved' => 'success',
@@ -55,7 +55,7 @@ class ExceptionRequestsTable
                         default => 'warning',
                     }),
                 TextColumn::make('created_at')
-                    ->label('Submitted At')
+                    ->label(__('Submitted At'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -64,7 +64,7 @@ class ExceptionRequestsTable
             ])
             ->recordActions([
                 Action::make('approve')
-                    ->label('Approve Exception')
+                    ->label(__('Approve Exception'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(function ($record) {
@@ -72,14 +72,14 @@ class ExceptionRequestsTable
                         app(FcmNotificationService::class)->notifyExceptionStatus($record);
 
                         Notification::make()
-                            ->title('Student Exception Approved & Notification Sent 🔔')
+                            ->title(__('Student Exception Approved & Notification Sent 🔔'))
                             ->success()
                             ->send();
                     })
                     ->visible(fn ($record) => $record->status !== 'approved'),
 
                 Action::make('reject')
-                    ->label('Reject Exception')
+                    ->label(__('Reject Exception'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->action(function ($record) {
@@ -87,7 +87,7 @@ class ExceptionRequestsTable
                         app(FcmNotificationService::class)->notifyExceptionStatus($record);
 
                         Notification::make()
-                            ->title('Student Exception Rejected & Notification Sent 🔔')
+                            ->title(__('Student Exception Rejected & Notification Sent 🔔'))
                             ->danger()
                             ->send();
                     })

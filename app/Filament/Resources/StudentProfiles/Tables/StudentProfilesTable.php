@@ -29,24 +29,28 @@ class StudentProfilesTable
                     ->getStateUsing(fn ($record) => $record->avatar_url)
                     ->defaultImageUrl(fn ($record) => $record?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff'),
                 TextColumn::make('user.name')
-                    ->label('Student Name')
+                    ->label(__('Student Name'))
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('user.email')
-                    ->label('Student Email')
-                    ->searchable(),
+                    ->label(__('Student Email'))
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('user.phone')
-                    ->label('Phone Number')
+                    ->label(__('Phone Number'))
                     ->searchable(),
                 TextColumn::make('gradeLevel.name')
-                    ->label('Grade Level')
+                    ->label(__('Grade Level'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('school_name')
-                    ->label('School Name')
-                    ->searchable(),
+                    ->label(__('School Name'))
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(2),
                 TextColumn::make('user.status')
-                    ->label('Account Status')
+                    ->label(__('Account Status'))
                     ->badge(),
             ])
             ->filters([
@@ -54,16 +58,16 @@ class StudentProfilesTable
             ])
             ->recordActions([
                 Action::make('approveStudent')
-                    ->label('Approve Student')
+                    ->label(__('Approve Student'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(function ($record) {
                         $record->user?->update(['status' => \App\Enums\AccountStatus::APPROVED]);
-                        Notification::make()->title('Student Approved')->success()->send();
+                        Notification::make()->title(__('Student Approved'))->success()->send();
                     })
                     ->visible(fn ($record) => $record->user?->status !== \App\Enums\AccountStatus::APPROVED && $record->user?->status !== 'approved'),
                 Action::make('rejectStudent')
-                    ->label('Reject Student')
+                    ->label(__('Reject Student'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()

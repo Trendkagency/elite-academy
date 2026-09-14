@@ -81,8 +81,10 @@
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    Header always set Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval';"
+    <If "%{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+    Header always set Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http: https: ws: wss: data: blob:; img-src 'self' http: https: data: blob:; media-src 'self' http: https: data: blob:; frame-src 'self' http: https:; font-src 'self' http: https: data:;"
 </IfModule>
 
 # Gzip / Deflate Compression
