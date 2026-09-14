@@ -213,46 +213,101 @@
 
 {{-- Drawer Backdrop --}}
 <label for="mobile-drawer-toggle"
-       class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 lg:hidden"
+       class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden peer-checked:flex transition-opacity duration-300 lg:hidden cursor-pointer"
        aria-label="Close Mobile Navigation Menu" role="button"></label>
 
-{{-- Drawer Content Panel --}}
+{{-- Drawer Content Panel (Scrollable with Momentum Scrolling) --}}
 <div id="mobile-drawer-panel"
-     class="fixed top-0 bottom-0 w-[300px] bg-white dark:bg-slate-900 z-50 shadow-2xl flex flex-col justify-between p-6 transform transition-transform duration-300 ease-in-out lg:hidden border-slate-200 dark:border-slate-800
+     class="fixed inset-y-0 h-full max-h-screen w-[310px] sm:w-[340px] max-w-[85vw] bg-white dark:bg-slate-900 z-50 shadow-2xl overflow-y-auto overscroll-contain transform transition-transform duration-300 ease-in-out lg:hidden border-slate-200 dark:border-slate-800 custom-scrollbar
             ltr:right-0 ltr:translate-x-full ltr:peer-checked:translate-x-0 ltr:border-l
-            rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 rtl:border-r">
-    <div class="space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="160" height="36" class="h-14 sm:h-16 w-auto object-contain" loading="lazy">
-            <label for="mobile-drawer-toggle" class="p-2 text-slate-500 hover:text-slate-900 rounded-xl cursor-pointer font-bold text-lg" aria-label="Close Mobile Navigation Menu" role="button" tabindex="0">
-                <i class="fa-solid fa-xmark"></i>
-            </label>
+            rtl:left-0 rtl:-translate-x-full rtl:peer-checked:translate-x-0 rtl:border-r"
+     style="-webkit-overflow-scrolling: touch;">
+    <div class="min-h-full flex flex-col justify-between p-5 sm:p-6 gap-6">
+        <div class="space-y-4">
+            {{-- Drawer Header with Logo and Close Button --}}
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <a href="{{ route('home') }}" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-lg">
+                    <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="160" height="36" class="h-12 sm:h-14 w-auto object-contain" loading="lazy">
+                </a>
+                <label for="mobile-drawer-toggle"
+                       class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer font-bold text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                       aria-label="Close Mobile Navigation Menu" role="button" tabindex="0">
+                    <i class="fa-solid fa-xmark"></i>
+                </label>
+            </div>
+
+            {{-- Navigation Links List --}}
+            <nav aria-label="{{ app()->getLocale() === 'ar' ? 'تنقل القائمة الجانبية للهاتف' : 'Mobile Drawer Navigation' }}" class="flex flex-col space-y-1.5">
+                @foreach ($navItems as $item)
+                    <a href="{{ $item['url'] ?? route($item['route']) }}"
+                       @class([
+                           'flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600',
+                           'bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-200/80 dark:border-teal-700/80 font-extrabold shadow-xs' => $item['active'],
+                           'text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 hover:text-teal-600 dark:hover:text-teal-400' => ! $item['active'],
+                       ])>
+                        <span>{{ $item['label'] }}</span>
+                        @if($item['active'])
+                            <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                        @endif
+                    </a>
+                @endforeach
+            </nav>
         </div>
 
-        <nav aria-label="{{ app()->getLocale() === 'ar' ? 'تنقل القائمة الجانبية للهاتف' : 'Mobile Drawer Navigation' }}" class="flex flex-col space-y-2">
-            @foreach ($navItems as $item)
-                <a href="{{ $item['url'] ?? route($item['route']) }}"
-                   @class([
-                       'px-4 py-3 rounded-2xl font-bold text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600',
-                       'bg-teal-50 text-teal-700 border border-teal-200/80 font-extrabold' => $item['active'],
-                       'text-slate-800 hover:bg-slate-100/80' => ! $item['active'],
-                   ])>{{ $item['label'] }}</a>
-            @endforeach
-        </nav>
-    </div>
-
-    <div class="pt-6 border-t border-slate-100 space-y-3">
-        @guest
-            <a href="{{ route('login') }}" class="btn-mobile-lg text-slate-800 bg-slate-100 hover:bg-slate-200 touch-press text-center font-bold text-sm">{{ $loginText }}</a>
-            <a href="{{ route('register') }}" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> {{ $joinText }}</a>
-        @endguest
-        @auth
-            <a href="{{ $portalUrl }}" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/25 touch-press text-center font-extrabold text-sm"><i class="fa-solid fa-chart-column"></i> {{ auth()->user()->name }} ({{ $portalLabel }})</a>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-mobile-lg w-full text-red-600 bg-red-50 hover:bg-red-100 touch-press text-center font-bold text-sm cursor-pointer">{{ app()->getLocale() === 'ar' ? 'تسجيل الخروج' : 'Log Out' }}</button>
-            </form>
-        @endauth
+        {{-- Bottom Auth and Portal Actions (Always reachable by scrolling) --}}
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2.5 shrink-0 pb-6">
+            @guest
+                <a href="{{ route('login') }}" class="btn-mobile-lg text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 touch-press text-center font-bold text-sm flex items-center justify-center gap-2 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-teal-600 dark:text-teal-400"></i>
+                    <span>{{ $loginText }}</span>
+                </a>
+                <a href="{{ route('register') }}" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/25 touch-press text-center font-extrabold text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                    <span>{{ $joinText }}</span>
+                </a>
+            @endguest
+            @auth
+                <a href="{{ $portalUrl }}" class="btn-mobile-lg text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-600/25 touch-press text-center font-extrabold text-sm flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span>{{ auth()->user()->name }} ({{ $portalLabel }})</span>
+                </a>
+                @if(! $authUser->isAdmin() && ! $authUser->isTeacher() && ! $authUser->isParent())
+                    <a href="{{ route('student.profile') }}" class="btn-mobile-lg text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 touch-press text-center font-bold text-sm flex items-center justify-center gap-2 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                        <i class="fa-solid fa-user text-teal-600 dark:text-teal-400"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'Profile' }}</span>
+                    </a>
+                @endif
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn-mobile-lg w-full text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200/60 dark:border-red-900/50 touch-press text-center font-bold text-sm cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الخروج' : 'Log Out' }}</span>
+                    </button>
+                </form>
+            @endauth
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.getElementById('mobile-drawer-toggle');
+        if (toggle) {
+            toggle.addEventListener('change', function () {
+                if (this.checked) {
+                    document.body.classList.add('overflow-hidden');
+                } else {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if ((e.key === 'Escape' || e.key === 'Esc') && toggle.checked) {
+                    toggle.checked = false;
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+        }
+    });
+</script>
 
