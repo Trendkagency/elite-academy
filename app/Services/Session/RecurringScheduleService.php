@@ -522,4 +522,37 @@ class RecurringScheduleService
             return $session;
         });
     }
+
+    /**
+     * Delete Recurring Schedule and clean up future uncompleted sessions
+     */
+    public function deleteSchedule(RecurringSchedule $schedule, User $user): void
+    {
+        DB::transaction(function () use ($schedule, $user) {
+            $oldValues = $schedule->toArray();
+
+            // Delete upcoming/scheduled sessions that have not been completed
+            $sessionsToDelete = $schedule->sessions()
+                ->whereNotIn('status', ['completed'])
+                ->get();
+
+            foreach ($sessionsToDelete as $ses) {
+                // Delete related student sessions and attendance if no actual completion
+                \App\Models\StudentSession::where('live_session_id', $ses->id)->delete();
+                \App\Models\MeetingAttendance::where('live_session_id', $ses->id)->delete();
+                $ses->delete();
+            }
+
+            SessionAuditLog::create([
+                'user_id' => $user->id,
+                'recurring_schedule_id' => $schedule->id,
+                'action' => 'deleted',
+                'old_values' => $oldValues,
+                'reason' => 'Deleted recurring schedule and ' . $sessionsToDelete->count() . ' uncompleted sessions',
+                'ip_address' => request()->ip(),
+            ]);
+
+            $schedule->delete();
+        });
+    }
 }

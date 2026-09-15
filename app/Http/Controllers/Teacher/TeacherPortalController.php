@@ -423,6 +423,61 @@ class TeacherPortalController extends Controller
     }
 
     /**
+     * AJAX Endpoint: Update Recurring Schedule Rule
+     */
+    public function updateRecurringSchedule(Request $request, int $id, RecurringScheduleService $service): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $schedule = RecurringSchedule::findOrFail($id);
+        if ((int) $schedule->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'days_of_week' => 'nullable|array',
+            'start_time' => 'required|string',
+            'duration_minutes' => 'nullable|integer|min:15|max:300',
+            'meeting_link' => 'nullable|url|max:500',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $service->updateEntireSchedule($schedule, $validated, auth()->user());
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Recurring schedule updated successfully!'),
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint: Delete Recurring Schedule & Uncompleted Sessions
+     */
+    public function deleteRecurringSchedule(Request $request, int $id, RecurringScheduleService $service): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $schedule = RecurringSchedule::findOrFail($id);
+        if ((int) $schedule->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $service->deleteSchedule($schedule, auth()->user());
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Recurring schedule and uncompleted sessions deleted successfully!'),
+        ]);
+    }
+
+    /**
      * AJAX Endpoint: Create Single Live Session
      */
     public function createSession(Request $request): JsonResponse
@@ -667,6 +722,37 @@ class TeacherPortalController extends Controller
     }
 
     /**
+     * AJAX Endpoint: Delete Live Session
+     */
+    public function deleteSession(Request $request, int $id): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $session = LiveSession::findOrFail($id);
+
+        $isTeacherOwner = (int) $session->teacher_profile_id === (int) $teacherProfile->id
+            || ($session->course && (int) $session->course->teacher_id === (int) $teacherProfile->id);
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized')], 403);
+        }
+
+        DB::transaction(function () use ($session) {
+            \App\Models\StudentSession::where('live_session_id', $session->id)->delete();
+            \App\Models\MeetingAttendance::where('live_session_id', $session->id)->delete();
+            $session->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Live session deleted successfully!'),
+        ]);
+    }
+
+    /**
      * AJAX Endpoint: Get Calendar Feed for Teacher Portal
      */
     public function getCalendarEvents(Request $request): JsonResponse
@@ -796,6 +882,171 @@ class TeacherPortalController extends Controller
             'message' => __('Assignment published successfully!'),
             'assignment_id' => $assignment->id,
         ], 201);
+    }
+
+    /**
+     * AJAX Endpoint: Update Assignment & Interactive Questions
+     */
+    public function updateAssignment(Request $request, int $id): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $assignment = Assignment::with(['questions.options'])->findOrFail($id);
+
+        $isTeacherOwner = (int) $assignment->teacher_profile_id === (int) $teacherProfile->id
+            || ($assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id)
+            || ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id);
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized access to assignment.')], 403);
+        }
+
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'live_session_id' => 'nullable|exists:live_sessions,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'due_at' => 'required|date',
+            'duration_minutes' => 'nullable|integer|min:5|max:300',
+            'passing_score' => 'nullable|numeric|min:0|max:100',
+            'questions' => 'nullable|array',
+            'questions.*.id' => 'nullable|integer',
+            'questions.*.question_text' => 'required_with:questions|string|max:1000',
+            'questions.*.points' => 'nullable|numeric|min:0.1',
+            'questions.*.correct_index' => 'nullable|integer|min:0|max:10',
+            'questions.*.options' => 'nullable|array|min:2',
+            'questions.*.options.*' => 'nullable|string|max:500',
+        ]);
+
+        $course = Course::findOrFail($validated['course_id']);
+        if ((int) $course->teacher_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized course ownership'], 403);
+        }
+
+        DB::transaction(function () use ($assignment, $validated, $course) {
+            $assignment->update([
+                'course_id' => $course->id,
+                'live_session_id' => $validated['live_session_id'] ?? null,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'duration_minutes' => (int) ($validated['duration_minutes'] ?? 30),
+                'due_at' => Carbon::parse($validated['due_at']),
+                'passing_score' => (float) ($validated['passing_score'] ?? 70.0),
+            ]);
+
+            $submittedQuestions = $validated['questions'] ?? [];
+            $keepQuestionIds = [];
+
+            foreach ($submittedQuestions as $qIdx => $qData) {
+                if (empty($qData['question_text'])) continue;
+
+                $qPoints = (float) ($qData['points'] ?? 1.0);
+                $correctIndex = isset($qData['correct_index']) ? (int) $qData['correct_index'] : 0;
+                $qId = !empty($qData['id']) ? (int) $qData['id'] : null;
+
+                if ($qId) {
+                    $question = \App\Models\AssignmentQuestion::where('assignment_id', $assignment->id)->find($qId);
+                    if ($question) {
+                        $question->update([
+                            'question_text' => $qData['question_text'],
+                            'points' => $qPoints,
+                            'sort_order' => $qIdx + 1,
+                        ]);
+                    } else {
+                        $question = \App\Models\AssignmentQuestion::create([
+                            'assignment_id' => $assignment->id,
+                            'question_text' => $qData['question_text'],
+                            'question_type' => 'text',
+                            'points' => $qPoints,
+                            'sort_order' => $qIdx + 1,
+                            'is_multiple_choice' => false,
+                        ]);
+                    }
+                } else {
+                    $question = \App\Models\AssignmentQuestion::create([
+                        'assignment_id' => $assignment->id,
+                        'question_text' => $qData['question_text'],
+                        'question_type' => 'text',
+                        'points' => $qPoints,
+                        'sort_order' => $qIdx + 1,
+                        'is_multiple_choice' => false,
+                    ]);
+                }
+
+                $keepQuestionIds[] = $question->id;
+
+                // Update options: delete old and re-create fresh with correct sort and flag
+                $question->options()->delete();
+                if (! empty($qData['options']) && is_array($qData['options'])) {
+                    foreach ($qData['options'] as $optIdx => $optText) {
+                        if (trim((string)$optText) === '') continue;
+
+                        \App\Models\AssignmentQuestionOption::create([
+                            'question_id' => $question->id,
+                            'option_text' => trim($optText),
+                            'sort_order' => $optIdx + 1,
+                            'is_correct' => ($optIdx === $correctIndex),
+                        ]);
+                    }
+                }
+            }
+
+            // Delete questions removed during edit
+            \App\Models\AssignmentQuestion::where('assignment_id', $assignment->id)
+                ->whereNotIn('id', $keepQuestionIds)
+                ->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Assignment updated successfully!'),
+            'assignment_id' => $assignment->id,
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint: Delete Assignment & All Associated Questions
+     */
+    public function deleteAssignment(Request $request, int $id): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $assignment = Assignment::findOrFail($id);
+
+        $isTeacherOwner = (int) $assignment->teacher_profile_id === (int) $teacherProfile->id
+            || ($assignment->course && (int) $assignment->course->teacher_id === (int) $teacherProfile->id)
+            || ($assignment->liveSession && (int) $assignment->liveSession->teacher_profile_id === (int) $teacherProfile->id);
+
+        if (! auth()->user()->isAdmin() && ! $isTeacherOwner) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized access to assignment.')], 403);
+        }
+
+        DB::transaction(function () use ($assignment) {
+            // Delete submissions and answers
+            foreach ($assignment->submissions as $sub) {
+                $sub->answers()->delete();
+                $sub->delete();
+            }
+
+            // Delete questions and options
+            foreach ($assignment->questions as $q) {
+                $q->options()->delete();
+                $q->delete();
+            }
+
+            $assignment->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Assignment deleted successfully!'),
+        ]);
     }
 
     /**

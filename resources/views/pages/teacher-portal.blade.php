@@ -834,6 +834,13 @@
                                                     {{ __('Cancel') }}
                                                 </button>
                                             @endif
+                                            <button type="button"
+                                                onclick="confirmDeleteSession({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}')"
+                                                class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-lg border border-rose-200/70 dark:border-rose-800/60 transition-colors cursor-pointer"
+                                                title="{{ __('Delete Session') }}">
+                                                <i class="fa-solid fa-trash-can text-rose-500"></i>
+                                                {{ __('Delete') }}
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -857,6 +864,7 @@
                                 };
                             @endphp
                             <div class="session-mobile-card p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3"
+                                id="sessionMobileCard_{{ $session->id }}"
                                 data-title="{{ strtolower($session->title ?? '') }}"
                                 data-course="{{ strtolower($session->course?->title ?? '') }}"
                                 data-date="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d') : '' }}">
@@ -905,7 +913,7 @@
                                 </div>
 
                                 {{-- Card Actions Grid --}}
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                                <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
                                     <button type="button" data-session-id="{{ $session->id }}"
                                         data-title="{{ $session->title }}"
                                         data-scheduled-at="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}"
@@ -939,6 +947,12 @@
                                             <span>{{ __('Cancel') }}</span>
                                         </button>
                                     @endif
+                                    <button type="button"
+                                        onclick="confirmDeleteSession({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}')"
+                                        class="px-2 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-200/70 dark:border-rose-800/60 transition-colors cursor-pointer flex items-center justify-center gap-1 col-span-2 sm:col-span-1">
+                                        <i class="fa-solid fa-trash-can text-rose-500 text-[10px]"></i>
+                                        <span>{{ __('Delete') }}</span>
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
@@ -997,46 +1011,61 @@
                                     : ($subCount == 1
                                         ? 'Submission'
                                         : 'Submissions');
+                                $escapedTitle = addslashes($assignment->title);
                             @endphp
-                            <div onclick="openAssignmentDetailsModal({{ $assignment->id }})"
-                                class="assignment-card bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-teal-400 dark:hover:border-teal-500 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all group shadow-xs cursor-pointer">
-                                <div class="space-y-2">
+                            <div id="assignmentCard_{{ $assignment->id }}"
+                                class="assignment-card bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 space-y-3.5 flex flex-col justify-between hover:border-teal-400 dark:hover:border-teal-500 hover:bg-white dark:hover:bg-slate-800/90 hover:shadow-lg transition-all group shadow-xs">
+                                <div class="space-y-2.5">
                                     <div class="flex items-center justify-between gap-3 text-xs">
                                         <span
-                                            class="font-mono font-bold text-teal-700 uppercase truncate flex-1 min-w-0">{{ $assignment->course?->title ?: __('Course') }}</span>
+                                            class="font-mono font-bold text-teal-700 dark:text-teal-400 uppercase truncate flex-1 min-w-0">{{ $assignment->course?->title ?: __('Course') }}</span>
                                         <span
-                                            class="px-2.5 py-1 bg-teal-50 text-teal-800 border border-teal-200/80 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
+                                            class="px-2.5 py-1 bg-teal-50 dark:bg-teal-950/70 text-teal-800 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800/60 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
                                             <i class="fa-solid fa-pen-to-square"></i> {{ $subCount }}
                                             {{ $subLabel }}
                                         </span>
                                     </div>
                                     <h3
-                                        class="font-heading font-black text-base text-slate-900 leading-snug group-hover:text-teal-700 transition-colors">
+                                        onclick="openAssignmentDetailsModal({{ $assignment->id }})"
+                                        class="font-heading font-black text-base text-slate-900 dark:text-white leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors cursor-pointer">
                                         {{ $assignment->title }}</h3>
-                                    <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                                    <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                                         {{ $assignment->description ?: __('Homework assignment for student revision.') }}
                                     </p>
                                 </div>
+
                                 <div
-                                    class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs font-mono text-slate-500">
+                                    class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs font-mono text-slate-500 dark:text-slate-400">
                                     <span class="truncate"><i class="fa-solid fa-calendar-days"></i>
                                         {{ __('Due') }}:
                                         {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
                                     <span
-                                        class="font-extrabold text-slate-800 shrink-0 ms-2 bg-slate-100 px-2 py-0.5 rounded-lg"><i
-                                            class="fa-solid fa-bullseye"></i> {{ $assignment->passing_score ?: 70 }}%
+                                        class="font-extrabold text-slate-800 dark:text-slate-200 shrink-0 ms-2 bg-slate-100 dark:bg-slate-700/80 px-2 py-0.5 rounded-lg"><i
+                                            class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400"></i> {{ $assignment->passing_score ?: 70 }}%
                                         {{ __('Pass') }}</span>
                                 </div>
-                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                                    <span class="text-teal-600 font-bold group-hover:underline flex items-center gap-1.5">
-                                        <i class="fa-solid fa-circle-info"></i> {{ __('View Details & Questions') }}
-                                        &rarr;
-                                    </span>
-                                    @if ($subCount > 0)
-                                        <span class="text-emerald-600 font-bold font-mono text-[11px]"><i
-                                                class="fa-solid fa-users"></i> {{ $subCount }}
-                                            {{ $subLabel }}</span>
-                                    @endif
+
+                                {{-- Action Buttons: View Details, Edit, Delete --}}
+                                <div class="pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-1.5 flex-wrap">
+                                    <button type="button" onclick="openAssignmentDetailsModal({{ $assignment->id }})"
+                                        class="btn-lift px-3 py-1.5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900/80 text-teal-800 dark:text-teal-300 text-xs font-bold rounded-xl border border-teal-200/70 dark:border-teal-800/60 flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        <span>{{ __('Details & Submissions') }}</span>
+                                    </button>
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" onclick="openEditAssignmentModal({{ $assignment->id }})"
+                                            class="btn-lift px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                                            title="{{ __('Edit Assignment') }}">
+                                            <i class="fa-solid fa-pen-to-square text-teal-600 dark:text-teal-400"></i>
+                                            <span>{{ __('Edit') }}</span>
+                                        </button>
+                                        <button type="button" onclick="confirmDeleteAssignment({{ $assignment->id }}, '{{ $escapedTitle }}')"
+                                            class="btn-lift px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-200/70 dark:border-rose-800/60 transition-colors cursor-pointer"
+                                            title="{{ __('Delete Assignment') }}">
+                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            <span>{{ __('Delete') }}</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
@@ -1841,25 +1870,37 @@
                                 $rsTotalCount = $rsSessions->count();
                             @endphp
                             <div
-                                class="schedule-item-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                                id="recurringScheduleCard_{{ $rs->id }}"
+                                class="schedule-item-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors space-y-3"
+                                data-id="{{ $rs->id }}"
+                                data-title="{{ $rs->title }}"
+                                data-course-id="{{ $rs->course_id }}"
+                                data-recurrence-type="{{ $rs->recurrence_type }}"
+                                data-start-time="{{ $rs->start_time ? substr($rs->start_time, 0, 5) : '10:00' }}"
+                                data-duration="{{ $rs->duration_minutes ?? 60 }}"
+                                data-start-date="{{ $rs->start_date ? $rs->start_date->format('Y-m-d') : '' }}"
+                                data-end-date="{{ $rs->end_date ? $rs->end_date->format('Y-m-d') : '' }}"
+                                data-days='@json($rs->days_of_week ?? [])'
+                                data-meeting-link="{{ $rs->meeting_link ?? '' }}"
+                                data-notes="{{ $rs->notes ?? '' }}">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="space-y-1 min-w-0">
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <h4 class="font-heading font-extrabold text-sm text-slate-900">
+                                            <h4 class="font-heading font-extrabold text-sm text-slate-900 dark:text-white">
                                                 {{ $rs->title ?? __('Schedule') }}</h4>
                                             <span
                                                 class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full
                                                 {{ $rs->recurrence_type === 'weekly'
-                                                    ? 'bg-blue-100 text-blue-700'
+                                                    ? 'bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                                                     : ($rs->recurrence_type === 'monthly'
-                                                        ? 'bg-purple-100 text-purple-700'
+                                                        ? 'bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                                                         : ($rs->recurrence_type === 'yearly'
-                                                            ? 'bg-amber-100 text-amber-700'
-                                                            : 'bg-slate-100 text-slate-600')) }}">
+                                                            ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                                                            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300')) }}">
                                                 {{ Str::ucfirst($rs->recurrence_type ?? 'custom') }}
                                             </span>
                                         </div>
-                                        <p class="text-xs font-mono text-slate-500">
+                                        <p class="text-xs font-mono text-slate-500 dark:text-slate-400">
                                             <i class="fa-solid fa-book-open"></i> {{ $rs->course?->title ?? __('N/A') }}
                                             @if ($rsNextSession)
                                                 &bull; <i class="fa-solid fa-clock"></i> {{ __('Next') }}:
@@ -1869,16 +1910,41 @@
                                     </div>
                                     <div class="flex items-center gap-3 shrink-0">
                                         <div class="text-center">
-                                            <p class="font-heading font-black text-lg text-indigo-600">
+                                            <p class="font-heading font-black text-lg text-indigo-600 dark:text-indigo-400">
                                                 {{ $rsTotalCount }}</p>
                                             <p class="text-[10px] font-mono text-slate-400">{{ __('Sessions') }}</p>
                                         </div>
                                         <div class="text-center">
-                                            <p class="font-heading font-black text-lg text-emerald-600">
+                                            <p class="font-heading font-black text-lg text-emerald-600 dark:text-emerald-400">
                                                 {{ $rsCompletedCount }}</p>
                                             <p class="text-[10px] font-mono text-slate-400">{{ __('Done') }}</p>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="flex items-center gap-2 pt-2.5 border-t border-slate-200/80 dark:border-slate-700/80 justify-end">
+                                    <button type="button"
+                                        data-id="{{ $rs->id }}"
+                                        data-title="{{ $rs->title }}"
+                                        data-course-id="{{ $rs->course_id }}"
+                                        data-recurrence-type="{{ $rs->recurrence_type }}"
+                                        data-start-time="{{ $rs->start_time ? substr($rs->start_time, 0, 5) : '10:00' }}"
+                                        data-duration="{{ $rs->duration_minutes ?? 60 }}"
+                                        data-start-date="{{ $rs->start_date ? $rs->start_date->format('Y-m-d') : '' }}"
+                                        data-end-date="{{ $rs->end_date ? $rs->end_date->format('Y-m-d') : '' }}"
+                                        data-days='@json($rs->days_of_week ?? [])'
+                                        data-meeting-link="{{ $rs->meeting_link ?? '' }}"
+                                        data-notes="{{ $rs->notes ?? '' }}"
+                                        onclick="openEditRecurringScheduleModal({{ $rs->id }}, this)"
+                                        class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl border border-indigo-200/70 dark:border-indigo-800/70 transition-all cursor-pointer flex items-center gap-1.5">
+                                        <i class="fa-solid fa-pen text-xs"></i>
+                                        <span>{{ __('Edit Schedule') }}</span>
+                                    </button>
+                                    <button type="button"
+                                        onclick="confirmDeleteRecurringSchedule({{ $rs->id }}, '{{ addslashes($rs->title ?? __('Schedule')) }}')"
+                                        class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-200/70 dark:border-rose-800/70 transition-all cursor-pointer flex items-center gap-1.5">
+                                        <i class="fa-solid fa-trash-can text-rose-500 text-xs"></i>
+                                        <span>{{ __('Delete Schedule') }}</span>
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
@@ -2128,6 +2194,139 @@
                     <button type="submit" id="recPortalSubmitBtn"
                         class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
                         <i class="fa-solid fa-calendar-check"></i> {{ __('Create Schedule') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
+    {{-- MODAL: EDIT RECURRING SCHEDULE (Schedules Tab)                                 --}}
+    {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
+    <div id="editRecurringScheduleModal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
+            style="padding-bottom: env(safe-area-inset-bottom)">
+            {{-- Header --}}
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                <h3 class="font-heading font-black text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i
+                            class="fa-solid fa-pen text-sm"></i></span>
+                    {{ __('Edit Recurring Schedule') }}
+                </h3>
+                <button type="button" onclick="closeScheduleModal('editRecurringScheduleModal')"
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer"><i
+                        class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            {{-- Scrollable Body --}}
+            <form id="editRecurringScheduleForm" class="flex-1 overflow-y-auto">
+                @csrf
+                <input type="hidden" id="editRecScheduleId" name="schedule_id">
+                <div class="p-5 space-y-5">
+
+                    {{-- Title --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
+                            *</label>
+                        <input type="text" id="editRecTitle" name="title" required
+                            placeholder="{{ __('e.g. Math Weekly Sessions') }}" class="input-mobile">
+                    </div>
+
+                    {{-- Course (Readonly select) --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Course') }}</label>
+                        <select id="editRecCourseId" name="course_id" disabled class="input-mobile opacity-75 cursor-not-allowed">
+                            @foreach ($courses as $course)
+                                <option value="{{ $course->id }}">{{ $course->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Date Range --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}</label>
+                            <input type="date" id="editRecStartDate" name="start_date"
+                                class="input-mobile">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('End Date') }}</label>
+                            <input type="date" id="editRecEndDate" name="end_date"
+                                class="input-mobile">
+                        </div>
+                    </div>
+
+                    {{-- Time & Duration --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Class Start Time') }}
+                                *</label>
+                            <input type="time" id="editRecStartTime" name="start_time" required class="input-mobile">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Duration (Minutes)') }}
+                                *</label>
+                            <input type="number" id="editRecDuration" name="duration_minutes" value="60" min="15" max="300" required
+                                class="input-mobile">
+                        </div>
+                    </div>
+
+                    {{-- Days of Week --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{{ __('Days of the Week') }}
+                            *</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                            @foreach ([
+            '0' => __('Sunday'),
+            '1' => __('Monday'),
+            '2' => __('Tuesday'),
+            '3' => __('Wednesday'),
+            '4' => __('Thursday'),
+            '5' => __('Friday'),
+            '6' => __('Saturday'),
+        ] as $dayNum => $dayLabel)
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="days_of_week[]" value="{{ $dayNum }}"
+                                        id="editRecDay_{{ $dayNum }}"
+                                        class="edit-rec-day-checkbox rounded w-4 h-4 accent-indigo-600">
+                                    <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ $dayLabel }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Meeting Link --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Meeting Link') }}</label>
+                        <input type="url" id="editRecMeetingLink" name="meeting_link" placeholder="https://..." class="input-mobile">
+                    </div>
+
+                    {{-- Notes --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Teacher Notes') }}</label>
+                        <textarea id="editRecNotes" name="notes" rows="2" placeholder="{{ __('Optional notes...') }}" class="input-mobile"></textarea>
+                    </div>
+
+                </div>
+
+                {{-- Sticky Footer --}}
+                <div
+                    class="px-5 pb-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-white dark:bg-slate-900 sticky bottom-0">
+                    <button type="button" onclick="closeScheduleModal('editRecurringScheduleModal')"
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                    <button type="submit" id="editRecSubmitBtn"
+                        class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> {{ __('Save Changes') }}
                     </button>
                 </div>
             </form>
@@ -3208,6 +3407,188 @@
         </div>
     </div>
 
+    {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
+    {{-- MODAL 4C: EDIT ASSIGNMENT & QUIZ QUESTIONS BUILDER                             --}}
+    {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
+    <div id="editAssignmentModal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+        <div
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            {{-- Modal Top Header --}}
+            <div
+                class="p-4 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden">
+                <div class="space-y-1 min-w-0 flex-1 z-10">
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center text-sm border border-teal-500/30">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </span>
+                        <h3 class="font-heading font-black text-xl sm:text-2xl text-white tracking-tight leading-snug">
+                            {{ __('Edit Assignment & Quiz') }}
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-300 font-mono">
+                        {{ __('Update homework criteria, due dates, and multiple choice questions.') }}
+                    </p>
+                </div>
+                <button type="button" onclick="closeModal('editAssignmentModal')" aria-label="{{ __('Close') }}"
+                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form id="editAssignmentForm" method="POST"
+                class="flex-1 flex flex-col overflow-hidden m-0">
+                @csrf
+                <input type="hidden" id="editAssignmentId" name="assignment_id">
+
+                {{-- Scrollable Form Body --}}
+                <div class="p-5 sm:p-7 overflow-y-auto flex-1 custom-scrollbar space-y-5">
+                    {{-- Row 1: Target Course & Live Session Dropdowns --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-book-open text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Target Course') }} *</span>
+                            </label>
+                            <select id="editAssignmentCourseId" name="course_id" required
+                                class="elite-custom-select w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500">
+                                @foreach ($courses as $c)
+                                    <option value="{{ $c->id }}">{{ $c->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-video text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Live Session (Optional)') }}</span>
+                            </label>
+                            <select id="editAssignmentLiveSessionId" name="live_session_id"
+                                class="elite-custom-select w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500">
+                                <option value="">{{ __('None / General Course Assignment') }}</option>
+                                @foreach ($todaySessions->merge($allSessions)->unique('id') as $ls)
+                                    <option value="{{ $ls->id }}">{{ $ls->title ?: __('Live Session') }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Title --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-heading text-teal-600 dark:text-teal-400 text-xs"></i>
+                            <span>{{ __('Assignment Title') }} *</span>
+                        </label>
+                        <input type="text" id="editAssignmentTitle" name="title"
+                            placeholder="{{ __('e.g. Unit 2: Physics Waves & Optics Quiz') }}" required
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                    </div>
+
+                    {{-- Row 3: Description / Guidelines --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-align-left text-teal-600 dark:text-teal-400 text-xs"></i>
+                            <span>{{ __('Description / Instructions') }}</span>
+                        </label>
+                        <textarea id="editAssignmentDescription" name="description" rows="3"
+                            placeholder="{{ __('Provide guidelines, instructions, or reading materials...') }}"
+                            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all custom-scrollbar"></textarea>
+                    </div>
+
+                    {{-- Row 4: Due Date, Duration, and Passing Score --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
+                        <div class="sm:col-span-6">
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-calendar-day text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Due Date & Time') }} *</span>
+                            </label>
+                            <input type="datetime-local" id="editAssignmentDueAt" name="due_at" required
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Duration (Minutes)') }}</span>
+                            </label>
+                            <input type="number" id="editAssignmentDuration" name="duration_minutes" value="30" min="5" max="300"
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400 text-xs"></i>
+                                <span>{{ __('Passing Score (%)') }}</span>
+                            </label>
+                            <input type="number" id="editAssignmentPassScore" name="passing_score" value="70" min="0" max="100"
+                                class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                        </div>
+                    </div>
+
+                    {{-- Interactive Multiple Choice Quiz Questions Builder --}}
+                    <div
+                        class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/70 space-y-3">
+                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white">
+                                        {{ __('Questions & Quiz Builder') }}
+                                    </h4>
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60">
+                                        {{ __('Optional') }}
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                                    {{ __('Add or edit interactive multiple choice questions with automated answer key.') }}
+                                </p>
+                            </div>
+                            <button type="button" onclick="addEditTeacherQuestion()"
+                                class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>{{ __('Add Question') }}</span>
+                            </button>
+                        </div>
+
+                        <div id="editTeacherQuestionsEmptyState"
+                            class="p-5 text-center border border-dashed border-slate-300/80 dark:border-slate-700 rounded-xl space-y-1.5 bg-white dark:bg-slate-900/60">
+                            <i class="fa-solid fa-clipboard-question text-2xl text-teal-600/70 dark:text-teal-400/70"></i>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {{ __('No quiz questions attached yet.') }}</p>
+                            <p class="text-[11px] text-slate-400 font-mono">
+                                {{ __('Leave empty to publish a standard homework task, or click "+ Add Question" to attach interactive questions.') }}
+                            </p>
+                        </div>
+
+                        <div id="editTeacherQuestionsContainer" class="space-y-4 pt-1">
+                            {{-- Dynamically Appended Question Blocks --}}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sticky Modal Footer --}}
+                <div
+                    class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                    <button type="button" onclick="closeModal('editAssignmentModal')"
+                        class="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
+                        {{ __('Cancel') }}
+                    </button>
+                    <button type="submit" id="editAssignmentSubmitBtn"
+                        class="btn-lift px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-teal-600/25 cursor-pointer flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i>
+                        <span>{{ __('Save Changes') }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- ════════════════════════════════════════════════════════════════════════════ --}}
     {{-- MODAL 4B: ASSIGNMENT DETAILS, QUIZ QUESTIONS & SUBMISSIONS ROSTER             --}}
     {{-- ════════════════════════════════════════════════════════════════════════════ --}}
@@ -3255,46 +3636,46 @@
                 <div id="adModalContent" class="hidden space-y-6">
                     {{-- KPI Stats Grid --}}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
-                                class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Due Date') }}</span>
+                                class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Due Date') }}</span>
                             <span id="adDueAt"
-                                class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
-                            <span id="adDueHuman" class="text-[10px] font-mono text-teal-600 block mt-0.5"></span>
+                                class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white block mt-0.5"></span>
+                            <span id="adDueHuman" class="text-[10px] font-mono text-teal-600 dark:text-teal-300 font-semibold block mt-0.5"></span>
                         </div>
-                        <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
-                                class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Passing Score') }}</span>
+                                class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Passing Score') }}</span>
                             <span id="adPassScore"
-                                class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
+                                class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white block mt-0.5"></span>
                             <span
-                                class="text-[10px] font-mono text-slate-400 block mt-0.5">{{ __('Minimum to pass') }}</span>
+                                class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5">{{ __('Minimum to pass') }}</span>
                         </div>
-                        <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
-                                class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Total Questions') }}</span>
+                                class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Total Questions') }}</span>
                             <span id="adQuestionsCount"
-                                class="font-heading font-black text-xs sm:text-sm text-slate-900 block mt-0.5"></span>
-                            <span id="adDuration" class="text-[10px] font-mono text-slate-400 block mt-0.5"></span>
+                                class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white block mt-0.5"></span>
+                            <span id="adDuration" class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
                         </div>
-                        <div class="p-3 bg-[#FAFAF9] rounded-2xl border border-slate-200/80">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
-                                class="text-[10px] uppercase font-mono font-bold text-slate-400 block">{{ __('Total Submissions') }}</span>
+                                class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Total Submissions') }}</span>
                             <span id="adSubmissionsCount"
-                                class="font-heading font-black text-xs sm:text-sm text-emerald-600 block mt-0.5"></span>
-                            <span id="adAvgScore" class="text-[10px] font-mono text-slate-400 block mt-0.5"></span>
+                                class="font-heading font-black text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 block mt-0.5"></span>
+                            <span id="adAvgScore" class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
                         </div>
                     </div>
 
                     {{-- Subtabs Selector --}}
-                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
                         <button type="button" onclick="switchAdSubTab('questions')" id="ad-tab-btn-questions"
                             class="ad-subtab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-teal-600 text-white shadow-xs cursor-pointer">
                             <i class="fa-solid fa-list-check me-1"></i> {{ __('Quiz Questions') }} (<span
                                 id="adQuestionsBadge">0</span>)
                         </button>
                         <button type="button" onclick="switchAdSubTab('submissions')" id="ad-tab-btn-submissions"
-                            class="ad-subtab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:bg-slate-100 cursor-pointer">
+                            class="ad-subtab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                             <i class="fa-solid fa-user-graduate me-1"></i> {{ __('Student Submissions') }} (<span
                                 id="adSubmissionsBadge">0</span>)
                         </button>
@@ -3304,8 +3685,8 @@
                     <div id="ad-pane-questions" class="ad-pane space-y-4">
                         <div id="adQuestionsList" class="space-y-4"></div>
                         <div id="adNoQuestionsNotice"
-                            class="hidden text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
-                            <p class="text-xs text-slate-500 italic">
+                            class="hidden text-center py-8 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <p class="text-xs text-slate-600 dark:text-slate-300 italic">
                                 {{ __('No multiple-choice questions attached to this assignment.') }}</p>
                         </div>
                     </div>
@@ -3315,7 +3696,7 @@
                         <div id="adSubmissionsTableContainer" class="table-responsive w-full overflow-x-auto custom-scrollbar">
                             <table style="min-width: 540px;" class="w-full text-left rtl:text-right border-collapse text-xs">
                                 <thead>
-                                    <tr class="border-b border-slate-200 font-mono font-bold text-slate-500 uppercase">
+                                    <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-300 uppercase">
                                         <th class="py-2.5 px-3">{{ __('Student') }}</th>
                                         <th class="py-2.5 px-3">{{ __('Submitted At') }}</th>
                                         <th class="py-2.5 px-3">{{ __('Grade / Score') }}</th>
@@ -3327,8 +3708,8 @@
                             </table>
                         </div>
                         <div id="adNoSubmissionsNotice"
-                            class="hidden text-center py-8 bg-[#FAFAF9] rounded-2xl border border-slate-200">
-                            <p class="text-xs text-slate-500 italic">
+                            class="hidden text-center py-8 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <p class="text-xs text-slate-600 dark:text-slate-300 italic">
                                 {{ __('No student submissions recorded for this assignment yet.') }}</p>
                         </div>
                     </div>
@@ -3337,9 +3718,21 @@
 
             {{-- Modal Footer --}}
             <div
-                class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                class="p-4 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2.5 shrink-0 rounded-b-[24px] sm:rounded-b-[28px] flex-wrap">
+                <div class="flex items-center gap-2">
+                    <button type="button" id="adEditBtn" onclick="editCurrentAssignmentFromModal()"
+                        class="btn-lift px-3.5 py-2 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900/80 text-teal-800 dark:text-teal-300 font-bold text-xs rounded-xl border border-teal-200/70 dark:border-teal-800/60 transition-colors cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square text-teal-600 dark:text-teal-400 text-xs"></i>
+                        <span>{{ __('Edit Assignment') }}</span>
+                    </button>
+                    <button type="button" id="adDeleteBtn" onclick="deleteCurrentAssignmentFromModal()"
+                        class="btn-lift px-3.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 font-bold text-xs rounded-xl border border-rose-200/70 dark:border-rose-800/60 transition-colors cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can text-rose-500 text-xs"></i>
+                        <span>{{ __('Delete') }}</span>
+                    </button>
+                </div>
                 <button type="button" onclick="closeModal('assignmentDetailsModal')"
-                    class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer">
+                    class="px-5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer">
                     {{ __('Close') }}
                 </button>
             </div>
@@ -3581,27 +3974,32 @@
 
         html.dark #teacher-portal-root .text-slate-800,
         html.dark .elite-modal .text-slate-800 {
-            color: #E2E8F0 !important;
+            color: #F1F5F9 !important;
         }
 
         html.dark #teacher-portal-root .text-slate-700,
         html.dark .elite-modal .text-slate-700 {
-            color: #CBD5E1 !important;
+            color: #E2E8F0 !important;
         }
 
         html.dark #teacher-portal-root .text-slate-600,
         html.dark .elite-modal .text-slate-600 {
-            color: #94A3B8 !important;
+            color: #CBD5E1 !important;
         }
 
         html.dark #teacher-portal-root .text-slate-500,
         html.dark .elite-modal .text-slate-500 {
-            color: #64748B !important;
+            color: #94A3B8 !important;
         }
 
         html.dark #teacher-portal-root .text-slate-400,
         html.dark .elite-modal .text-slate-400 {
-            color: #475569 !important;
+            color: #94A3B8 !important;
+        }
+
+        html.dark #teacher-portal-root .text-slate-300,
+        html.dark .elite-modal .text-slate-300 {
+            color: #CBD5E1 !important;
         }
 
         html.dark #teacher-portal-root .shadow-xl,
@@ -4346,6 +4744,7 @@
                 }
 
                 const a = data.assignment;
+                window.currentViewingAssignment = a;
                 const stats = data.stats || {};
 
                 document.getElementById('adModalCourse').textContent = a.course_title;
@@ -4381,21 +4780,21 @@
                             optsHtml += `
                         <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-bold shadow-2xs' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'} flex items-start justify-between gap-2 text-xs">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span class="w-5 h-5 rounded-lg ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center shrink-0 text-[10px]">
+                                <span class="w-5 h-5 rounded-lg ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'} flex items-center justify-center shrink-0 text-[10px]">
                                     ${isCorrect ? '<i class="fa-solid fa-check"></i>' : '•'}
                                 </span>
                                 <span class="break-words">${escapeHtml(opt.option_text)}</span>
                             </div>
-                            ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-900 dark:text-emerald-200 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __('Correct Answer') }}</span>' : ''}
+                            ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 dark:bg-emerald-900/70 text-emerald-900 dark:text-emerald-200 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __('Correct Answer') }}</span>' : ''}
                         </div>
                     `;
                         });
 
                         qHtml += `
-                    <div class="p-4 rounded-2xl bg-[#FAFAF9] border border-slate-200 space-y-3">
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="font-heading font-black text-xs text-teal-800 bg-teal-100/70 px-2.5 py-1 rounded-lg">#${idx + 1}</span>
-                            <span class="text-[11px] font-mono font-bold text-slate-500">${q.points} {{ __('pts') }}</span>
+                            <span class="font-heading font-black text-xs text-teal-800 dark:text-teal-300 bg-teal-100/70 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-lg">#${idx + 1}</span>
+                            <span class="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400">${q.points} {{ __('pts') }}</span>
                         </div>
                         <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">${escapeHtml(q.question_text)}</p>
                         <div class="space-y-1.5 pt-1">
@@ -4423,18 +4822,18 @@
                     data.submissions.forEach(s => {
                         const isPassed = s.is_passed;
                         const scoreText = s.score !== null ? `${s.score}%` : '{{ __('Pending Grade') }}';
-                        const scoreClass = s.score !== null ? (isPassed ? 'text-emerald-600 font-extrabold' :
-                            'text-rose-600 font-extrabold') : 'text-slate-400 italic';
-                        const statusBadgeClass = s.status === 'reviewed' ? 'bg-emerald-100 text-emerald-800' :
-                            'bg-amber-100 text-amber-800';
+                        const scoreClass = s.score !== null ? (isPassed ? 'text-emerald-600 dark:text-emerald-400 font-extrabold' :
+                            'text-rose-600 dark:text-rose-400 font-extrabold') : 'text-slate-400 italic';
+                        const statusBadgeClass = s.status === 'reviewed' ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800' :
+                            'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800';
 
                         subHtml += `
                     <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                         <td class="py-3 px-3">
                             <p class="font-bold text-slate-900 dark:text-white">${escapeHtml(s.student_name)}</p>
-                            <p class="text-[10px] text-slate-500 font-mono">${escapeHtml(s.student_email)}</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">${escapeHtml(s.student_email)}</p>
                         </td>
-                        <td class="py-3 px-3 font-mono text-slate-600">${s.submitted_at || 'Draft'}</td>
+                        <td class="py-3 px-3 font-mono text-slate-600 dark:text-slate-300">${s.submitted_at || 'Draft'}</td>
                         <td class="py-3 px-3 font-mono ${scoreClass}">${scoreText}</td>
                         <td class="py-3 px-3 font-mono">
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadgeClass}">
@@ -4442,7 +4841,7 @@
                             </span>
                         </td>
                         <td class="py-3 px-3 text-right rtl:text-left">
-                            <button type="button" onclick="closeModal('assignmentDetailsModal'); openGradeModal(${s.id}, '${escapeJs(s.student_name)}', '${escapeJs(a.title)}', '${s.score !== null ? s.score : ''}', '${escapeJs(s.evaluation_notes || '')}')" class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors">
+                            <button type="button" onclick="closeModal('assignmentDetailsModal'); openGradeModal(${s.id}, '${escapeJs(s.student_name)}', '${escapeJs(a.title)}', '${s.score !== null ? s.score : ''}', '${escapeJs(s.evaluation_notes || '')}')" class="btn-lift px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer">
                                 <i class="fa-solid fa-magnifying-glass"></i> {{ __('Review & Grade') }}
                             </button>
                         </td>
@@ -4469,14 +4868,14 @@
             document.querySelectorAll('.ad-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.ad-subtab-btn').forEach(btn => {
                 btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
-                btn.classList.add('text-slate-600');
+                btn.classList.add('text-slate-700', 'dark:text-slate-200');
             });
 
             const pane = document.getElementById('ad-pane-' + tab);
             const btn = document.getElementById('ad-tab-btn-' + tab);
             if (pane) pane.classList.remove('hidden');
             if (btn) {
-                btn.classList.remove('text-slate-600');
+                btn.classList.remove('text-slate-700', 'dark:text-slate-200');
                 btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
             }
         }
@@ -4795,15 +5194,113 @@
         window.filterAttendanceModalStudents = filterAttendanceModalStudents;
         window.bulkSetAttendance = bulkSetAttendance;
         window.onAttendanceStatusRadioChange = onAttendanceStatusRadioChange;
-        window.openCreateSessionModal = openCreateSessionModal;
-        window.openCreateAssignmentModal = openCreateAssignmentModal;
+        window.openCreateSessionModal = function() { window.openModal('createSessionModal'); };
+        window.openCreateAssignmentModal = function() { window.openModal('createAssignmentModal'); };
         window.openAssignmentDetailsModal = openAssignmentDetailsModal;
         window.openMeetingLinkModal = openMeetingLinkModal;
         window.openRescheduleModal = openRescheduleModal;
         window.openGradeModal = openGradeModal;
-        window.confirmCancelSession = confirmCancelSession;
+        window.confirmCancelSession = function(sessionId) {
+            const idEl = document.getElementById('cancelSessionId');
+            if (idEl) idEl.value = sessionId;
+            const rEl = document.getElementById('cancelReasonInput');
+            if (rEl) rEl.value = '';
+            window.openModal('cancelSessionModal');
+        };
         window.openStudentDetailsModal = openStudentDetailsModal;
         window.switchTeacherTab = switchTeacherTab;
+
+        // ── Grade Modal Implementation ───────────────────────────────────────────────
+        async function openGradeModal(submissionId, studentName, assignmentTitle, currentScore, evaluationNotes) {
+            const isAr = @json(app()->getLocale() === 'ar');
+            const nameEl = document.getElementById('gradeModalStudentName');
+            const scoreInput = document.getElementById('gradeScoreInput');
+            const notesEl = document.getElementById('gradeEvaluationNotes');
+
+            if (nameEl) nameEl.textContent = `${studentName || ''} — ${assignmentTitle || ''}`;
+            if (scoreInput) scoreInput.value = (currentScore !== undefined && currentScore !== null && currentScore !== 'null') ? currentScore : '';
+            if (notesEl) notesEl.value = (evaluationNotes && evaluationNotes !== 'null' && evaluationNotes !== 'undefined') ? evaluationNotes : '';
+
+            const formEl = document.getElementById('gradeForm');
+            if (formEl) formEl.action = `${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review`;
+
+            const questionsContainer = document.getElementById('submissionQuestionsContainer');
+            if (questionsContainer) {
+                questionsContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">${isAr ? 'جاري تحميل تفاصيل الإجابات...' : 'Loading question breakdown...'}</p>`;
+            }
+
+            window.openModal('gradeModal');
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review-details`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await res.json();
+                if (data.success && data.submission) {
+                    if (nameEl && data.submission.student_name) {
+                        nameEl.textContent = `${data.submission.student_name} — ${data.submission.assignment_title || ''}`;
+                    }
+                    if (scoreInput && data.submission.score !== null && data.submission.score !== undefined) {
+                        scoreInput.value = data.submission.score;
+                    }
+                    if (notesEl && data.submission.evaluation_notes) {
+                        notesEl.value = data.submission.evaluation_notes;
+                    }
+                }
+                if (data.success && data.questions && data.questions.length > 0) {
+                    let html = '';
+                    data.questions.forEach((q, idx) => {
+                        const statusBadge = q.is_correct ?
+                            `<span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${isAr ? 'صحيح' : 'Correct'} (+${q.points_earned}/${q.points} pts)</span>` :
+                            `<span class="px-2 py-0.5 bg-red-100 dark:bg-rose-950/70 text-red-800 dark:text-rose-300 border border-red-300 dark:border-rose-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${isAr ? 'خطأ' : 'Incorrect'} (0/${q.points} pts)</span>`;
+
+                        let optsHtml = '';
+                        q.options.forEach(opt => {
+                            let optStyle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200';
+                            let badge = '';
+
+                            if (opt.is_correct && opt.is_selected) {
+                                optStyle = 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold';
+                                badge = `<span class="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الصحيحة' : 'Student Selected (Correct)'}</span>`;
+                            } else if (opt.is_correct) {
+                                optStyle = 'bg-teal-50 dark:bg-teal-950/50 border-teal-300 dark:border-teal-800 text-teal-900 dark:text-teal-200 font-bold';
+                                badge = `<span class="text-teal-600 dark:text-teal-400 font-mono text-[10px]">${isAr ? 'الإجابة النموذجية' : 'Correct Answer'}</span>`;
+                            } else if (opt.is_selected) {
+                                optStyle = 'bg-red-50 dark:bg-rose-950/50 border-red-300 dark:border-rose-800 text-red-900 dark:text-rose-200 font-bold';
+                                badge = `<span class="text-red-600 dark:text-rose-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الخاطئة' : 'Student Selected (Wrong)'}</span>`;
+                            }
+
+                            optsHtml += `<div class="p-2.5 rounded-xl border ${optStyle} text-xs flex items-center justify-between gap-2">
+                                <span>${escapeHtml(opt.option_text)}</span>
+                                ${badge}
+                            </div>`;
+
+                            if (opt.explanation && opt.is_correct) {
+                                optsHtml += `<p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono italic pl-2">${isAr ? 'التوضيح:' : 'Explanation:'} ${escapeHtml(opt.explanation)}</p>`;
+                            }
+                        });
+
+                        html += `<div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-slate-900 dark:text-white">Q${idx + 1}: ${escapeHtml(q.question_text || (isAr ? 'سؤال' : 'Question'))}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="space-y-1.5 pt-1">
+                                ${optsHtml}
+                            </div>
+                        </div>`;
+                    });
+                    if (questionsContainer) questionsContainer.innerHTML = html;
+                } else {
+                    if (questionsContainer) questionsContainer.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 italic text-center py-4">${isAr ? 'لا توجد تفاصيل أسئلة متاحة' : 'No question details available'}</p>`;
+                }
+            } catch (err) {
+                if (questionsContainer) questionsContainer.innerHTML = `<p class="text-xs text-rose-500 italic text-center py-4">${isAr ? 'تعذر تحميل التفاصيل' : 'Unable to load details'}</p>`;
+            }
+        }
 
         // ── View Switcher & Toolbar Filter Helpers for Attendance Tab ───────────────
         window.switchAttView = function(viewType) {
@@ -4819,13 +5316,13 @@
             [btnCards, btnTable, btnMatrix].forEach(b => {
                 if (b) {
                     b.classList.remove('bg-teal-600', 'text-white', 'shadow-2xs');
-                    b.classList.add('text-slate-600');
+                    b.classList.add('text-slate-600', 'dark:text-slate-400');
                 }
             });
 
             const activeBtn = viewType === 'cards' ? btnCards : (viewType === 'table' ? btnTable : btnMatrix);
             if (activeBtn) {
-                activeBtn.classList.remove('text-slate-600');
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
                 activeBtn.classList.add('bg-teal-600', 'text-white', 'shadow-2xs');
             }
 
@@ -4839,250 +5336,56 @@
         };
 
         window.applyAttendanceFilters = function() {
-            const searchVal = (document.getElementById('attSearchInput')?.value || '').trim().toLowerCase();
-            const courseVal = document.getElementById('attCourseFilter')?.value || '';
-            const statusVal = document.getElementById('attStatusFilter')?.value || '';
+            const courseVal = (document.getElementById('attFilterCourse')?.value || 'all').toLowerCase();
+            const dateVal = document.getElementById('attFilterDate')?.value || '';
+            const statusVal = (document.getElementById('attFilterStatus')?.value || 'all').toLowerCase();
+            const searchVal = (document.getElementById('attSearchInput')?.value || '').toLowerCase().trim();
 
+            const rows = document.querySelectorAll('.att-session-row');
             const cards = document.querySelectorAll('.att-session-card');
-            const rows = document.querySelectorAll('.att-table-row');
-            let visibleCount = 0;
 
-            cards.forEach(card => {
-                const titleStr = card.getAttribute('data-title') || '';
-                const courseId = card.getAttribute('data-course') || '';
-                const isRecorded = card.getAttribute('data-recorded') === '1';
-                const isToday = card.getAttribute('data-today') === '1';
+            const matches = (el) => {
+                const cId = (el.getAttribute('data-course-id') || '').toLowerCase();
+                const sDate = el.getAttribute('data-date') || '';
+                const sStatus = (el.getAttribute('data-status') || '').toLowerCase();
+                const sTitle = (el.getAttribute('data-title') || '').toLowerCase();
+                const cTitle = (el.getAttribute('data-course-title') || '').toLowerCase();
 
-                let matchSearch = !searchVal || titleStr.includes(searchVal);
-                let matchCourse = !courseVal || courseId === courseVal;
-                let matchStatus = true;
-                if (statusVal === 'recorded') matchStatus = isRecorded;
-                else if (statusVal === 'pending') matchStatus = !isRecorded;
-                else if (statusVal === 'today') matchStatus = isToday;
+                if (courseVal !== 'all' && cId !== courseVal) return false;
+                if (dateVal && sDate !== dateVal) return false;
+                if (statusVal !== 'all' && sStatus !== statusVal) return false;
+                if (searchVal && !sTitle.includes(searchVal) && !cTitle.includes(searchVal)) return false;
+                return true;
+            };
 
-                if (matchSearch && matchCourse && matchStatus) {
-                    card.setAttribute('data-filtered-out', '0');
-                    visibleCount++;
+            rows.forEach(r => {
+                if (matches(r)) {
+                    r.classList.remove('hidden');
                 } else {
-                    card.setAttribute('data-filtered-out', '1');
+                    r.classList.add('hidden');
                 }
             });
 
-            rows.forEach(row => {
-                const titleStr = row.getAttribute('data-title') || '';
-                const courseId = row.getAttribute('data-course') || '';
-                const isRecorded = row.getAttribute('data-recorded') === '1';
-                const isToday = row.getAttribute('data-today') === '1';
-
-                let matchSearch = !searchVal || titleStr.includes(searchVal);
-                let matchCourse = !courseVal || courseId === courseVal;
-                let matchStatus = true;
-                if (statusVal === 'recorded') matchStatus = isRecorded;
-                else if (statusVal === 'pending') matchStatus = !isRecorded;
-                else if (statusVal === 'today') matchStatus = isToday;
-
-                if (matchSearch && matchCourse && matchStatus) {
-                    row.setAttribute('data-filtered-out', '0');
+            cards.forEach(c => {
+                if (matches(c)) {
+                    c.classList.remove('hidden');
                 } else {
-                    row.setAttribute('data-filtered-out', '1');
+                    c.classList.add('hidden');
                 }
             });
 
-            if (window.attCardsPaginator) window.attCardsPaginator.reset();
-            if (window.attTablePaginator) window.attTablePaginator.reset();
-            if (window.attMatrixPaginator) window.attMatrixPaginator.reset();
-
-            const emptyState = document.getElementById('attEmptySearchState');
-            if (emptyState) {
-                if (visibleCount === 0 && cards.length > 0) {
-                    emptyState.classList.remove('hidden');
-                } else {
-                    emptyState.classList.add('hidden');
-                }
-            }
-
-            const countBadge = document.getElementById('attCountBadge');
-            if (countBadge) countBadge.textContent = visibleCount;
+            if (window.attCardsPaginator) window.attCardsPaginator.update();
+            if (window.attTablePaginator) window.attTablePaginator.update();
         };
-
-        window.setAttendanceFilter = function(type) {
-            const sel = document.getElementById('attStatusFilter');
-            if (sel) {
-                sel.value = type;
-                sel.dispatchEvent(new Event('change', { bubbles: true }));
-                applyAttendanceFilters();
-            }
-        };
-
-        window.resetAttendanceFilters = function() {
-            if (document.getElementById('attSearchInput')) document.getElementById('attSearchInput').value = '';
-            ['attCourseFilter', 'attStatusFilter'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.value = '';
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-            applyAttendanceFilters();
-        };
-
-        async function confirmCancelSession(sessionId) {
-            if (!confirm(@json(__('Are you sure you want to cancel this live session? Affected students will be notified immediately.')))) {
-                return;
-            }
-
-            try {
-                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/cancel`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    }
-                });
-                const data = await res.json();
-                showTeacherToast(data.message, data.success);
-                if (data.success) {
-                    setTimeout(() => location.reload(), 900);
-                }
-            } catch (err) {
-                showTeacherToast('Failed to cancel session', false);
-            }
-        }
-
-        async function openGradeModal(submissionId, triggerElOrStudentName, assignmentTitle, currentScore,
-            evaluationNotes) {
-            if (!submissionId) return;
-
-            let studentName = '';
-            if (triggerElOrStudentName && typeof triggerElOrStudentName === 'object' && triggerElOrStudentName
-                .nodeType) {
-                studentName = triggerElOrStudentName.getAttribute('data-student-name') || '';
-                assignmentTitle = triggerElOrStudentName.getAttribute('data-assignment-title') || '';
-                currentScore = triggerElOrStudentName.getAttribute('data-score') || '';
-                evaluationNotes = triggerElOrStudentName.getAttribute('data-evaluation-notes') || '';
-            } else if (typeof triggerElOrStudentName === 'string') {
-                studentName = triggerElOrStudentName;
-            } else {
-                const btn = document.querySelector(`button[data-submission-id="${submissionId}"]`);
-                if (btn) {
-                    studentName = btn.getAttribute('data-student-name') || '';
-                    assignmentTitle = btn.getAttribute('data-assignment-title') || assignmentTitle || '';
-                    currentScore = btn.getAttribute('data-score') || currentScore || '';
-                    evaluationNotes = btn.getAttribute('data-evaluation-notes') || evaluationNotes || '';
-                }
-            }
-
-            const subIdInput = document.getElementById('gradeSubmissionId');
-            if (subIdInput) subIdInput.value = submissionId;
-
-            const nameEl = document.getElementById('gradeStudentName');
-            if (nameEl) nameEl.textContent = studentName ? `${studentName} — ${assignmentTitle || ''}` : (isArLocale ?
-                'جاري التحميل...' : 'Loading...');
-
-            const scoreInput = document.getElementById('gradeScoreInput');
-            if (scoreInput) scoreInput.value = (currentScore && currentScore !== 'null' && currentScore !==
-                'undefined') ? currentScore : '';
-
-            const notesEl = document.getElementById('gradeEvaluationNotes');
-            if (notesEl) notesEl.value = (evaluationNotes && evaluationNotes !== 'null' && evaluationNotes !==
-                'undefined') ? evaluationNotes : '';
-
-            const formEl = document.getElementById('gradeForm');
-            if (formEl) formEl.action = `${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review`;
-
-            const questionsContainer = document.getElementById('submissionQuestionsContainer');
-            if (questionsContainer) {
-                questionsContainer.innerHTML =
-                    `<p class="text-xs text-slate-400 italic text-center py-4">${i18n.loadingReview}</p>`;
-            }
-
-            window.openModal('gradeModal');
-
-            try {
-                const res = await fetch(`${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review-details`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                const data = await res.json();
-                if (data.success && data.submission) {
-                    if (nameEl && data.submission.student_name) {
-                        nameEl.textContent =
-                            `${data.submission.student_name} — ${data.submission.assignment_title || ''}`;
-                    }
-                    if (scoreInput && data.submission.score !== null && data.submission.score !== undefined) {
-                        scoreInput.value = data.submission.score;
-                    }
-                    if (notesEl && data.submission.evaluation_notes) {
-                        notesEl.value = data.submission.evaluation_notes;
-                    }
-                }
-                if (data.success && data.questions && data.questions.length > 0) {
-                    let html = '';
-                    data.questions.forEach((q, idx) => {
-                        const statusBadge = q.is_correct ?
-                            `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${i18n.correct} (+${q.points_earned}/${q.points} pts)</span>` :
-                            `<span class="px-2 py-0.5 bg-red-100 text-red-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${i18n.incorrect} (0/${q.points} pts)</span>`;
-
-                        let optsHtml = '';
-                        q.options.forEach(opt => {
-                            let optStyle = 'bg-white border-slate-200 text-slate-700';
-                            let badge = '';
-
-                            if (opt.is_correct && opt.is_selected) {
-                                optStyle =
-                                    'bg-emerald-50 border-emerald-300 text-emerald-900 dark:text-emerald-200 font-bold';
-                                badge =
-                                    `<span class="text-emerald-600 font-mono text-[10px]">${i18n.studentCorrectPick}</span>`;
-                            } else if (opt.is_correct) {
-                                optStyle = 'bg-teal-50 border-teal-300 text-teal-900 dark:text-teal-200 font-bold';
-                                badge =
-                                    `<span class="text-teal-600 font-mono text-[10px]">${i18n.correctKey}</span>`;
-                            } else if (opt.is_selected) {
-                                optStyle = 'bg-red-50 border-red-300 text-red-900 font-bold';
-                                badge =
-                                    `<span class="text-red-600 font-mono text-[10px]">${i18n.studentWrongPick}</span>`;
-                            }
-
-                            optsHtml += `<div class="p-2.5 rounded-xl border ${optStyle} text-xs flex items-center justify-between gap-2">
-                        <span>${escapeHtml(opt.option_text)}</span>
-                        ${badge}
-                    </div>`;
-
-                            if (opt.explanation && opt.is_correct) {
-                                optsHtml +=
-                                    `<p class="text-[11px] text-slate-500 font-mono italic pl-2">${i18n.explanation} ${escapeHtml(opt.explanation)}</p>`;
-                            }
-                        });
-
-                        html += `<div class="p-3.5 bg-[#FAFAF9] rounded-2xl border border-slate-200 space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-bold text-slate-900 dark:text-white">Q${idx + 1}: ${escapeHtml(q.question_text || i18n.question)}</span>
-                        ${statusBadge}
-                    </div>
-                    <div class="space-y-1.5 pt-1">
-                        ${optsHtml}
-                    </div>
-                </div>`;
-                    });
-                    if (questionsContainer) questionsContainer.innerHTML = html;
-                } else {
-                    if (questionsContainer) questionsContainer.innerHTML =
-                        `<p class="text-xs text-slate-500 italic text-center py-4">${i18n.noQuestionBreakdown}</p>`;
-                }
-            } catch (err) {
-                if (questionsContainer) questionsContainer.innerHTML =
-                    `<p class="text-xs text-rose-500 italic text-center py-4">${i18n.unableToLoadBreakdown}</p>`;
-            }
-        }
 
         // ── Interactive Question Builder for Assignment Creator ───────────────────────
         let teacherQuestionCount = 0;
 
         function addTeacherQuestion() {
             const container = document.getElementById('teacherQuestionsContainer');
+            const emptyState = document.getElementById('teacherQuestionsEmptyState');
             if (!container) return;
+            if (emptyState) emptyState.classList.add('hidden');
 
             const qIdx = teacherQuestionCount++;
             const isAr = @json(app()->getLocale() === 'ar');
@@ -5090,15 +5393,15 @@
             const html = `
     <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 relative" id="teacherQCard_${qIdx}">
         <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">
+            <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-950/70 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
                 ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
             </span>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-1 text-xs font-mono">
-                    <span class="text-slate-500">${isAr ? 'الدرجة:' : 'Pts:'}</span>
+                    <span class="text-slate-500 dark:text-slate-400">${isAr ? 'الدرجة:' : 'Pts:'}</span>
                     <input type="number" step="0.5" name="questions[${qIdx}][points]" value="1" min="0.5" class="w-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2 py-1 text-xs font-bold text-center">
                 </div>
-                <button type="button" onclick="removeTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer">
+                <button type="button" onclick="removeTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer">
                     <i class="fa-solid fa-xmark"></i> ${isAr ? 'حذف' : 'Remove'}
                 </button>
             </div>
@@ -5109,14 +5412,14 @@
         </div>
 
         <div class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-            <p class="text-[10px] font-mono text-slate-500 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
+            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 ${[0, 1, 2, 3].map(optIdx => `
-                                                <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
-                                                    <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
-                                                    <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800">
-                                                </div>
-                                            `).join('')}
+                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
+                        <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                    </div>
+                `).join('')}
             </div>
         </div>
     </div>`;
@@ -5127,7 +5430,293 @@
         function removeTeacherQuestion(qIdx) {
             const el = document.getElementById('teacherQCard_' + qIdx);
             if (el) el.remove();
+            const container = document.getElementById('teacherQuestionsContainer');
+            const emptyState = document.getElementById('teacherQuestionsEmptyState');
+            if (container && container.children.length === 0 && emptyState) {
+                emptyState.classList.remove('hidden');
+            }
         }
+
+        // ── Interactive Question Builder for Assignment Editor ───────────────────────
+        let editTeacherQuestionCount = 0;
+
+        function addEditTeacherQuestion(existingData = null) {
+            const container = document.getElementById('editTeacherQuestionsContainer');
+            const emptyState = document.getElementById('editTeacherQuestionsEmptyState');
+            if (!container) return;
+            if (emptyState) emptyState.classList.add('hidden');
+
+            const qIdx = editTeacherQuestionCount++;
+            const isAr = @json(app()->getLocale() === 'ar');
+
+            const qId = existingData?.id || '';
+            const qText = existingData?.question_text || '';
+            const qPoints = existingData?.points || 1;
+            const existingOptions = existingData?.options || [];
+
+            let optionsHtml = '';
+            for (let optIdx = 0; optIdx < 4; optIdx++) {
+                const optObj = existingOptions[optIdx] || {};
+                const optText = optObj.option_text || '';
+                const isChecked = optObj.is_correct ? 'checked' : (optIdx === 0 && !existingData ? 'checked' : '');
+
+                optionsHtml += `
+                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${isChecked} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
+                        <input type="text" name="questions[${qIdx}][options][${optIdx}]" value="${escapeHtml(optText)}" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                    </div>
+                `;
+            }
+
+            const html = `
+    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 relative" id="editTeacherQCard_${qIdx}">
+        <input type="hidden" name="questions[${qIdx}][id]" value="${qId}">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-950/70 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
+                ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
+            </span>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1 text-xs font-mono">
+                    <span class="text-slate-500 dark:text-slate-400">${isAr ? 'الدرجة:' : 'Pts:'}</span>
+                    <input type="number" step="0.5" name="questions[${qIdx}][points]" value="${qPoints}" min="0.5" class="w-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2 py-1 text-xs font-bold text-center">
+                </div>
+                <button type="button" onclick="removeEditTeacherQuestion(${qIdx})" class="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold font-mono px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i> ${isAr ? 'حذف' : 'Remove'}
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600">${escapeHtml(qText)}</textarea>
+        </div>
+
+        <div class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${optionsHtml}
+            </div>
+        </div>
+    </div>`;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeEditTeacherQuestion(qIdx) {
+            const el = document.getElementById('editTeacherQCard_' + qIdx);
+            if (el) el.remove();
+            const container = document.getElementById('editTeacherQuestionsContainer');
+            const emptyState = document.getElementById('editTeacherQuestionsEmptyState');
+            if (container && container.children.length === 0 && emptyState) {
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        async function openEditAssignmentModal(assignmentId) {
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/assignments/${assignmentId}/details`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success || !data.assignment) {
+                    showTeacherToast(data.message || (isArLocale ? 'تعذر جلب تفاصيل الواجب للتعديل' : 'Failed to load assignment details for editing'), false);
+                    return;
+                }
+
+                const a = data.assignment;
+                document.getElementById('editAssignmentId').value = a.id;
+                document.getElementById('editAssignmentCourseId').value = a.course_id;
+                document.getElementById('editAssignmentLiveSessionId').value = a.live_session_id || '';
+                document.getElementById('editAssignmentTitle').value = a.title || '';
+                document.getElementById('editAssignmentDescription').value = a.description || '';
+                
+                if (a.due_at_raw) {
+                    document.getElementById('editAssignmentDueAt').value = a.due_at_raw.replace(' ', 'T').substring(0, 16);
+                } else if (a.due_at) {
+                    const d = new Date(a.due_at);
+                    if (!isNaN(d)) {
+                        const pad = n => n < 10 ? '0' + n : n;
+                        document.getElementById('editAssignmentDueAt').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    }
+                }
+
+                document.getElementById('editAssignmentDuration').value = a.duration_minutes || 30;
+                document.getElementById('editAssignmentPassScore').value = a.passing_score || 70;
+
+                // Load Questions
+                const qContainer = document.getElementById('editTeacherQuestionsContainer');
+                const emptyState = document.getElementById('editTeacherQuestionsEmptyState');
+                if (qContainer) {
+                    qContainer.innerHTML = '';
+                    editTeacherQuestionCount = 0;
+                    if (data.questions && data.questions.length > 0) {
+                        if (emptyState) emptyState.classList.add('hidden');
+                        data.questions.forEach(q => addEditTeacherQuestion(q));
+                    } else {
+                        if (emptyState) emptyState.classList.remove('hidden');
+                    }
+                }
+
+                window.openModal('editAssignmentModal');
+            } catch (err) {
+                showTeacherToast(isArLocale ? 'حدث خطأ أثناء تحميل بيانات الواجب' : 'Error loading assignment details', false);
+            }
+        }
+
+        async function confirmDeleteAssignment(assignmentId, title) {
+            const isAr = @json(app()->getLocale() === 'ar');
+            const confirmMsg = isAr 
+                ? `هل أنت متأكد من حذف الواجب "${title || ''}"؟ سيتم حذف جميع الأسئلة وإجابات الطلاب نهائياً.`
+                : `Are you sure you want to delete assignment "${title || ''}"? All questions and student submissions will be permanently removed.`;
+            
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/assignments/${assignmentId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showTeacherToast(data.message, true);
+                    const card = document.getElementById(`assignmentCard_${assignmentId}`);
+                    if (card) card.remove();
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showTeacherToast(data.message || (isAr ? 'فشل حذف الواجب' : 'Failed to delete assignment'), false);
+                }
+            } catch (err) {
+                showTeacherToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
+            }
+        }
+
+        function deleteCurrentAssignmentFromModal() {
+            if (window.currentViewingAssignment) {
+                closeModal('assignmentDetailsModal');
+                confirmDeleteAssignment(window.currentViewingAssignment.id, window.currentViewingAssignment.title);
+            }
+        }
+
+        function editCurrentAssignmentFromModal() {
+            if (window.currentViewingAssignment) {
+                closeModal('assignmentDetailsModal');
+                openEditAssignmentModal(window.currentViewingAssignment.id);
+            }
+        }
+
+        async function confirmDeleteSession(sessionId, title) {
+            const isAr = @json(app()->getLocale() === 'ar');
+            const confirmMsg = isAr
+                ? `هل أنت متأكد من حذف الحصة "${title || ''}" نهائياً؟`
+                : `Are you sure you want to permanently delete session "${title || ''}"?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showTeacherToast(data.message, true);
+                    const mobileCard = document.getElementById(`sessionMobileCard_${sessionId}`);
+                    if (mobileCard) mobileCard.remove();
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showTeacherToast(data.message || (isAr ? 'فشل حذف الحصة' : 'Failed to delete session'), false);
+                }
+            } catch (err) {
+                showTeacherToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
+            }
+        }
+
+        function openEditRecurringScheduleModal(scheduleId, el) {
+            let title = '', courseId = '', recurrenceType = '', startTime = '10:00', duration = 60, startDate = '', endDate = '', days = [], meetingLink = '', notes = '';
+            if (el && typeof el === 'object' && el.nodeType) {
+                const card = el.closest('.schedule-item-card') || el;
+                title = card.getAttribute('data-title') || el.getAttribute('data-title') || '';
+                courseId = card.getAttribute('data-course-id') || el.getAttribute('data-course-id') || '';
+                recurrenceType = card.getAttribute('data-recurrence-type') || el.getAttribute('data-recurrence-type') || 'weekly';
+                startTime = card.getAttribute('data-start-time') || el.getAttribute('data-start-time') || '10:00';
+                duration = card.getAttribute('data-duration') || el.getAttribute('data-duration') || 60;
+                startDate = card.getAttribute('data-start-date') || el.getAttribute('data-start-date') || '';
+                endDate = card.getAttribute('data-end-date') || el.getAttribute('data-end-date') || '';
+                try {
+                    const daysAttr = card.getAttribute('data-days') || el.getAttribute('data-days') || '[]';
+                    days = JSON.parse(daysAttr);
+                } catch(e) { days = []; }
+                meetingLink = card.getAttribute('data-meeting-link') || el.getAttribute('data-meeting-link') || '';
+                notes = card.getAttribute('data-notes') || el.getAttribute('data-notes') || '';
+            }
+
+            document.getElementById('editRecScheduleId').value = scheduleId;
+            document.getElementById('editRecTitle').value = title;
+            if (document.getElementById('editRecCourseId')) document.getElementById('editRecCourseId').value = courseId;
+            document.getElementById('editRecStartDate').value = startDate;
+            document.getElementById('editRecEndDate').value = endDate;
+            document.getElementById('editRecStartTime').value = startTime;
+            document.getElementById('editRecDuration').value = duration;
+            document.getElementById('editRecMeetingLink').value = meetingLink;
+            document.getElementById('editRecNotes').value = notes;
+
+            // Check days
+            document.querySelectorAll('.edit-rec-day-checkbox').forEach(cb => {
+                cb.checked = days.map(String).includes(String(cb.value));
+            });
+
+            if (typeof window.openScheduleModal === 'function') {
+                window.openScheduleModal('editRecurringScheduleModal');
+            } else {
+                window.openModal('editRecurringScheduleModal');
+            }
+        }
+
+        async function confirmDeleteRecurringSchedule(scheduleId, title) {
+            const isAr = @json(app()->getLocale() === 'ar');
+            const confirmMsg = isAr
+                ? `هل أنت متأكد من حذف الجدول المتكرر "${title || ''}"؟ سيتم حذف جميع الحصص المستقبلية غير المكتملة المرتبطة به.`
+                : `Are you sure you want to delete recurring schedule "${title || ''}"? All future uncompleted session instances will be cancelled and deleted.`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/recurring-schedules/${scheduleId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showTeacherToast(data.message, true);
+                    const card = document.getElementById(`recurringScheduleCard_${scheduleId}`);
+                    if (card) card.remove();
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showTeacherToast(data.message || (isAr ? 'فشل حذف الجدول المتكرر' : 'Failed to delete recurring schedule'), false);
+                }
+            } catch (err) {
+                showTeacherToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
+            }
+        }
+
+        window.openEditAssignmentModal = openEditAssignmentModal;
+        window.confirmDeleteAssignment = confirmDeleteAssignment;
+        window.deleteCurrentAssignmentFromModal = deleteCurrentAssignmentFromModal;
+        window.editCurrentAssignmentFromModal = editCurrentAssignmentFromModal;
+        window.confirmDeleteSession = confirmDeleteSession;
+        window.openEditRecurringScheduleModal = openEditRecurringScheduleModal;
+        window.confirmDeleteRecurringSchedule = confirmDeleteRecurringSchedule;
 
         function showTeacherToast(message, isSuccess) {
             if (window.Toast) {
@@ -5843,6 +6432,88 @@
                 closeModal('createAssignmentModal');
                 setTimeout(() => location.reload(), 900);
             });
+
+            const editAssignForm = document.getElementById('editAssignmentForm');
+            if (editAssignForm) {
+                editAssignForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const aId = document.getElementById('editAssignmentId').value;
+                    const submitBtn = document.getElementById('editAssignmentSubmitBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+                    }
+                    try {
+                        const formData = new FormData(editAssignForm);
+                        const res = await fetch(`${appBaseUrl}/ajax/teacher/assignments/${aId}/update`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showTeacherToast(data.message, true);
+                            closeModal('editAssignmentModal');
+                            setTimeout(() => location.reload(), 800);
+                        } else {
+                            showTeacherToast(data.message || (isArLocale ? 'فشل تحديث الواجب' : 'Failed to update assignment'), false);
+                        }
+                    } catch (err) {
+                        showTeacherToast(isArLocale ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk text-xs"></i> <span>${isArLocale ? 'حفظ التغييرات' : 'Save Changes'}</span>`;
+                        }
+                    }
+                });
+            }
+
+            const editRecForm = document.getElementById('editRecurringScheduleForm');
+            if (editRecForm) {
+                editRecForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const sId = document.getElementById('editRecScheduleId').value;
+                    const submitBtn = document.getElementById('editRecSubmitBtn') || document.getElementById('saveEditRecurringBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i>`;
+                    }
+                    try {
+                        const formData = new FormData(editRecForm);
+                        const res = await fetch(`${appBaseUrl}/ajax/teacher/recurring-schedules/${sId}/update`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showTeacherToast(data.message, true);
+                            if (typeof window.closeScheduleModal === 'function') {
+                                window.closeScheduleModal('editRecurringScheduleModal');
+                            } else {
+                                closeModal('editRecurringScheduleModal');
+                            }
+                            setTimeout(() => location.reload(), 800);
+                        } else {
+                            showTeacherToast(data.message || (isArLocale ? 'فشل تعديل الجدول الدوري' : 'Failed to update schedule'), false);
+                        }
+                    } catch (err) {
+                        showTeacherToast(isArLocale ? 'خطأ في الاتصال' : 'Connection error', false);
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>${isArLocale ? 'حفظ التعديلات' : 'Save Changes'}</span>`;
+                        }
+                    }
+                });
+            }
 
             bindAjaxForm('meetingLinkForm', function(data) {
                 showTeacherToast(data.message, true);

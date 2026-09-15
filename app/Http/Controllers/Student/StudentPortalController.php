@@ -46,7 +46,45 @@ class StudentPortalController extends Controller
 
         $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();
 
-        $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $enrolledCourseIds)
+        // Also resolve any course IDs and session IDs linked via direct 1:1 sessions or student_sessions
+        $assignedSessionCourseIds = $user ? \App\Models\LiveSession::where('student_user_id', $user->id)
+            ->whereNotNull('course_id')
+            ->pluck('course_id')
+            ->toArray() : [];
+
+        $studentSessionCourseIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
+            ->join('live_sessions', 'student_sessions.live_session_id', '=', 'live_sessions.id')
+            ->where('student_sessions.student_user_id', $user->id)
+            ->whereNotNull('live_sessions.course_id')
+            ->pluck('live_sessions.course_id')
+            ->toArray() : [];
+
+        $allStudentCourseIds = array_values(array_unique(array_filter(array_merge(
+            $enrolledCourseIds,
+            $assignedSessionCourseIds,
+            $studentSessionCourseIds
+        ))));
+
+        $allStudentSessionIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
+            ->where('student_user_id', $user->id)
+            ->pluck('live_session_id')
+            ->toArray() : [];
+
+        $directLiveSessionIds = $user ? \App\Models\LiveSession::where('student_user_id', $user->id)
+            ->pluck('id')
+            ->toArray() : [];
+
+        $visibleSessionIds = $user ? \App\Models\LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
+            ->pluck('id')
+            ->toArray() : [];
+
+        $allSessionIds = array_values(array_unique(array_filter(array_merge(
+            $directLiveSessionIds,
+            $allStudentSessionIds,
+            $visibleSessionIds
+        ))));
+
+        $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
             ->where(function ($q) {
                 $q->whereNull('course_id')
                   ->orWhereHas('course', function ($cQuery) {
@@ -146,7 +184,7 @@ class StudentPortalController extends Controller
 
         $completedAssignmentIds = $completedSubmissions->pluck('assignment_id')->filter()->toArray();
 
-        $availableAssignments = \App\Models\Assignment::with([
+        $availableAssignments = $user ? \App\Models\Assignment::with([
                 'questions.options',
                 'course.subject',
                 'course.teacher.user',
@@ -159,27 +197,31 @@ class StudentPortalController extends Controller
                 $q->whereNull('start_at')->orWhere('start_at', '<=', now());
             })
             ->whereNotIn('id', $completedAssignmentIds)
-            ->where(function ($q) use ($enrollments, $upcomingSessions) {
-                $courseIds = $enrollments->pluck('course_id')->filter()->values()->all();
-                $sessionIds = $upcomingSessions->pluck('id')->filter()->values()->all();
+            ->where(function ($q) use ($allStudentCourseIds, $allSessionIds) {
+                $hasCourses = ! empty($allStudentCourseIds);
+                $hasSessions = ! empty($allSessionIds);
 
-                $q->where(function ($inner) use ($courseIds, $sessionIds) {
-                    if (! empty($courseIds)) {
-                        $inner->whereIn('course_id', $courseIds);
-                    }
-                    if (! empty($sessionIds)) {
-                        $inner->orWhereIn('live_session_id', $sessionIds);
-                    }
-                    if (empty($courseIds) && empty($sessionIds)) {
-                        $inner->whereRaw('1 = 0');
-                    }
-                });
+                if ($hasCourses && $hasSessions) {
+                    $q->where(function ($inner) use ($allStudentCourseIds, $allSessionIds) {
+                        $inner->whereIn('course_id', $allStudentCourseIds)
+                              ->orWhereIn('live_session_id', $allSessionIds);
+                    });
+                } elseif ($hasCourses) {
+                    $q->whereIn('course_id', $allStudentCourseIds);
+                } elseif ($hasSessions) {
+                    $q->whereIn('live_session_id', $allSessionIds);
+                } else {
+                    $q->whereRaw('1 = 0');
+                }
             })
             ->orderBy('due_at', 'asc')
-            ->get()
-            ->reject(fn ($a) => $a->isExpired());
+            ->get() : collect();
 
-        $filterCourses = $enrollments->map(fn($e) => $e->course)->filter()->unique('id')->values();
+        $filterCourses = $enrollments->map(fn($e) => $e->course)->filter();
+        if ($filterCourses->isEmpty() && ! empty($allStudentCourseIds)) {
+            $filterCourses = \App\Models\Course::whereIn('id', $allStudentCourseIds)->get();
+        }
+        $filterCourses = $filterCourses->unique('id')->values();
 
         $exceptions = $user ? ExceptionRequest::where('student_user_id', $user->id)
             ->with('liveSession')

@@ -29,13 +29,40 @@ class AssignmentPolicy
         }
 
         if ($user->isStudent()) {
-            if (! $assignment->course_id) {
+            if (! $assignment->course_id && ! $assignment->live_session_id) {
                 return true;
             }
 
-            return \App\Models\CourseEnrollment::where('student_user_id', $user->id)
-                ->where('course_id', $assignment->course_id)
-                ->exists();
+            if ($assignment->course_id) {
+                $isEnrolled = \App\Models\CourseEnrollment::where('student_user_id', $user->id)
+                    ->where('course_id', $assignment->course_id)
+                    ->exists();
+                if ($isEnrolled) {
+                    return true;
+                }
+
+                $hasSessionInCourse = \App\Models\LiveSession::where('course_id', $assignment->course_id)
+                    ->where(function ($q) use ($user) {
+                        $q->where('student_user_id', $user->id)
+                          ->orWhereHas('studentSessions', fn ($sq) => $sq->where('student_user_id', $user->id));
+                    })->exists();
+                if ($hasSessionInCourse) {
+                    return true;
+                }
+            }
+
+            if ($assignment->live_session_id) {
+                $hasLiveSession = \App\Models\LiveSession::where('id', $assignment->live_session_id)
+                    ->where(function ($q) use ($user) {
+                        $q->where('student_user_id', $user->id)
+                          ->orWhereHas('studentSessions', fn ($sq) => $sq->where('student_user_id', $user->id));
+                    })->exists();
+                if ($hasLiveSession) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         return false;

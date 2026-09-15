@@ -29,9 +29,19 @@ class SubmissionController extends Controller
         $previousSubmission = null;
 
         if ($user) {
-            $enrollment = \App\Models\CourseEnrollment::where('student_user_id', $user->id)
-                ->where('course_id', $assignment->course_id)
-                ->first();
+            $enrollment = null;
+            if ($assignment->course_id) {
+                $enrollment = \App\Models\CourseEnrollment::firstOrCreate(
+                    [
+                        'student_user_id' => $user->id,
+                        'course_id' => $assignment->course_id,
+                    ],
+                    [
+                        'status' => 'active',
+                        'enrolled_at' => now(),
+                    ]
+                );
+            }
 
             // Find or atomically create active in_progress attempt
             $previousSubmission = AssignmentSubmission::where('assignment_id', $assignment->id)
