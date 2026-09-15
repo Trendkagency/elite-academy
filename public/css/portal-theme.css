@@ -221,3 +221,50 @@ html:not(.dark) .student-portal-shell {
         gap: 0.35rem !important;
     }
 }
+
+select.input-mobile,
+select.elite-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.15rem 1.15rem !important;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+html[dir="rtl"] select.input-mobile,
+html[dir="rtl"] select.elite-input {
+    background-position: left 0.85rem center !important;
+    padding-left: 2.6rem !important;
+    padding-right: 0.875rem !important;
+}
+html[dir="ltr"] select.input-mobile,
+html[dir="ltr"] select.elite-input {
+    background-position: right 0.85rem center !important;
+    padding-right: 2.6rem !important;
+    padding-left: 0.875rem !important;
+}
+html.dark select.input-mobile,
+html.dark select.elite-input {
+    background-color: #1E293B !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232dd4bf' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+}
+
+.elite-select-wrapper {
+    min-width: 0;
+    max-width: 100%;
+}
+.elite-select-trigger {
+    min-width: 0;
+    overflow: hidden;
+}
+.elite-select-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

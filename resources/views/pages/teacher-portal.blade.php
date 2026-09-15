@@ -2585,12 +2585,12 @@
                             class="input-mobile">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="min-w-0">
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                                 *</label>
-                            <select id="recCourseId" name="course_id" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                            <select id="recCourseId" name="course_id" required class="input-mobile text-xs" title="">
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->title }}
                                         ({{ $c->subject?->name }})
@@ -2598,13 +2598,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Target Student (Optional)') }}</label>
                             <select id="recStudentUserId" name="student_user_id"
-                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-                                <option value="">{{ __('All Enrolled Course Students (General Cohort)') }}
-                                </option>
+                                class="input-mobile text-xs">
+                                <option value="">{{ __('All enrolled students') }}</option>
                                 @foreach ($assignedStudents as $st)
                                     <option value="{{ $st->user_id }}">{{ $st->user?->name }}
                                         ({{ $st->gradeLevel?->name }})
@@ -2614,13 +2613,13 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="min-w-0">
                             <label
                                 class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
                                 *</label>
                             <select id="recType" name="recurrence_type" required
-                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white" onchange="toggleRecurrenceFields(this.value)">
+                                class="input-mobile text-xs" onchange="toggleRecurrenceFields(this.value)">
                                 <option value="weekly" selected>{{ __('Weekly') }}</option>
                                 <option value="monthly">{{ __('Monthly') }}</option>
                                 <option value="multi_month">{{ __('Multiple Months (3-6 Months)') }}</option>

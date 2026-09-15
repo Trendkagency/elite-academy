@@ -211,7 +211,7 @@
             background: var(--surface-card);
         }
         html.dark .input-mobile {
-            background: #1E293B;
+            background-color: #1E293B;
             border-color: #334155;
             color: #F8FAFC;
         }
@@ -1004,17 +1004,17 @@
 
                 // Wrapper
                 this.wrapper = document.createElement('div');
-                this.wrapper.className = 'elite-select-wrapper relative w-full';
+                this.wrapper.className = 'elite-select-wrapper relative w-full min-w-0';
                 this.select.parentNode.insertBefore(this.wrapper, this.select);
                 this.wrapper.appendChild(this.select);
 
                 // Trigger button
                 this.trigger = document.createElement('button');
                 this.trigger.type = 'button';
-                this.trigger.className = 'elite-select-trigger w-full flex items-center justify-between gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-teal-500/80 dark:hover:border-teal-500 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/25';
+                this.trigger.className = 'elite-select-trigger w-full min-w-0 overflow-hidden flex items-center justify-between gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-teal-500/80 dark:hover:border-teal-500 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/25';
                 
                 this.labelSpan = document.createElement('span');
-                this.labelSpan.className = 'elite-select-label truncate text-start flex-1';
+                this.labelSpan.className = 'elite-select-label truncate text-start flex-1 min-w-0';
                 
                 this.icon = document.createElement('i');
                 this.icon.className = 'fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 shrink-0';
@@ -1063,7 +1063,7 @@
                     item.setAttribute('data-value', opt.value);
 
                     const textSpan = document.createElement('span');
-                    textSpan.className = 'truncate';
+                    textSpan.className = 'text-start whitespace-normal break-words';
                     textSpan.textContent = opt.textContent;
                     item.appendChild(textSpan);
 
@@ -1096,7 +1096,9 @@
 
             syncLabel() {
                 const selectedOpt = this.select.options[this.select.selectedIndex];
-                this.labelSpan.textContent = selectedOpt ? selectedOpt.textContent : '';
+                const label = selectedOpt ? selectedOpt.textContent.trim() : '';
+                this.labelSpan.textContent = label;
+                this.trigger.title = label;
             }
 
             syncSelectedOption() {
