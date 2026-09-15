@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
+use App\Models\ExceptionRequest;
 use App\Models\LiveSession;
 use App\Models\RecurringSchedule;
 use App\Models\SessionAuditLog;
@@ -21,6 +22,7 @@ use App\Models\Subject;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Services\Exception\ExceptionRequestService;
 use App\Services\Session\RecurringScheduleService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -293,6 +295,17 @@ class TeacherPortalController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // 10. Student Exception Requests & Absence Excuses (for Teacher's Courses / Sessions)
+        $teacherExceptions = ExceptionRequest::where(function ($q) use ($allTeacherCourseIds, $teacherId) {
+            $q->whereIn('course_id', $allTeacherCourseIds)
+              ->orWhereHas('liveSession', fn ($sq) => $sq->where('teacher_profile_id', $teacherId));
+        })
+        ->with(['studentUser', 'course.subject', 'liveSession', 'reviewer'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $pendingExceptionsCount = $teacherExceptions->where('status', 'pending')->count();
+
         return view('pages.teacher-portal', [
             'pageTitle' => __('app.teacher.portal_title'),
             'activeNav' => 'portal',
@@ -313,6 +326,8 @@ class TeacherPortalController extends Controller
             'userNotifications' => $userNotifications,
             'unreadNotifCount' => $unreadNotifCount,
             'recurringSchedules' => $recurringSchedules,
+            'exceptions' => $teacherExceptions,
+            'pendingExceptionsCount' => $pendingExceptionsCount,
             // KPIs
             'todaySessionsCount' => $todaySessionsCount,
             'upcomingSessionsCount' => $upcomingSessionsCount,
@@ -1090,6 +1105,21 @@ class TeacherPortalController extends Controller
             'reviewed_by' => auth()->id(),
         ]);
 
+        if (! empty($validated['evaluation_notes'])) {
+            \App\Models\StudentEducationalNote::updateOrCreate(
+                [
+                    'student_user_id' => $submission->student_user_id,
+                    'teacher_profile_id' => $teacherProfile->id,
+                    'note' => $validated['evaluation_notes'],
+                ],
+                [
+                    'category' => 'homework',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
         // Sync relational StudentSession state if tied to a live session
         if ($assignment->live_session_id) {
             \App\Models\StudentSession::updateOrCreate(
@@ -1849,6 +1879,54 @@ class TeacherPortalController extends Controller
             ->values();
 
         return response()->json(['success' => true, 'students' => $students]);
+    }
+
+    /**
+     * AJAX Endpoint: Approve Student Exception / Absence Excuse (Teacher action)
+     * - The session is NOT decreased from student package (refunded if previously deducted).
+     */
+    public function approveException(Request $request, int $id, ExceptionRequestService $service): JsonResponse
+    {
+        $user = auth()->user();
+        $exception = ExceptionRequest::with(['course', 'liveSession', 'studentUser'])->findOrFail($id);
+
+        if (! $user->can('update', $exception)) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized to review this exception request.')], 403);
+        }
+
+        $notes = $request->input('admin_notes', $request->input('notes'));
+        $service->approve($exception, $user, $notes);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Exception approved successfully! Session credit was preserved for student.'),
+            'status' => 'approved',
+            'exception_id' => $exception->id,
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint: Reject Student Exception / Absence Excuse (Teacher action)
+     * - The session IS decreased from student package balance.
+     */
+    public function rejectException(Request $request, int $id, ExceptionRequestService $service): JsonResponse
+    {
+        $user = auth()->user();
+        $exception = ExceptionRequest::with(['course', 'liveSession', 'studentUser'])->findOrFail($id);
+
+        if (! $user->can('update', $exception)) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized to review this exception request.')], 403);
+        }
+
+        $notes = $request->input('admin_notes', $request->input('notes'));
+        $service->reject($exception, $user, $notes);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Exception rejected. 1 session credit has been deducted from the student package balance.'),
+            'status' => 'rejected',
+            'exception_id' => $exception->id,
+        ]);
     }
 
     /**

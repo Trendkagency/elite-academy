@@ -269,27 +269,31 @@
             let sharedAudioCtx = null;
             let audioUnlocked = false;
 
-            function unlockAudio() {
+            function unlockAudio(e) {
                 if (audioUnlocked) return;
+                // Only proceed on trusted user activation events
+                if (e && !e.isTrusted) return;
                 try {
                     const AudioCtx = window.AudioContext || window.webkitAudioContext;
                     if (!AudioCtx) return;
                     if (!sharedAudioCtx) {
                         sharedAudioCtx = new AudioCtx();
                     }
-                    if (sharedAudioCtx.state === 'suspended') {
+                    if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
                         sharedAudioCtx.resume().then(() => {
-                            audioUnlocked = true;
+                            if (sharedAudioCtx.state === 'running') {
+                                audioUnlocked = true;
+                            }
                         }).catch(() => {});
-                    } else {
+                    } else if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
                         audioUnlocked = true;
                     }
-                } catch (e) {}
+                } catch (err) {}
             }
 
-            // Silently listen for any user gesture to unlock AudioContext compliant with autoplay policies
-            ['click', 'keydown', 'touchstart', 'pointerdown'].forEach(evt => {
-                document.addEventListener(evt, unlockAudio, { once: true, passive: true, capture: true });
+            // Silently listen for trusted user gestures to unlock AudioContext compliant with autoplay policies
+            ['click', 'keydown', 'pointerup', 'touchend'].forEach(evt => {
+                document.addEventListener(evt, unlockAudio, { once: false, passive: true, capture: true });
             });
 
             window.playNotificationChime = function () {

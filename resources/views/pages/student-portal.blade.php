@@ -1201,14 +1201,14 @@
 
                     {{-- Teacher Pedagogical Notes Section --}}
                     <div id="teacher-notes"
-                        class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
-                                <span><i class="fa-solid fa-comments"></i></span>
+                        class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2">
+                                <span class="text-teal-600 dark:text-teal-400"><i class="fa-solid fa-comments"></i></span>
                                 {{ app()->getLocale() === 'ar' ? 'ملاحظات المعلمين والتوجيه الأكاديمي' : 'Teacher Notes & Pedagogical Feedback' }}
                             </h3>
                             <span
-                                class="px-2.5 py-1 bg-teal-50 text-teal-800 border border-teal-200/80 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
+                                class="px-2.5 py-1 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
                                 {{ count($teacherNotes) }} {{ app()->getLocale() === 'ar' ? 'ملاحظات' : 'Notes' }}
                             </span>
                         </div>
@@ -1217,15 +1217,15 @@
                             @forelse($teacherNotes as $n)
                                 @php
                                     $catConfig = match ($n->category) {
-                                        'academic' => ['label' => (app()->getLocale() === 'ar' ? 'أكاديمي' : 'Academic'), 'bg' => 'bg-teal-50 text-teal-800 border-teal-200'],
-                                        'homework' => ['label' => (app()->getLocale() === 'ar' ? 'الواجبات' : 'Homework'), 'bg' => 'bg-blue-50 text-blue-800 border-blue-200'],
-                                        'participation' => ['label' => (app()->getLocale() === 'ar' ? 'المشاركة' : 'Participation'), 'bg' => 'bg-purple-50 text-purple-800 border-purple-200'],
-                                        'behavior' => ['label' => (app()->getLocale() === 'ar' ? 'السلوك والانضباط' : 'Behavior'), 'bg' => 'bg-amber-50 text-amber-800 border-amber-200'],
-                                        default => ['label' => (app()->getLocale() === 'ar' ? 'توجيه عام' : 'General'), 'bg' => 'bg-slate-100 text-slate-800 border-slate-200'],
+                                        'academic' => ['label' => (app()->getLocale() === 'ar' ? 'أكاديمي' : 'Academic'), 'bg' => 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800'],
+                                        'homework' => ['label' => (app()->getLocale() === 'ar' ? 'الواجبات' : 'Homework'), 'bg' => 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800'],
+                                        'participation' => ['label' => (app()->getLocale() === 'ar' ? 'المشاركة' : 'Participation'), 'bg' => 'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800'],
+                                        'behavior' => ['label' => (app()->getLocale() === 'ar' ? 'السلوك والانضباط' : 'Behavior'), 'bg' => 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'],
+                                        default => ['label' => (app()->getLocale() === 'ar' ? 'توجيه عام' : 'General'), 'bg' => 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'],
                                     };
                                 @endphp
                                 <div
-                                    class="p-4 sm:p-5 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md">
+                                    class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md">
                                     <div class="flex items-center justify-between gap-2 flex-wrap">
                                         <div class="flex items-center gap-2.5 min-w-0">
                                             <div
@@ -1233,10 +1233,10 @@
                                                 {{ mb_substr($n->teacherProfile?->user?->name ?? 'T', 0, 1) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-xs font-bold text-slate-900 truncate">
+                                                <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
                                                     {{ $n->teacherProfile?->user?->name ?: __('Academic Teacher') }}
                                                 </p>
-                                                <p class="text-[10px] font-mono text-slate-500 truncate">
+                                                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
                                                     {{ $n->teacherProfile?->subjects?->pluck('name')->join(', ') ?: 'Elite Academy Faculty' }}
                                                 </p>
                                             </div>
@@ -1247,21 +1247,21 @@
                                                 {{ $catConfig['label'] }}
                                             </span>
                                             <span
-                                                class="text-[10px] font-mono text-slate-400">{{ $n->created_at ? $n->created_at->diffForHumans() : '' }}</span>
+                                                class="text-[10px] font-mono text-slate-400 dark:text-slate-500">{{ $n->created_at ? $n->created_at->diffForHumans() : '' }}</span>
                                         </div>
                                     </div>
                                     <div
-                                        class="p-3 bg-white rounded-xl border border-slate-200/60 text-xs font-mono text-slate-800 leading-relaxed">
+                                        class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-700/80 text-xs font-mono text-slate-800 dark:text-slate-200 leading-relaxed">
                                         {{ $n->note }}
                                     </div>
                                 </div>
                             @empty
-                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
-                                    <div class="text-2xl"><i class="fa-solid fa-comments"></i></div>
-                                    <p class="text-xs font-semibold text-slate-700">
+                                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
+                                    <div class="text-2xl text-slate-400 dark:text-slate-500"><i class="fa-solid fa-comments"></i></div>
+                                    <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         {{ app()->getLocale() === 'ar' ? 'لا توجد ملاحظات مسجلة لك من المعلمين حتى الآن.' : 'No pedagogical notes recorded by your teachers yet.' }}
                                     </p>
-                                    <p class="text-[10px] font-mono text-slate-400">
+                                    <p class="text-[10px] font-mono text-slate-400 dark:text-slate-500">
                                         {{ app()->getLocale() === 'ar' ? 'ستظهر هنا أي ملاحظات أو توجيهات أكاديمية يرسلها معلموك.' : 'Any feedback or guidance from your instructors will appear here.' }}
                                     </p>
                                 </div>
@@ -1357,18 +1357,19 @@
     </div>
 
     {{-- 2. Modal: Submit Session Absence Excuse --}}
+    {{-- 2. Modal: Submit Session Absence Excuse --}}
     <div id="excuseModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center text-sm border border-teal-200/60">
+                    <div class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 flex items-center justify-center text-sm border border-teal-200/60 dark:border-teal-800">
                         <i class="fa-solid fa-file-signature"></i>
                     </div>
-                    <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.portal.submit_excuse') }}</h3>
+                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('app.portal.submit_excuse') }}</h3>
                 </div>
                 <button type="button" onclick="window.closeModal ? window.closeModal('excuseModal') : document.getElementById('excuseModal').classList.add('hidden')"
-                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 text-lg font-bold"
+                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
                     aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
@@ -1376,21 +1377,52 @@
 
             <form id="excuseForm" action="{{ route('ajax.exception.submit') }}" method="POST" class="space-y-4">
                 @csrf
-                <input type="hidden" name="live_session_id" value="1">
+
+                {{-- Target Course Selection --}}
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open text-teal-600 dark:text-teal-400"></i>
+                        {{ app()->getLocale() === 'ar' ? 'اختر المقرر الدراسي' : 'Select Target Course' }}
+                    </label>
+                    <select name="course_id" id="excuseCourseSelect" required class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                        onchange="onExcuseCourseChange(this.value, 'excuseSessionSelect')">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
+                        @if(isset($enrollments) && count($enrollments) > 0)
+                            @foreach($enrollments as $e)
+                                <option value="{{ $e->course_id }}">{{ $e->course?->title ?: ('Course #' . $e->course_id) }}</option>
+                            @endforeach
+                        @elseif(isset($filterCourses) && count($filterCourses) > 0)
+                            @foreach($filterCourses as $fc)
+                                <option value="{{ $fc->id }}">{{ $fc->title }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                {{-- Dynamic Specific Session Selection --}}
+                <div class="space-y-1.5" id="excuseSessionGroup">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-video text-teal-600 dark:text-teal-400"></i>
+                        {{ app()->getLocale() === 'ar' ? 'اختر الحصة المحددة' : 'Select Specific Session' }}
+                    </label>
+                    <select name="live_session_id" id="excuseSessionSelect" required class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --' }}</option>
+                    </select>
+                </div>
 
                 <div class="space-y-1.5">
-                    <label
-                        class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'سبب الاعتذار عن الحصة' : 'Reason for Absence' }}</label>
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'سبب الاعتذار عن الحصة' : 'Reason for Absence' }}</label>
                     <textarea name="reason" required minlength="10"
                         placeholder="{{ app()->getLocale() === 'ar' ? 'اذكر سبب الغياب بالتفصيل...' : 'Provide detailed absence reason...' }}"
-                        class="input-mobile h-24"></textarea>
-                    <p class="text-[11px] text-amber-700 font-bold"><i class="fa-solid fa-triangle-exclamation"></i>
+                        class="input-mobile h-24 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"></textarea>
+                    <p class="text-[11px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                         {{ __('app.sessions.excuse_2h_rule') }}
                     </p>
                 </div>
 
                 <button type="submit"
-                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer">
+                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer font-bold py-3 rounded-2xl">
                     {{ app()->getLocale() === 'ar' ? 'إرسال عذر الغياب' : 'Submit Absence Excuse' }}
                 </button>
             </form>
@@ -1400,16 +1432,16 @@
     {{-- 3. Modal: Submit Homework Exception Request --}}
     <div id="homeworkExceptionModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-sm border border-amber-200/60">
+                    <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 flex items-center justify-center text-sm border border-amber-200/60 dark:border-amber-800">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
-                    <h3 class="font-heading font-black text-lg text-slate-900">{{ __('app.portal.submit_exception') }}</h3>
+                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('app.portal.submit_exception') }}</h3>
                 </div>
                 <button type="button" onclick="window.closeModal ? window.closeModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.add('hidden')"
-                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 text-lg font-bold"
+                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
                     aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
@@ -1419,12 +1451,11 @@
                 @csrf
 
                 <div class="space-y-1.5">
-                    <label
-                        class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'نطاق الاستثناء' : 'Exception Scope' }}</label>
-                    <select name="scope" id="exceptionScopeSelect" class="input-mobile"
-                        onchange="document.getElementById('courseSelectGroup').style.display = this.value === 'global' ? 'none' : 'block'">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'نطاق الاستثناء' : 'Exception Scope' }}</label>
+                    <select name="scope" id="exceptionScopeSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                        onchange="document.getElementById('hwCourseSelectGroup').style.display = this.value === 'global' ? 'none' : 'block'; document.getElementById('hwSessionSelectGroup').style.display = this.value === 'global' ? 'none' : 'block';">
                         <option value="course">
-                            {{ app()->getLocale() === 'ar' ? 'كورس معين محدد' : 'Single Specific Course' }}
+                            {{ app()->getLocale() === 'ar' ? 'كورس معين محدد وحصة محددة' : 'Single Specific Course & Session' }}
                         </option>
                         <option value="global">
                             {{ app()->getLocale() === 'ar' ? 'استثناء شامل لجميع الكورسات' : 'Global System Exception (All Enrolled Courses)' }}
@@ -1432,30 +1463,47 @@
                     </select>
                 </div>
 
-                <div id="courseSelectGroup" class="space-y-1.5">
-                    <label
-                        class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'اختر الكورس المستهدف' : 'Target Enrolled Course' }}</label>
-                    <select name="course_id" class="input-mobile">
+                {{-- Target Course Selection --}}
+                <div id="hwCourseSelectGroup" class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open text-amber-600 dark:text-amber-400"></i>
+                        {{ app()->getLocale() === 'ar' ? 'اختر الكورس المستهدف' : 'Target Enrolled Course' }}
+                    </label>
+                    <select name="course_id" id="hwExceptionCourseSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                        onchange="onExcuseCourseChange(this.value, 'hwExceptionSessionSelect')">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
                         @if(isset($enrollments) && count($enrollments) > 0)
                             @foreach($enrollments as $e)
-                                <option value="{{ $e->course_id }}">{{ $e->course?->title ?: 'الكورس الدراسي' }}</option>
+                                <option value="{{ $e->course_id }}">{{ $e->course?->title ?: ('Course #' . $e->course_id) }}</option>
                             @endforeach
-                        @else
-                            <option value="1">Physics Electromagnetism & Circuits</option>
+                        @elseif(isset($filterCourses) && count($filterCourses) > 0)
+                            @foreach($filterCourses as $fc)
+                                <option value="{{ $fc->id }}">{{ $fc->title }}</option>
+                            @endforeach
                         @endif
                     </select>
                 </div>
 
+                {{-- Specific Session / Homework Selection --}}
+                <div id="hwSessionSelectGroup" class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pen text-amber-600 dark:text-amber-400"></i>
+                        {{ app()->getLocale() === 'ar' ? 'الحصة / الواجب المستهدف (اختياري)' : 'Target Session / Homework (Optional)' }}
+                    </label>
+                    <select name="live_session_id" id="hwExceptionSessionSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --' }}</option>
+                    </select>
+                </div>
+
                 <div class="space-y-1.5">
-                    <label
-                        class="text-xs font-bold text-slate-700">{{ app()->getLocale() === 'ar' ? 'تفاصيل مشكلة الواجب أو سبب الاستثناء' : 'Homework Exception Details' }}</label>
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'تفاصيل مشكلة الواجب أو سبب الاستثناء' : 'Homework Exception Details' }}</label>
                     <textarea name="reason" required minlength="10"
                         placeholder="{{ app()->getLocale() === 'ar' ? 'اشرح المشكلة التقنية أو سبب طلب استثناء الواجب...' : 'Describe technical issue or homework exception...' }}"
-                        class="input-mobile h-24"></textarea>
+                        class="input-mobile h-24 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"></textarea>
                 </div>
 
                 <button type="submit"
-                    class="btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer">
+                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer font-bold py-3 rounded-2xl">
                     {{ app()->getLocale() === 'ar' ? 'إرسال طلب استثناء الواجب' : 'Submit Homework Exception' }}
                 </button>
             </form>
@@ -1561,8 +1609,87 @@
             }
             if (msqTimerInterval) clearInterval(msqTimerInterval);
         }
+        window.closeMsqModal = closeMsqModal;
+
+        const enrolledCoursesDataMap = @json($enrolledCoursesDataMap ?? []);
+        const isArLocale = @json(app()->getLocale() === 'ar');
+
+        function onExcuseCourseChange(courseId, selectElId) {
+            const selectEl = document.getElementById(selectElId);
+            if (!selectEl) return;
+            selectEl.innerHTML = '';
+
+            if (!courseId) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = isArLocale ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --';
+                selectEl.appendChild(opt);
+                return;
+            }
+
+            const courseData = enrolledCoursesDataMap[courseId];
+            if (!courseData) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = isArLocale ? 'كافة حصص المقرر' : 'All Course Sessions';
+                selectEl.appendChild(opt);
+                return;
+            }
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = isArLocale ? '-- اختر الحصة الدراسية المحددة --' : '-- Select Specific Session --';
+            selectEl.appendChild(defaultOpt);
+
+            let hasSessions = false;
+
+            // 1. Live sessions
+            if (courseData.live_sessions && courseData.live_sessions.length > 0) {
+                const liveGroup = document.createElement('optgroup');
+                liveGroup.label = isArLocale ? 'الحصص المباشرة (Live Sessions)' : 'Live Sessions';
+                courseData.live_sessions.forEach(ls => {
+                    const opt = document.createElement('option');
+                    opt.value = ls.id;
+                    opt.textContent = `${ls.title} (${ls.start_at || 'Scheduled'})`;
+                    liveGroup.appendChild(opt);
+                    hasSessions = true;
+                });
+                selectEl.appendChild(liveGroup);
+            }
+
+            // 2. Recorded curriculum sessions
+            if (courseData.recorded_sessions && courseData.recorded_sessions.length > 0) {
+                const recGroup = document.createElement('optgroup');
+                recGroup.label = isArLocale ? 'الدروس المسجلة للمقرر' : 'Curriculum Lessons';
+                courseData.recorded_sessions.forEach(cs => {
+                    const opt = document.createElement('option');
+                    opt.value = cs.id;
+                    opt.textContent = `${cs.title} (${cs.duration} min)`;
+                    recGroup.appendChild(opt);
+                    hasSessions = true;
+                });
+                selectEl.appendChild(recGroup);
+            }
+
+            if (!hasSessions) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = isArLocale ? 'لا توجد حصص مجدولة حالياً (استثناء عام للمقرر)' : 'No sessions scheduled yet (General Course Exception)';
+                selectEl.appendChild(opt);
+            }
+        }
+        window.onExcuseCourseChange = onExcuseCourseChange;
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Pre-initialize session dropdowns if course already selected
+            const excuseCourseSelect = document.getElementById('excuseCourseSelect');
+            if (excuseCourseSelect && excuseCourseSelect.value) {
+                onExcuseCourseChange(excuseCourseSelect.value, 'excuseSessionSelect');
+            }
+            const hwCourseSelect = document.getElementById('hwExceptionCourseSelect');
+            if (hwCourseSelect && hwCourseSelect.value) {
+                onExcuseCourseChange(hwCourseSelect.value, 'hwExceptionSessionSelect');
+            }
             const excuseForm = document.getElementById('excuseForm');
             const excuseAlert = document.getElementById('excuseAlert');
             if (excuseForm) {

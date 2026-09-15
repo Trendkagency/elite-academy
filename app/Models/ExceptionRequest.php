@@ -22,10 +22,14 @@ class ExceptionRequest extends Model
         'reason',
         'attachment_path',
         'status',
+        'reviewed_by',
+        'reviewed_at',
+        'admin_notes',
     ];
 
     protected $casts = [
         'is_global' => 'boolean',
+        'reviewed_at' => 'datetime',
     ];
 
     protected static function boot(): void
@@ -68,5 +72,15 @@ class ExceptionRequest extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function homeworkAssignment(): BelongsTo
+    {
+        return $this->belongsTo(Assignment::class, 'homework_assignment_id');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

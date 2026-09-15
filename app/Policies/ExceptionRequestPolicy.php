@@ -20,7 +20,19 @@ class ExceptionRequestPolicy
         }
 
         $teacherProfile = TeacherProfile::where('user_id', $user->id)->first();
-        if ($teacherProfile && $exceptionRequest->liveSession?->teacher_profile_id === $teacherProfile->id) {
+        if (! $teacherProfile) {
+            return false;
+        }
+
+        if ($exceptionRequest->liveSession && (int) $exceptionRequest->liveSession->teacher_profile_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
+        if ($exceptionRequest->course && (int) $exceptionRequest->course->teacher_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
+        if ($exceptionRequest->homeworkAssignment && (int) $exceptionRequest->homeworkAssignment->teacher_profile_id === (int) $teacherProfile->id) {
             return true;
         }
 
@@ -34,7 +46,22 @@ class ExceptionRequestPolicy
         }
 
         $teacherProfile = TeacherProfile::where('user_id', $user->id)->first();
+        if (! $teacherProfile) {
+            return false;
+        }
 
-        return $teacherProfile && $exceptionRequest->liveSession?->teacher_profile_id === $teacherProfile->id;
+        if ($exceptionRequest->liveSession && (int) $exceptionRequest->liveSession->teacher_profile_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
+        if ($exceptionRequest->course && (int) $exceptionRequest->course->teacher_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
+        if ($exceptionRequest->homeworkAssignment && (int) $exceptionRequest->homeworkAssignment->teacher_profile_id === (int) $teacherProfile->id) {
+            return true;
+        }
+
+        return false;
     }
 }

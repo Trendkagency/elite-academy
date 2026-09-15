@@ -255,6 +255,15 @@
                     <i class="fa-solid fa-calendar-check"></i>
                     <span>{{ __('Schedules') }}</span>
                 </button>
+                <button type="button" onclick="switchTeacherTab('exceptions')" id="tab-btn-exceptions"
+                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'exceptions' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }} relative">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>{{ __('Excuses & Exceptions') }}</span>
+                    @if (isset($pendingExceptionsCount) && $pendingExceptionsCount > 0)
+                        <span id="pendingExceptionsBadge"
+                            class="px-1.5 py-0.5 text-[10px] bg-amber-500 text-slate-950 font-black rounded-full font-mono leading-none">{{ $pendingExceptionsCount }}</span>
+                    @endif
+                </button>
             </div>
         </div>
 
@@ -1954,6 +1963,214 @@
                     <div id="schedulesPagination" class="mt-4"></div>
                 @endif
             </div>
+        </div>
+
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        {{-- TAB 7: STUDENT ABSENCE EXCUSES & EXCEPTION REQUESTS                      --}}
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        <div id="teacher-tab-exceptions"
+            class="teacher-tab-content {{ $activeTabKey === 'exceptions' ? '' : 'hidden' }} space-y-6">
+            
+            {{-- Header Banner & Deduction Policy Notice --}}
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base border border-amber-200/60 dark:border-amber-800">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                {{ __('Student Excuses & Exception Requests') }}
+                            </h2>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
+                            {{ __('Review student absence excuses and homework exceptions for your courses and sessions. Approving an excuse preserves the student session balance; rejecting an excuse deducts 1 session credit from their active package.') }}
+                        </p>
+                    </div>
+
+                    {{-- Quick Counters --}}
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <div class="px-3.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>{{ __('Pending') }}:</span>
+                            <span id="statPendingExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'pending')->count() }}</span>
+                        </div>
+                        <div class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>{{ __('Approved') }}:</span>
+                            <span id="statApprovedExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'approved')->count() }}</span>
+                        </div>
+                        <div class="px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800 text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <span>{{ __('Rejected') }}:</span>
+                            <span id="statRejectedExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'rejected')->count() }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Status Filter Buttons --}}
+                <div class="flex items-center gap-2 flex-wrap pt-1">
+                    <button type="button" onclick="filterTeacherExceptions('all', this)"
+                        class="exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white shadow-xs transition-all cursor-pointer">
+                        {{ __('All Requests') }} ({{ $exceptions->count() }})
+                    </button>
+                    <button type="button" onclick="filterTeacherExceptions('pending', this)"
+                        class="exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        {{ __('Pending Review') }} ({{ $exceptions->where('status', 'pending')->count() }})
+                    </button>
+                    <button type="button" onclick="filterTeacherExceptions('approved', this)"
+                        class="exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        {{ __('Approved') }} ({{ $exceptions->where('status', 'approved')->count() }})
+                    </button>
+                    <button type="button" onclick="filterTeacherExceptions('rejected', this)"
+                        class="exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-700 dark:text-slate-300 transition-all cursor-pointer">
+                        {{ __('Rejected') }} ({{ $exceptions->where('status', 'rejected')->count() }})
+                    </button>
+                </div>
+            </div>
+
+            {{-- Exception Request Cards List --}}
+            @if ($exceptions->isEmpty())
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200/90 dark:border-slate-800 text-center space-y-3 shadow-md">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 mx-auto flex items-center justify-center text-2xl border border-teal-200/60 dark:border-teal-800">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('No Exception Requests Found') }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                        {{ __('No student absence excuses or homework exception requests currently submitted for your teaching cohorts.') }}
+                    </p>
+                </div>
+            @else
+                <div class="grid grid-cols-1 gap-4" id="teacherExceptionsList">
+                    @foreach ($exceptions as $exc)
+                        @php
+                            $stUser = $exc->studentUser;
+                            $stProfile = $stUser?->studentProfile;
+                            $liveSession = $exc->liveSession;
+                            $status = $exc->status;
+                            $isPending = $status === 'pending';
+                            $isApproved = $status === 'approved';
+                            $isRejected = $status === 'rejected';
+                        @endphp
+                        <div class="teacher-exception-card bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all duration-200 space-y-4"
+                            data-status="{{ $status }}" id="exception-card-{{ $exc->id }}">
+                            
+                            {{-- Top Header Row: Student Info & Status Badge --}}
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-black text-sm shrink-0 overflow-hidden">
+                                        @if($stProfile?->avatar)
+                                            <img src="{{ $stProfile->avatar }}" alt="{{ $stUser?->name }}" class="w-full h-full object-cover">
+                                        @else
+                                            <span>{{ strtoupper(substr($stUser?->name ?? 'S', 0, 2)) }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                                                {{ $stUser?->name ?: __('Student') }}
+                                            </h4>
+                                            <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400">
+                                                {{ 'STU-' . str_pad((string) $exc->student_user_id, 5, '0', STR_PAD_LEFT) }}
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $stUser?->email ?: '' }}</p>
+                                    </div>
+                                </div>
+
+                                {{-- Status Badge --}}
+                                <div class="flex items-center gap-2 shrink-0" id="status-badge-container-{{ $exc->id }}">
+                                    @if ($isApproved)
+                                        <span class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-extrabold flex items-center gap-1.5">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <span>{{ __('Approved (Session Kept)') }}</span>
+                                        </span>
+                                    @elseif ($isRejected)
+                                        <span class="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 text-xs font-extrabold flex items-center gap-1.5">
+                                            <i class="fa-solid fa-circle-xmark"></i>
+                                            <span>{{ __('Rejected (Session Deducted)') }}</span>
+                                        </span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-extrabold flex items-center gap-1.5 animate-pulse">
+                                            <i class="fa-solid fa-hourglass-half"></i>
+                                            <span>{{ __('Pending Review') }}</span>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Context Details: Course & Specific Session --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 text-xs">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-book-open text-teal-600"></i>
+                                        {{ __('Target Course') }}
+                                    </span>
+                                    <p class="font-bold text-slate-900 dark:text-slate-100">
+                                        {{ $exc->course?->title ?: __('All Courses (Global Exemption)') }}
+                                    </p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-video text-indigo-600"></i>
+                                        {{ __('Target Session') }}
+                                    </span>
+                                    <p class="font-bold text-slate-900 dark:text-slate-100">
+                                        @if ($liveSession)
+                                            {{ $liveSession->title ?: ('Live Session #' . $liveSession->id) }}
+                                            <span class="font-mono text-slate-500 text-[11px]">
+                                                ({{ $liveSession->scheduled_at ? $liveSession->scheduled_at->format('M d, H:i') : __('Scheduled') }})
+                                            </span>
+                                        @else
+                                            <span class="text-slate-500 italic">{{ __('General Course Exception') }}</span>
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Excuse Reason Details --}}
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono flex items-center gap-1.5">
+                                    <i class="fa-solid fa-quote-left text-amber-500"></i>
+                                    {{ __('Excuse Reason Details') }}
+                                </label>
+                                <div class="p-3.5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                                    {{ $exc->reason }}
+                                </div>
+                            </div>
+
+                            {{-- Footer Row: Timestamp & Actions --}}
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                                <div class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
+                                    <span><i class="fa-solid fa-calendar-day"></i> {{ $exc->created_at->format('Y-m-d H:i') }}</span>
+                                    @if ($exc->reviewed_at)
+                                        <span>&bull; {{ __('Reviewed') }}: {{ $exc->reviewed_at->diffForHumans() }}</span>
+                                    @endif
+                                </div>
+
+                                {{-- Action Buttons: Approve / Reject --}}
+                                <div class="flex items-center gap-2 self-end sm:self-auto" id="exception-actions-{{ $exc->id }}">
+                                    @if ($status !== 'approved')
+                                        <button type="button" onclick="reviewTeacherException({{ $exc->id }}, 'approve')"
+                                            class="btn-lift px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>{{ __('Approve (Keep Session)') }}</span>
+                                        </button>
+                                    @endif
+
+                                    @if ($status !== 'rejected')
+                                        <button type="button" onclick="reviewTeacherException({{ $exc->id }}, 'reject')"
+                                            class="btn-lift px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
+                                            <i class="fa-solid fa-xmark"></i>
+                                            <span>{{ __('Reject (Deduct Session)') }}</span>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
     </div>
@@ -4130,7 +4347,7 @@
             if (!tabKey) return;
             const cleanKey = String(tabKey).replace('#', '').trim();
             const validTabs = ['overview', 'students', 'sessions', 'assignments', 'attendance', 'notifications',
-                'schedules'
+                'schedules', 'exceptions'
             ];
             const targetKey = validTabs.includes(cleanKey) ? cleanKey : 'overview';
 
@@ -4171,6 +4388,116 @@
             }
         }
         window.switchTeacherTab = switchTeacherTab;
+
+        function filterTeacherExceptions(status, btn) {
+            document.querySelectorAll('.exception-filter-btn').forEach(b => {
+                b.className = 'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-all cursor-pointer';
+            });
+            if (btn) {
+                btn.className = 'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white shadow-xs transition-all cursor-pointer';
+            }
+
+            document.querySelectorAll('.teacher-exception-card').forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+        window.filterTeacherExceptions = filterTeacherExceptions;
+
+        async function reviewTeacherException(exceptionId, action) {
+            const isApprove = action === 'approve';
+            const confirmMsg = isApprove
+                ? (isArLocale ? 'هل أنت متأكد من قبول العذر؟ لن يتم خصم الحصة من رصيد باقة الطالب.' : 'Are you sure you want to approve this excuse? The session will NOT be deducted from the student balance.')
+                : (isArLocale ? 'هل أنت متأكد من رفض العذر؟ سيتم خصم حصة واحدة من رصيد باقة الطالب.' : 'Are you sure you want to reject this excuse? 1 session credit WILL be deducted from the student package balance.');
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const url = `${appBaseUrl}/ajax/teacher/exceptions/${exceptionId}/${action}`;
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showTeacherToast(data.message, true);
+
+                    // Update DOM card
+                    const card = document.getElementById(`exception-card-${exceptionId}`);
+                    if (card) {
+                        card.dataset.status = action === 'approve' ? 'approved' : 'rejected';
+                    }
+
+                    const badgeContainer = document.getElementById(`status-badge-container-${exceptionId}`);
+                    if (badgeContainer) {
+                        if (action === 'approve') {
+                            badgeContainer.innerHTML = `
+                                <span class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-extrabold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>${isArLocale ? 'مقبول (تم حفظ الحصة)' : 'Approved (Session Kept)'}</span>
+                                </span>
+                            `;
+                        } else {
+                            badgeContainer.innerHTML = `
+                                <span class="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 text-xs font-extrabold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    <span>${isArLocale ? 'مرفوض (تم خصم الحصة)' : 'Rejected (Session Deducted)'}</span>
+                                </span>
+                            `;
+                        }
+                    }
+
+                    // Update action buttons
+                    const actionsContainer = document.getElementById(`exception-actions-${exceptionId}`);
+                    if (actionsContainer) {
+                        if (action === 'approve') {
+                            actionsContainer.innerHTML = `
+                                <button type="button" onclick="reviewTeacherException(${exceptionId}, 'reject')"
+                                    class="btn-lift px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    <span>${isArLocale ? 'تغيير إلى مرفوض (خصم الحصة)' : 'Reject (Deduct Session)'}</span>
+                                </button>
+                            `;
+                        } else {
+                            actionsContainer.innerHTML = `
+                                <button type="button" onclick="reviewTeacherException(${exceptionId}, 'approve')"
+                                    class="btn-lift px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
+                                    <i class="fa-solid fa-check"></i>
+                                    <span>${isArLocale ? 'تغيير إلى مقبول (حفظ الحصة)' : 'Approve (Keep Session)'}</span>
+                                </button>
+                            `;
+                        }
+                    }
+
+                    // Update badge in top counter
+                    const badge = document.getElementById('pendingExceptionsBadge');
+                    if (badge) {
+                        let cur = parseInt(badge.textContent.trim()) || 0;
+                        if (cur > 1) {
+                            badge.textContent = cur - 1;
+                        } else {
+                            badge.remove();
+                        }
+                    }
+                } else {
+                    showTeacherToast(data.message || 'Error processing request', false);
+                }
+            } catch (e) {
+                showTeacherToast('Network error. Please try again.', false);
+            }
+        }
+        window.reviewTeacherException = reviewTeacherException;
 
         // ── Sub-Tab Switcher for Student Profile Modal ────────────────────────────────
         function switchSpTab(tabKey) {

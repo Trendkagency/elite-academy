@@ -30,6 +30,28 @@ class GradeSubmissionAction
             'reviewed_at' => now(),
         ]);
 
+        if (! empty($feedback)) {
+            $tpId = $assignment->teacher_profile_id 
+                ?: ($assignment->course?->teacher_id 
+                ?: ($assignment->liveSession?->teacher_profile_id 
+                ?: \App\Models\TeacherProfile::first()?->id));
+
+            if ($tpId) {
+                \App\Models\StudentEducationalNote::updateOrCreate(
+                    [
+                        'student_user_id' => $submission->student_user_id,
+                        'teacher_profile_id' => $tpId,
+                        'note' => $feedback,
+                    ],
+                    [
+                        'category' => 'homework',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+        }
+
         if ($assignment->live_session_id) {
             \App\Models\StudentSession::updateOrCreate(
                 [

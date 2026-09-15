@@ -96,8 +96,12 @@ class SecurityHeadersMiddleware
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // 4. Cross-Origin-Opener-Policy
-        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        // 4. Cross-Origin-Opener-Policy (Strictly applicable only on secure HTTPS origins)
+        if ($request->isSecure()) {
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        } else {
+            $response->headers->remove('Cross-Origin-Opener-Policy');
+        }
 
         // 5. Permissions-Policy (modern replacement for Feature-Policy)
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
