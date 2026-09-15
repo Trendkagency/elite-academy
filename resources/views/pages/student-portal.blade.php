@@ -207,8 +207,7 @@
                     @php
                         $userAuth = auth()->user();
                         $liveCount = $startingSoonSessions->filter(function($s) use ($userAuth) {
-                            $st = $s->evaluateState($userAuth);
-                            return $st === \App\Enums\LiveSessionState::LIVE || in_array($s->status, ['in_progress', 'link_visible'], true);
+                            return $s->evaluateState($userAuth) === \App\Enums\LiveSessionState::LIVE;
                         })->count();
 
                         if (count($startingSoonSessions) > 0) {
@@ -331,7 +330,10 @@
                                         $startAt = $s->effective_start_at;
                                         $endAt = $s->effective_end_at;
                                         $joinableAt = $s->joinable_at;
-                                        $isLive = ($state === \App\Enums\LiveSessionState::LIVE) || in_array($s->status, ['in_progress', 'link_visible'], true);
+                                        // isLive depends ONLY on evaluateState which enforces the 30-min window.
+                                        // Do NOT use raw status ('link_visible', 'in_progress') here because
+                                        // that bypasses the time check and shows the join button too early.
+                                        $isLive = ($state === \App\Enums\LiveSessionState::LIVE);
                                     @endphp
                                     <div class="session-card-item p-5 bg-gradient-to-r {{ $isLive ? 'from-emerald-50/70 via-white to-teal-50/50 border-emerald-300 shadow-md ring-1 ring-emerald-400/30' : 'from-slate-50/90 to-white border-slate-200/90' }} rounded-2xl border space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
                                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">

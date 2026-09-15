@@ -91,7 +91,8 @@ class StudentPortalController extends Controller
             }
 
             // 2. Starting Soon & Live (Live right now, or starting today, or within the next 24 hours)
-            $isLive = ($state === \App\Enums\LiveSessionState::LIVE) || in_array($session->status, ['in_progress', 'link_visible'], true);
+            // isLive depends ONLY on evaluateState which enforces the 30-min window.
+            $isLive = ($state === \App\Enums\LiveSessionState::LIVE);
             $isSoon = $startAt && ($startAt->isToday() || ($startAt->isFuture() && $startAt->diffInHours($now) <= 24));
 
             if ($isLive || $isSoon) {
@@ -105,7 +106,7 @@ class StudentPortalController extends Controller
 
         // Sort Starting Soon: LIVE sessions first, then earliest startAt
         $startingSoonSessions = $startingSoonSessions->sortBy(function ($s) use ($user, $now) {
-            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE) || in_array($s->status, ['in_progress', 'link_visible'], true);
+            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE);
             $ts = $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
             return $isLive ? 0 : $ts;
         })->values();

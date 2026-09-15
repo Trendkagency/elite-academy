@@ -268,3 +268,205 @@ html.dark select.elite-input {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* ── Teacher portal: readable dark mode across all tabs/modals ── */
+html.dark #teacher-portal-root {
+    color: #E2E8F0;
+}
+
+html.dark #teacher-portal-root .text-slate-900,
+html.dark #teacher-portal-root .text-slate-800,
+html.dark .elite-modal .text-slate-900,
+html.dark .elite-modal .text-slate-800 {
+    color: #F8FAFC !important;
+}
+
+html.dark #teacher-portal-root .text-slate-700,
+html.dark .elite-modal .text-slate-700 {
+    color: #E2E8F0 !important;
+}
+
+html.dark #teacher-portal-root .text-slate-600,
+html.dark #teacher-portal-root .text-slate-500,
+html.dark #teacher-portal-root .text-slate-400,
+html.dark .elite-modal .text-slate-600,
+html.dark .elite-modal .text-slate-500,
+html.dark .elite-modal .text-slate-400 {
+    color: #94A3B8 !important;
+}
+
+html.dark #teacher-portal-root h1,
+html.dark #teacher-portal-root h2,
+html.dark #teacher-portal-root h3,
+html.dark #teacher-portal-root h4,
+html.dark #teacher-portal-root h5,
+html.dark .elite-modal h2,
+html.dark .elite-modal h3,
+html.dark .elite-modal h4 {
+    color: #F8FAFC;
+}
+
+html.dark #teacher-portal-root .bg-white,
+html.dark .elite-modal .bg-white {
+    background-color: #0F172A !important;
+}
+
+html.dark #teacher-portal-root .bg-\[\#FAFAF9\],
+html.dark #teacher-portal-root .bg-slate-50,
+html.dark #teacher-portal-root .bg-slate-50\/90,
+html.dark #teacher-portal-root .bg-slate-50\/80,
+html.dark #teacher-portal-root .bg-slate-50\/70,
+html.dark #teacher-portal-root .bg-slate-50\/60,
+html.dark #teacher-portal-root .dark\:bg-slate-900 {
+    background-color: #0F172A !important;
+}
+
+html.dark #teacher-portal-root .assignment-card,
+html.dark #teacher-portal-root .today-session-item,
+html.dark #teacher-portal-root .session-mobile-card,
+html.dark #teacher-portal-root .overview-course-item,
+html.dark #teacher-portal-root .notif-feed-item {
+    background-color: #162032 !important;
+    border-color: #334155 !important;
+    color: #E2E8F0 !important;
+}
+
+html.dark #teacher-portal-root .bg-teal-50,
+html.dark #teacher-portal-root .bg-teal-50\/80,
+html.dark #teacher-portal-root .bg-teal-50\/60,
+html.dark #teacher-portal-root .bg-teal-100,
+html.dark .elite-modal .bg-teal-50 {
+    background-color: rgba(19, 78, 74, 0.55) !important;
+}
+
+html.dark #teacher-portal-root .text-teal-800,
+html.dark #teacher-portal-root .text-teal-700,
+html.dark #teacher-portal-root .text-teal-600,
+html.dark .elite-modal .text-teal-800,
+html.dark .elite-modal .text-teal-700 {
+    color: #5EEAD4 !important;
+}
+
+html.dark #teacher-portal-root .bg-emerald-50,
+html.dark #teacher-portal-root .bg-emerald-100,
+html.dark .elite-modal .bg-emerald-50 {
+    background-color: rgba(6, 78, 59, 0.5) !important;
+}
+
+html.dark #teacher-portal-root .text-emerald-800,
+html.dark #teacher-portal-root .text-emerald-700,
+html.dark #teacher-portal-root .text-emerald-600 {
+    color: #6EE7B7 !important;
+}
+
+html.dark #teacher-portal-root .bg-amber-50,
+html.dark #teacher-portal-root .bg-amber-100,
+html.dark .elite-modal .bg-amber-50 {
+    background-color: rgba(120, 53, 15, 0.45) !important;
+}
+
+html.dark #teacher-portal-root .text-amber-800,
+html.dark #teacher-portal-root .text-amber-700,
+html.dark #teacher-portal-root .text-amber-600 {
+    color: #FCD34D !important;
+}
+
+html.dark #teacher-portal-root .bg-indigo-50,
+html.dark #teacher-portal-root .bg-blue-50,
+html.dark #teacher-portal-root .bg-purple-50 {
+    background-color: rgba(49, 46, 129, 0.4) !important;
+}
+
+html.dark #teacher-portal-root .text-indigo-700,
+html.dark #teacher-portal-root .text-indigo-600,
+html.dark #teacher-portal-root .text-blue-700,
+html.dark #teacher-portal-root .text-blue-600,
+html.dark #teacher-portal-root .text-purple-700,
+html.dark #teacher-portal-root .text-purple-600 {
+    color: #C7D2FE !important;
+}
+
+html.dark #teacher-portal-root .bg-rose-50,
+html.dark #teacher-portal-root .bg-red-50,
+html.dark #teacher-portal-root .bg-red-100,
+html.dark #teacher-portal-root .bg-rose-100 {
+    background-color: rgba(136, 19, 55, 0.45) !important;
+}
+
+html.dark #teacher-portal-root .text-rose-700,
+html.dark #teacher-portal-root .text-red-700,
+html.dark #teacher-portal-root .text-rose-600 {
+    color: #FDA4AF !important;
+}
+
+html.dark #teacher-portal-root .bg-slate-100,
+html.dark #teacher-portal-root .bg-slate-200,
+html.dark .elite-modal .bg-slate-100 {
+    background-color: #1E293B !important;
+}
+
+html.dark #teacher-portal-root table,
+html.dark #teacher-portal-root td,
+html.dark #teacher-portal-root th {
+    color: #E2E8F0;
+}
+
+html.dark #teacher-portal-root thead th {
+    color: #94A3B8 !important;
+    background-color: #162032;
+}
+
+html.dark #teacher-portal-root .border-slate-200,
+html.dark #teacher-portal-root .border-slate-200\/90,
+html.dark #teacher-portal-root .border-slate-200\/80,
+html.dark #teacher-portal-root .border-slate-100,
+html.dark .elite-modal .border-slate-200,
+html.dark .elite-modal .border-slate-100 {
+    border-color: #334155 !important;
+}
+
+html.dark #teacher-portal-root .group-hover\:text-teal-700:hover {
+    color: #5EEAD4 !important;
+}
+
+html.dark #teacher-portal-root .teacher-tab-btn:not(.active):not(.bg-teal-600):not(.bg-indigo-600) {
+    color: #CBD5E1 !important;
+}
+
+html.dark #teacher-portal-root .teacher-tab-btn.active,
+html.dark #teacher-portal-root .teacher-tab-btn.bg-teal-600,
+html.dark #teacher-portal-root .teacher-tab-btn.bg-indigo-600,
+html.dark #teacher-portal-root .teacher-tab-btn.text-white {
+    color: #FFFFFF !important;
+}
+
+html.dark #teacher-portal-root .bg-teal-600,
+html.dark #teacher-portal-root a.bg-teal-600,
+html.dark #teacher-portal-root button.bg-teal-600,
+html.dark #teacher-portal-root .bg-emerald-600,
+html.dark #teacher-portal-root .from-teal-600 {
+    color: #FFFFFF;
+}
+
+html.dark #teacher-portal-root button.bg-teal-600,
+html.dark #teacher-portal-root a.bg-teal-600,
+html.dark #teacher-portal-root button.bg-slate-900,
+html.dark #teacher-portal-root a.text-white {
+    color: #FFFFFF !important;
+}
+
+html.dark .elite-modal-dialog {
+    background-color: #0F172A !important;
+    color: #E2E8F0 !important;
+    border-color: #1E293B !important;
+}
+
+html.dark .elite-modal-dialog label,
+html.dark .elite-modal-dialog p,
+html.dark .elite-modal-dialog span {
+    color: inherit;
+}
+
+html.dark .elite-modal-dialog .text-white {
+    color: #FFFFFF !important;
+}

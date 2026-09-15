@@ -20,15 +20,20 @@ class LiveSessionService
     public function evaluateState(LiveSession $session, User $student, ?Carbon $now = null): LiveSessionState
     {
         $currentTime = $now ?: now();
-        $startWindow = Carbon::parse($session->scheduled_at ?? $session->start_at)->subMinutes(30);
-        $durationMinutes = $session->duration_minutes ?: 60;
-        $sessionStart = Carbon::parse($session->scheduled_at ?? $session->start_at);
-        $halfTime = $sessionStart->copy()->addMinutes((int) ceil($durationMinutes / 2));
-        $endTime = Carbon::parse($session->end_at ?? $sessionStart->copy()->addMinutes($durationMinutes));
+        $sessionStart = $session->effective_start_at;
 
-        if ($session->status === 'cancelled') {
+        if ($session->status === 'cancelled' || $session->status === 'cancelled_by_teacher') {
             return LiveSessionState::CANCELLED;
         }
+
+        if (! $sessionStart) {
+            return LiveSessionState::BEFORE_JOINABLE;
+        }
+
+        $durationMinutes = $session->duration_minutes ?: 60;
+        $startWindow = $session->joinable_at ?: $sessionStart->copy()->subMinutes(30);
+        $halfTime = $sessionStart->copy()->addMinutes((int) ceil($durationMinutes / 2));
+        $endTime = $session->effective_end_at ?: $sessionStart->copy()->addMinutes($durationMinutes);
 
         // Half-session cutoff: If current time exceeds halfway mark or session end time/completed status
         if ($currentTime->gte($endTime) || $currentTime->gte($halfTime) || $session->status === 'completed') {
@@ -97,7 +102,7 @@ class LiveSessionService
             'reason_code' => $access['reason_code'] ?? $state->value,
             'message' => $state->label(),
             'stream_url' => $canAccess ? ($session->stream_url ?? 'https://stream.elite-academy.com/live/' . $session->id) : null,
-            'start_window' => $session->scheduled_at ? Carbon::parse($session->scheduled_at)->subMinutes(30)->toIso8601String() : null,
+            'start_window' => $session->joinable_at?->toIso8601String() ?? ($session->effective_start_at ? $session->effective_start_at->copy()->subMinutes(30)->toIso8601String() : null),
         ];
     }
     /**
@@ -143,11 +148,21 @@ class LiveSessionService
             }
         }
 
-        $sessionStart = Carbon::parse($session->scheduled_at ?? $session->start_at);
-        $startWindow = $sessionStart->copy()->subMinutes(30);
+        $sessionStart = $session->effective_start_at;
+        if (! $sessionStart) {
+            return [
+                'allowed' => false,
+                'reason_code' => 'NOT_SCHEDULED',
+                'message' => app()->getLocale() === 'ar'
+                    ? 'موعد الحصة غير محدد بعد.'
+                    : 'Session is not scheduled yet.',
+            ];
+        }
+
+        $startWindow = $session->joinable_at ?: $sessionStart->copy()->subMinutes(30);
         $durationMinutes = $session->duration_minutes ?: 60;
         $halfTime = $sessionStart->copy()->addMinutes((int) ceil($durationMinutes / 2));
-        $endTime = Carbon::parse($session->end_at ?? $sessionStart->copy()->addMinutes($durationMinutes));
+        $endTime = $session->effective_end_at ?: $sessionStart->copy()->addMinutes($durationMinutes);
 
         // 1. Time window check
         if ($now->lt($startWindow)) {

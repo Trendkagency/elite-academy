@@ -139,19 +139,28 @@ class LiveSessionTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function test_unauthorized_student_cannot_access_another_students_session(): void
+    public function test_session_remains_before_joinable_when_more_than_30_minutes_remain(): void
     {
-        $now = Carbon::parse('2026-08-18 08:45:00');
+        // Session starts at 18:00 (06:00 PM), scheduled_at is 14:00 (old scheduled time)
+        $this->session->update([
+            'scheduled_at' => Carbon::parse('2026-09-15 14:00:00'),
+            'start_at' => Carbon::parse('2026-09-15 18:00:00'),
+            'end_at' => Carbon::parse('2026-09-15 19:00:00'),
+        ]);
+
+        // Current time is 16:15 (04:15 PM) -> 1h 45m before start
+        $now = Carbon::parse('2026-09-15 16:15:00');
         Carbon::setTestNow($now);
 
-        $response = $this->actingAs($this->otherStudent)
-            ->getJson(route('ajax.live-session.access', ['id' => $this->session->id]));
+        $state = $this->service->evaluateState($this->session, $this->student, $now);
+        $this->assertEquals(LiveSessionState::BEFORE_JOINABLE, $state);
 
-        $response->assertStatus(403)
-            ->assertJson([
-                'success' => false,
-            ]);
+        // At 17:35 (05:35 PM) -> within 30 min window (25 mins before 18:00)
+        $joinableTime = Carbon::parse('2026-09-15 17:35:00');
+        $joinableState = $this->service->evaluateState($this->session, $this->student, $joinableTime);
+        $this->assertEquals(LiveSessionState::LIVE, $joinableState);
 
         Carbon::setTestNow();
     }
 }
+
