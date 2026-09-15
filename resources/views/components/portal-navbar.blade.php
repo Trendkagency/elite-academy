@@ -18,8 +18,8 @@
             </svg>
         </button>
 
-        <div class="hidden sm:flex flex-col">
-            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
+        <div class="flex flex-col min-w-0">
+            <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
                 <a href="{{ route('home') }}" class="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">{{ __('navbar.home') }}</a>
                 <span>/</span>
                 <span class="text-teal-600 dark:text-teal-400 font-bold">
@@ -32,14 +32,14 @@
                     @endif
                 </span>
             </div>
-            <h2 id="portalNavTitle" class="font-heading font-black text-slate-900 dark:text-white text-lg tracking-tight">
+            <h2 id="portalNavTitle" class="font-heading font-black text-slate-900 dark:text-white text-sm sm:text-lg tracking-tight truncate max-w-[46vw] sm:max-w-none">
                 {{ $title ?? __('Dashboard Panel') }}
             </h2>
         </div>
     </div>
 
     <!-- Right: Quick Actions, Theme, Language, Notifications, User Menu -->
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 portal-navbar-compact">
         
         <!-- Role Quick Action Buttons -->
         @if($role === 'student')
@@ -232,7 +232,7 @@
         </div>
 
         <!-- Language Switcher -->
-        <a href="{{ route('lang.switch', $otherLocale) }}" class="px-3 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs" title="Switch Language">
+        <a href="{{ route('lang.switch', $otherLocale) }}" class="px-2 sm:px-3 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/60 hover:text-teal-600 transition-colors shadow-xs shrink-0" title="Switch Language">
             <i class="fa-solid fa-globe"></i> {{ $isAr ? 'EN' : 'عربي' }}
         </a>
 
@@ -249,7 +249,7 @@
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xs flex items-center justify-center shadow-xs">
                     {{ mb_substr($user->name ?? 'U', 0, 1) }}
                 </div>
-                <div class="hidden sm:block text-{{ $isAr ? 'right' : 'left' }} leading-tight">
+                <div class="hidden lg:block text-{{ $isAr ? 'right' : 'left' }} leading-tight">
                     <p class="text-xs font-extrabold text-slate-900 dark:text-white truncate max-w-[120px]">{{ $user->name ?? 'User' }}</p>
                     <span class="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400 capitalize">{{ $role }}</span>
                 </div>

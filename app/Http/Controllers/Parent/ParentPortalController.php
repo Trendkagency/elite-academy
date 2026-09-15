@@ -103,12 +103,7 @@ class ParentPortalController extends Controller
         });
 
         // 2. Upcoming Sessions (for enrolled courses or direct student sessions)
-        $upcomingSessions = LiveSession::where(function ($q) use ($studentUserId, $enrolledCourseIds) {
-                $q->where('student_user_id', $studentUserId);
-                if (! empty($enrolledCourseIds)) {
-                    $q->orWhereIn('course_id', $enrolledCourseIds);
-                }
-            })
+        $upcomingSessions = LiveSession::visibleToStudent($studentUserId, $enrolledCourseIds)
             ->where('scheduled_at', '>=', now())
             ->with(['teacherProfile.user', 'subject', 'course'])
             ->orderBy('scheduled_at', 'asc')

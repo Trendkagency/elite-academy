@@ -138,6 +138,46 @@ class LiveSession extends Model
         return $this->belongsTo(User::class, 'student_user_id');
     }
 
+    /**
+     * Sessions a student may see: their own 1:1 sessions, plus course-wide
+     * sessions that are not assigned to a different student.
+     */
+    public function scopeVisibleToStudent($query, int $userId, array $enrolledCourseIds = [])
+    {
+        return $query->where(function ($q) use ($userId, $enrolledCourseIds) {
+            $q->where('student_user_id', $userId);
+
+            if (! empty($enrolledCourseIds)) {
+                $q->orWhere(function ($courseQuery) use ($userId, $enrolledCourseIds) {
+                    $courseQuery->whereIn('course_id', $enrolledCourseIds)
+                        ->where(function ($owner) use ($userId) {
+                            $owner->whereNull('student_user_id')
+                                ->orWhere('student_user_id', $userId);
+                        });
+                });
+            }
+        });
+    }
+
+    public function isAssignedToOtherStudent(int $userId): bool
+    {
+        return $this->student_user_id !== null
+            && (int) $this->student_user_id !== (int) $userId;
+    }
+
+    public function studentFacingTitle(?string $fallback = null): string
+    {
+        $title = trim((string) ($this->title ?? ''));
+        $title = preg_replace('/\s*[-–—]\s*Student\s*#\d+\s*$/iu', '', $title) ?? $title;
+        $title = trim($title);
+
+        if ($title === '') {
+            return $fallback ?: (app()->getLocale() === 'ar' ? 'حصة مباشرة' : 'Live Session');
+        }
+
+        return $title;
+    }
+
     public function recurringSchedule(): BelongsTo
     {
         return $this->belongsTo(RecurringSchedule::class, 'recurring_schedule_id');

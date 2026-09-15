@@ -60,29 +60,29 @@
 
             @if($role === 'student')
                 <!-- Student Navigation -->
-                <a href="#overview" onclick="switchPortalSection('overview')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#overview" onclick="switchPortalSection('overview')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
-                    <span>{{ __('app.portal.welcome_back') }} & {{ __('Overview') }}</span>
+                    <span class="truncate min-w-0">{{ __('app.portal.welcome_back') }} & {{ __('Overview') }}</span>
                 </a>
 
-                <a href="#liveSessions" onclick="switchPortalSection('liveSessions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#liveSessions" onclick="switchPortalSection('liveSessions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-video"></i></span>
-                    <span>{{ __('app.portal.upcoming_sessions') }}</span>
+                    <span class="truncate min-w-0">{{ __('app.portal.upcoming_sessions') }}</span>
                 </a>
 
-                <a href="#assignments" onclick="switchPortalSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#assignments" onclick="switchPortalSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
-                    <span>{{ __('Assignments & Tests') }}</span>
+                    <span class="truncate min-w-0">{{ __('Assignments & Tests') }}</span>
                 </a>
 
-                <a href="#packages" onclick="switchPortalSection('packages')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#packages" onclick="switchPortalSection('packages')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-credit-card"></i></span>
-                    <span>{{ __('app.portal.current_package') }} & {{ __('Credits') }}</span>
+                    <span class="truncate min-w-0">{{ __('app.portal.current_package') }} & {{ __('Credits') }}</span>
                 </a>
 
-                <a href="#exceptions" onclick="switchPortalSection('exceptions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200">
+                <a href="#exceptions" onclick="switchPortalSection('exceptions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
                     <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scroll"></i></span>
-                    <span>{{ __('Excuses & Exceptions') }}</span>
+                    <span class="truncate min-w-0">{{ __('Excuses & Exceptions') }}</span>
                 </a>
 
             @elseif($role === 'teacher')

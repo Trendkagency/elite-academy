@@ -1,9 +1,10 @@
 @extends('layouts.portal-panel')
 
 @section('content')
+    <div class="student-portal-shell space-y-5 sm:space-y-6">
     {{-- Ultra-Premium Glassmorphic Hero Banner --}}
     <section id="overview"
-        class="relative rounded-3xl py-8 md:py-10 px-6 md:px-8 bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white border border-slate-800/80 overflow-hidden shadow-xl">
+        class="relative rounded-3xl py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-8 bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white border border-slate-800/80 overflow-hidden shadow-xl">
         <div class="absolute -right-20 -top-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute left-10 -bottom-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -17,7 +18,7 @@
 
             {{-- Learner Header Info --}}
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div class="flex items-center gap-5">
+            <div class="flex items-center gap-3 sm:gap-5 min-w-0">
                     <div class="relative">
                         <div
                             class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-teal-500/20 border-2 border-teal-300/40">
@@ -27,8 +28,8 @@
                             class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold"><i
                                 class="fa-solid fa-check"></i></span>
                     </div>
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
+                    <div class="space-y-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <span
                                 class="inline-block text-[11px] font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3 py-1 rounded-full border border-teal-700/60 shadow-xs">
                                 {{ __('app.student_portal') }}
@@ -38,7 +39,7 @@
                                 ● Active Enrollment
                             </span>
                         </div>
-                        <h1 class="font-heading text-2xl sm:text-4xl font-black text-white tracking-tight">
+                        <h1 class="font-heading text-xl sm:text-2xl md:text-4xl font-black text-white tracking-tight break-words">
                             {{ __('app.portal.welcome_back') }}، <span
                                 class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ auth()->user()->name ?? __('Learner') }}!</span>
                         </h1>
@@ -53,13 +54,13 @@
                 </div>
 
                 {{-- Quick Action Buttons --}}
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <button onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
-                        class="btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
+                        class="portal-action-btn btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
                         <span><i class="fa-solid fa-file-lines"></i></span> {{ __('app.portal.submit_excuse') }}
                     </button>
                     <button onclick="window.openModal ? window.openModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.remove('hidden')"
-                        class="btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
+                        class="portal-action-btn btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
                         <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.submit_exception') }}
                     </button>
                 </div>
@@ -67,8 +68,8 @@
         </div>
     </section>
 
-    <section class="py-12 md:py-16 bg-[#FAFAF9]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 md:space-y-12">
+    <section class="py-4 sm:py-6 md:py-8">
+        <div class="student-portal-inner px-0 sm:px-2 lg:px-4 space-y-8 md:space-y-12">
 
             @if(!$hasActivePackage)
                 <div
@@ -277,7 +278,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80">
                             {{-- Tab 1: Starting Soon & Live (FIRST!) --}}
                             <button type="button" onclick="switchSessionTab('soon')" id="tabBtn_soon"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'soon' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'soon' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="relative flex h-2.5 w-2.5 shrink-0">
                                         @if($liveCount > 0)
@@ -296,7 +297,7 @@
 
                             {{-- Tab 2: Upcoming Scheduled Dates --}}
                             <button type="button" onclick="switchSessionTab('upcoming')" id="tabBtn_upcoming"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'upcoming' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'upcoming' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="shrink-0 text-slate-400"><i class="fa-solid fa-calendar-days"></i></span>
                                     <span class="truncate">{{ app()->getLocale() === 'ar' ? 'مواعيد الحصص القادمة' : 'Upcoming Dates' }}</span>
@@ -308,7 +309,7 @@
 
                             {{-- Tab 3: Ended Sessions & History --}}
                             <button type="button" onclick="switchSessionTab('history')" id="tabBtn_history"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-nowrap {{ $initialTab === 'history' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
+                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'history' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="shrink-0 text-slate-400"><i class="fa-solid fa-clock-rotate-left"></i></span>
                                     <span class="truncate">{{ app()->getLocale() === 'ar' ? 'سجل الحصص المنتهية' : 'Session History' }}</span>
@@ -348,7 +349,7 @@
                                                 <div>
                                                     <div class="flex items-center gap-2">
                                                         <h3 class="font-bold text-base text-slate-900">
-                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
+                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
                                                         </h3>
                                                         @if($isLive)
                                                             <span class="text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow-xs animate-pulse">
@@ -417,7 +418,7 @@
 
                                             @if($isLive)
                                                 <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}"
-                                                    class="btn-lift px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-black text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-2">
+                                                    class="portal-action-btn btn-lift px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-black text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-2">
                                                     <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
                                                     {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الآن' : 'Join Live Stream Now' }}
                                                 </a>
@@ -475,18 +476,18 @@
                                 @endforelse
 
                                 {{-- Tab 1 Pagination Controls --}}
-                                <div id="paginationBar_soon" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($startingSoonSessions) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_soon" class="text-slate-600 text-center sm:text-start">
+                                <div id="paginationBar_soon" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($startingSoonSessions) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_soon" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
                                         {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($startingSoonSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($startingSoonSessions) }}
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
                                         <button id="prevBtn_soon" type="button" onclick="changeSessionPage('soon', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
                                         </button>
-                                        <div id="pagePills_soon" class="flex items-center gap-1"></div>
+                                        <div id="pagePills_soon" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
                                         <button id="nextBtn_soon" type="button" onclick="changeSessionPage('soon', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
                                         </button>
                                     </div>
@@ -521,7 +522,7 @@
                                                 <div>
                                                     <div class="flex items-center gap-2">
                                                         <h3 class="font-bold text-base text-slate-900">
-                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة منهجية قادمة' : 'Scheduled Curriculum Session') }}
+                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة منهجية قادمة' : 'Scheduled Curriculum Session') }}
                                                         </h3>
                                                         @if($daysRemaining)
                                                             <span class="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200/80">
@@ -589,18 +590,18 @@
                                 @endforelse
 
                                 {{-- Tab 2 Pagination Controls --}}
-                                <div id="paginationBar_upcoming" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($upcomingScheduledSessions) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_upcoming" class="text-slate-600 text-center sm:text-start">
+                                <div id="paginationBar_upcoming" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($upcomingScheduledSessions) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_upcoming" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
                                         {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($upcomingScheduledSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($upcomingScheduledSessions) }}
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
                                         <button id="prevBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
                                         </button>
-                                        <div id="pagePills_upcoming" class="flex items-center gap-1"></div>
+                                        <div id="pagePills_upcoming" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
                                         <button id="nextBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
                                         </button>
                                     </div>
@@ -633,7 +634,7 @@
                                                 <div>
                                                     <div class="flex items-center gap-2">
                                                         <h3 class="font-bold text-base text-slate-800">
-                                                            {{ $s->title ?: (app()->getLocale() === 'ar' ? 'حصة مباشرة سابقة' : 'Past Live Session') }}
+                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة مباشرة سابقة' : 'Past Live Session') }}
                                                         </h3>
                                                         @if($isCancelled)
                                                             <span class="text-[10px] font-mono font-bold bg-rose-100 text-rose-900 px-2.5 py-0.5 rounded-full border border-rose-200">
@@ -710,18 +711,18 @@
                                 @endforelse
 
                                 {{-- Tab 3 Pagination Controls --}}
-                                <div id="paginationBar_history" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono {{ count($endedSessionsHistory) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_history" class="text-slate-600 text-center sm:text-start">
+                                <div id="paginationBar_history" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($endedSessionsHistory) <= 4 ? 'hidden' : '' }}">
+                                    <div id="pageText_history" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
                                         {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($endedSessionsHistory) . ' حصة' : 'Showing 1 - 4 of ' . count($endedSessionsHistory) }}
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
                                         <button id="prevBtn_history" type="button" onclick="changeSessionPage('history', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
                                         </button>
-                                        <div id="pagePills_history" class="flex items-center gap-1"></div>
+                                        <div id="pagePills_history" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
                                         <button id="nextBtn_history" type="button" onclick="changeSessionPage('history', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs">
+                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
                                             <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
                                         </button>
                                     </div>
@@ -755,7 +756,7 @@
 
                         {{-- Course Filter Tabs for Assignments --}}
                         @if(isset($filterCourses) && count($filterCourses) > 1)
-                            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <div class="chip-scroll">
                                 <button type="button" onclick="filterAssignmentsByCourse('all')"
                                     class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer"
                                     data-course="all">
@@ -848,14 +849,14 @@
                                         <div class="flex items-center gap-2">
                                             @if($isInProgress)
                                                 <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                                    class="btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
+                                                    class="portal-action-btn btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
                                                     <span><i class="fa-solid fa-bolt"></i></span>
                                                     {{ app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment' }}
                                                     &rarr;
                                                 </a>
                                             @else
                                                 <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                                    class="btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
+                                                    class="portal-action-btn btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
                                                     <span><i class="fa-solid fa-bolt"></i></span>
                                                     {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
                                                 </a>
@@ -1028,7 +1029,7 @@
 
                         {{-- Course Filter Tabs for Submissions --}}
                         @if(isset($filterCourses) && count($filterCourses) > 1)
-                            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                            <div class="chip-scroll">
                                 <button type="button" onclick="filterSubmissionsByCourse('all')"
                                     class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer"
                                     data-course="all">
@@ -1124,9 +1125,9 @@
 
                     {{-- Notifications Feed --}}
                     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-5">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 gap-2 min-w-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 flex items-center gap-2 min-w-0">
                                     <span><i class="fa-solid fa-bell text-teal-600"></i></span> {{ __('app.portal.notifications') }}
                                 </h3>
                                 <span id="notifTotalAlerts"
@@ -1306,6 +1307,7 @@
 
         </div>
     </section>
+    </div>
 
     {{-- 1. Modal: Interactive MSQ Assignment Solver --}}
     <div id="takeMsqModal"
@@ -2319,15 +2321,23 @@
             }
 
             if (pagePills) {
-                let pillsHtml = '';
-                for (let p = 1; p <= totalPages; p++) {
-                    if (p === currentPage) {
-                        pillsHtml += `<button type="button" class="w-7 h-7 rounded-lg bg-teal-600 text-white font-bold text-xs shadow-xs">${p}</button>`;
-                    } else {
-                        pillsHtml += `<button type="button" onclick="goToSessionPage('${tab}', ${p})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all shadow-2xs">${p}</button>`;
-                    }
+                const pillBtn = (p, active) => active
+                    ? `<button type="button" class="w-7 h-7 rounded-lg bg-teal-600 text-white font-bold text-xs shadow-xs shrink-0">${p}</button>`
+                    : `<button type="button" onclick="goToSessionPage('${tab}', ${p})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all shadow-2xs shrink-0">${p}</button>`;
+                const ellipsis = `<span class="px-1 text-slate-400 font-bold shrink-0">…</span>`;
+                let pagesToShow = [];
+                if (totalPages <= 7) {
+                    for (let p = 1; p <= totalPages; p++) pagesToShow.push(p);
+                } else {
+                    pagesToShow.push(1);
+                    const start = Math.max(2, currentPage - 1);
+                    const end = Math.min(totalPages - 1, currentPage + 1);
+                    if (start > 2) pagesToShow.push('…');
+                    for (let p = start; p <= end; p++) pagesToShow.push(p);
+                    if (end < totalPages - 1) pagesToShow.push('…');
+                    pagesToShow.push(totalPages);
                 }
-                pagePills.innerHTML = pillsHtml;
+                pagePills.innerHTML = pagesToShow.map(p => p === '…' ? ellipsis : pillBtn(p, p === currentPage)).join('');
             }
         }
 

@@ -46,11 +46,7 @@ class StudentPortalController extends Controller
 
         $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();
 
-        $upcomingSessions = $user ? LiveSession::where(function ($q) use ($user, $enrolledCourseIds) {
-                $q->where('student_user_id', $user->id)
-                  ->orWhereIn('course_id', $enrolledCourseIds)
-                  ->orWhereNull('student_user_id');
-            })
+        $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $enrolledCourseIds)
             ->where(function ($q) {
                 $q->whereNull('course_id')
                   ->orWhereHas('course', function ($cQuery) {
@@ -163,12 +159,20 @@ class StudentPortalController extends Controller
             })
             ->whereNotIn('id', $completedAssignmentIds)
             ->where(function ($q) use ($enrollments, $upcomingSessions) {
-                $courseIds = $enrollments->pluck('course_id')->filter()->toArray();
-                $sessionIds = $upcomingSessions->pluck('id')->filter()->toArray();
+                $courseIds = $enrollments->pluck('course_id')->filter()->values()->all();
+                $sessionIds = $upcomingSessions->pluck('id')->filter()->values()->all();
 
-                $q->whereIn('course_id', $courseIds)
-                  ->orWhereIn('live_session_id', $sessionIds)
-                  ->orWhereNull('course_id');
+                $q->where(function ($inner) use ($courseIds, $sessionIds) {
+                    if (! empty($courseIds)) {
+                        $inner->whereIn('course_id', $courseIds);
+                    }
+                    if (! empty($sessionIds)) {
+                        $inner->orWhereIn('live_session_id', $sessionIds);
+                    }
+                    if (empty($courseIds) && empty($sessionIds)) {
+                        $inner->whereRaw('1 = 0');
+                    }
+                });
             })
             ->orderBy('due_at', 'asc')
             ->get()
@@ -191,7 +195,7 @@ class StudentPortalController extends Controller
             $c = $enr->course;
             if (!$c) continue;
 
-            $recList = [];
+            $recList = []; 
             if ($c->sessions) {
                 foreach ($c->sessions as $idx => $cs) {
                     $assigns = [];
@@ -222,11 +226,14 @@ class StudentPortalController extends Controller
             $liveList = [];
             if ($c->liveSessions) {
                 foreach ($c->liveSessions as $idx => $ls) {
+                    if ($ls->isAssignedToOtherStudent((int) $user->id)) {
+                        continue;
+                    }
                     $state = $ls->evaluateState($user);
                     $liveList[] = [
                         'id' => $ls->id,
                         'index' => $idx + 1,
-                        'title' => $ls->title ?: ('Live Stream ' . ($idx + 1)),
+                        'title' => $ls->studentFacingTitle('Live Stream ' . ($idx + 1)),
                         'start_at' => $ls->effective_start_at ? $ls->effective_start_at->format('Y-m-d h:i A') : 'Scheduled',
                         'teacher' => $ls->teacherProfile?->user?->name ?: 'Dr. Teacher',
                         'meeting_link' => $ls->meeting_link ?: '',

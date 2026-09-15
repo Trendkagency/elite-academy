@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\CourseEnrollment;
 use App\Models\LiveSession;
-use App\Models\StudentPackage;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -18,27 +17,7 @@ class LiveSessionPolicy
             return true;
         }
 
-        // If session is directly assigned to a specific student, enforce strict student identity
-        if ($session->student_user_id) {
-            return (int) $session->student_user_id === (int) $user->id;
-        }
-
-        // Student enrolled in the course
-        if ($session->course_id && CourseEnrollment::where('student_user_id', $user->id)->where('course_id', $session->course_id)->exists()) {
-            return true;
-        }
-
-        // Free demo session or open session
-        if ($session->is_free_demo || (isset($session->is_free_demo_session) && $session->is_free_demo_session)) {
-            return true;
-        }
-
-        // Active student package with remaining sessions
-        if (StudentPackage::where('student_user_id', $user->id)->where('status', 'active')->where('remaining_sessions', '>', 0)->exists()) {
-            return true;
-        }
-
-        return false;
+        return $this->studentMayAccess($user, $session);
     }
 
     public function join(User $user, LiveSession $session): bool
@@ -61,24 +40,23 @@ class LiveSessionPolicy
             return false;
         }
 
-        // If session is directly assigned to a specific student, enforce strict student identity
+        return $this->studentMayAccess($user, $session);
+    }
+
+    /**
+     * A student may only access their own 1:1 session, or a course-wide
+     * session that is not assigned to somebody else.
+     */
+    protected function studentMayAccess(User $user, LiveSession $session): bool
+    {
         if ($session->student_user_id) {
             return (int) $session->student_user_id === (int) $user->id;
         }
 
-        // Student enrolled in the course
-        if ($session->course_id && CourseEnrollment::where('student_user_id', $user->id)->where('course_id', $session->course_id)->exists()) {
-            return true;
-        }
-
-        // Free demo session or open session
-        if ($session->is_free_demo || (isset($session->is_free_demo_session) && $session->is_free_demo_session)) {
-            return true;
-        }
-
-        // Student with active package credit
-        if (StudentPackage::where('student_user_id', $user->id)->where('status', 'active')->where('remaining_sessions', '>', 0)->exists()) {
-            return true;
+        if ($session->course_id) {
+            return CourseEnrollment::where('student_user_id', $user->id)
+                ->where('course_id', $session->course_id)
+                ->exists();
         }
 
         return false;

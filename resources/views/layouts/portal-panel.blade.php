@@ -175,7 +175,7 @@
             --surface-subtle: #162032;
             --text-primary:   #F8FAFC;
             --text-secondary: #CBD5E1;
-            --text-muted:     #475569;
+            --text-muted:     #94A3B8;
         }
         html, body, button, input, select, textarea, table, .font-sans, .font-heading {
             font-family: var(--font-sans) !important;
@@ -555,6 +555,8 @@
         /* ─── Robust Desktop & Mobile Sidebar Engine ─── */
         .portal-sidebar-wrapper {
             width: var(--portal-sidebar-w);
+            min-width: var(--portal-sidebar-w);
+            overflow-x: hidden;
             position: fixed;
             top: 0;
             bottom: 0;
@@ -681,8 +683,107 @@
         html.dark .text-slate-800 { color: #E2E8F0 !important; }
         html.dark .text-slate-700 { color: #CBD5E1 !important; }
         html.dark .text-slate-600 { color: #94A3B8 !important; }
-        html.dark .text-slate-500 { color: #64748B !important; }
+        html.dark .text-slate-500 { color: #94A3B8 !important; }
         html.dark .shadow-xl { box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; }
+
+        /* Dark mode: keep text readable on portal cards/chips */
+        html.dark .glass-card {
+            background: rgba(15, 23, 42, 0.96) !important;
+            border-color: #1E293B !important;
+            color: #E2E8F0;
+        }
+        html.dark .session-card-item {
+            background: #162032 !important;
+            border-color: #334155 !important;
+            color: #E2E8F0 !important;
+        }
+        html.dark .session-card-item h3,
+        html.dark .session-card-item strong {
+            color: #F8FAFC !important;
+        }
+        html.dark .bg-teal-50,
+        html.dark .bg-teal-50\/90,
+        html.dark .bg-teal-100 {
+            background-color: rgba(19, 78, 74, 0.55) !important;
+        }
+        html.dark .text-teal-900,
+        html.dark .text-teal-800,
+        html.dark .text-teal-700 {
+            color: #99F6E4 !important;
+        }
+        html.dark .bg-indigo-50 {
+            background-color: rgba(49, 46, 129, 0.45) !important;
+        }
+        html.dark .text-indigo-900,
+        html.dark .text-indigo-800 {
+            color: #C7D2FE !important;
+        }
+        html.dark .bg-emerald-50,
+        html.dark .bg-emerald-50\/70 {
+            background-color: rgba(6, 78, 59, 0.55) !important;
+        }
+        html.dark .text-emerald-800 {
+            color: #A7F3D0 !important;
+        }
+        html.dark .bg-amber-50,
+        html.dark .bg-amber-100,
+        html.dark .bg-amber-100\/90,
+        html.dark .bg-amber-500\/10 {
+            background-color: rgba(120, 53, 15, 0.45) !important;
+        }
+        html.dark .text-amber-950,
+        html.dark .text-amber-900,
+        html.dark .text-amber-800 {
+            color: #FDE68A !important;
+        }
+        html.dark .bg-rose-50,
+        html.dark .bg-rose-50\/90 {
+            background-color: rgba(136, 19, 55, 0.4) !important;
+        }
+        html.dark .text-rose-950,
+        html.dark .text-rose-900,
+        html.dark .text-rose-800 {
+            color: #FECDD3 !important;
+        }
+        html.dark .bg-blue-100,
+        html.dark .bg-blue-100\/90 {
+            background-color: rgba(30, 64, 175, 0.4) !important;
+        }
+        html.dark .text-blue-900 {
+            color: #BFDBFE !important;
+        }
+        html.dark .bg-slate-100,
+        html.dark .bg-slate-100\/90,
+        html.dark .bg-slate-100\/80 {
+            background-color: #1E293B !important;
+        }
+        html.dark .bg-slate-200,
+        html.dark .bg-slate-200\/80 {
+            background-color: #334155 !important;
+        }
+        html.dark .session-tab-btn.bg-white,
+        html.dark .session-tab-btn.text-teal-900 {
+            background-color: #134E4A !important;
+            color: #99F6E4 !important;
+            border-color: #115E59 !important;
+        }
+        html.dark .tab-count-badge.bg-teal-100 {
+            background-color: rgba(19, 78, 74, 0.8) !important;
+            color: #99F6E4 !important;
+        }
+        html.dark .tab-count-badge.bg-slate-200 {
+            background-color: #334155 !important;
+            color: #E2E8F0 !important;
+        }
+        html.dark #liveSessions .bg-slate-100\/90 {
+            background-color: #1E293B !important;
+        }
+        html.dark .portal-main-canvas a.bg-white,
+        html.dark .portal-main-canvas button.bg-white {
+            background-color: #1E293B !important;
+            color: #E2E8F0 !important;
+            border-color: #334155 !important;
+        }
 
         /* ── Responsive Tab Bar Scroll ── */
         .teacher-tab-scroll {
@@ -736,6 +837,7 @@
     </style>
 
     <link rel="stylesheet" href="{{ asset('dist/output.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/portal-theme.css') }}?v={{ @filemtime(public_path('css/portal-theme.css')) ?: time() }}">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @stack('styles')
@@ -753,7 +855,7 @@
         <x-portal-navbar :title="$pageTitle ?? __('Dashboard Panel')" />
 
         {{-- Page Main Dynamic Body --}}
-        <main class="flex-1 p-3 sm:p-5 lg:p-8 space-y-6 max-w-full overflow-x-hidden">
+        <main class="flex-1 p-3 sm:p-5 lg:p-8 space-y-6 max-w-full overflow-x-hidden pb-safe">
             @yield('content')
         </main>
 
