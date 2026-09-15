@@ -64,7 +64,12 @@ class SubmissionController extends Controller
                     })
                     ->exists();
 
-                if (! $hasActivePackage) {
+                $hasSession = $assignment->live_session_id && \App\Models\LiveSession::where('id', $assignment->live_session_id)->where(function ($q) use ($user) {
+                    $q->where('student_user_id', $user->id)
+                      ->orWhereHas('studentSessions', fn ($sq) => $sq->where('student_user_id', $user->id));
+                })->exists();
+
+                if (! $hasActivePackage && ! $enrollment && ! $hasSession) {
                     return redirect()->route('student-portal')->with('error', 'An active package subscription with available session credits is required to access and solve assignments.');
                 }
 
@@ -74,10 +79,6 @@ class SubmissionController extends Controller
 
                 if ($assignment->start_at && now()->lessThan($assignment->start_at)) {
                     return redirect()->route('student-portal')->with('error', 'This assignment start time has not arrived yet.');
-                }
-
-                if ($assignment->isExpired()) {
-                    return redirect()->route('student-portal')->with('error', 'This assignment deadline has passed and can no longer be answered.');
                 }
 
                 $previousSubmission = AssignmentSubmission::create([
@@ -178,10 +179,6 @@ class SubmissionController extends Controller
 
         if ($assignment->status === 'draft' || $assignment->status === 'closed') {
             return response()->json(['success' => false, 'message' => 'Assignment is closed.'], 403);
-        }
-
-        if ($assignment->isExpired()) {
-            return response()->json(['success' => false, 'message' => 'Assignment deadline has passed.'], 403);
         }
 
         // Verify if student already submitted a completed attempt

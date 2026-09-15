@@ -32,12 +32,26 @@ class AssignmentEvaluationService
             ]);
         }
 
-        if ($assignment->isExpired()) {
+        $hasApprovedException = \App\Models\ExceptionRequest::where('student_user_id', $student->id)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($assignment) {
+                if ($assignment->live_session_id) {
+                    $q->where('live_session_id', $assignment->live_session_id);
+                }
+            })
+            ->exists();
+
+        $inProgressSubmission = \App\Models\AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_user_id', $student->id)
+            ->where('status', \App\Enums\SubmissionStatus::IN_PROGRESS)
+            ->exists();
+
+        if ($assignment->isExpired() && ! $hasApprovedException && ! $inProgressSubmission) {
             $this->securityService->logEvent($student, $assignment, 'EXPIRED_SUBMISSION_ATTEMPT', [], 5);
             $deadlineStr = $assignment->effective_due_at ? $assignment->effective_due_at->format('Y-m-d H:i') : '';
             $msg = app()->getLocale() === 'ar'
-                ? "تجاوزت الموعد النهائي لتسليم الواجب (الموعد المحدد هو قبل موعد الدرس بـ 24 ساعة: {$deadlineStr}). يرجى تقديم طلب استثناء لتسليم الواجب."
-                : "Assignment deadline expired (Deadline is 24 hours before the lesson: {$deadlineStr}). Please submit an exception request.";
+                ? "تجاوزت الموعد النهائي لتسليم الواجب (الموعد المحدد هو {$deadlineStr}). يرجى تقديم طلب استثناء لتسليم الواجب."
+                : "Assignment deadline expired ({$deadlineStr}). Please submit an exception request.";
 
             throw ValidationException::withMessages([
                 'assignment' => [$msg]
