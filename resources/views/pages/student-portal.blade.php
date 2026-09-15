@@ -760,7 +760,7 @@
                         @if(isset($filterCourses) && count($filterCourses) > 1)
                             <div class="chip-scroll">
                                 <button type="button" onclick="filterAssignmentsByCourse('all')"
-                                    class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer"
+                                    class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer border border-transparent"
                                     data-course="all">
                                     {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }}
                                     ({{ count($availableAssignments) }})
@@ -770,7 +770,7 @@
                                         $cCount = $availableAssignments->where('course_id', $fc->id)->count();
                                     @endphp
                                     <button type="button" onclick="filterAssignmentsByCourse({{ $fc->id }})"
-                                        class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                                        class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 cursor-pointer"
                                         data-course="{{ $fc->id }}">
                                         {{ $fc->title }} ({{ $cCount }})
                                     </button>
@@ -1033,7 +1033,7 @@
                         @if(isset($filterCourses) && count($filterCourses) > 1)
                             <div class="chip-scroll">
                                 <button type="button" onclick="filterSubmissionsByCourse('all')"
-                                    class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer"
+                                    class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer border border-transparent"
                                     data-course="all">
                                     {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }}
                                     ({{ count($submissions) }})
@@ -1043,7 +1043,7 @@
                                         $sCount = $submissions->filter(fn($s) => ($s->assignment?->course_id == $fc->id || $s->assignment?->liveSession?->course_id == $fc->id))->count();
                                     @endphp
                                     <button type="button" onclick="filterSubmissionsByCourse({{ $fc->id }})"
-                                        class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                                        class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 cursor-pointer"
                                         data-course="{{ $fc->id }}">
                                         {{ $fc->title }} ({{ $sCount }})
                                     </button>
@@ -2201,9 +2201,9 @@
         function filterAssignmentsByCourse(courseId) {
             document.querySelectorAll('.assign-filter-btn').forEach(btn => {
                 btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
-                btn.classList.add('bg-slate-100', 'text-slate-700');
+                btn.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
                 if (btn.getAttribute('data-course') == courseId) {
-                    btn.classList.remove('bg-slate-100', 'text-slate-700');
+                    btn.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
                     btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
                 }
             });
@@ -2219,9 +2219,9 @@
         function filterSubmissionsByCourse(courseId) {
             document.querySelectorAll('.sub-filter-btn').forEach(btn => {
                 btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
-                btn.classList.add('bg-slate-100', 'text-slate-700');
+                btn.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
                 if (btn.getAttribute('data-course') == courseId) {
-                    btn.classList.remove('bg-slate-100', 'text-slate-700');
+                    btn.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
                     btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
                 }
             });

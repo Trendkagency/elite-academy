@@ -1428,6 +1428,34 @@ html.dark .bg-slate-100 {
   border-color: rgba(51, 65, 85, 0.6) !important;
 }
 
+html.dark .bg-slate-200 {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-slate-200:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-white\/60:hover,
+html.dark .hover\:bg-white\/80:hover {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .assign-filter-btn:not(.bg-teal-600),
+html.dark .sub-filter-btn:not(.bg-teal-600) {
+  background-color: #1E293B !important;
+  color: #CBD5E1 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .assign-filter-btn:not(.bg-teal-600):hover,
+html.dark .sub-filter-btn:not(.bg-teal-600):hover {
+  background-color: #334155 !important;
+  color: #FFFFFF !important;
+}
+
 html.dark .card-lift:hover,
 html.dark .teacher-card-glow:hover {
   box-shadow: 0 28px 50px -12px rgba(0, 0, 0, 0.7);
