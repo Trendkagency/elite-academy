@@ -117,10 +117,17 @@
             </div>
 
         @elseif($role === 'teacher')
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button type="button" 
+                        onclick="window.openTeacherPreviewModal ? window.openTeacherPreviewModal() : (window.openModal ? window.openModal('teacherPreviewGuideModal') : null)" 
+                        class="btn-lift h-9 sm:h-10 px-2.5 sm:px-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
+                        title="{{ $isAr ? 'دليل استخدام المنصة' : 'Platform Guide & Preview' }}">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs animate-pulse"></i>
+                    <span class="hidden sm:inline">{{ $isAr ? 'دليل المنصة' : 'Platform Guide' }}</span>
+                </button>
                 <button type="button" 
                         onclick="window.openCreateSessionModal ? window.openCreateSessionModal() : (window.openModal ? window.openModal('createSessionModal') : null)" 
-                        class="btn-lift h-9 sm:h-10 px-3 sm:px-4 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
+                        class="btn-lift h-9 sm:h-10 px-2.5 sm:px-3.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span class="hidden sm:inline">{{ __('Schedule New Session') }}</span>
                     <span class="sm:hidden">{{ $isAr ? 'جلسة' : 'Session' }}</span>

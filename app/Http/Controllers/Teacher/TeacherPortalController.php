@@ -360,7 +360,11 @@ class TeacherPortalController extends Controller
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'recurrence_type' => 'required|in:single,weekly,monthly,multi_month,yearly',
             'days_of_week' => 'nullable|array',
+            'day_start_times' => 'nullable|array',
+            'day_durations' => 'nullable|array',
+            'day_meeting_links' => 'nullable|array',
             'monthly_pattern' => 'nullable|array',
+            'meeting_link' => 'nullable|url|max:500',
         ]);
 
         $params = array_merge($validated, [
@@ -405,6 +409,9 @@ class TeacherPortalController extends Controller
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'recurrence_type' => 'required|in:single,weekly,monthly,multi_month,yearly',
             'days_of_week' => 'nullable|array',
+            'day_start_times' => 'nullable|array',
+            'day_durations' => 'nullable|array',
+            'day_meeting_links' => 'nullable|array',
             'monthly_pattern' => 'nullable|array',
             'meeting_link' => 'nullable|url|max:500',
             'meeting_platform' => 'nullable|string|max:50',
@@ -777,12 +784,25 @@ class TeacherPortalController extends Controller
             return response()->json([], 403);
         }
 
-        $start = $request->query('start') ? Carbon::parse($request->query('start')) : now()->startOfMonth()->subDays(7);
-        $end = $request->query('end') ? Carbon::parse($request->query('end')) : now()->endOfMonth()->addDays(7);
+        try {
+            $start = $request->query('start') ? Carbon::parse($request->query('start')) : now()->startOfMonth()->subDays(7);
+        } catch (\Exception $e) {
+            $start = now()->startOfMonth()->subDays(7);
+        }
+
+        try {
+            $end = $request->query('end') ? Carbon::parse($request->query('end')) : now()->endOfMonth()->addDays(7);
+        } catch (\Exception $e) {
+            $end = now()->endOfMonth()->addDays(7);
+        }
 
         $sessions = LiveSession::where('teacher_profile_id', $teacherProfile->id)
-            ->whereBetween('scheduled_at', [$start, $end])
-            ->with(['course.subject', 'studentUser'])
+            ->where(function ($query) use ($start, $end) {
+                $query->whereBetween('scheduled_at', [$start, $end])
+                    ->orWhereBetween('start_at', [$start, $end]);
+            })
+            ->with(['course.subject', 'course.gradeLevel', 'studentUser', 'recurringSchedule'])
+            ->orderBy('scheduled_at', 'asc')
             ->get();
 
         $events = $sessions->map(function ($s) {
@@ -790,25 +810,38 @@ class TeacherPortalController extends Controller
                 'completed' => '#10B981',
                 'in_progress' => '#06B6D4',
                 'ready' => '#3B82F6',
-                'scheduled' => '#0D9488',
+                'scheduled' => '#6366F1',
                 'cancelled' => '#EF4444',
                 'cancelled_by_teacher' => '#EF4444',
                 'rescheduled' => '#F59E0B',
             ];
 
             $color = $statusColors[$s->status] ?? '#64748B';
+            $startTime = $s->effective_start_at ?: $s->scheduled_at;
+            $duration = (int) ($s->duration_minutes ?? 60);
+            $endTime = $s->effective_end_at ?: ($s->end_at ?: ($startTime ? $startTime->copy()->addMinutes($duration) : null));
 
             return [
                 'id' => $s->id,
-                'title' => $s->title,
-                'start' => $s->effective_start_at ? $s->effective_start_at->toIso8601String() : $s->scheduled_at->toIso8601String(),
-                'end' => $s->effective_end_at ? $s->effective_end_at->toIso8601String() : $s->end_at?->toIso8601String(),
-                'course' => $s->course?->title ?: '',
+                'title' => $s->title ?? __('Session'),
+                'start' => $startTime ? $startTime->toIso8601String() : null,
+                'end' => $endTime ? $endTime->toIso8601String() : null,
+                'date_str' => $startTime ? $startTime->format('Y-m-d') : '',
+                'start_time_str' => $startTime ? $startTime->format('H:i') : '10:00',
+                'end_time_str' => $endTime ? $endTime->format('H:i') : '11:00',
+                'time_formatted' => $startTime && $endTime ? ($startTime->format('H:i') . ' - ' . $endTime->format('H:i')) : '',
+                'duration_minutes' => $duration,
+                'course' => $s->course?->title ?: __('N/A'),
+                'course_id' => $s->course_id,
                 'subject' => $s->course?->subject?->name ?: '',
+                'grade_level' => $s->course?->gradeLevel?->name ?: '',
                 'student_name' => $s->studentUser?->name ?: __('General Cohort'),
-                'status' => $s->status,
+                'student_user_id' => $s->student_user_id,
+                'status' => $s->status ?? 'scheduled',
                 'meeting_link' => $s->meeting_link,
                 'is_override' => (bool) $s->is_override,
+                'is_recurring' => ! empty($s->recurring_schedule_id),
+                'recurring_schedule_id' => $s->recurring_schedule_id,
                 'backgroundColor' => $color,
                 'borderColor' => $color,
             ];

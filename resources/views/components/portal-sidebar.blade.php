@@ -97,34 +97,49 @@
 
             @elseif($role === 'teacher')
                 <!-- Teacher Navigation -->
-                <a href="#overview" onclick="switchTeacherTab('overview')" class="teacher-tab-btn active portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="overview">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
-                    <span>{{ __('Faculty Overview') }}</span>
+                <a href="#overview" onclick="switchTeacherTab('overview')" class="teacher-tab-btn active portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="overview">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
+                    <span class="truncate min-w-0">{{ __('Faculty Overview') }}</span>
                 </a>
 
-                <a href="#sessions" onclick="switchTeacherTab('sessions')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="sessions">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-days"></i></span>
-                    <span>{{ __('Teaching Schedule & Rooms') }}</span>
+                <a href="#sessions" onclick="switchTeacherTab('sessions')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="sessions">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-days"></i></span>
+                    <span class="truncate min-w-0">{{ __('Teaching Schedule & Rooms') }}</span>
                 </a>
 
-                <a href="#assignments" onclick="switchTeacherTab('assignments')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="assignments">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
-                    <span>{{ __('Assignments & Quizzes') }}</span>
+                <a href="#assignments" onclick="switchTeacherTab('assignments')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="assignments">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
+                    <span class="truncate min-w-0">{{ __('Assignments & Quizzes') }}</span>
                 </a>
 
-                <a href="#attendance" onclick="switchTeacherTab('attendance')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="attendance">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clipboard-list"></i></span>
-                    <span>{{ __('Student Attendance Sheets') }}</span>
+                <a href="#attendance" onclick="switchTeacherTab('attendance')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="attendance">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clipboard-list"></i></span>
+                    <span class="truncate min-w-0">{{ __('Student Attendance Sheets') }}</span>
                 </a>
 
-                <a href="#students" onclick="switchTeacherTab('students')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200" data-tab="students">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-graduation-cap"></i></span>
-                    <span>{{ __('My Students') }}</span>
+                <a href="#students" onclick="switchTeacherTab('students')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="students">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-graduation-cap"></i></span>
+                    <span class="truncate min-w-0">{{ __('My Students') }}</span>
                 </a>
 
-                <a href="#schedules" onclick="switchTeacherTab('schedules')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-indigo-950/60 hover:text-indigo-300 text-slate-200" data-tab="schedules">
-                    <span class="text-lg text-indigo-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-check"></i></span>
-                    <span>{{ __('Student & Course Schedules') }}</span>
+                <a href="#schedules" onclick="switchTeacherTab('schedules')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-indigo-950/60 hover:text-indigo-300 text-slate-200 min-w-0" data-tab="schedules">
+                    <span class="text-base text-indigo-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-check"></i></span>
+                    <span class="truncate min-w-0">{{ __('Student & Course Schedules') }}</span>
+                </a>
+
+                <a href="#calendar" onclick="switchTeacherTab('calendar')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-indigo-950/60 hover:text-indigo-300 text-slate-200 min-w-0" data-tab="calendar">
+                    <span class="text-base text-indigo-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-days"></i></span>
+                    <span class="truncate min-w-0">{{ __('Full Calendar Schedule') }}</span>
+                </a>
+
+                <a href="#exceptions" onclick="switchTeacherTab('exceptions')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="exceptions">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-signature"></i></span>
+                    <span class="truncate min-w-0">{{ __('Excuses & Exceptions') }}</span>
+                </a>
+
+                <a href="#notifications" onclick="switchTeacherTab('notifications')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="notifications">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-bell"></i></span>
+                    <span class="truncate min-w-0">{{ __('Alerts & Activity') }}</span>
                 </a>
 
             @elseif($role === 'parent')

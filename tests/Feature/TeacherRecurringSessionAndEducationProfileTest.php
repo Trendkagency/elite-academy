@@ -136,12 +136,143 @@ class TeacherRecurringSessionAndEducationProfileTest extends TestCase
 
         $generatedSessions = LiveSession::where('recurring_schedule_id', $schedule->id)->get();
         $this->assertGreaterThan(10, $generatedSessions->count());
+    }
+
+    public function test_teacher_can_create_recurring_schedule_with_custom_per_day_start_times(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+        $endDate = Carbon::now()->startOfWeek()->addWeeks(2)->format('Y-m-d');
+
+        $response = $this->postJson(route('ajax.teacher.recurring.create'), [
+            'title' => 'Custom Per-Day Schedule',
+            'course_id' => $this->course->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [0, 1], // Sunday and Monday
+            'day_start_times' => [
+                '0' => '10:00', // Sunday at 10:00
+                '1' => '16:00', // Monday at 16:00
+            ],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('success', true);
+
+        $schedule = RecurringSchedule::where('title', 'Custom Per-Day Schedule')->first();
+        $this->assertNotNull($schedule);
+        $this->assertEquals(['0' => '10:00', '1' => '16:00'], $schedule->day_start_times);
+
+        $sessions = LiveSession::where('recurring_schedule_id', $schedule->id)->get();
+        $this->assertNotEmpty($sessions);
+
+        foreach ($sessions as $session) {
+            $dayOfWeek = $session->scheduled_at->dayOfWeek;
+            if ($dayOfWeek === 0) { // Sunday
+                $this->assertEquals('10:00', $session->scheduled_at->format('H:i'));
+            } elseif ($dayOfWeek === 1) { // Monday
+                $this->assertEquals('16:00', $session->scheduled_at->format('H:i'));
+            }
+        }
 
         // Verify audit log
         $this->assertDatabaseHas('session_audit_logs', [
             'recurring_schedule_id' => $schedule->id,
             'action' => 'created',
         ]);
+    }
+
+    public function test_teacher_can_create_recurring_schedule_with_custom_per_day_durations(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+        $endDate = Carbon::now()->startOfWeek()->addWeeks(2)->format('Y-m-d');
+
+        $response = $this->postJson(route('ajax.teacher.recurring.create'), [
+            'title' => 'Custom Per-Day Duration Schedule',
+            'course_id' => $this->course->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [0, 1], // Sunday and Monday
+            'day_start_times' => [
+                '0' => '10:00',
+                '1' => '16:00',
+            ],
+            'day_durations' => [
+                '0' => '45',  // Sunday session: 45 min
+                '1' => '120', // Monday session: 120 min
+            ],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('success', true);
+
+        $schedule = RecurringSchedule::where('title', 'Custom Per-Day Duration Schedule')->first();
+        $this->assertNotNull($schedule);
+
+        $sessions = LiveSession::where('recurring_schedule_id', $schedule->id)->get();
+        $this->assertNotEmpty($sessions);
+
+        foreach ($sessions as $session) {
+            $dayOfWeek = $session->scheduled_at->dayOfWeek;
+            if ($dayOfWeek === 0) { // Sunday
+                $this->assertEquals(45, $session->scheduled_at->diffInMinutes($session->end_at));
+            }
+        }
+    }
+
+    public function test_teacher_can_create_recurring_schedule_with_custom_per_day_meeting_links(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+        $endDate = Carbon::now()->startOfWeek()->addWeeks(2)->format('Y-m-d');
+
+        $response = $this->postJson(route('ajax.teacher.recurring.create'), [
+            'title' => 'Custom Per-Day Links Schedule',
+            'course_id' => $this->course->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'meeting_link' => 'https://meet.google.com/default-room',
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [0, 1], // Sunday and Monday
+            'day_start_times' => [
+                '0' => '10:00',
+                '1' => '16:00',
+            ],
+            'day_meeting_links' => [
+                '0' => 'https://meet.google.com/sunday-room',
+                '1' => 'https://zoom.us/j/monday-room',
+            ],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('success', true);
+
+        $schedule = RecurringSchedule::where('title', 'Custom Per-Day Links Schedule')->first();
+        $this->assertNotNull($schedule);
+
+        $sessions = LiveSession::where('recurring_schedule_id', $schedule->id)->get();
+        $this->assertNotEmpty($sessions);
+
+        foreach ($sessions as $session) {
+            $dayOfWeek = $session->scheduled_at->dayOfWeek;
+            if ($dayOfWeek === 0) { // Sunday
+                $this->assertEquals('https://meet.google.com/sunday-room', $session->meeting_link);
+            } elseif ($dayOfWeek === 1) { // Monday
+                $this->assertEquals('https://zoom.us/j/monday-room', $session->meeting_link);
+            }
+        }
     }
 
     public function test_detects_conflict_when_creating_overlapping_session(): void
@@ -312,5 +443,42 @@ class TeacherRecurringSessionAndEducationProfileTest extends TestCase
             'student_user_id' => $this->studentUser->id,
             'teacher_profile_id' => $this->teacherProfile->id,
         ]);
+    }
+
+    public function test_teacher_can_fetch_full_calendar_feed(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        LiveSession::create([
+            'title' => 'Calendar Quantum Session',
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'student_user_id' => $this->studentUser->id,
+            'course_id' => $this->course->id,
+            'scheduled_at' => Carbon::now()->addDays(2),
+            'start_at' => Carbon::now()->addDays(2),
+            'duration_minutes' => 90,
+            'status' => 'scheduled',
+            'meeting_link' => 'https://zoom.us/j/999888777',
+        ]);
+
+        $response = $this->getJson(route('ajax.teacher.calendar.feed', [
+            'start' => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'end' => Carbon::now()->endOfMonth()->format('Y-m-d'),
+        ]));
+
+        $response->assertOk();
+
+        $data = $response->json();
+        $this->assertIsArray($data);
+        $this->assertNotEmpty($data);
+
+        $calendarEvent = collect($data)->firstWhere('title', 'Calendar Quantum Session');
+        $this->assertNotNull($calendarEvent);
+        $this->assertEquals('scheduled', $calendarEvent['status']);
+        $this->assertEquals(90, $calendarEvent['duration_minutes']);
+        $this->assertEquals('https://zoom.us/j/999888777', $calendarEvent['meeting_link']);
+        $this->assertArrayHasKey('date_str', $calendarEvent);
+        $this->assertArrayHasKey('start_time_str', $calendarEvent);
+        $this->assertArrayHasKey('end_time_str', $calendarEvent);
     }
 }

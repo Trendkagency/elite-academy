@@ -13,6 +13,8 @@
             'students',
             'notifications',
             'schedules',
+            'calendar',
+            'exceptions',
         ])
             ? $activeTab ?? 'overview'
             : 'overview';
@@ -22,67 +24,105 @@
 
         {{-- Executive Header & Faculty Greeting Banner --}}
         <div
-            class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/80 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-2xl border border-slate-700/60 dark:border-slate-800">
-            <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 lg:gap-8">
-                <div class="space-y-3.5 flex-1 min-w-0">
-                    {{-- Status Badges --}}
-                    <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+            class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-2xl border border-slate-700/60 dark:border-slate-800/80">
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+
+                {{-- Left Side: Teacher Greeting & Meta Badges --}}
+                <div class="lg:col-span-7 space-y-4">
+                    {{-- Status Badges Cluster --}}
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/15 text-teal-300 border border-teal-500/30 backdrop-blur-xs shadow-xs">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-500/15 text-teal-300 border border-teal-500/30 backdrop-blur-md shadow-2xs">
                             <i class="fa-solid fa-chalkboard-user text-teal-400"></i>
                             <span>{{ $teacherProfile->title ?: __('Faculty Instructor') }}</span>
                         </span>
                         <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200 border border-white/10 backdrop-blur-xs shadow-xs">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 backdrop-blur-md shadow-2xs">
                             <i class="fa-solid fa-star text-amber-400"></i>
-                            <span>{{ number_format($teacherProfile->rating_avg ?: 4.9, 1) }} {{ __('Rating') }}</span>
+                            <span>{{ number_format($teacherProfile->rating_avg ?: 5.0, 1) }} {{ __('Rating') }}</span>
                         </span>
                         <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 backdrop-blur-xs shadow-xs">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-2xs">
                             <i class="fa-solid fa-book-open text-emerald-400"></i>
                             <span>{{ $courses->count() }} {{ __('Active Courses') }}</span>
                         </span>
                     </div>
 
-                    {{-- Title --}}
-                    <h1
-                        class="font-heading text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-snug">
-                        {{ __('Welcome back') }}, <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-300">{{ auth()->user()->name }}</span>
-                    </h1>
-
-                    {{-- Subtitle --}}
-                    <p class="text-slate-300 text-xs sm:text-sm font-normal leading-relaxed max-w-2xl">
-                        {{ __('Manage educational cohorts, monitor individual student performance, review homework submissions, and track attendance records.') }}
-                    </p>
+                    {{-- Title & Avatar Combo --}}
+                    <div class="flex items-center gap-3.5 sm:gap-4">
+                        <div
+                            class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-teal-500 via-emerald-400 to-amber-400 p-0.5 shadow-xl shadow-teal-500/20 shrink-0">
+                            <div
+                                class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-teal-300 font-heading font-black text-lg sm:text-2xl border border-teal-400/30">
+                                {{ mb_substr(auth()->user()->name ?? 'D', 0, 1) }}
+                            </div>
+                        </div>
+                        <div class="min-w-0">
+                            <h1
+                                class="font-heading text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-snug truncate">
+                                {{ __('Welcome back') }}, <span
+                                    class="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-300 to-amber-300">{{ auth()->user()->name }}</span>
+                            </h1>
+                            <p class="text-slate-300 text-xs sm:text-sm font-normal leading-relaxed mt-0.5 line-clamp-2">
+                                {{ __('Manage educational cohorts, monitor individual student performance, review homework submissions, and track attendance records.') }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- Quick Action Cluster (Responsive 2-col on phones, flex row on tablet & desktop) --}}
-                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 w-full xl:w-auto shrink-0">
-                    <button type="button" onclick="openCreateSessionModal()"
-                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
-                        <i class="fa-solid fa-plus text-xs"></i>
-                        <span class="truncate">{{ __('Schedule Session') }}</span>
+                {{-- Right Side: Integrated Command Hub Card --}}
+                <div
+                    class="lg:col-span-5 bg-white/5 dark:bg-slate-900/60 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/10 dark:border-slate-800 backdrop-blur-xl shadow-xl space-y-3">
+                    <div class="flex items-center justify-between pb-1 border-b border-white/10 dark:border-slate-800">
+                        <span
+                            class="text-xs font-mono font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                            <span>{{ $isAr ? 'لوحة التحكم والإجراءات السريعة' : 'Quick Actions' }}</span>
+                        </span>
+                        <span class="text-[10px] font-mono text-slate-400">{{ $todayDateStr }}</span>
+                    </div>
+
+                    {{-- Primary Featured Button: Preview & Guide --}}
+                    <button type="button" onclick="openTeacherPreviewModal()"
+                        class="btn-lift w-full py-3 px-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 flex items-center justify-between transition-all cursor-pointer group">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-sm animate-pulse"></i>
+                            <span>{{ $isAr ? 'دليل استخدام المنصة والتوضيح' : 'Platform Guide & Preview' }}</span>
+                        </span>
+                        <i
+                            class="fa-solid fa-arrow-left rtl:rotate-180 text-xs group-hover:-translate-x-1 transition-transform"></i>
                     </button>
-                    <button type="button" onclick="openCreateAssignmentModal()"
-                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-white/20 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
-                        <i class="fa-solid fa-pen-to-square text-emerald-300 text-xs"></i>
-                        <span class="truncate">{{ __('Publish Assignment') }}</span>
-                    </button>
-                    <button type="button" onclick="switchTeacherTab('schedules')"
-                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
-                        <i class="fa-solid fa-calendar-days text-indigo-400 text-xs"></i>
-                        <span class="truncate">{{ __('Schedules') }}</span>
-                    </button>
-                    <button type="button" onclick="switchTeacherTab('students')"
-                        class="btn-lift px-3 py-2.5 sm:px-4 sm:py-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-700/70 backdrop-blur-md shadow-md flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer">
-                        <i class="fa-solid fa-graduation-cap text-teal-400 text-xs"></i>
-                        <span class="truncate">{{ __('My Students') }}</span>
-                    </button>
+
+                    {{-- 2x2 Action Tiles Grid --}}
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="openCreateSessionModal()"
+                            class="btn-lift py-2.5 px-3 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-200 border border-teal-500/30 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <i class="fa-solid fa-plus text-teal-400 text-xs"></i>
+                            <span class="truncate">{{ __('Schedule Session') }}</span>
+                        </button>
+
+                        <button type="button" onclick="openCreateAssignmentModal()"
+                            class="btn-lift py-2.5 px-3 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white border border-white/15 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <i class="fa-solid fa-pen-to-square text-emerald-400 text-xs"></i>
+                            <span class="truncate">{{ __('Publish Assignment') }}</span>
+                        </button>
+
+                        <button type="button" onclick="switchTeacherTab('schedules')"
+                            class="btn-lift py-2.5 px-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/80 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <i class="fa-solid fa-calendar-days text-indigo-400 text-xs"></i>
+                            <span class="truncate">{{ __('Schedules') }}</span>
+                        </button>
+
+                        <button type="button" onclick="switchTeacherTab('students')"
+                            class="btn-lift py-2.5 px-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/80 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                            <i class="fa-solid fa-graduation-cap text-teal-400 text-xs"></i>
+                            <span class="truncate">{{ __('My Students') }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {{-- Ambient Decorative Lighting --}}
+            {{-- Ambient Glow Orbs --}}
             <div class="absolute -right-16 -top-16 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none">
             </div>
             <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none">
@@ -109,7 +149,8 @@
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
                         data-target="{{ $todaySessionsCount }}">0</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Scheduled today') }}</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                        {{ __('Scheduled today') }}</p>
                 </div>
             </div>
 
@@ -127,7 +168,8 @@
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-blue-600 dark:text-blue-400 js-counter"
                         data-target="{{ $upcomingSessionsCount }}">0</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Future cohorts') }}</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                        {{ __('Future cohorts') }}</p>
                 </div>
             </div>
 
@@ -165,7 +207,8 @@
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-amber-500 dark:text-amber-400 js-counter"
                         data-target="{{ $pendingAssignmentsCount }}">0</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Submissions queue') }}</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                        {{ __('Submissions queue') }}</p>
                 </div>
             </div>
 
@@ -183,7 +226,8 @@
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
                         data-target="{{ $submittedAssignmentsCount }}">0</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Total handled') }}</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                        {{ __('Total handled') }}</p>
                 </div>
             </div>
 
@@ -201,71 +245,13 @@
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400"><span
                             class="js-counter" data-target="{{ $attendanceRate }}">0</span>%</p>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{{ __('Historical sessions') }}</p>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                        {{ __('Historical sessions') }}</p>
                 </div>
             </div>
         </div>
 
-        {{-- Teacher Navigation Tabs (Scrollable on mobile with visible icons and labels) --}}
-        <div
-            class="w-full bg-white dark:bg-slate-900 p-1.5 sm:p-2 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-x-auto scrollbar-none">
-            <div class="flex items-center gap-1 sm:gap-1.5 min-w-max">
-                <button type="button" onclick="switchTeacherTab('overview')" id="tab-btn-overview"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'overview' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }}">
-                    <i class="fa-solid fa-chart-column"></i>
-                    <span>{{ __('Overview') }}</span>
-                </button>
-                <button type="button" onclick="switchTeacherTab('students')" id="tab-btn-students"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'students' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }}">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <span>{{ __('Students') }}</span>
-                    <span
-                        class="px-1.5 py-0.5 text-[10px] font-mono rounded-full {{ $activeTabKey === 'students' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300' }}">{{ $assignedStudentsCount }}</span>
-                </button>
-                <button type="button" onclick="switchTeacherTab('sessions')" id="tab-btn-sessions"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'sessions' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }}">
-                    <i class="fa-solid fa-calendar-days"></i>
-                    <span>{{ __('Sessions') }}</span>
-                </button>
-                <button type="button" onclick="switchTeacherTab('assignments')" id="tab-btn-assignments"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'assignments' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }} relative">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>{{ __('Assignments') }}</span>
-                    @if ($pendingAssignmentsCount > 0)
-                        <span
-                            class="px-1.5 py-0.5 text-[10px] bg-orange-500 text-white rounded-full font-mono font-bold leading-none">{{ $pendingAssignmentsCount }}</span>
-                    @endif
-                </button>
-                <button type="button" onclick="switchTeacherTab('attendance')" id="tab-btn-attendance"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'attendance' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }}">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                    <span>{{ __('Attendance') }}</span>
-                </button>
-                <button type="button" onclick="switchTeacherTab('notifications')" id="tab-btn-notifications"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'notifications' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }} relative">
-                    <i class="fa-solid fa-bell"></i>
-                    <span>{{ __('Alerts') }}</span>
-                    @if ($unreadNotifCount > 0)
-                        <span
-                            class="px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded-full font-mono font-bold leading-none">{{ $unreadNotifCount }}</span>
-                    @endif
-                </button>
-                <button type="button" onclick="switchTeacherTab('schedules')" id="tab-btn-schedules"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'schedules' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }}">
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <span>{{ __('Schedules') }}</span>
-                </button>
-                <button type="button" onclick="switchTeacherTab('exceptions')" id="tab-btn-exceptions"
-                    class="teacher-tab-btn px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 {{ $activeTabKey === 'exceptions' ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20 active' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80' }} relative">
-                    <i class="fa-solid fa-file-signature"></i>
-                    <span>{{ __('Excuses & Exceptions') }}</span>
-                    @if (isset($pendingExceptionsCount) && $pendingExceptionsCount > 0)
-                        <span id="pendingExceptionsBadge"
-                            class="px-1.5 py-0.5 text-[10px] bg-amber-500 text-slate-950 font-black rounded-full font-mono leading-none">{{ $pendingExceptionsCount }}</span>
-                    @endif
-                </button>
-            </div>
-        </div>
+
 
 
 
@@ -276,8 +262,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {{-- Today's Live Sessions Card --}}
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+                        <div
+                            class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                             <div>
                                 <h2
                                     class="font-heading text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
@@ -293,7 +281,8 @@
                         </div>
 
                         @if ($todaySessions->count() > 0)
-                            <div id="todaySessionsListContainer" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
+                            <div id="todaySessionsListContainer"
+                                class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($todaySessions as $session)
                                     <div
                                         class="today-session-item p-5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-500 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -309,7 +298,8 @@
                                                     ({{ $session->duration_minutes }}m)
                                                 </span>
                                             </div>
-                                            <h3 class="font-heading font-extrabold text-base text-slate-900 dark:text-white truncate">
+                                            <h3
+                                                class="font-heading font-extrabold text-base text-slate-900 dark:text-white truncate">
                                                 {{ $session->title ?: __('Interactive Teaching Session') }}
                                             </h3>
                                             <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -359,9 +349,12 @@
                     </div>
 
                     {{-- Pending Grading Queue --}}
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-                            <h2 class="font-heading text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+                        <div
+                            class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <h2
+                                class="font-heading text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                                 <span><i class="fa-solid fa-pen-to-square"></i></span> {{ __('Pending Grading Queue') }}
                             </h2>
                             <span
@@ -371,11 +364,13 @@
                         </div>
 
                         @if ($pendingSubmissions->count() > 0)
-                            <div id="pendingSubmissionsContainer" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
+                            <div id="pendingSubmissionsContainer"
+                                class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($pendingSubmissions as $sub)
                                     <div class="pending-sub-item py-3.5 flex items-center justify-between gap-4">
                                         <div class="space-y-1 min-w-0">
-                                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                                            <h4
+                                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                                                 {{ $sub->studentUser?->name ?: __('Student') }}
                                             </h4>
                                             <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
@@ -397,7 +392,8 @@
                             </div>
                             <div id="pendingSubmissionsPagination" class="mt-4"></div>
                         @else
-                            <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div
+                                class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                                 <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">
                                     {{ __('Great job! All student homework submissions are graded.') }}</p>
                             </div>
@@ -408,8 +404,10 @@
                 {{-- Sidebar Overview Column: Quick Student Roster Preview & Courses --}}
                 <div class="space-y-6">
                     {{-- Quick Students Roster Preview --}}
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                        <div
+                            class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                             <h3 class="font-heading font-black text-lg text-slate-900">{{ __('Recent Students') }}</h3>
                             <button type="button" onclick="switchTeacherTab('students')"
                                 class="text-xs font-bold text-teal-600 hover:underline">
@@ -418,7 +416,8 @@
                         </div>
 
                         @if ($assignedStudents->count() > 0)
-                            <div id="recentStudentsContainer" class="space-y-3 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+                            <div id="recentStudentsContainer"
+                                class="space-y-3 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($assignedStudents as $st)
                                     <div class="recent-student-item p-3 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 hover:border-teal-400 dark:hover:border-teal-500 transition-all cursor-pointer"
                                         onclick="openStudentDetailsModal({{ $st->user_id }})">
@@ -448,11 +447,14 @@
                     </div>
 
                     {{-- Active Teaching Courses --}}
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
-                        <h3 class="font-heading font-black text-lg text-slate-900 border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                        <h3
+                            class="font-heading font-black text-lg text-slate-900 border-b border-slate-100 dark:border-slate-800 pb-3">
                             {{ __('Your Active Courses') }}</h3>
                         @if ($courses->count() > 0)
-                            <div id="overviewCoursesListContainer" class="space-y-2.5 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+                            <div id="overviewCoursesListContainer"
+                                class="space-y-2.5 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                                 @foreach ($courses as $c)
                                     @php
                                         $sessionCount = $c->sessions->count();
@@ -504,7 +506,8 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-students"
             class="teacher-tab-content {{ $activeTabKey === 'students' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 {{-- Tab Header --}}
                 <div
                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -525,7 +528,8 @@
                 </div>
 
                 {{-- Multi-Faceted Student Filter & Search Bar --}}
-                <div class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                <div
+                    class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {{-- Live Search Input --}}
                         <div class="lg:col-span-2 relative">
@@ -654,7 +658,8 @@
                                 {{-- Card Bottom: KPIs & Action Button --}}
                                 <div class="space-y-3 pt-3 border-t border-slate-200/80 dark:border-slate-700/80">
                                     <div class="grid grid-cols-2 gap-2 text-center font-mono text-[11px]">
-                                        <div class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                                        <div
+                                            class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Attendance') }}</span>
                                             <span
@@ -662,7 +667,8 @@
                                                 {{ $attRate }}%
                                             </span>
                                         </div>
-                                        <div class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                                        <div
+                                            class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Avg Score') }}</span>
                                             <span
@@ -696,7 +702,8 @@
                         </button>
                     </div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">
                             {{ __('No students enrolled in your courses yet.') }}</p>
                     </div>
@@ -709,7 +716,8 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-sessions"
             class="teacher-tab-content {{ $activeTabKey === 'sessions' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <div
                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
@@ -733,11 +741,13 @@
                         <div class="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
                             <button type="button" onclick="openCreateRecurringModal()"
                                 class="btn-lift px-3 py-2.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5 truncate">
-                                <span><i class="fa-solid fa-arrows-rotate"></i></span> <span class="truncate">{{ __('Create Recurring Schedule') }}</span>
+                                <span><i class="fa-solid fa-arrows-rotate"></i></span> <span
+                                    class="truncate">{{ __('Create Recurring Schedule') }}</span>
                             </button>
                             <button type="button" onclick="openCreateSessionModal()"
                                 class="btn-lift px-3 py-2.5 sm:px-4 sm:py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5 truncate">
-                                <span><i class="fa-solid fa-plus"></i></span> <span class="truncate">{{ __('Schedule Single Session') }}</span>
+                                <span><i class="fa-solid fa-plus"></i></span> <span
+                                    class="truncate">{{ __('Schedule Single Session') }}</span>
                             </button>
                         </div>
                     </div>
@@ -745,15 +755,18 @@
 
                 @if ($allSessions->count() > 0)
                     {{-- Desktop & Tablet Data Table View (>= 768px) --}}
-                    <div class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                        <table style="min-width: 720px;" class="w-full text-left rtl:text-right border-collapse">
+                    <div
+                        class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 860px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
-                                    <th class="py-3 px-4">{{ __('Session Details') }}</th>
-                                    <th class="py-3 px-4">{{ __('Course') }}</th>
-                                    <th class="py-3 px-4">{{ __('Date & Time') }}</th>
-                                    <th class="py-3 px-4">{{ __('Status') }}</th>
-                                    <th class="py-3 px-4 text-right rtl:text-left">{{ __('Actions') }}</th>
+                                <tr
+                                    class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
+                                    <th class="py-3 px-4 col-title min-w-[240px]">{{ __('Session Details') }}</th>
+                                    <th class="py-3 px-4 col-course min-w-[170px]">{{ __('Course') }}</th>
+                                    <th class="py-3 px-4 col-date min-w-[140px]">{{ __('Date & Time') }}</th>
+                                    <th class="py-3 px-4 col-badge min-w-[130px]">{{ __('Status') }}</th>
+                                    <th class="py-3 px-4 col-action min-w-[150px] text-right rtl:text-left">
+                                        {{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody id="sessionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
@@ -765,7 +778,8 @@
                                         <td class="py-4 px-4 font-bold text-slate-900 dark:text-white">
                                             <div class="space-y-1">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <p class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
+                                                    <p
+                                                        class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
                                                         {{ $session->title ?: __('Live Class Session') }}</p>
                                                     @if ($session->recurring_schedule_id)
                                                         <span
@@ -789,7 +803,8 @@
                                         <td class="py-4 px-4 text-xs font-semibold text-teal-700 dark:text-teal-400">
                                             {{ $session->course?->title ?: __('General Curriculum') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                        <td
+                                            class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                             {{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : __('Not Scheduled') }}
                                         </td>
                                         <td class="py-4 px-4 whitespace-nowrap">
@@ -881,35 +896,44 @@
                                 <div class="flex items-start justify-between gap-2.5">
                                     <div class="space-y-1 min-w-0 flex-1">
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
+                                            <h4
+                                                class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
                                                 {{ $session->title ?: __('Live Class Session') }}
                                             </h4>
                                             @if ($session->recurring_schedule_id)
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                                                <span
+                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                                                     <i class="fa-solid fa-arrows-rotate text-[9px]"></i>
                                                     <span>{{ __('Recurring') }}</span>
                                                 </span>
                                             @endif
                                             @if ($session->is_override)
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                                <span
+                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                                     <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
                                                     <span>{{ __('Override') }}</span>
                                                 </span>
                                             @endif
                                         </div>
                                     </div>
-                                    <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-full {{ in_array($session->status, ['cancelled', 'cancelled_by_teacher']) ? 'bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300' : ($session->status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300' : ($session->status === 'rescheduled' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300' : 'bg-teal-100 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300')) }}">
+                                    <span
+                                        class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-full {{ in_array($session->status, ['cancelled', 'cancelled_by_teacher']) ? 'bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300' : ($session->status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300' : ($session->status === 'rescheduled' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300' : 'bg-teal-100 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300')) }}">
                                         {{ $statusText }}
                                     </span>
                                 </div>
 
                                 {{-- Card Meta: Course and Date --}}
-                                <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-400 font-semibold truncate">
-                                        <i class="fa-solid fa-book-open text-xs shrink-0 text-teal-600 dark:text-teal-400"></i>
-                                        <span class="truncate">{{ $session->course?->title ?: __('General Curriculum') }}</span>
+                                <div
+                                    class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                                    <div
+                                        class="flex items-center gap-2 text-teal-700 dark:text-teal-400 font-semibold truncate">
+                                        <i
+                                            class="fa-solid fa-book-open text-xs shrink-0 text-teal-600 dark:text-teal-400"></i>
+                                        <span
+                                            class="truncate">{{ $session->course?->title ?: __('General Curriculum') }}</span>
                                     </div>
-                                    <div class="flex items-center justify-between gap-2 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                                    <div
+                                        class="flex items-center justify-between gap-2 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                                         <span class="flex items-center gap-1.5">
                                             <i class="fa-solid fa-calendar-days text-slate-400 text-xs"></i>
                                             <span>{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d • h:i A') : __('Not Scheduled') }}</span>
@@ -922,7 +946,8 @@
                                 </div>
 
                                 {{-- Card Actions Grid --}}
-                                <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                                <div
+                                    class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
                                     <button type="button" data-session-id="{{ $session->id }}"
                                         data-title="{{ $session->title }}"
                                         data-scheduled-at="{{ $session->effective_start_at ? $session->effective_start_at->format('Y-m-d\TH:i') : '' }}"
@@ -949,8 +974,7 @@
                                         <span>{{ __('Reschedule') }}</span>
                                     </button>
                                     @if (!in_array($session->status, ['cancelled', 'cancelled_by_teacher']))
-                                        <button type="button"
-                                            onclick="confirmCancelSession({{ $session->id }})"
+                                        <button type="button" onclick="confirmCancelSession({{ $session->id }})"
                                             class="px-2 py-2 bg-red-50 hover:bg-red-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-red-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-red-200/70 dark:border-rose-800/60 transition-colors cursor-pointer flex items-center justify-center gap-1">
                                             <i class="fa-solid fa-circle-xmark text-rose-500 text-[10px]"></i>
                                             <span>{{ __('Cancel') }}</span>
@@ -976,7 +1000,8 @@
                         {{ __('No teaching sessions match your current filter criteria.') }}
                     </div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div
+                        class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No sessions created yet.') }}</p>
                     </div>
                 @endif
@@ -989,7 +1014,8 @@
         <div id="teacher-tab-assignments"
             class="teacher-tab-content {{ $activeTabKey === 'assignments' ? '' : 'hidden' }} space-y-8">
             {{-- Assignments Header & Publish Action --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <div
                     class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
@@ -1034,8 +1060,7 @@
                                             {{ $subLabel }}
                                         </span>
                                     </div>
-                                    <h3
-                                        onclick="openAssignmentDetailsModal({{ $assignment->id }})"
+                                    <h3 onclick="openAssignmentDetailsModal({{ $assignment->id }})"
                                         class="font-heading font-black text-base text-slate-900 dark:text-white leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors cursor-pointer">
                                         {{ $assignment->title }}</h3>
                                     <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
@@ -1050,12 +1075,14 @@
                                         {{ $assignment->effective_due_at ? $assignment->effective_due_at->format('M d, H:i') : __('No deadline') }}</span>
                                     <span
                                         class="font-extrabold text-slate-800 dark:text-slate-200 shrink-0 ms-2 bg-slate-100 dark:bg-slate-700/80 px-2 py-0.5 rounded-lg"><i
-                                            class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400"></i> {{ $assignment->passing_score ?: 70 }}%
+                                            class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400"></i>
+                                        {{ $assignment->passing_score ?: 70 }}%
                                         {{ __('Pass') }}</span>
                                 </div>
 
                                 {{-- Action Buttons: View Details, Edit, Delete --}}
-                                <div class="pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-1.5 flex-wrap">
+                                <div
+                                    class="pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-1.5 flex-wrap">
                                     <button type="button" onclick="openAssignmentDetailsModal({{ $assignment->id }})"
                                         class="btn-lift px-3 py-1.5 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/60 dark:hover:bg-teal-900/80 text-teal-800 dark:text-teal-300 text-xs font-bold rounded-xl border border-teal-200/70 dark:border-teal-800/60 flex items-center gap-1.5 cursor-pointer">
                                         <i class="fa-solid fa-circle-info"></i>
@@ -1068,7 +1095,8 @@
                                             <i class="fa-solid fa-pen-to-square text-teal-600 dark:text-teal-400"></i>
                                             <span>{{ __('Edit') }}</span>
                                         </button>
-                                        <button type="button" onclick="confirmDeleteAssignment({{ $assignment->id }}, '{{ $escapedTitle }}')"
+                                        <button type="button"
+                                            onclick="confirmDeleteAssignment({{ $assignment->id }}, '{{ $escapedTitle }}')"
                                             class="btn-lift px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-200/70 dark:border-rose-800/60 transition-colors cursor-pointer"
                                             title="{{ __('Delete Assignment') }}">
                                             <i class="fa-solid fa-trash text-rose-500"></i>
@@ -1083,30 +1111,36 @@
                     {{-- Assignments Pagination Container --}}
                     <div id="assignmentsPagination" class="mt-6"></div>
                 @else
-                    <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No assignments created yet.') }}</p>
                     </div>
                 @endif
             </div>
 
             {{-- Submissions Table --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <h3 class="font-heading text-xl font-black text-slate-900">{{ __('All Student Submissions') }}</h3>
 
                 @if ($submissions->count() > 0)
                     {{-- Desktop & Tablet Data Table View (>= 768px) --}}
-                    <div class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                        <table style="min-width: 720px;" class="w-full text-left rtl:text-right border-collapse">
+                    <div
+                        class="hidden md:block table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 860px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
-                                    <th class="py-3 px-4">{{ __('Student') }}</th>
-                                    <th class="py-3 px-4">{{ __('Assignment') }}</th>
-                                    <th class="py-3 px-4">{{ __('Submitted At') }}</th>
-                                    <th class="py-3 px-4">{{ __('Grade / Score') }}</th>
-                                    <th class="py-3 px-4 text-right rtl:text-left">{{ __('Review Action') }}</th>
+                                <tr
+                                    class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase">
+                                    <th class="py-3 px-4 col-title min-w-[200px]">{{ __('Student') }}</th>
+                                    <th class="py-3 px-4 col-course min-w-[220px]">{{ __('Assignment') }}</th>
+                                    <th class="py-3 px-4 col-date min-w-[140px]">{{ __('Submitted At') }}</th>
+                                    <th class="py-3 px-4 col-badge min-w-[130px]">{{ __('Grade / Score') }}</th>
+                                    <th class="py-3 px-4 col-action min-w-[150px] text-right rtl:text-left">
+                                        {{ __('Review Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody id="submissionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                            <tbody id="submissionsTableBody"
+                                class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                 @foreach ($submissions as $sub)
                                     @php
                                         $subVal =
@@ -1126,7 +1160,8 @@
                                         <td class="py-4 px-4 text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {{ $sub->assignment?->title ?: __('Assignment') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                        <td
+                                            class="py-4 px-4 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                             {{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Draft' }}
                                         </td>
                                         <td class="py-4 px-4 font-mono text-xs whitespace-nowrap">
@@ -1134,7 +1169,8 @@
                                                 <span
                                                     class="font-extrabold text-emerald-600 dark:text-emerald-400">{{ number_format($sub->score, 1) }}%</span>
                                             @else
-                                                <span class="text-orange-500 dark:text-orange-400 italic">{{ __('Pending Grade') }}</span>
+                                                <span
+                                                    class="text-orange-500 dark:text-orange-400 italic">{{ __('Pending Grade') }}</span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 text-right rtl:text-left whitespace-nowrap">
@@ -1172,27 +1208,33 @@
                                 data-assignment="{{ strtolower($sub->assignment?->title ?? '') }}">
                                 <div class="flex items-start justify-between gap-2.5">
                                     <div class="space-y-1 min-w-0 flex-1">
-                                        <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
+                                        <h4
+                                            class="font-heading font-black text-sm text-slate-900 dark:text-white leading-snug">
                                             {{ $sub->studentUser?->name ?: __('Student') }}
                                         </h4>
                                         <p class="text-xs font-semibold text-teal-700 dark:text-teal-400 truncate">
-                                            <i class="fa-solid fa-file-lines me-1"></i>{{ $sub->assignment?->title ?: __('Assignment') }}
+                                            <i
+                                                class="fa-solid fa-file-lines me-1"></i>{{ $sub->assignment?->title ?: __('Assignment') }}
                                         </p>
                                     </div>
                                     <div class="shrink-0">
                                         @if ($sub->score !== null)
-                                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-mono font-black rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-1 text-xs font-mono font-black rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                                 {{ number_format($sub->score, 1) }}%
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-1 text-[10px] font-mono font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-1 text-[10px] font-mono font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                                                 {{ __('Pending Grade') }}
                                             </span>
                                         @endif
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-                                    <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px] flex items-center gap-1.5">
+                                <div
+                                    class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                                    <span
+                                        class="text-slate-500 dark:text-slate-400 font-mono text-[11px] flex items-center gap-1.5">
                                         <i class="fa-solid fa-clock text-slate-400"></i>
                                         <span>{{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : __('Draft') }}</span>
                                     </span>
@@ -1216,7 +1258,8 @@
                     {{-- Mobile Submissions Pagination --}}
                     <div id="submissionsMobilePagination" class="block md:hidden mt-4"></div>
                 @else
-                    <div class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="text-center py-8 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">{{ __('No student submissions yet.') }}</p>
                     </div>
                 @endif
@@ -1355,10 +1398,12 @@
             </div>
 
             {{-- Main Attendance Container --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
 
                 {{-- Toolbar: Multi-Faceted Filters, Search, & View Switchers --}}
-                <div class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
+                <div
+                    class="p-4 bg-[#FAFAF9] dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
                     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
                         {{-- Search & Dropdowns Container --}}
                         <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1527,19 +1572,22 @@
                                     {{-- Card Body: Metric Badges Strip --}}
                                     <div class="grid grid-cols-3 gap-2 text-center font-mono text-xs pt-1 border-t border-slate-200/70 dark:border-slate-700/70"
                                         id="attCardStats_{{ $ses->id }}">
-                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                                        <div
+                                            class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Present') }}</span>
                                             <span
                                                 class="font-black text-emerald-600 text-sm att-stat-present">{{ $ses->present_count }}</span>
                                         </div>
-                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                                        <div
+                                            class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Absent') }}</span>
                                             <span
                                                 class="font-black text-rose-600 text-sm att-stat-absent">{{ $ses->absent_count }}</span>
                                         </div>
-                                        <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                                        <div
+                                            class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
                                             <span
                                                 class="text-slate-400 block text-[9px] uppercase font-bold">{{ __('Rate') }}</span>
                                             <span
@@ -1550,7 +1598,8 @@
                                     </div>
 
                                     {{-- Card Footer: Action Button --}}
-                                    <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between gap-3">
+                                    <div
+                                        class="pt-2 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between gap-3">
                                         <div class="text-[11px] font-mono text-slate-500 truncate">
                                             <i class="fa-solid fa-graduation-cap text-teal-600"></i>
                                             {{ $ses->subject?->name ?: __('Curriculum Cohort') }}
@@ -1604,20 +1653,24 @@
                 {{-- VIEW 2: DETAILED TABLE ROSTER VIEW                              --}}
                 {{-- ════════════════════════════════════════════════════════════════ --}}
                 <div id="attViewTable" class="att-view-pane hidden space-y-4">
-                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                        <table style="min-width: 760px;" class="w-full text-left rtl:text-right border-collapse">
+                    <div
+                        class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <table style="min-width: 860px;" class="w-full text-left rtl:text-right border-collapse">
                             <thead>
                                 <tr
                                     class="border-b border-slate-200 dark:border-slate-800 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/70 dark:bg-slate-800/70">
-                                    <th class="py-3 px-4 rounded-s-xl">{{ __('Session Details') }}</th>
-                                    <th class="py-3 px-4">{{ __('Course / Cohort') }}</th>
-                                    <th class="py-3 px-4">{{ __('Scheduled Time') }}</th>
-                                    <th class="py-3 px-4">{{ __('Attendance Status') }}</th>
-                                    <th class="py-3 px-4">{{ __('Stats') }}</th>
-                                    <th class="py-3 px-4 text-right rtl:text-left rounded-e-xl">{{ __('Action') }}</th>
+                                    <th class="py-3 px-4 col-title min-w-[240px] rounded-s-xl">
+                                        {{ __('Session Details') }}</th>
+                                    <th class="py-3 px-4 col-course min-w-[170px]">{{ __('Course / Cohort') }}</th>
+                                    <th class="py-3 px-4 col-date min-w-[140px]">{{ __('Scheduled Time') }}</th>
+                                    <th class="py-3 px-4 col-badge min-w-[140px]">{{ __('Attendance Status') }}</th>
+                                    <th class="py-3 px-4 min-w-[110px]">{{ __('Stats') }}</th>
+                                    <th class="py-3 px-4 col-action min-w-[150px] text-right rtl:text-left rounded-e-xl">
+                                        {{ __('Action') }}</th>
                                 </tr>
                             </thead>
-                            <tbody id="attTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
+                            <tbody id="attTableBody"
+                                class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
                                 @foreach ($attendanceSessions as $ses)
                                     @php
                                         $isRecorded = $ses->is_recorded;
@@ -1650,27 +1703,33 @@
                                         <td class="py-4 px-4 text-xs font-semibold text-teal-700">
                                             {{ $ses->course?->title ?: __('General Cohort') }}
                                         </td>
-                                        <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                        <td
+                                            class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                             {{ $ses->effective_start_at ? $ses->effective_start_at->format('Y-m-d h:i A') : __('Not Scheduled') }}
                                         </td>
                                         <td class="py-4 px-4 whitespace-nowrap">
                                             @if ($isRecorded)
                                                 <span
                                                     class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border dark:border-emerald-800/60 whitespace-nowrap">
-                                                    <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-[9px]"></i>
+                                                    <i
+                                                        class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-[9px]"></i>
                                                     {{ __('Recorded') }}
                                                 </span>
                                             @else
                                                 <span
                                                     class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 dark:border dark:border-amber-800/60 whitespace-nowrap">
-                                                    <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400 text-[9px]"></i>
+                                                    <i
+                                                        class="fa-solid fa-clock text-amber-600 dark:text-amber-400 text-[9px]"></i>
                                                     {{ __('Pending') }}
                                                 </span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4 font-mono text-xs whitespace-nowrap">
-                                            <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ $ses->present_count }}P</span> /
-                                            <span class="text-rose-600 dark:text-rose-400 font-bold">{{ $ses->absent_count }}A</span>
+                                            <span
+                                                class="text-emerald-600 dark:text-emerald-400 font-bold">{{ $ses->present_count }}P</span>
+                                            /
+                                            <span
+                                                class="text-rose-600 dark:text-rose-400 font-bold">{{ $ses->absent_count }}A</span>
                                             @if ($ses->session_rate !== null)
                                                 <span
                                                     class="ms-1 text-slate-500 dark:text-slate-400 font-bold">({{ $ses->session_rate }}%)</span>
@@ -1732,7 +1791,8 @@
                                                 {{ mb_substr($st->user?->name ?: 'S', 0, 1) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                                                <h4
+                                                    class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                                                     {{ $st->user?->name }}</h4>
                                                 <p class="text-[10px] font-mono text-slate-400">#{{ $studentCode }} •
                                                     {{ $st->gradeLevel?->name ?: __('Secondary') }}</p>
@@ -1745,12 +1805,14 @@
                                     </div>
 
                                     <div class="space-y-1">
-                                        <div class="flex justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                                        <div
+                                            class="flex justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
                                             <span>{{ __('Attendance Consistency') }}</span>
                                             <span
                                                 class="font-bold">{{ $isGood ? __('Good Standing') : ($isRisk ? __('Attention Required') : __('Critical Absence Risk')) }}</span>
                                         </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                                        <div
+                                            class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                                             <div class="h-full rounded-full {{ $isGood ? 'bg-emerald-500' : ($isRisk ? 'bg-amber-500' : 'bg-rose-500') }}"
                                                 style="width: {{ $attRate }}%"></div>
                                         </div>
@@ -1780,7 +1842,8 @@
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-notifications"
             class="teacher-tab-content {{ $activeTabKey === 'notifications' ? '' : 'hidden' }} space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="font-heading text-2xl font-black text-slate-900">
@@ -1806,7 +1869,8 @@
                     </div>
                     <div id="notifsPagination" class="mt-4"></div>
                 @else
-                    <div class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="text-center py-12 bg-[#FAFAF9] dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-700">
                             {{ __('You\'re all caught up! No new notifications.') }}</p>
                     </div>
@@ -1848,7 +1912,8 @@
             </div>
 
             {{-- ── Existing Recurring Schedules List ──────────────────────────────── --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-heading text-lg font-black text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-rotate text-indigo-500"></i>
@@ -1859,7 +1924,8 @@
                 </div>
 
                 @if ($recurringSchedules->isEmpty())
-                    <div class="text-center py-12 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+                    <div
+                        class="text-center py-12 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
                         <i class="fa-solid fa-calendar-xmark text-3xl text-slate-300 mb-2"></i>
                         <p class="text-sm font-semibold text-slate-500">{{ __('No recurring schedules created yet.') }}
                         </p>
@@ -1867,7 +1933,8 @@
                             {{ __('Create your first recurring schedule to auto-generate sessions.') }}</p>
                     </div>
                 @else
-                    <div id="schedulesListContainer" class="space-y-3 max-h-[550px] overflow-y-auto custom-scrollbar pr-1">
+                    <div id="schedulesListContainer"
+                        class="space-y-3 max-h-[550px] overflow-y-auto custom-scrollbar pr-1">
                         @foreach ($recurringSchedules as $rs)
                             @php
                                 $rsSessions = $rs->sessions ?? collect();
@@ -1878,11 +1945,9 @@
                                 $rsCompletedCount = $rsSessions->where('status', 'completed')->count();
                                 $rsTotalCount = $rsSessions->count();
                             @endphp
-                            <div
-                                id="recurringScheduleCard_{{ $rs->id }}"
+                            <div id="recurringScheduleCard_{{ $rs->id }}"
                                 class="schedule-item-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors space-y-3"
-                                data-id="{{ $rs->id }}"
-                                data-title="{{ $rs->title }}"
+                                data-id="{{ $rs->id }}" data-title="{{ $rs->title }}"
                                 data-course-id="{{ $rs->course_id }}"
                                 data-recurrence-type="{{ $rs->recurrence_type }}"
                                 data-start-time="{{ $rs->start_time ? substr($rs->start_time, 0, 5) : '10:00' }}"
@@ -1890,8 +1955,7 @@
                                 data-start-date="{{ $rs->start_date ? $rs->start_date->format('Y-m-d') : '' }}"
                                 data-end-date="{{ $rs->end_date ? $rs->end_date->format('Y-m-d') : '' }}"
                                 data-days='@json($rs->days_of_week ?? [])'
-                                data-meeting-link="{{ $rs->meeting_link ?? '' }}"
-                                data-notes="{{ $rs->notes ?? '' }}">
+                                data-meeting-link="{{ $rs->meeting_link ?? '' }}" data-notes="{{ $rs->notes ?? '' }}">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="space-y-1 min-w-0">
                                         <div class="flex items-center gap-2 flex-wrap">
@@ -1919,28 +1983,32 @@
                                     </div>
                                     <div class="flex items-center gap-3 shrink-0">
                                         <div class="text-center">
-                                            <p class="font-heading font-black text-lg text-indigo-600 dark:text-indigo-400">
+                                            <p
+                                                class="font-heading font-black text-lg text-indigo-600 dark:text-indigo-400">
                                                 {{ $rsTotalCount }}</p>
                                             <p class="text-[10px] font-mono text-slate-400">{{ __('Sessions') }}</p>
                                         </div>
                                         <div class="text-center">
-                                            <p class="font-heading font-black text-lg text-emerald-600 dark:text-emerald-400">
+                                            <p
+                                                class="font-heading font-black text-lg text-emerald-600 dark:text-emerald-400">
                                                 {{ $rsCompletedCount }}</p>
                                             <p class="text-[10px] font-mono text-slate-400">{{ __('Done') }}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 pt-2.5 border-t border-slate-200/80 dark:border-slate-700/80 justify-end">
-                                    <button type="button"
-                                        data-id="{{ $rs->id }}"
-                                        data-title="{{ $rs->title }}"
-                                        data-course-id="{{ $rs->course_id }}"
+                                <div
+                                    class="flex items-center gap-2 pt-2.5 border-t border-slate-200/80 dark:border-slate-700/80 justify-end">
+                                    <button type="button" data-id="{{ $rs->id }}"
+                                        data-title="{{ $rs->title }}" data-course-id="{{ $rs->course_id }}"
                                         data-recurrence-type="{{ $rs->recurrence_type }}"
                                         data-start-time="{{ $rs->start_time ? substr($rs->start_time, 0, 5) : '10:00' }}"
                                         data-duration="{{ $rs->duration_minutes ?? 60 }}"
                                         data-start-date="{{ $rs->start_date ? $rs->start_date->format('Y-m-d') : '' }}"
                                         data-end-date="{{ $rs->end_date ? $rs->end_date->format('Y-m-d') : '' }}"
                                         data-days='@json($rs->days_of_week ?? [])'
+                                        data-day-start-times='@json($rs->day_start_times ?? [])'
+                                        data-day-durations='@json($rs->day_durations ?? [])'
+                                        data-day-meeting-links='@json($rs->day_meeting_links ?? [])'
                                         data-meeting-link="{{ $rs->meeting_link ?? '' }}"
                                         data-notes="{{ $rs->notes ?? '' }}"
                                         onclick="openEditRecurringScheduleModal({{ $rs->id }}, this)"
@@ -1966,17 +2034,640 @@
         </div>
 
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        {{-- TAB: FULL CALENDAR SCHEDULE VIEW                                        --}}
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        <div id="teacher-tab-calendar"
+            class="teacher-tab-content {{ $activeTabKey === 'calendar' ? '' : 'hidden' }} space-y-5">
+
+            <style>
+                /* ── Responsive 2-Column Dashboard Layout (Desktop side-by-side & Mobile stacked) ── */
+                .cal-dashboard-grid {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 1.25rem !important;
+                    width: 100% !important;
+                }
+
+                @media (min-width: 1024px) {
+                    .cal-dashboard-grid {
+                        flex-direction: row !important;
+                        align-items: flex-start !important;
+                        gap: 1.5rem !important;
+                    }
+
+                    .cal-sidebar-col {
+                        display: block !important;
+                        width: 320px !important;
+                        min-width: 320px !important;
+                        max-width: 320px !important;
+                        flex-shrink: 0 !important;
+                    }
+
+                    .cal-main-col {
+                        flex: 1 1 0% !important;
+                        min-width: 0 !important;
+                        width: calc(100% - 344px) !important;
+                    }
+                }
+
+                /* 7-Column Grid rules for Month & Mini Calendar */
+                .cal-grid-7 {
+                    display: grid !important;
+                    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+                }
+
+                /* Timetable wrapper with smooth touch scrolling */
+                .cal-timetable-wrapper {
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                    scroll-behavior: smooth !important;
+                    width: 100% !important;
+                }
+
+                .cal-timetable-grid {
+                    display: grid !important;
+                    grid-template-columns: 50px repeat(7, minmax(130px, 1fr)) !important;
+                }
+
+                @media (min-width: 1280px) {
+                    .cal-timetable-grid {
+                        grid-template-columns: 56px repeat(7, minmax(0, 1fr)) !important;
+                    }
+                }
+
+                .cal-day-col {
+                    position: relative;
+                    height: 910px;
+                    /* 14 hours (08:00-22:00) * 65px */
+                    border-inline-end: 1px solid rgba(226, 232, 240, 0.7);
+                    background-size: 100% 65px;
+                    background-image: linear-gradient(to bottom, transparent 64px, rgba(226, 232, 240, 0.6) 64px);
+                }
+
+                .dark .cal-day-col {
+                    border-inline-end: 1px solid rgba(30, 41, 59, 0.7);
+                    background-image: linear-gradient(to bottom, transparent 64px, rgba(30, 41, 59, 0.6) 64px);
+                }
+
+                /* Single Day View Timetable Grid */
+                .cal-single-day-grid {
+                    display: grid !important;
+                    grid-template-columns: 52px 1fr !important;
+                }
+
+                @media (min-width: 640px) {
+                    .cal-single-day-grid {
+                        grid-template-columns: 60px 1fr !important;
+                    }
+                }
+
+                .cal-single-day-col {
+                    position: relative;
+                    height: 910px;
+                    border-inline-start: 1px solid rgba(226, 232, 240, 0.8);
+                    background-size: 100% 65px;
+                    background-image: linear-gradient(to bottom, transparent 64px, rgba(226, 232, 240, 0.6) 64px);
+                }
+
+                .dark .cal-single-day-col {
+                    border-inline-start: 1px solid rgba(30, 41, 59, 0.8);
+                    background-image: linear-gradient(to bottom, transparent 64px, rgba(30, 41, 59, 0.6) 64px);
+                }
+
+                .cal-hour-label {
+                    height: 65px;
+                    border-bottom: 1px solid transparent;
+                }
+
+                /* Month Cell Adaptive Sizing */
+                @media (max-width: 639px) {
+                    .cal-month-cell {
+                        min-height: 52px !important;
+                        padding: 0.25rem !important;
+                    }
+
+                    .cal-grid-cell-content-desktop {
+                        display: none !important;
+                    }
+
+                    .cal-grid-cell-content-mobile {
+                        display: flex !important;
+                    }
+                }
+
+                @media (min-width: 640px) {
+                    .cal-month-cell {
+                        min-height: 100px !important;
+                        padding: 0.5rem !important;
+                    }
+
+                    .cal-grid-cell-content-desktop {
+                        display: block !important;
+                    }
+
+                    .cal-grid-cell-content-mobile {
+                        display: none !important;
+                    }
+                }
+
+                /* Pastel Event Card Styles */
+                .cal-card-emerald {
+                    background-color: #ecfdf5 !important;
+                    color: #065f46 !important;
+                    border: 1px solid #a7f3d0 !important;
+                    border-inline-start: 4px solid #10b981 !important;
+                }
+
+                .dark .cal-card-emerald {
+                    background-color: rgba(6, 78, 59, 0.35) !important;
+                    color: #a7f3d0 !important;
+                    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+                    border-inline-start: 4px solid #10b981 !important;
+                }
+
+                .cal-card-purple {
+                    background-color: #f5f3ff !important;
+                    color: #5b21b6 !important;
+                    border: 1px solid #ddd6fe !important;
+                    border-inline-start: 4px solid #8b5cf6 !important;
+                }
+
+                .dark .cal-card-purple {
+                    background-color: rgba(91, 33, 182, 0.35) !important;
+                    color: #ddd6fe !important;
+                    border: 1px solid rgba(139, 92, 246, 0.4) !important;
+                    border-inline-start: 4px solid #8b5cf6 !important;
+                }
+
+                .cal-card-sky {
+                    background-color: #f0f9ff !important;
+                    color: #0369a1 !important;
+                    border: 1px solid #bae6fd !important;
+                    border-inline-start: 4px solid #0284c7 !important;
+                }
+
+                .dark .cal-card-sky {
+                    background-color: rgba(3, 105, 161, 0.35) !important;
+                    color: #bae6fd !important;
+                    border: 1px solid rgba(2, 132, 199, 0.4) !important;
+                    border-inline-start: 4px solid #0284c7 !important;
+                }
+
+                .cal-card-amber {
+                    background-color: #fffbeb !important;
+                    color: #92400e !important;
+                    border: 1px solid #fde68a !important;
+                    border-inline-start: 4px solid #f59e0b !important;
+                }
+
+                .dark .cal-card-amber {
+                    background-color: rgba(146, 64, 14, 0.35) !important;
+                    color: #fde68a !important;
+                    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+                    border-inline-start: 4px solid #f59e0b !important;
+                }
+
+                .cal-card-rose {
+                    background-color: #fff1f2 !important;
+                    color: #9f1239 !important;
+                    border: 1px solid #fecdd3 !important;
+                    border-inline-start: 4px solid #f43f5e !important;
+                }
+
+                .dark .cal-card-rose {
+                    background-color: rgba(159, 18, 57, 0.35) !important;
+                    color: #fecdd3 !important;
+                    border: 1px solid rgba(244, 63, 94, 0.4) !important;
+                    border-inline-start: 4px solid #f43f5e !important;
+                }
+            </style>
+
+            {{-- Executive Top Banner — Light & Dark Adaptive & Fully Mobile Responsive --}}
+            <div
+                class="relative overflow-hidden rounded-3xl border border-indigo-100 dark:border-indigo-900/60 bg-white dark:bg-slate-900 shadow-sm">
+                {{-- Decorative gradient blobs --}}
+                <div
+                    class="pointer-events-none absolute -top-10 -end-10 w-60 h-60 rounded-full bg-indigo-100/70 dark:bg-indigo-900/30 blur-3xl">
+                </div>
+                <div
+                    class="pointer-events-none absolute bottom-0 start-24 w-40 h-40 rounded-full bg-violet-100/60 dark:bg-violet-900/20 blur-2xl">
+                </div>
+
+                <div
+                    class="relative p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    {{-- Left: Icon + Title --}}
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div
+                            class="w-11 h-11 sm:w-12 sm:h-12 shrink-0 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-lg sm:text-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h2
+                                class="font-heading text-lg sm:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
+                                {{ __('Interactive Calendar Schedule') }}
+                            </h2>
+                            <p class="text-slate-500 dark:text-slate-400 text-xs font-mono mt-0.5 truncate">
+                                {{ __('View daily & weekly timetables, filter by categories & launch live sessions.') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Right: Quick stats + Action Buttons (Responsive on Mobile) --}}
+                    <div
+                        class="flex items-center justify-between md:justify-end gap-2.5 sm:gap-3 shrink-0 self-stretch md:self-center flex-wrap">
+                        {{-- Stat Pills (Visible across all screens) --}}
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/60 text-center">
+                                <span
+                                    class="block text-[9px] sm:text-[10px] font-mono font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wide">{{ __('Total') }}</span>
+                                <span id="calBannerTotalStat"
+                                    class="block text-sm sm:text-base font-black text-indigo-700 dark:text-indigo-300 leading-tight">—</span>
+                            </div>
+                            <div
+                                class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800/60 text-center">
+                                <span
+                                    class="block text-[9px] sm:text-[10px] font-mono font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wide">{{ __('This Week') }}</span>
+                                <span id="calBannerWeekStat"
+                                    class="block text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-300 leading-tight">—</span>
+                            </div>
+                        </div>
+
+                        {{-- Divider --}}
+                        <div class="hidden sm:block w-px h-9 bg-slate-200 dark:bg-slate-700"></div>
+
+                        {{-- Action Buttons --}}
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="openScheduleModal('singleSessionModal')"
+                                class="px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-extrabold text-xs rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs">
+                                <i class="fa-solid fa-plus text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                                <span class="hidden xs:inline sm:inline">{{ __('Single Session') }}</span>
+                                <span class="inline xs:hidden sm:hidden">{{ __('Single') }}</span>
+                            </button>
+                            <button type="button" onclick="openScheduleModal('recurringSchedulePortalModal')"
+                                class="px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 flex items-center gap-1.5 cursor-pointer transition-all">
+                                <i class="fa-solid fa-rotate text-xs"></i>
+                                <span class="hidden xs:inline sm:inline">{{ __('Recurring') }}</span>
+                                <span class="inline xs:hidden sm:hidden">{{ __('Recur') }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Mobile Tools & Filters Toggle Card (< 1024px) --}}
+            <div class="lg:hidden">
+                <button type="button" onclick="toggleCalendarSidebarMobile()"
+                    class="w-full flex items-center justify-between p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer select-none">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span
+                            class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0">
+                            <i class="fa-solid fa-sliders"></i>
+                        </span>
+                        <div class="text-start min-w-0">
+                            <span
+                                class="font-heading font-extrabold text-xs text-slate-800 dark:text-slate-200 block truncate">
+                                {{ __('Filters, Mini Calendar & Tools') }}
+                            </span>
+                            <span id="calMobileFilterStatus"
+                                class="text-[10px] font-mono text-slate-500 dark:text-slate-400 block truncate">
+                                {{ __('Tap to toggle mini month, course filters & quick actions') }}
+                            </span>
+                        </div>
+                    </div>
+                    <span id="calSidebarToggleIcon"
+                        class="w-7 h-7 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0 transition-transform duration-200">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </span>
+                </button>
+            </div>
+
+            {{-- ════════════════════════════════════════════════════════════════════════ --}}
+            {{-- MAIN DASHBOARD: 2-COLUMN VIEW MATCHING DESIGN REFERENCE                  --}}
+            {{-- ════════════════════════════════════════════════════════════════════════ --}}
+            <div class="cal-dashboard-grid">
+
+                {{-- ── LEFT COLUMN: Mini Calendar, Categories & Prioritize (Collapsible on Mobile) ── --}}
+                <div id="calSidebarCol" class="cal-sidebar-col hidden lg:block space-y-5">
+
+                    {{-- 1. Mini Month Calendar Widget --}}
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3 sm:space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 id="miniCalTitle"
+                                class="font-heading font-black text-sm text-slate-900 dark:text-white truncate">
+                                -- --
+                            </h4>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="navigateMiniMonth(-1)"
+                                    title="{{ __('Previous Month') }}"
+                                    class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 flex items-center justify-center transition-all cursor-pointer">
+                                    <i class="fa-solid fa-chevron-left text-xs rtl:rotate-180"></i>
+                                </button>
+                                <button type="button" onclick="navigateMiniMonth(1)" title="{{ __('Next Month') }}"
+                                    class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 flex items-center justify-center transition-all cursor-pointer">
+                                    <i class="fa-solid fa-chevron-right text-xs rtl:rotate-180"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Mini Weekday Headers --}}
+                        <div
+                            class="cal-grid-7 text-center text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100 dark:border-slate-800/80">
+                            <div>{{ __('Sat') }}</div>
+                            <div>{{ __('Sun') }}</div>
+                            <div>{{ __('Mon') }}</div>
+                            <div>{{ __('Tue') }}</div>
+                            <div>{{ __('Wed') }}</div>
+                            <div>{{ __('Thu') }}</div>
+                            <div>{{ __('Fri') }}</div>
+                        </div>
+
+                        {{-- Mini Month Days Grid --}}
+                        <div id="miniCalDaysGrid" class="cal-grid-7 gap-y-1 gap-x-1 text-center py-1">
+                            {{-- Rendered dynamically in JS --}}
+                        </div>
+                    </div>
+
+                    {{-- 2. Categories / Courses Card with Durations & Checkboxes --}}
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4
+                                class="font-heading font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <span>{{ __('Categories') }}</span>
+                            </h4>
+                            <button type="button" onclick="resetCourseCategoryFilters()"
+                                class="text-[11px] font-mono font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+                                {{ __('Select All') }}
+                            </button>
+                        </div>
+                        <div id="calCategoriesList" class="space-y-1.5 pt-1 max-h-56 overflow-y-auto custom-scrollbar">
+                            {{-- Rendered dynamically in JS with color boxes and calculated durations --}}
+                        </div>
+                    </div>
+
+                    {{-- 3. Prioritize / Quick Actions Card --}}
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-3">
+                        <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white">
+                            {{ __('Prioritize') }}
+                        </h4>
+                        <div class="space-y-2">
+                            <button type="button" onclick="focusCalendarToday()"
+                                class="w-full p-2.5 rounded-2xl bg-slate-50 hover:bg-indigo-50/60 dark:bg-slate-800/60 dark:hover:bg-indigo-950/40 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-xs font-heading font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer group">
+                                <span class="flex items-center gap-2.5">
+                                    <span
+                                        class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                    </span>
+                                    <span>{{ __('Today\'s Sessions') }}</span>
+                                </span>
+                                <i
+                                    class="fa-solid fa-chevron-right text-[10px] text-slate-400 rtl:rotate-180 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform"></i>
+                            </button>
+
+                            <button type="button" onclick="openScheduleModal('singleSessionModal')"
+                                class="w-full p-2.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/60 dark:bg-slate-800/60 dark:hover:bg-emerald-950/40 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-xs font-heading font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer group">
+                                <span class="flex items-center gap-2.5">
+                                    <span
+                                        class="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </span>
+                                    <span>{{ __('Single Session') }}</span>
+                                </span>
+                                <i
+                                    class="fa-solid fa-chevron-right text-[10px] text-slate-400 rtl:rotate-180 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform"></i>
+                            </button>
+
+                            <button type="button" onclick="openScheduleModal('recurringSchedulePortalModal')"
+                                class="w-full p-2.5 rounded-2xl bg-slate-50 hover:bg-purple-50/60 dark:bg-slate-800/60 dark:hover:bg-purple-950/40 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-xs font-heading font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer group">
+                                <span class="flex items-center gap-2.5">
+                                    <span
+                                        class="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-rotate"></i>
+                                    </span>
+                                    <span>{{ __('Recurring Schedule') }}</span>
+                                </span>
+                                <i
+                                    class="fa-solid fa-chevron-right text-[10px] text-slate-400 rtl:rotate-180 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- ── RIGHT MAIN PANEL: HERO TIMETABLE & OTHER VIEWS ───────────────── --}}
+                <div id="calendarRightPanel"
+                    class="cal-main-col bg-white dark:bg-slate-900 rounded-3xl p-3.5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+
+                    {{-- Top Toolbar — Fully Responsive Mobile & Desktop --}}
+                    <div
+                        class="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-slate-800">
+
+                        {{-- Row 1: Navigation arrows, Date Range Title & Week/Day Badge --}}
+                        <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-3 flex-wrap">
+                            <div
+                                class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0">
+                                <button type="button" onclick="navigateCalendarStep(-1)"
+                                    title="{{ __('Previous') }}"
+                                    class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+                                    <i class="fa-solid fa-chevron-left text-xs rtl:rotate-180"></i>
+                                </button>
+                                <button type="button" onclick="navigateCalendarToday()"
+                                    class="px-2.5 py-1 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-mono font-extrabold text-xs transition-all cursor-pointer whitespace-nowrap">
+                                    {{ __('Today') }}
+                                </button>
+                                <button type="button" onclick="navigateCalendarStep(1)" title="{{ __('Next') }}"
+                                    class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+                                    <i class="fa-solid fa-chevron-right text-xs rtl:rotate-180"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <h3 id="calendarHeroTitle"
+                                    class="font-heading font-black text-sm sm:text-base md:text-xl text-slate-900 dark:text-white truncate">
+                                    -- --
+                                </h3>
+                                <span id="calendarWeekBadge"
+                                    class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
+                                    --
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Row 2: View switcher pills (Day, Week, Month, Agenda) & + Create button --}}
+                        <div class="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto">
+
+                            {{-- View Switcher Pills --}}
+                            <div
+                                class="flex-1 sm:flex-initial flex items-center justify-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-x-auto custom-scrollbar">
+                                <button type="button" id="calViewBtnDay" onclick="switchCalendarView('day')"
+                                    class="cal-view-tab-btn flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-xl font-heading font-extrabold text-xs transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap text-center flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-calendar-day text-xs"></i> <span>{{ __('Day') }}</span>
+                                </button>
+                                <button type="button" id="calViewBtnWeek" onclick="switchCalendarView('week')"
+                                    class="cal-view-tab-btn flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-xl font-heading font-extrabold text-xs transition-all bg-indigo-600 text-white shadow-2xs whitespace-nowrap text-center flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-calendar-week text-xs"></i> <span>{{ __('Week') }}</span>
+                                </button>
+                                <button type="button" id="calViewBtnGrid" onclick="switchCalendarView('grid')"
+                                    class="cal-view-tab-btn flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-xl font-heading font-extrabold text-xs transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap text-center flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-grid-2 text-xs"></i> <span>{{ __('Month') }}</span>
+                                </button>
+                                <button type="button" id="calViewBtnAgenda" onclick="switchCalendarView('agenda')"
+                                    class="cal-view-tab-btn flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-xl font-heading font-extrabold text-xs transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap text-center flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-list-check text-xs"></i> <span>{{ __('Agenda') }}</span>
+                                </button>
+                            </div>
+
+                            {{-- + Create Button with Dropdown --}}
+                            <div class="relative inline-block text-left shrink-0" id="calCreateDropdownWrapper">
+                                <button type="button" onclick="toggleCalCreateDropdown()"
+                                    class="px-3 sm:px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-heading font-extrabold text-xs rounded-2xl shadow-md flex items-center gap-1.5 cursor-pointer transition-all whitespace-nowrap">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span class="hidden xs:inline">{{ __('Create') }}</span>
+                                    <i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i>
+                                </button>
+                                <div id="calCreateDropdownMenu"
+                                    class="hidden absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-48 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 space-y-1">
+                                    <button type="button"
+                                        onclick="openScheduleModal('singleSessionModal'); toggleCalCreateDropdown();"
+                                        class="w-full text-start px-3.5 py-2 text-xs font-heading font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-calendar-plus text-indigo-500"></i>
+                                        {{ __('Single Session') }}
+                                    </button>
+                                    <button type="button"
+                                        onclick="openScheduleModal('recurringSchedulePortalModal'); toggleCalCreateDropdown();"
+                                        class="w-full text-start px-3.5 py-2 text-xs font-heading font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-rotate text-purple-500"></i>
+                                        {{ __('Recurring Schedule') }}
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {{-- VIEW 1: DEDICATED DAY HOURLY TIMETABLE (MOBILE & FOCUSED DAILY WORKFLOW) --}}
+                    <div id="calendarDayView" class="hidden space-y-3">
+                        {{-- Top Day Strip for Quick Jumping in Day View --}}
+                        <div
+                            class="flex items-center justify-between gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                            <span
+                                class="text-[10px] font-mono font-bold text-slate-400 shrink-0 uppercase tracking-wider ps-1">{{ __('Days') }}:</span>
+                            <div id="calDayViewDayStrip"
+                                class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar flex-1 py-0.5">
+                                {{-- Rendered dynamically in JS --}}
+                            </div>
+                        </div>
+
+                        {{-- Single Day Hourly Grid Container --}}
+                        <div
+                            class="overflow-x-auto custom-scrollbar rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80">
+                            <div id="calendarDayContainer" class="w-full space-y-2 pb-2">
+                                {{-- Rendered dynamically in JS --}}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- VIEW 2: HERO WEEK TIMETABLE --}}
+                    <div id="calendarWeekView" class="space-y-3">
+                        {{-- Mobile Day Selector Strip (Tap any day to smoothly center-scroll into it) --}}
+                        <div
+                            class="sm:hidden flex items-center justify-between gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                            <span
+                                class="text-[10px] font-mono font-bold text-slate-400 shrink-0 uppercase tracking-wider ps-1">{{ __('Days') }}:</span>
+                            <div id="calMobileDayStrip"
+                                class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar flex-1 py-0.5">
+                                {{-- Rendered dynamically in JS --}}
+                            </div>
+                        </div>
+
+                        {{-- Timetable Grid Horizontal Scroll Container --}}
+                        <div
+                            class="overflow-x-auto custom-scrollbar cal-timetable-wrapper rounded-2xl border border-slate-100 dark:border-slate-800/80">
+                            <div id="calendarWeekContainer" class="min-w-[920px] xl:min-w-full space-y-2 pb-2">
+                                {{-- Rendered dynamically in JS with day columns and hourly pastel session blocks --}}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- VIEW 3: MONTH GRID VIEW --}}
+                    <div id="calendarGridView" class="hidden space-y-3">
+                        <div
+                            class="cal-grid-7 text-center font-heading font-black text-xs text-slate-600 dark:text-slate-400 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div>{{ __('Sat') }}</div>
+                            <div>{{ __('Sun') }}</div>
+                            <div>{{ __('Mon') }}</div>
+                            <div>{{ __('Tue') }}</div>
+                            <div>{{ __('Wed') }}</div>
+                            <div>{{ __('Thu') }}</div>
+                            <div>{{ __('Fri') }}</div>
+                        </div>
+                        <div id="calendarMonthGrid" class="cal-grid-7 gap-1 sm:gap-2">
+                            {{-- Rendered dynamically in JS --}}
+                        </div>
+                    </div>
+
+                    {{-- VIEW 4: DAILY AGENDA LIST VIEW --}}
+                    <div id="calendarAgendaView" class="hidden space-y-4">
+                        <div id="calendarAgendaContainer" class="space-y-4">
+                            {{-- Rendered dynamically in JS --}}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        {{-- MODAL: DAY DETAILS MODAL                                                 --}}
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
+        <div id="dayDetailsModal"
+            class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+            <div
+                class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] max-w-xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 flex flex-col max-h-[85vh] overflow-hidden my-auto">
+                <div
+                    class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+                    <h3 id="dayDetailsModalTitle"
+                        class="font-heading font-black text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2 truncate">
+                        <i class="fa-solid fa-calendar-day text-indigo-500"></i>
+                        <span>{{ __('Sessions for Date') }}</span>
+                    </h3>
+                    <button type="button" onclick="closeModal('dayDetailsModal')"
+                        class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+                <div id="dayDetailsModalBody" class="p-4 sm:p-5 overflow-y-auto space-y-3 custom-scrollbar">
+                    {{-- Session cards for clicked date --}}
+                </div>
+                <div class="p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                    <button type="button" onclick="closeModal('dayDetailsModal')"
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer">
+                        {{ __('Close') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- ════════════════════════════════════════════════════════════════════════ --}}
         {{-- TAB 7: STUDENT ABSENCE EXCUSES & EXCEPTION REQUESTS                      --}}
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-exceptions"
             class="teacher-tab-content {{ $activeTabKey === 'exceptions' ? '' : 'hidden' }} space-y-6">
-            
+
             {{-- Header Banner & Deduction Policy Notice --}}
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4">
+                <div
+                    class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2.5">
-                            <span class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base border border-amber-200/60 dark:border-amber-800">
+                            <span
+                                class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base border border-amber-200/60 dark:border-amber-800">
                                 <i class="fa-solid fa-file-signature"></i>
                             </span>
                             <h2 class="font-heading text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
@@ -1990,20 +2681,26 @@
 
                     {{-- Quick Counters --}}
                     <div class="flex items-center gap-2.5 flex-wrap">
-                        <div class="px-3.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5">
+                        <div
+                            class="px-3.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5">
                             <i class="fa-solid fa-clock"></i>
                             <span>{{ __('Pending') }}:</span>
-                            <span id="statPendingExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'pending')->count() }}</span>
+                            <span id="statPendingExceptionsCount"
+                                class="font-mono font-extrabold">{{ $exceptions->where('status', 'pending')->count() }}</span>
                         </div>
-                        <div class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 text-xs font-bold flex items-center gap-1.5">
+                        <div
+                            class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 text-xs font-bold flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-check"></i>
                             <span>{{ __('Approved') }}:</span>
-                            <span id="statApprovedExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'approved')->count() }}</span>
+                            <span id="statApprovedExceptionsCount"
+                                class="font-mono font-extrabold">{{ $exceptions->where('status', 'approved')->count() }}</span>
                         </div>
-                        <div class="px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800 text-xs font-bold flex items-center gap-1.5">
+                        <div
+                            class="px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800 text-xs font-bold flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-xmark"></i>
                             <span>{{ __('Rejected') }}:</span>
-                            <span id="statRejectedExceptionsCount" class="font-mono font-extrabold">{{ $exceptions->where('status', 'rejected')->count() }}</span>
+                            <span id="statRejectedExceptionsCount"
+                                class="font-mono font-extrabold">{{ $exceptions->where('status', 'rejected')->count() }}</span>
                         </div>
                     </div>
                 </div>
@@ -2031,11 +2728,14 @@
 
             {{-- Exception Request Cards List --}}
             @if ($exceptions->isEmpty())
-                <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200/90 dark:border-slate-800 text-center space-y-3 shadow-md">
-                    <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 mx-auto flex items-center justify-center text-2xl border border-teal-200/60 dark:border-teal-800">
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200/90 dark:border-slate-800 text-center space-y-3 shadow-md">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 mx-auto flex items-center justify-center text-2xl border border-teal-200/60 dark:border-teal-800">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
-                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('No Exception Requests Found') }}</h3>
+                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">
+                        {{ __('No Exception Requests Found') }}</h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                         {{ __('No student absence excuses or homework exception requests currently submitted for your teaching cohorts.') }}
                     </p>
@@ -2054,44 +2754,54 @@
                         @endphp
                         <div class="teacher-exception-card bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-md hover:shadow-lg transition-all duration-200 space-y-4"
                             data-status="{{ $status }}" id="exception-card-{{ $exc->id }}">
-                            
+
                             {{-- Top Header Row: Student Info & Status Badge --}}
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-black text-sm shrink-0 overflow-hidden">
-                                        @if($stProfile?->avatar)
-                                            <img src="{{ $stProfile->avatar }}" alt="{{ $stUser?->name }}" class="w-full h-full object-cover">
+                                    <div
+                                        class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-black text-sm shrink-0 overflow-hidden">
+                                        @if ($stProfile?->avatar)
+                                            <img src="{{ $stProfile->avatar }}" alt="{{ $stUser?->name }}"
+                                                class="w-full h-full object-cover">
                                         @else
                                             <span>{{ strtoupper(substr($stUser?->name ?? 'S', 0, 2)) }}</span>
                                         @endif
                                     </div>
                                     <div class="space-y-0.5">
                                         <div class="flex items-center gap-2">
-                                            <h4 class="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                                            <h4
+                                                class="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white">
                                                 {{ $stUser?->name ?: __('Student') }}
                                             </h4>
-                                            <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400">
+                                            <span
+                                                class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400">
                                                 {{ 'STU-' . str_pad((string) $exc->student_user_id, 5, '0', STR_PAD_LEFT) }}
                                             </span>
                                         </div>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $stUser?->email ?: '' }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                            {{ $stUser?->email ?: '' }}</p>
                                     </div>
                                 </div>
 
                                 {{-- Status Badge --}}
-                                <div class="flex items-center gap-2 shrink-0" id="status-badge-container-{{ $exc->id }}">
+                                <div class="flex items-center gap-2 shrink-0"
+                                    id="status-badge-container-{{ $exc->id }}">
                                     @if ($isApproved)
-                                        <span class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-extrabold flex items-center gap-1.5">
+                                        <span
+                                            class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-extrabold flex items-center gap-1.5">
                                             <i class="fa-solid fa-circle-check"></i>
                                             <span>{{ __('Approved (Session Kept)') }}</span>
                                         </span>
                                     @elseif ($isRejected)
-                                        <span class="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 text-xs font-extrabold flex items-center gap-1.5">
+                                        <span
+                                            class="px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 text-xs font-extrabold flex items-center gap-1.5">
                                             <i class="fa-solid fa-circle-xmark"></i>
                                             <span>{{ __('Rejected (Session Deducted)') }}</span>
                                         </span>
                                     @else
-                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-extrabold flex items-center gap-1.5 animate-pulse">
+                                        <span
+                                            class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-extrabold flex items-center gap-1.5 animate-pulse">
                                             <i class="fa-solid fa-hourglass-half"></i>
                                             <span>{{ __('Pending Review') }}</span>
                                         </span>
@@ -2100,9 +2810,11 @@
                             </div>
 
                             {{-- Context Details: Course & Specific Session --}}
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 text-xs">
+                            <div
+                                class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 text-xs">
                                 <div class="space-y-1">
-                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                    <span
+                                        class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
                                         <i class="fa-solid fa-book-open text-teal-600"></i>
                                         {{ __('Target Course') }}
                                     </span>
@@ -2111,18 +2823,20 @@
                                     </p>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                    <span
+                                        class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
                                         <i class="fa-solid fa-video text-indigo-600"></i>
                                         {{ __('Target Session') }}
                                     </span>
                                     <p class="font-bold text-slate-900 dark:text-slate-100">
                                         @if ($liveSession)
-                                            {{ $liveSession->title ?: ('Live Session #' . $liveSession->id) }}
+                                            {{ $liveSession->title ?: 'Live Session #' . $liveSession->id }}
                                             <span class="font-mono text-slate-500 text-[11px]">
                                                 ({{ $liveSession->scheduled_at ? $liveSession->scheduled_at->format('M d, H:i') : __('Scheduled') }})
                                             </span>
                                         @else
-                                            <span class="text-slate-500 italic">{{ __('General Course Exception') }}</span>
+                                            <span
+                                                class="text-slate-500 italic">{{ __('General Course Exception') }}</span>
                                         @endif
                                     </p>
                                 </div>
@@ -2130,11 +2844,13 @@
 
                             {{-- Excuse Reason Details --}}
                             <div class="space-y-1.5">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono flex items-center gap-1.5">
+                                <label
+                                    class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono flex items-center gap-1.5">
                                     <i class="fa-solid fa-quote-left text-amber-500"></i>
                                     {{ __('Excuse Reason Details') }}
                                 </label>
-                                <div class="p-3.5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                                <div
+                                    class="p-3.5 rounded-2xl bg-[#FAFAF9] dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
                                     {{ $exc->reason }}
                                 </div>
                             </div>
@@ -2142,16 +2858,20 @@
                             {{-- Footer Row: Timestamp & Actions --}}
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                                 <div class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
-                                    <span><i class="fa-solid fa-calendar-day"></i> {{ $exc->created_at->format('Y-m-d H:i') }}</span>
+                                    <span><i class="fa-solid fa-calendar-day"></i>
+                                        {{ $exc->created_at->format('Y-m-d H:i') }}</span>
                                     @if ($exc->reviewed_at)
-                                        <span>&bull; {{ __('Reviewed') }}: {{ $exc->reviewed_at->diffForHumans() }}</span>
+                                        <span>&bull; {{ __('Reviewed') }}:
+                                            {{ $exc->reviewed_at->diffForHumans() }}</span>
                                     @endif
                                 </div>
 
                                 {{-- Action Buttons: Approve / Reject --}}
-                                <div class="flex items-center gap-2 self-end sm:self-auto" id="exception-actions-{{ $exc->id }}">
+                                <div class="flex items-center gap-2 self-end sm:self-auto"
+                                    id="exception-actions-{{ $exc->id }}">
                                     @if ($status !== 'approved')
-                                        <button type="button" onclick="reviewTeacherException({{ $exc->id }}, 'approve')"
+                                        <button type="button"
+                                            onclick="reviewTeacherException({{ $exc->id }}, 'approve')"
                                             class="btn-lift px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
                                             <i class="fa-solid fa-check"></i>
                                             <span>{{ __('Approve (Keep Session)') }}</span>
@@ -2159,7 +2879,8 @@
                                     @endif
 
                                     @if ($status !== 'rejected')
-                                        <button type="button" onclick="reviewTeacherException({{ $exc->id }}, 'reject')"
+                                        <button type="button"
+                                            onclick="reviewTeacherException({{ $exc->id }}, 'reject')"
                                             class="btn-lift px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
                                             <i class="fa-solid fa-xmark"></i>
                                             <span>{{ __('Reject (Deduct Session)') }}</span>
@@ -2182,7 +2903,8 @@
         class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
             style="padding-bottom: env(safe-area-inset-bottom)">
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <h3 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i
                             class="fa-solid fa-plus text-sm"></i></span>
@@ -2198,8 +2920,8 @@
                     <label
                         class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Session Title') }}
                         *</label>
-                    <input type="text" name="title" required placeholder="{{ __('e.g. Math Chapter 5 Review') }}"
-                        class="input-mobile">
+                    <input type="text" name="title" required
+                        placeholder="{{ __('e.g. Math Chapter 5 Review') }}" class="input-mobile">
                 </div>
                 <div>
                     <label
@@ -2246,158 +2968,242 @@
     {{-- MODAL: CREATE RECURRING SCHEDULE (Schedules Tab – Portal Embedded)           --}}
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="recurringSchedulePortalModal"
-        class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
             style="padding-bottom: env(safe-area-inset-bottom)">
             {{-- Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-                <h3 class="font-heading font-black text-base text-slate-900 flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i
-                            class="fa-solid fa-rotate text-sm"></i></span>
-                    {{ __('Create Recurring Schedule') }}
-                </h3>
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                <div>
+                    <h3
+                        class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
+                        <span
+                            class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm shadow-2xs"><i
+                                class="fa-solid fa-rotate"></i></span>
+                        <span>{{ __('Create Recurring Schedule') }}</span>
+                    </h3>
+                    <p class="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                        {{ __('Create recurring lesson schedules for your courses. Enrolled students are added automatically.') }}
+                    </p>
+                </div>
                 <button type="button" onclick="closeScheduleModal('recurringSchedulePortalModal')"
-                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer"><i
+                    aria-label="{{ __('Close') }}"
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-all active:scale-95"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
             {{-- Scrollable Body --}}
-            <form id="recurringSchedulePortalForm" class="flex-1 overflow-y-auto">
+            <form id="recurringSchedulePortalForm" class="flex-1 flex flex-col overflow-hidden m-0">
                 @csrf
-                <div class="p-5 space-y-5">
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
 
-                    {{-- Title --}}
+                    {{-- Schedule Title --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
                             *</label>
                         <input type="text" name="title" required
-                            placeholder="{{ __('e.g. Math Weekly Sessions') }}" class="input-mobile">
+                            placeholder="{{ __('e.g. Physics Secondary 3 - Weekly Interactive Cohort') }}"
+                            class="input-mobile">
                     </div>
 
-                    {{-- Course --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Course') }}
-                            *</label>
-                        <select name="course_id" id="recPortalCourseId" required class="input-mobile"
-                            onchange="fetchCourseStudents(this.value)">
-                            <option value="">{{ __('Select Course') }}</option>
-                            @foreach ($courses as $course)
-                                <option value="{{ $course->id }}">{{ $course->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Students (auto-loaded per course) --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Enrolled Students') }}</label>
-                        <div id="recPortalStudentsContainer"
-                            class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 min-h-[56px] text-xs font-mono text-slate-400">
-                            <span
-                                id="recPortalStudentsPlaceholder">{{ __('Select a course to load enrolled students') }}</span>
-                            <div id="recPortalStudentsList" class="hidden space-y-1.5"></div>
-                        </div>
-                        <p class="text-[10px] font-mono text-slate-400 mt-1">
-                            {{ __('All enrolled students are automatically included in the schedule.') }}</p>
-                    </div>
-
-                    {{-- Date Range --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                    {{-- Course & Students --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Course') }}
                                 *</label>
-                            <input type="date" name="start_date" id="recPortalStartDate" required
-                                class="input-mobile" min="{{ today()->format('Y-m-d') }}" onchange="autoCalcEndDate()">
+                            <select name="course_id" id="recPortalCourseId" required class="input-mobile text-xs"
+                                onchange="fetchCourseStudents(this.value)">
+                                <option value="">{{ __('Select Course') }}</option>
+                                @foreach ($courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->title }}
+                                        ({{ $course->subject?->name }})</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('End Date') }}
-                                *</label>
-                            <input type="date" name="end_date" id="recPortalEndDate" required class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Enrolled Students') }}</label>
+                            <div id="recPortalStudentsContainer"
+                                class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 min-h-[42px] text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center">
+                                <span
+                                    id="recPortalStudentsPlaceholder">{{ __('Select a course to load enrolled students') }}</span>
+                                <div id="recPortalStudentsList" class="hidden space-y-1 w-full"></div>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Time & Duration --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                    {{-- Recurrence Pattern & Main Settings --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Start Time') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
                                 *</label>
-                            <input type="time" name="start_time" required value="10:00" class="input-mobile">
+                            <select name="recurrence_type" id="recPortalType" required class="input-mobile text-xs"
+                                onchange="handlePortalRecurrenceType(this.value)">
+                                <option value="weekly" selected>{{ __('Weekly') }}</option>
+                                <option value="monthly">{{ __('Monthly') }}</option>
+                                <option value="multi_month">{{ __('Multi-Month') }}</option>
+                                <option value="yearly">{{ __('Yearly') }}</option>
+                            </select>
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Duration (min)') }}</label>
-                            <input type="number" name="duration_minutes" value="60" min="15" max="300"
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Start Time') }}
+                                *</label>
+                            <input type="time" name="start_time" id="recPortalStartTime" required value="10:00"
                                 class="input-mobile">
                         </div>
-                    </div>
-
-                    {{-- Recurrence Pattern --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
-                            *</label>
-                        <select name="recurrence_type" id="recPortalType" required class="input-mobile"
-                            onchange="handlePortalRecurrenceType(this.value)">
-                            <option value="weekly">{{ __('Weekly') }}</option>
-                            <option value="monthly">{{ __('Monthly') }}</option>
-                            <option value="multi_month">{{ __('Multi-Month') }}</option>
-                            <option value="yearly">{{ __('Yearly') }}</option>
-                        </select>
-                    </div>
-
-                    {{-- Days of Week (for weekly/multi_month/yearly) --}}
-                    <div id="recPortalDaysContainer">
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-2">{{ __('Days of Week') }}
-                            *</label>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ([
-            '0' => __('Sun'),
-            '1' => __('Mon'),
-            '2' => __('Tue'),
-            '3' => __('Wed'),
-            '4' => __('Thu'),
-            '5' => __('Fri'),
-            '6' => __('Sat'),
-        ] as $dayNum => $dayLabel)
-                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                                    <input type="checkbox" name="days_of_week[]" value="{{ $dayNum }}"
-                                        class="rounded w-4 h-4 accent-indigo-600"
-                                        {{ in_array($dayNum, ['6', '1']) ? 'checked' : '' }}>
-                                    <span class="text-xs font-mono font-bold text-slate-700">{{ $dayLabel }}</span>
-                                </label>
-                            @endforeach
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Duration (min)') }}
+                                *</label>
+                            <input type="number" name="duration_minutes" id="recPortalDuration" value="60"
+                                min="15" max="300" class="input-mobile">
                         </div>
                     </div>
 
-                    {{-- Meeting Link --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Meeting Link') }}</label>
-                        <input type="url" name="meeting_link" placeholder="https://..." class="input-mobile">
+                    {{-- Date Range & Main Meeting Link --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}
+                                *</label>
+                            <input type="date" name="start_date" id="recPortalStartDate" required
+                                class="input-mobile" value="{{ today()->format('Y-m-d') }}"
+                                min="{{ today()->format('Y-m-d') }}" onchange="autoCalcEndDate()">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('End Date') }}
+                                *</label>
+                            <input type="date" name="end_date" id="recPortalEndDate"
+                                value="{{ today()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Meeting Link') }}</label>
+                            <input type="url" name="meeting_link" id="recPortalMeetingLink"
+                                placeholder="https://..." class="input-mobile">
+                        </div>
+                    </div>
+
+                    {{-- Days of Week & Custom Per-Day Timing Grid --}}
+                    <div id="recPortalDaysContainer"
+                        class="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200/90 dark:border-slate-700/80 space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700/80">
+                            <div>
+                                <label
+                                    class="block text-xs font-heading font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-week text-indigo-500 text-sm"></i>
+                                    <span>{{ __('Select Teaching Days & Custom Session Times') }}</span>
+                                    <span class="text-rose-500">*</span>
+                                </label>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                    {{ $isAr ? 'اختر الأيام المحددة للتكرار، ويمكنك تحديد وقت خاص ومدة ورابط اجتماع لكل يوم مستقبلي بشكل مستقل.' : 'Select days to recur and customize start times, durations & links independently per day.' }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+                                <button type="button" onclick="applyMainTimeToAllPortalDays()"
+                                    class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/90 text-indigo-700 dark:text-indigo-300 text-xs font-mono font-bold rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    <span>{{ $isAr ? 'مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Sync Main Settings to All Days' }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Per-Day Cards Grid --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
+                            @php
+                                $weekDaysPortalList = [
+                                    ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
+                                    ['val' => 0, 'name' => 'sunday', 'label' => __('Sunday')],
+                                    ['val' => 1, 'name' => 'monday', 'label' => __('Monday')],
+                                    ['val' => 2, 'name' => 'tuesday', 'label' => __('Tuesday')],
+                                    ['val' => 3, 'name' => 'wednesday', 'label' => __('Wednesday')],
+                                    ['val' => 4, 'name' => 'thursday', 'label' => __('Thursday')],
+                                    ['val' => 5, 'name' => 'friday', 'label' => __('Friday')],
+                                ];
+                            @endphp
+
+                            @foreach ($weekDaysPortalList as $wd)
+                                @php
+                                    $isDefaultChecked = in_array($wd['val'], [0, 2]); // Sun & Tue default
+                                @endphp
+                                <div id="recPortalDayCard_{{ $wd['val'] }}"
+                                    class="rec-portal-day-card p-3 rounded-2xl border transition-all flex flex-col justify-between space-y-2.5 {{ $isDefaultChecked ? 'is-selected-day bg-indigo-50/90 dark:bg-indigo-950/50 border-indigo-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60' }}">
+
+                                    {{-- Day Header Checkbox --}}
+                                    <div class="flex items-center justify-between">
+                                        <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                class="rec-portal-day-checkbox rounded w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 cursor-pointer"
+                                                {{ $isDefaultChecked ? 'checked' : '' }}
+                                                onchange="toggleDayTimeCard(this, 'recPortalDayCard_{{ $wd['val'] }}')">
+                                            <span
+                                                class="text-xs font-heading font-extrabold text-slate-900 dark:text-white">{{ $wd['label'] }}</span>
+                                        </label>
+                                        <span
+                                            class="rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md {{ $isDefaultChecked ? 'bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}">
+                                            {{ $isDefaultChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'غير محدد' : 'Off') }}
+                                        </span>
+                                    </div>
+
+                                    {{-- Per-Day Time & Duration & Link Controls --}}
+                                    <div
+                                        class="rec-day-time-container space-y-2 pt-2 border-t border-slate-200/60 dark:border-slate-800 {{ $isDefaultChecked ? '' : 'hidden' }}">
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Start Time') }}</label>
+                                            <input type="time" name="day_start_times[{{ $wd['val'] }}]"
+                                                value="10:00"
+                                                class="rec-day-time-picker w-full text-xs font-mono font-bold px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                {{ $isDefaultChecked ? '' : 'disabled' }}>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Duration (Min)') }}</label>
+                                            <input type="number" name="day_durations[{{ $wd['val'] }}]"
+                                                value="60" min="15" max="300"
+                                                class="rec-day-duration-picker w-full text-xs font-mono font-bold px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                {{ $isDefaultChecked ? '' : 'disabled' }}>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Meeting Link') }}</label>
+                                            <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
+                                                placeholder="https://..."
+                                                class="rec-day-link-picker w-full text-[11px] font-mono px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                {{ $isDefaultChecked ? '' : 'disabled' }}>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
 
                     {{-- Preview Button --}}
                     <button type="button" onclick="previewPortalSchedule()"
-                        class="w-full py-2.5 bg-slate-100 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all">
-                        <i class="fa-solid fa-eye"></i> {{ __('Preview Generated Sessions') }}
+                        class="w-full py-2.5 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 text-slate-700 dark:text-slate-200 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs">
+                        <i class="fa-solid fa-eye text-indigo-500"></i>
+                        {{ __('Preview Generated Sessions & Conflicts') }}
                     </button>
 
-                    {{-- Preview Result --}}
+                    {{-- Preview Result Container --}}
                     <div id="recPortalPreviewContainer"
-                        class="hidden rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4 space-y-3">
-                        <div id="recPortalPreviewSummary" class="text-xs font-mono font-bold text-indigo-700"></div>
+                        class="hidden rounded-2xl border border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/60 dark:bg-indigo-950/40 p-4 space-y-3">
+                        <div id="recPortalPreviewSummary"
+                            class="text-xs font-mono font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                        </div>
                         <div id="recPortalConflictWarning"
-                            class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            class="hidden p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
                             <span id="recPortalConflictText"></span>
                         </div>
-                        <div class="max-h-48 overflow-y-auto space-y-1.5" id="recPortalPreviewList">
+                        <div class="max-h-48 overflow-y-auto space-y-1.5 custom-scrollbar" id="recPortalPreviewList">
                         </div>
                     </div>
 
@@ -2405,11 +3211,11 @@
 
                 {{-- Sticky Footer --}}
                 <div
-                    class="px-5 pb-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-white dark:bg-slate-900 sticky bottom-0">
+                    class="px-5 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-white dark:bg-slate-900 sticky bottom-0">
                     <button type="button" onclick="closeScheduleModal('recurringSchedulePortalModal')"
-                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
+                        class="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer transition-all">{{ __('Cancel') }}</button>
                     <button type="submit" id="recPortalSubmitBtn"
-                        class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
+                        class="btn-lift px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2 transition-all">
                         <i class="fa-solid fa-calendar-check"></i> {{ __('Create Schedule') }}
                     </button>
                 </div>
@@ -2422,14 +3228,17 @@
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="editRecurringScheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] flex flex-col overflow-hidden"
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
             style="padding-bottom: env(safe-area-inset-bottom)">
             {{-- Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
-                <h3 class="font-heading font-black text-base text-slate-900 dark:text-white flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                <h3
+                    class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <span
+                        class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-2xs"><i
                             class="fa-solid fa-pen text-sm"></i></span>
-                    {{ __('Edit Recurring Schedule') }}
+                    <span>{{ __('Edit Recurring Schedule') }}</span>
                 </h3>
                 <button type="button" onclick="closeScheduleModal('editRecurringScheduleModal')"
                     class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer"><i
@@ -2437,101 +3246,189 @@
             </div>
 
             {{-- Scrollable Body --}}
-            <form id="editRecurringScheduleForm" class="flex-1 overflow-y-auto">
+            <form id="editRecurringScheduleForm" class="flex-1 overflow-y-auto custom-scrollbar">
                 @csrf
                 <input type="hidden" id="editRecScheduleId" name="schedule_id">
-                <div class="p-5 space-y-5">
+                <div class="p-4 sm:p-6 space-y-5">
 
                     {{-- Title --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
                             *</label>
                         <input type="text" id="editRecTitle" name="title" required
                             placeholder="{{ __('e.g. Math Weekly Sessions') }}" class="input-mobile">
                     </div>
 
-                    {{-- Course (Readonly select) --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Course') }}</label>
-                        <select id="editRecCourseId" name="course_id" disabled class="input-mobile opacity-75 cursor-not-allowed">
-                            @foreach ($courses as $course)
-                                <option value="{{ $course->id }}">{{ $course->title }}</option>
-                            @endforeach
-                        </select>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {{-- Course (Readonly select) --}}
+                        <div class="min-w-0">
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Course') }}</label>
+                            <select id="editRecCourseId" name="course_id" disabled
+                                class="input-mobile opacity-75 cursor-not-allowed text-xs">
+                                @foreach ($courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Start Time') }}
+                                *</label>
+                            <input type="time" id="editRecStartTime" name="start_time" required
+                                class="input-mobile">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Duration (Min)') }}
+                                *</label>
+                            <input type="number" id="editRecDuration" name="duration_minutes" value="60"
+                                min="15" max="300" required class="input-mobile">
+                        </div>
                     </div>
 
                     {{-- Date Range --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}</label>
-                            <input type="date" id="editRecStartDate" name="start_date"
-                                class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Start Date') }}</label>
+                            <input type="date" id="editRecStartDate" name="start_date" class="input-mobile">
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('End Date') }}</label>
-                            <input type="date" id="editRecEndDate" name="end_date"
-                                class="input-mobile">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}</label>
+                            <input type="date" id="editRecEndDate" name="end_date" class="input-mobile">
                         </div>
                     </div>
 
-                    {{-- Time & Duration --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Class Start Time') }}
-                                *</label>
-                            <input type="time" id="editRecStartTime" name="start_time" required class="input-mobile">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Duration (Minutes)') }}
-                                *</label>
-                            <input type="number" id="editRecDuration" name="duration_minutes" value="60" min="15" max="300" required
-                                class="input-mobile">
-                        </div>
-                    </div>
-
-                    {{-- Days of Week --}}
-                    <div>
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{{ __('Days of the Week') }}
-                            *</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                            @foreach ([
-            '0' => __('Sunday'),
-            '1' => __('Monday'),
-            '2' => __('Tuesday'),
-            '3' => __('Wednesday'),
-            '4' => __('Thursday'),
-            '5' => __('Friday'),
-            '6' => __('Saturday'),
-        ] as $dayNum => $dayLabel)
-                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                                    <input type="checkbox" name="days_of_week[]" value="{{ $dayNum }}"
-                                        id="editRecDay_{{ $dayNum }}"
-                                        class="edit-rec-day-checkbox rounded w-4 h-4 accent-indigo-600">
-                                    <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ $dayLabel }}</span>
+                    {{-- Days of Week Selection & Per-Day Custom Timing Grid --}}
+                    <div id="editRecDaysContainer"
+                        class="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200/90 dark:border-slate-700/80 space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700/80">
+                            <div>
+                                <label
+                                    class="block text-xs font-heading font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-week text-indigo-500 text-sm"></i>
+                                    <span>{{ __('Select Teaching Days & Custom Session Times') }}</span>
+                                    <span class="text-rose-500">*</span>
                                 </label>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                    {{ $isAr ? 'اختر الأيام المحددة لتعديل التكرار، ويمكنك تخصيص موعد ومدة ورابط لكل يوم مستقبلي بشكل مستقل.' : 'Select recurring days and customize start times, durations & links independently per day.' }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+                                <button type="button" onclick="applyMainTimeToAllEditDays()"
+                                    class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/90 text-indigo-700 dark:text-indigo-300 text-xs font-mono font-bold rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    <span>{{ $isAr ? 'مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Sync Main Settings to All Days' }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Per-Day Cards Grid --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
+                            @php
+                                $editWeekDaysList = [
+                                    ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
+                                    ['val' => 0, 'name' => 'sunday', 'label' => __('Sunday')],
+                                    ['val' => 1, 'name' => 'monday', 'label' => __('Monday')],
+                                    ['val' => 2, 'name' => 'tuesday', 'label' => __('Tuesday')],
+                                    ['val' => 3, 'name' => 'wednesday', 'label' => __('Wednesday')],
+                                    ['val' => 4, 'name' => 'thursday', 'label' => __('Thursday')],
+                                    ['val' => 5, 'name' => 'friday', 'label' => __('Friday')],
+                                ];
+                            @endphp
+                            @foreach ($editWeekDaysList as $wd)
+                                <div id="editRecDayCard_{{ $wd['val'] }}"
+                                    class="edit-rec-day-card p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60">
+
+                                    {{-- Day Header --}}
+                                    <label class="flex items-center justify-between gap-1.5 cursor-pointer select-none">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                id="editRecDayCheck_{{ $wd['val'] }}"
+                                                onchange="toggleEditDayTimeCard(this, 'editRecDayCard_{{ $wd['val'] }}')"
+                                                class="w-4 h-4 rounded-md border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer edit-rec-day-checkbox">
+                                            <span
+                                                class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $wd['label'] }}</span>
+                                        </div>
+                                        <span
+                                            class="edit-rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400">
+                                            {{ $isAr ? 'غير محدد' : 'Off' }}
+                                        </span>
+                                    </label>
+
+                                    {{-- Time & Duration & Link inputs --}}
+                                    <div class="edit-rec-day-time-container transition-all duration-200 space-y-2 hidden">
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-clock text-indigo-500 text-[9px]"></i>
+                                                <span>{{ __('Start Time') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                                                <input type="time" name="day_start_times[{{ $wd['val'] }}]"
+                                                    id="editRecDayTime_{{ $wd['val'] }}" value="10:00" disabled
+                                                    aria-label="{{ $wd['label'] }} {{ __('Start Time') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center edit-rec-day-time-picker">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-stopwatch text-indigo-500 text-[9px]"></i>
+                                                <span>{{ __('Duration (Min)') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                                                <input type="number" name="day_durations[{{ $wd['val'] }}]"
+                                                    id="editRecDayDuration_{{ $wd['val'] }}" value="60"
+                                                    min="15" max="300" disabled
+                                                    aria-label="{{ $wd['label'] }} {{ __('Duration') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center edit-rec-day-duration-picker">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-link text-indigo-500 text-[9px]"></i>
+                                                <span>{{ __('Day Meeting Link') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                                                <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
+                                                    id="editRecDayLink_{{ $wd['val'] }}" placeholder="https://..."
+                                                    disabled
+                                                    aria-label="{{ $wd['label'] }} {{ __('Day Meeting Link') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-start truncate edit-rec-day-link-picker">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
                     </div>
 
-                    {{-- Meeting Link --}}
+                    {{-- Main Meeting Link --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Meeting Link') }}</label>
-                        <input type="url" id="editRecMeetingLink" name="meeting_link" placeholder="https://..." class="input-mobile">
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Meeting Link (Fallback)') }}</label>
+                        <input type="url" id="editRecMeetingLink" name="meeting_link" placeholder="https://..."
+                            class="input-mobile">
                     </div>
 
                     {{-- Notes --}}
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{{ __('Teacher Notes') }}</label>
-                        <textarea id="editRecNotes" name="notes" rows="2" placeholder="{{ __('Optional notes...') }}" class="input-mobile"></textarea>
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Teacher Notes') }}</label>
+                        <textarea id="editRecNotes" name="notes" rows="2" placeholder="{{ __('Optional notes...') }}"
+                            class="input-mobile"></textarea>
                     </div>
 
                 </div>
@@ -2542,7 +3439,7 @@
                     <button type="button" onclick="closeScheduleModal('editRecurringScheduleModal')"
                         class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 rounded-xl cursor-pointer">{{ __('Cancel') }}</button>
                     <button type="submit" id="editRecSubmitBtn"
-                        class="btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
+                        class="btn-lift px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
                         <i class="fa-solid fa-floppy-disk"></i> {{ __('Save Changes') }}
                     </button>
                 </div>
@@ -2568,7 +3465,8 @@
                     </div>
                     <div class="min-w-0 space-y-1">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h3 id="spModalName" class="font-heading font-black text-xl sm:text-2xl text-white truncate">
+                            <h3 id="spModalName"
+                                class="font-heading font-black text-xl sm:text-2xl text-white truncate">
                                 {{ __('Student Profile') }}
                             </h3>
                             <span id="spModalCode"
@@ -2588,7 +3486,8 @@
                         <span><i class="fa-solid fa-pen-nib"></i></span> {{ __('app.teacher.add_educational_note') }}
                     </button>
                     <button type="button" onclick="closeModal('studentProfileModal')"
-                        class="text-slate-300 hover:text-white font-bold text-xl p-1 cursor-pointer" aria-label="{{ __('Close') }}">
+                        class="text-slate-300 hover:text-white font-bold text-xl p-1 cursor-pointer"
+                        aria-label="{{ __('Close') }}">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -2651,25 +3550,33 @@
                 <div id="sp-pane-overview" class="sp-tab-pane space-y-6 hidden">
                     {{-- KPI Summary Grid --}}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div class="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 text-center space-y-0.5">
+                        <div
+                            class="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-teal-700 uppercase">{{ __('Attendance Rate') }}</span>
-                            <p id="spOverviewAttRate" class="font-heading font-black text-2xl text-teal-900 dark:text-teal-200">0%</p>
+                            <p id="spOverviewAttRate"
+                                class="font-heading font-black text-2xl text-teal-900 dark:text-teal-200">0%</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 text-center space-y-0.5">
+                        <div
+                            class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-emerald-700 uppercase">{{ __('Average Grade') }}</span>
-                            <p id="spOverviewAvgGrade" class="font-heading font-black text-2xl text-emerald-900 dark:text-emerald-200">0%</p>
+                            <p id="spOverviewAvgGrade"
+                                class="font-heading font-black text-2xl text-emerald-900 dark:text-emerald-200">0%</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-center space-y-0.5">
+                        <div
+                            class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-blue-700 uppercase">{{ __('Total Sessions') }}</span>
-                            <p id="spOverviewTotalSessions" class="font-heading font-black text-2xl text-blue-900 dark:text-blue-200">0</p>
+                            <p id="spOverviewTotalSessions"
+                                class="font-heading font-black text-2xl text-blue-900 dark:text-blue-200">0</p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 text-center space-y-0.5">
+                        <div
+                            class="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 text-center space-y-0.5">
                             <span
                                 class="text-[10px] font-mono font-bold text-orange-700 uppercase">{{ __('Submissions') }}</span>
-                            <p id="spOverviewSubmissions" class="font-heading font-black text-2xl text-orange-900 dark:text-orange-200">0</p>
+                            <p id="spOverviewSubmissions"
+                                class="font-heading font-black text-2xl text-orange-900 dark:text-orange-200">0</p>
                         </div>
                     </div>
 
@@ -2705,10 +3612,12 @@
 
                 {{-- 3. SP SESSIONS TAB --}}
                 <div id="sp-pane-sessions" class="sp-tab-pane space-y-4 hidden">
-                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                    <div
+                        class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
                         <table class="w-full min-w-[520px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
+                                <tr
+                                    class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Session') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Course') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Date') }}</th>
@@ -2724,10 +3633,12 @@
 
                 {{-- 4. SP ATTENDANCE TAB --}}
                 <div id="sp-pane-attendance" class="sp-tab-pane space-y-4 hidden">
-                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                    <div
+                        class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
                         <table class="w-full min-w-[480px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
+                                <tr
+                                    class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Session Title') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Date & Time') }}</th>
                                     <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Status') }}</th>
@@ -2742,10 +3653,12 @@
 
                 {{-- 5. SP ASSIGNMENTS TAB --}}
                 <div id="sp-pane-assignments" class="sp-tab-pane space-y-4 hidden">
-                    <div class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
+                    <div
+                        class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
                         <table class="w-full min-w-[560px] text-left rtl:text-right border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
+                                <tr
+                                    class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-500 uppercase">
                                     <th class="py-2.5 px-3">{{ __('Assignment Title') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Submitted At') }}</th>
                                     <th class="py-2.5 px-3">{{ __('Score') }}</th>
@@ -2813,7 +3726,8 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-pen-nib"></i></span>
@@ -2833,7 +3747,8 @@
                     <div>
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Category') }}</label>
-                        <select name="category" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                        <select name="category" required
+                            class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                             <option value="academic">{{ __('app.teacher.note_category_academic') }}</option>
                             <option value="homework">{{ __('app.teacher.note_category_homework') }}</option>
                             <option value="participation">{{ __('app.teacher.note_category_participation') }}</option>
@@ -2880,7 +3795,8 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                     <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-calendar-plus"></i></span>
@@ -2901,7 +3817,8 @@
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                             *</label>
-                        <select name="course_id" required class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                        <select name="course_id" required
+                            class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                             @foreach ($courses as $c)
                                 <option value="{{ $c->id }}">{{ $c->title }} ({{ $c->subject?->name }})
                                 </option>
@@ -2914,7 +3831,8 @@
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Session Title') }}
                             *</label>
                         <input type="text" name="title"
-                            placeholder="{{ __('e.g. Session 4: Electromagnetism & Ohm\'s Law') }}" required class="input-mobile">
+                            placeholder="{{ __('e.g. Session 4: Electromagnetism & Ohm\'s Law') }}" required
+                            class="input-mobile">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2968,18 +3886,21 @@
     <div id="recurringScheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <div>
-                    <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
+                    <h3
+                        class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
                         <span
-                            class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
+                            class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm shadow-2xs"><i
                                 class="fa-solid fa-arrows-rotate"></i></span>
                         <span>{{ __('Create Recurring Schedule') }}</span>
                     </h3>
-                    <p class="text-xs font-mono text-slate-500 mt-0.5">
-                        {{ __('Automatically generate recurring class sessions with conflict detection.') }}</p>
+                    <p class="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                        {{ __('Automatically generate recurring class sessions with custom per-day schedules and conflict validation.') }}
+                    </p>
                 </div>
                 <button type="button" onclick="closeModal('recurringScheduleModal')"
                     aria-label="{{ __('Close') }}"
@@ -2991,22 +3912,23 @@
                 @csrf
 
                 {{-- Scrollable Form Body --}}
-                <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Title') }}
                             *</label>
                         <input type="text" id="recTitle" name="title"
                             placeholder="{{ __('e.g. Physics Secondary 3 - Weekly Interactive Cohort') }}" required
                             class="input-mobile">
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                                 *</label>
-                            <select id="recCourseId" name="course_id" required class="input-mobile text-xs" title="">
+                            <select id="recCourseId" name="course_id" required class="input-mobile text-xs"
+                                title="">
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->title }}
                                         ({{ $c->subject?->name }})
@@ -3016,9 +3938,8 @@
                         </div>
                         <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Target Student (Optional)') }}</label>
-                            <select id="recStudentUserId" name="student_user_id"
-                                class="input-mobile text-xs">
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Target Student (Optional)') }}</label>
+                            <select id="recStudentUserId" name="student_user_id" class="input-mobile text-xs">
                                 <option value="">{{ __('All enrolled students') }}</option>
                                 @foreach ($assignedStudents as $st)
                                     <option value="{{ $st->user_id }}">{{ $st->user?->name }}
@@ -3029,13 +3950,13 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="min-w-0">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Recurrence Pattern') }}
                                 *</label>
-                            <select id="recType" name="recurrence_type" required
-                                class="input-mobile text-xs" onchange="toggleRecurrenceFields(this.value)">
+                            <select id="recType" name="recurrence_type" required class="input-mobile text-xs"
+                                onchange="toggleRecurrenceFields(this.value)">
                                 <option value="weekly" selected>{{ __('Weekly') }}</option>
                                 <option value="monthly">{{ __('Monthly') }}</option>
                                 <option value="multi_month">{{ __('Multiple Months (3-6 Months)') }}</option>
@@ -3045,19 +3966,65 @@
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Start Time') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Start Time') }}
                                 *</label>
                             <input type="time" id="recStartTime" name="start_time" value="10:00" required
                                 class="input-mobile">
                         </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Duration (Min)') }}
+                                *</label>
+                            <input type="number" id="recDuration" name="duration_minutes" value="60"
+                                min="15" max="300" required class="input-mobile">
+                        </div>
                     </div>
 
-                    {{-- Days of Week Selection (For Weekly / Multi-Month / Yearly) --}}
-                    <div id="recDaysContainer" class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-                        <label
-                            class="block text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">{{ __('Select Days of Week') }}
-                            *</label>
-                        <div class="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center text-xs font-mono font-bold">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Start Date') }}
+                                *</label>
+                            <input type="date" id="recStartDate" name="start_date"
+                                value="{{ now()->format('Y-m-d') }}" required class="input-mobile">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}
+                                *</label>
+                            <input type="date" id="recEndDate" name="end_date"
+                                value="{{ now()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile">
+                        </div>
+                    </div>
+
+                    {{-- Days of Week Selection & Per-Day Custom Timing Grid --}}
+                    <div id="recDaysContainer"
+                        class="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200/90 dark:border-slate-700/80 space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700/80">
+                            <div>
+                                <label
+                                    class="block text-xs font-heading font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-week text-teal-500 text-sm"></i>
+                                    <span>{{ __('Select Teaching Days & Custom Session Times') }}</span>
+                                    <span class="text-rose-500">*</span>
+                                </label>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                    {{ $isAr ? 'اختر الأيام المحددة للتكرار، يمكنك تحديد وقت خاص ومدة خاصة بكل يوم مستقبلي بشكل مستقل.' : 'Select days to recur and customize start times & durations independently per day.' }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+                                <button type="button" onclick="applyMainTimeToAllDays()"
+                                    class="px-3 py-1.5 bg-teal-50 dark:bg-teal-950/70 hover:bg-teal-100 dark:hover:bg-teal-900/90 text-teal-700 dark:text-teal-300 text-xs font-mono font-bold rounded-xl border border-teal-200 dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    <span>{{ $isAr ? 'مزامنة الوقت والمدة مع الأيام المحددة' : 'Sync Main Settings to All Days' }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Per-Day Cards Grid --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
                             @php
                                 $weekDaysList = [
                                     ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
@@ -3070,53 +4037,97 @@
                                 ];
                             @endphp
                             @foreach ($weekDaysList as $wd)
-                                <label
-                                    class="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500 cursor-pointer flex flex-col items-center gap-1.5 transition-all has-checked:bg-teal-50 dark:has-checked:bg-teal-950/40 has-checked:border-teal-500 has-checked:text-teal-800 dark:has-checked:text-teal-300">
-                                    <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
-                                        {{ in_array($wd['val'], [6, 0]) ? 'checked' : '' }}
-                                        class="rounded border-slate-300 text-teal-600 focus:ring-teal-500 rec-day-checkbox">
-                                    <span class="text-[11px]">{{ $wd['label'] }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
+                                @php
+                                    $isChecked = in_array($wd['val'], [6, 0]);
+                                @endphp
+                                <div id="recDayCard_{{ $wd['val'] }}"
+                                    class="rec-day-card p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-3 {{ $isChecked ? 'is-selected-day bg-teal-50/90 dark:bg-teal-950/50 border-teal-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60' }}">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Duration (Minutes)') }}
-                                *</label>
-                            <input type="number" id="recDuration" name="duration_minutes" value="60"
-                                min="15" max="300" required class="input-mobile">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}
-                                *</label>
-                            <input type="date" id="recStartDate" name="start_date"
-                                value="{{ now()->format('Y-m-d') }}" required class="input-mobile">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('End Date') }}
-                                *</label>
-                            <input type="date" id="recEndDate" name="end_date"
-                                value="{{ now()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile">
+                                    {{-- Day Header --}}
+                                    <label class="flex items-center justify-between gap-1.5 cursor-pointer select-none">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                id="recDayCheck_{{ $wd['val'] }}" {{ $isChecked ? 'checked' : '' }}
+                                                onchange="toggleDayTimeCard(this, 'recDayCard_{{ $wd['val'] }}')"
+                                                class="w-4 h-4 rounded-md border-slate-300 text-teal-600 focus:ring-2 focus:ring-teal-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer rec-day-checkbox">
+                                            <span
+                                                class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $wd['label'] }}</span>
+                                        </div>
+                                        <span
+                                            class="rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md {{ $isChecked ? 'bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}">
+                                            {{ $isChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'غير محدد' : 'Off') }}
+                                        </span>
+                                    </label>
+
+                                    {{-- Time & Duration inputs --}}
+                                    <div
+                                        class="rec-day-time-container transition-all duration-200 space-y-2 {{ $isChecked ? '' : 'hidden' }}">
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-clock text-teal-500 text-[9px]"></i>
+                                                <span>{{ __('Start Time') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
+                                                <input type="time" name="day_start_times[{{ $wd['val'] }}]"
+                                                    id="recDayTime_{{ $wd['val'] }}" value="10:00"
+                                                    {{ $isChecked ? '' : 'disabled' }}
+                                                    aria-label="{{ $wd['label'] }} {{ __('Start Time') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center rec-day-time-picker">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-stopwatch text-teal-500 text-[9px]"></i>
+                                                <span>{{ __('Duration (Min)') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
+                                                <input type="number" name="day_durations[{{ $wd['val'] }}]"
+                                                    id="recDayDuration_{{ $wd['val'] }}" value="60"
+                                                    min="15" max="300" {{ $isChecked ? '' : 'disabled' }}
+                                                    aria-label="{{ $wd['label'] }} {{ __('Duration') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center rec-day-duration-picker">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                                                <i class="fa-solid fa-link text-teal-500 text-[9px]"></i>
+                                                <span>{{ __('Day Meeting Link') }}</span>
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
+                                                <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
+                                                    id="recDayLink_{{ $wd['val'] }}" placeholder="https://..."
+                                                    {{ $isChecked ? '' : 'disabled' }}
+                                                    aria-label="{{ $wd['label'] }} {{ __('Day Meeting Link') }}"
+                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-start truncate rec-day-link-picker">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
                     <div>
                         <label
-                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Meeting Broadcast Link (Optional)') }}</label>
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Meeting Broadcast Link (Optional)') }}</label>
                         <input type="url" id="recMeetingLink" name="meeting_link"
-                            placeholder="{{ __('https://zoom.us/j/... or classroom stream link') }}" class="input-mobile">
+                            placeholder="{{ __('https://zoom.us/j/... or classroom stream link') }}"
+                            class="input-mobile">
                     </div>
 
                     {{-- Live Schedule Preview & Conflict Feedback Area --}}
                     <div class="pt-2">
                         <button type="button" onclick="previewRecurringDates()"
-                            class="btn-lift w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold rounded-xl border border-slate-300 flex items-center justify-center gap-2 cursor-pointer transition-all">
-                            <span><i class="fa-solid fa-magnifying-glass"></i></span>
+                            class="btn-lift w-full py-3 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700/80 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-700 dark:hover:to-slate-600 text-slate-800 dark:text-white text-xs font-extrabold rounded-2xl border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs">
+                            <span><i class="fa-solid fa-magnifying-glass text-teal-500"></i></span>
                             {{ __('Preview Generated Sessions & Validate Conflicts') }}
                         </button>
                     </div>
@@ -3124,24 +4135,29 @@
                     <div id="recPreviewContainer"
                         class="hidden space-y-3 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 max-h-56 overflow-y-auto">
                         <div class="flex items-center justify-between">
-                            <span id="recPreviewSummary" class="text-xs font-bold text-slate-800"></span>
+                            <span id="recPreviewSummary"
+                                class="text-xs font-bold text-slate-800 dark:text-slate-100"></span>
                             <span id="recConflictStatusBadge"
                                 class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full"></span>
                         </div>
                         <div id="recConflictWarning"
-                            class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+                            class="hidden p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-semibold">
                         </div>
-                        <div id="recPreviewTableWrapper" class="table-responsive w-full overflow-x-auto custom-scrollbar">
-                            <table style="min-width: 460px;" class="w-full text-xs text-left rtl:text-right border-collapse">
+                        <div id="recPreviewTableWrapper"
+                            class="table-responsive w-full overflow-x-auto custom-scrollbar">
+                            <table style="min-width: 460px;"
+                                class="w-full text-xs text-left rtl:text-right border-collapse">
                                 <thead>
-                                    <tr class="border-b border-slate-200 text-[10px] font-mono text-slate-400 uppercase">
-                                        <th class="py-1 px-2">{{ __('Date') }}</th>
-                                        <th class="py-1 px-2">{{ __('Day') }}</th>
-                                        <th class="py-1 px-2">{{ __('Time Window') }}</th>
-                                        <th class="py-1 px-2">{{ __('Status') }}</th>
+                                    <tr
+                                        class="border-b border-slate-200 dark:border-slate-700 text-[10px] font-mono text-slate-400 uppercase">
+                                        <th class="py-1.5 px-2">{{ __('Date') }}</th>
+                                        <th class="py-1.5 px-2">{{ __('Day') }}</th>
+                                        <th class="py-1.5 px-2">{{ __('Time Window') }}</th>
+                                        <th class="py-1.5 px-2">{{ __('Status') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recPreviewTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                                <tbody id="recPreviewTableBody"
+                                    class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
                                 </tbody>
                             </table>
                         </div>
@@ -3170,7 +4186,8 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                     <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-sliders"></i></span>
@@ -3189,7 +4206,8 @@
                 {{-- Scrollable Form Body --}}
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
                     {{-- Scope Selection (3 Options) --}}
-                    <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div
+                        class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
                         <label
                             class="block text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">{{ __('Modification Scope') }}
                             *</label>
@@ -3293,7 +4311,8 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-rose-600 flex items-center gap-2">
                     <span><i class="fa-solid fa-circle-xmark text-rose-500"></i></span> {{ __('Cancel Session') }}
                 </h3>
@@ -3344,9 +4363,11 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm"><i
+                    <span
+                        class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-video"></i></span>
                     <span>{{ __('Update Live Stream Link') }}</span>
                 </h3>
@@ -3394,9 +4415,11 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i
+                    <span
+                        class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i
                             class="fa-solid fa-calendar-days"></i></span>
                     <span>{{ __('Reschedule Teaching Session') }}</span>
                 </h3>
@@ -3466,7 +4489,8 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" onclick="closeModal('createAssignmentModal')" aria-label="{{ __('Close') }}"
+                <button type="button" onclick="closeModal('createAssignmentModal')"
+                    aria-label="{{ __('Close') }}"
                     class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
@@ -3551,7 +4575,8 @@
                                 <i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400 text-xs"></i>
                                 <span>{{ __('Duration (Minutes)') }}</span>
                             </label>
-                            <input type="number" name="duration_minutes" value="30" min="5" max="300"
+                            <input type="number" name="duration_minutes" value="30" min="5"
+                                max="300"
                                 class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
                         <div class="sm:col-span-3">
@@ -3560,7 +4585,8 @@
                                 <i class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400 text-xs"></i>
                                 <span>{{ __('Passing Score (%)') }}</span>
                             </label>
-                            <input type="number" name="passing_score" value="70" min="0" max="100"
+                            <input type="number" name="passing_score" value="70" min="0"
+                                max="100"
                                 class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
                     </div>
@@ -3654,8 +4680,7 @@
                 </button>
             </div>
 
-            <form id="editAssignmentForm" method="POST"
-                class="flex-1 flex flex-col overflow-hidden m-0">
+            <form id="editAssignmentForm" method="POST" class="flex-1 flex flex-col overflow-hidden m-0">
                 @csrf
                 <input type="hidden" id="editAssignmentId" name="assignment_id">
 
@@ -3734,7 +4759,8 @@
                                 <i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400 text-xs"></i>
                                 <span>{{ __('Duration (Minutes)') }}</span>
                             </label>
-                            <input type="number" id="editAssignmentDuration" name="duration_minutes" value="30" min="5" max="300"
+                            <input type="number" id="editAssignmentDuration" name="duration_minutes" value="30"
+                                min="5" max="300"
                                 class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
                         <div class="sm:col-span-3">
@@ -3743,7 +4769,8 @@
                                 <i class="fa-solid fa-bullseye text-teal-600 dark:text-teal-400 text-xs"></i>
                                 <span>{{ __('Passing Score (%)') }}</span>
                             </label>
-                            <input type="number" id="editAssignmentPassScore" name="passing_score" value="70" min="0" max="100"
+                            <input type="number" id="editAssignmentPassScore" name="passing_score" value="70"
+                                min="0" max="100"
                                 class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-mono font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                         </div>
                     </div>
@@ -3853,14 +4880,17 @@
                 <div id="adModalContent" class="hidden space-y-6">
                     {{-- KPI Stats Grid --}}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+                        <div
+                            class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
                                 class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Due Date') }}</span>
                             <span id="adDueAt"
                                 class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white block mt-0.5"></span>
-                            <span id="adDueHuman" class="text-[10px] font-mono text-teal-600 dark:text-teal-300 font-semibold block mt-0.5"></span>
+                            <span id="adDueHuman"
+                                class="text-[10px] font-mono text-teal-600 dark:text-teal-300 font-semibold block mt-0.5"></span>
                         </div>
-                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+                        <div
+                            class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
                                 class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Passing Score') }}</span>
                             <span id="adPassScore"
@@ -3868,19 +4898,23 @@
                             <span
                                 class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5">{{ __('Minimum to pass') }}</span>
                         </div>
-                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+                        <div
+                            class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
                                 class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Total Questions') }}</span>
                             <span id="adQuestionsCount"
                                 class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white block mt-0.5"></span>
-                            <span id="adDuration" class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
+                            <span id="adDuration"
+                                class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
                         </div>
-                        <div class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+                        <div
+                            class="p-3 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                             <span
                                 class="text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-slate-300 block">{{ __('Total Submissions') }}</span>
                             <span id="adSubmissionsCount"
                                 class="font-heading font-black text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 block mt-0.5"></span>
-                            <span id="adAvgScore" class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
+                            <span id="adAvgScore"
+                                class="text-[10px] font-mono text-slate-500 dark:text-slate-300 block mt-0.5"></span>
                         </div>
                     </div>
 
@@ -3910,10 +4944,13 @@
 
                     {{-- Tab Pane 2: Student Submissions Roster --}}
                     <div id="ad-pane-submissions" class="ad-pane hidden space-y-4">
-                        <div id="adSubmissionsTableContainer" class="table-responsive w-full overflow-x-auto custom-scrollbar">
-                            <table style="min-width: 540px;" class="w-full text-left rtl:text-right border-collapse text-xs">
+                        <div id="adSubmissionsTableContainer"
+                            class="table-responsive w-full overflow-x-auto custom-scrollbar">
+                            <table style="min-width: 540px;"
+                                class="w-full text-left rtl:text-right border-collapse text-xs">
                                 <thead>
-                                    <tr class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-300 uppercase">
+                                    <tr
+                                        class="border-b border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-300 uppercase">
                                         <th class="py-2.5 px-3">{{ __('Student') }}</th>
                                         <th class="py-2.5 px-3">{{ __('Submitted At') }}</th>
                                         <th class="py-2.5 px-3">{{ __('Grade / Score') }}</th>
@@ -3921,7 +4958,8 @@
                                         <th class="py-2.5 px-3 text-right rtl:text-left">{{ __('Review Action') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody id="adSubmissionsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
+                                <tbody id="adSubmissionsTableBody"
+                                    class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
                             </table>
                         </div>
                         <div id="adNoSubmissionsNotice"
@@ -3964,7 +5002,8 @@
         <div
             class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Header --}}
-            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+            <div
+                class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
                 <div>
                     <h3 class="font-heading font-black text-xl text-slate-900 flex items-center gap-2.5">
                         <span
@@ -4147,6 +5186,9 @@
             </form>
         </div>
     </div>
+
+    {{-- Interactive Teacher Preview & Platform Guide Modal --}}
+    @include('components.teacher-preview-guide-modal')
 @endsection
 
 @push('styles')
@@ -4264,6 +5306,117 @@
         const openModal = (id) => window.openModal(id);
         const closeModal = (id) => window.closeModal(id);
 
+        window.openScheduleModal = function(id) {
+            if (typeof window.openModal === 'function') {
+                window.openModal(id);
+            } else {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('hidden');
+                    el.style.setProperty('display', 'flex', 'important');
+                }
+            }
+        };
+        window.closeScheduleModal = function(id) {
+            if (typeof window.closeModal === 'function') {
+                window.closeModal(id);
+            } else {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.setProperty('display', 'none', 'important');
+                }
+            }
+        };
+        const openScheduleModal = window.openScheduleModal;
+        const closeScheduleModal = window.closeScheduleModal;
+
+        window.toggleCalendarSidebarMobile = function() {
+            const col = document.getElementById('calSidebarCol');
+            const icon = document.getElementById('calSidebarToggleIcon');
+            if (!col) return;
+            const isHidden = col.classList.contains('hidden');
+            if (isHidden) {
+                col.classList.remove('hidden');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                col.classList.add('hidden');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        window.focusCalendarToday = async function() {
+            if (typeof switchCalendarView === 'function') {
+                if (window.innerWidth < 640 && currentCalView !== 'day') {
+                    switchCalendarView('day');
+                } else if (window.innerWidth >= 640 && currentCalView !== 'week') {
+                    switchCalendarView('week');
+                }
+            }
+            if (typeof navigateCalendarToday === 'function') {
+                await navigateCalendarToday();
+            }
+            const targetEl = document.getElementById('calendarRightPanel') || document.getElementById(
+                'calendarHeroTitle');
+            if (targetEl) {
+                targetEl.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+            setTimeout(() => {
+                const todayCol = document.querySelector('.cal-today-col') || document.querySelector(
+                    '.cal-single-day-col');
+                if (todayCol) {
+                    todayCol.style.transition = 'all 0.3s ease';
+                    todayCol.style.boxShadow = '0 0 0 3px #6366f1';
+                    setTimeout(() => {
+                        todayCol.style.boxShadow = '';
+                    }, 2000);
+                }
+            }, 300);
+        };
+
+        window.scrollCalendarToDay = function(dayIndex) {
+            if (currentCalView === 'day') {
+                const weekDays = typeof getWeekDays === 'function' ? getWeekDays(currentCalDate) : [];
+                if (weekDays && weekDays[dayIndex]) {
+                    currentCalDate = new Date(weekDays[dayIndex]);
+                    renderCalendar();
+                }
+                return;
+            }
+            const scroller = document.querySelector('.cal-timetable-wrapper');
+            if (!scroller) return;
+            const targetCol = scroller.querySelector(`.cal-day-col[data-day-idx="${dayIndex}"]`);
+            if (targetCol) {
+                const scrollerRect = scroller.getBoundingClientRect();
+                const colRect = targetCol.getBoundingClientRect();
+                const offset = (colRect.left - scrollerRect.left) + scroller.scrollLeft - (scrollerRect.width / 2) + (
+                    colRect.width / 2);
+                scroller.scrollTo({
+                    left: Math.max(0, offset),
+                    behavior: 'smooth'
+                });
+                targetCol.style.transition = 'all 0.3s ease';
+                targetCol.style.boxShadow = 'inset 0 0 0 2px #6366f1';
+                setTimeout(() => {
+                    targetCol.style.boxShadow = '';
+                }, 1800);
+            }
+            const stripBtns = document.querySelectorAll('.cal-day-strip-btn');
+            stripBtns.forEach((btn, idx) => {
+                if (idx === dayIndex) {
+                    btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-xs');
+                    btn.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700',
+                        'dark:text-slate-200');
+                } else {
+                    btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-xs');
+                    btn.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+                }
+            });
+        };
+
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -4285,6 +5438,107 @@
                 .replace(/\r/g, '\\r');
         }
         window.escapeJs = escapeJs;
+
+        // ── Attendance Tab View & Filtering Logic ────────────────────────────────────
+        function switchAttView(viewType) {
+            const panes = {
+                cards: document.getElementById('attViewCards'),
+                table: document.getElementById('attViewTable'),
+                matrix: document.getElementById('attViewMatrix'),
+            };
+            const btns = {
+                cards: document.getElementById('attViewBtnCards'),
+                table: document.getElementById('attViewBtnTable'),
+                matrix: document.getElementById('attViewBtnMatrix'),
+            };
+
+            Object.keys(panes).forEach(type => {
+                if (panes[type]) panes[type].classList.add('hidden');
+                if (btns[type]) {
+                    btns[type].className =
+                        'py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-white flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap';
+                }
+            });
+
+            if (panes[viewType]) panes[viewType].classList.remove('hidden');
+            if (btns[viewType]) {
+                btns[viewType].className =
+                    'py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all bg-teal-600 text-white shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap';
+            }
+        }
+        window.switchAttView = switchAttView;
+
+        function filterAttendanceData() {
+            const searchVal = (document.getElementById('attSearchInput')?.value || '').toLowerCase().trim();
+            const courseVal = document.getElementById('attCourseFilter')?.value || '';
+            const statusVal = document.getElementById('attStatusFilter')?.value || '';
+
+            let count = 0;
+
+            const matchItem = (item) => {
+                const title = (item.dataset.title || '').toLowerCase();
+                const course = item.dataset.course || '';
+                const status = item.dataset.status || '';
+
+                const matchesSearch = !searchVal || title.includes(searchVal);
+                const matchesCourse = !courseVal || course === courseVal;
+                const matchesStatus = !statusVal || status === statusVal;
+
+                return matchesSearch && matchesCourse && matchesStatus;
+            };
+
+            document.querySelectorAll('.att-session-card').forEach(card => {
+                if (matchItem(card)) {
+                    card.classList.remove('hidden');
+                    count++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            document.querySelectorAll('.att-table-row').forEach(row => {
+                if (matchItem(row)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            const countBadge = document.getElementById('attCountBadge');
+            if (countBadge) countBadge.textContent = count;
+        }
+        window.filterAttendanceData = filterAttendanceData;
+
+        function setAttendanceFilter(statusKey) {
+            if (typeof switchTeacherTab === 'function') {
+                switchTeacherTab('attendance');
+            }
+            const statusSelect = document.getElementById('attStatusFilter');
+            if (statusSelect) {
+                statusSelect.value = statusKey || '';
+            }
+            filterAttendanceData();
+        }
+        window.setAttendanceFilter = setAttendanceFilter;
+
+        function resetAttendanceFilters() {
+            const searchInput = document.getElementById('attSearchInput');
+            const courseSelect = document.getElementById('attCourseFilter');
+            const statusSelect = document.getElementById('attStatusFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (courseSelect) courseSelect.value = '';
+            if (statusSelect) statusSelect.value = '';
+
+            filterAttendanceData();
+        }
+        window.resetAttendanceFilters = resetAttendanceFilters;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('attSearchInput')?.addEventListener('input', filterAttendanceData);
+            document.getElementById('attCourseFilter')?.addEventListener('change', filterAttendanceData);
+            document.getElementById('attStatusFilter')?.addEventListener('change', filterAttendanceData);
+        });
 
         const isArLocale = @json(app()->getLocale() === 'ar');
         const appBaseUrl = (() => {
@@ -4342,12 +5596,1121 @@
 
         let currentViewingStudentId = null;
 
+        // ── Interactive Calendar Schedule Engine (Modern Dashboard Reference) ──────────
+        const calCoursePalettes = [{
+                key: 'emerald',
+                bgClass: 'cal-card-emerald',
+                dot: 'bg-emerald-500',
+                bar: '#10b981',
+                border: '#a7f3d0'
+            },
+            {
+                key: 'purple',
+                bgClass: 'cal-card-purple',
+                dot: 'bg-purple-500',
+                bar: '#8b5cf6',
+                border: '#ddd6fe'
+            },
+            {
+                key: 'sky',
+                bgClass: 'cal-card-sky',
+                dot: 'bg-sky-500',
+                bar: '#0284c7',
+                border: '#bae6fd'
+            },
+            {
+                key: 'amber',
+                bgClass: 'cal-card-amber',
+                dot: 'bg-amber-500',
+                bar: '#f59e0b',
+                border: '#fde68a'
+            },
+            {
+                key: 'rose',
+                bgClass: 'cal-card-rose',
+                dot: 'bg-rose-500',
+                bar: '#f43f5e',
+                border: '#fecdd3'
+            }
+        ];
+
+        function getCalCoursePalette(courseId) {
+            const cid = Math.abs(parseInt(courseId) || 0);
+            return calCoursePalettes[cid % calCoursePalettes.length];
+        }
+
+        let currentCalDate = new Date();
+        let currentMiniDate = new Date();
+        let rawCalendarEvents = [];
+        let currentCalView = window.innerWidth < 640 ? 'day' : 'week'; // Default to Day on mobile, Week on desktop
+        let selectedCourseCategoryIds = []; // Empty = all categories active
+        let calendarLoaded = false;
+
+        async function initTeacherCalendar() {
+            await fetchCalendarEvents();
+            renderCalendar();
+            calendarLoaded = true;
+        }
+        window.initTeacherCalendar = initTeacherCalendar;
+
+        async function fetchCalendarEvents() {
+            const startStr = getMonthStartStr(currentCalDate);
+            const endStr = getMonthEndStr(currentCalDate);
+
+            try {
+                const res = await fetch(`{{ route('ajax.teacher.calendar.feed') }}?start=${startStr}&end=${endStr}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                if (res.ok) {
+                    rawCalendarEvents = await res.json();
+                }
+            } catch (e) {
+                console.error('Failed to fetch calendar events:', e);
+            }
+        }
+
+        function getMonthStartStr(date) {
+            const d = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+            return d.toISOString().split('T')[0];
+        }
+
+        function getMonthEndStr(date) {
+            const d = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+            return d.toISOString().split('T')[0];
+        }
+
+        function getWeekDays(refDate) {
+            const d = new Date(refDate);
+            const day = d.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
+            let diff;
+            if (isArLocale) {
+                diff = (day + 1) % 7; // Saturday as first day of week
+            } else {
+                diff = (day === 0 ? 6 : day - 1); // Monday as first day of week
+            }
+            const startOfWeek = new Date(d);
+            startOfWeek.setDate(d.getDate() - diff);
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const wd = new Date(startOfWeek);
+                wd.setDate(startOfWeek.getDate() + i);
+                days.push(wd);
+            }
+            return days;
+        }
+
+        function getWeekNumber(d) {
+            const target = new Date(d.valueOf());
+            const dayNr = (d.getDay() + 6) % 7;
+            target.setDate(target.getDate() - dayNr + 3);
+            const firstThursday = target.valueOf();
+            target.setMonth(0, 1);
+            if (target.getDay() !== 4) {
+                target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+            }
+            return 1 + Math.ceil((firstThursday - target) / 604800000);
+        }
+
+        window.navigateCalendarStep = async function(delta) {
+            if (currentCalView === 'day') {
+                currentCalDate.setDate(currentCalDate.getDate() + delta);
+            } else if (currentCalView === 'week') {
+                currentCalDate.setDate(currentCalDate.getDate() + 7 * delta);
+            } else if (currentCalView === 'grid' || currentCalView === 'agenda') {
+                currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+            }
+            currentMiniDate = new Date(currentCalDate);
+            await fetchCalendarEvents();
+            renderCalendar();
+        };
+        window.navigateCalendarWeekStep = window.navigateCalendarStep;
+
+        window.navigateCalendarMonth = async function(delta) {
+            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+            currentMiniDate = new Date(currentCalDate);
+            await fetchCalendarEvents();
+            renderCalendar();
+        };
+
+        window.navigateCalendarToday = async function() {
+            currentCalDate = new Date();
+            currentMiniDate = new Date();
+            await fetchCalendarEvents();
+            renderCalendar();
+        };
+
+        window.navigateMiniMonth = function(delta) {
+            currentMiniDate.setMonth(currentMiniDate.getMonth() + delta);
+            renderMiniCalendar();
+        };
+
+        window.selectMiniCalendarDate = function(dateStr) {
+            currentCalDate = new Date(dateStr);
+            currentMiniDate = new Date(dateStr);
+            renderCalendar();
+            // On mobile, scroll smoothly to the calendar viewport
+            if (window.innerWidth < 1024) {
+                const panel = document.getElementById('calendarRightPanel');
+                if (panel) panel.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        };
+
+        window.toggleCalCreateDropdown = function() {
+            const menu = document.getElementById('calCreateDropdownMenu');
+            if (menu) menu.classList.toggle('hidden');
+        };
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('calCreateDropdownWrapper');
+            const menu = document.getElementById('calCreateDropdownMenu');
+            if (wrapper && menu && !wrapper.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        window.toggleCourseCategory = function(courseId) {
+            const cid = String(courseId);
+            const idx = selectedCourseCategoryIds.indexOf(cid);
+            if (idx > -1) {
+                selectedCourseCategoryIds.splice(idx, 1);
+            } else {
+                selectedCourseCategoryIds.push(cid);
+            }
+            renderCalendar();
+        };
+
+        window.resetCourseCategoryFilters = function() {
+            selectedCourseCategoryIds = [];
+            renderCalendar();
+        };
+
+        window.switchCalendarView = function(viewType) {
+            currentCalView = viewType;
+            const views = [{
+                    key: 'day',
+                    btnId: 'calViewBtnDay',
+                    containerId: 'calendarDayView'
+                },
+                {
+                    key: 'week',
+                    btnId: 'calViewBtnWeek',
+                    containerId: 'calendarWeekView'
+                },
+                {
+                    key: 'grid',
+                    btnId: 'calViewBtnGrid',
+                    containerId: 'calendarGridView'
+                },
+                {
+                    key: 'agenda',
+                    btnId: 'calViewBtnAgenda',
+                    containerId: 'calendarAgendaView'
+                },
+            ];
+
+            views.forEach(v => {
+                const btn = document.getElementById(v.btnId);
+                const container = document.getElementById(v.containerId);
+                const isActive = (v.key === viewType);
+
+                if (btn) {
+                    if (isActive) {
+                        btn.classList.add('bg-indigo-600', 'text-white', 'shadow-2xs');
+                        btn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900',
+                            'dark:hover:text-white');
+                    } else {
+                        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-2xs');
+                        btn.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900',
+                            'dark:hover:text-white');
+                    }
+                }
+                if (container) {
+                    if (isActive) {
+                        container.classList.remove('hidden');
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                }
+            });
+
+            renderCalendar();
+        };
+
+        function getFilteredCalendarEvents() {
+            return rawCalendarEvents.filter(ev => {
+                if (selectedCourseCategoryIds.length > 0 && !selectedCourseCategoryIds.includes(String(ev
+                        .course_id))) {
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        function renderCalendar() {
+            // Update banner stat pills
+            const totalEl = document.getElementById('calBannerTotalStat');
+            const weekEl = document.getElementById('calBannerWeekStat');
+            if (totalEl) totalEl.textContent = rawCalendarEvents.length;
+            if (weekEl) {
+                const wDays = getWeekDays(currentCalDate);
+                const wStart = wDays[0].toISOString().split('T')[0];
+                const wEnd = wDays[6].toISOString().split('T')[0];
+                const weekCount = rawCalendarEvents.filter(ev => ev.date_str >= wStart && ev.date_str <= wEnd).length;
+                weekEl.textContent = weekCount;
+            }
+
+            // Update mobile filter status badge
+            const mobileStatus = document.getElementById('calMobileFilterStatus');
+            if (mobileStatus) {
+                if (selectedCourseCategoryIds.length === 0) {
+                    mobileStatus.textContent = isArLocale ? 'جميع التصنيفات نشطة' : 'All course categories active';
+                } else {
+                    mobileStatus.textContent = isArLocale ?
+                        `${selectedCourseCategoryIds.length} تصنيفات محددة (اضغط للتعديل)` :
+                        `${selectedCourseCategoryIds.length} categories filtered (tap to edit)`;
+                }
+            }
+
+            renderMiniCalendar();
+            renderCategoriesCard();
+
+            const events = getFilteredCalendarEvents();
+
+            if (currentCalView === 'day') {
+                renderCalendarDay(events);
+            } else if (currentCalView === 'week') {
+                renderCalendarWeek(events);
+            } else if (currentCalView === 'grid') {
+                renderCalendarGrid(currentCalDate.getFullYear(), currentCalDate.getMonth(), events);
+            } else if (currentCalView === 'agenda') {
+                renderCalendarAgenda(events);
+            }
+        }
+
+        function renderMiniCalendar() {
+            const titleEl = document.getElementById('miniCalTitle');
+            const gridEl = document.getElementById('miniCalDaysGrid');
+            if (!gridEl) return;
+
+            const y = currentMiniDate.getFullYear();
+            const m = currentMiniDate.getMonth();
+            if (titleEl) {
+                titleEl.textContent = currentMiniDate.toLocaleString(isArLocale ? 'ar-EG' : 'en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+
+            const firstDayOfMonth = new Date(y, m, 1);
+            const lastDayOfMonth = new Date(y, m + 1, 0);
+            const dayOffsetMap = isArLocale ? [1, 2, 3, 4, 5, 6, 0] : [6, 0, 1, 2, 3, 4, 5];
+            const startDayIndex = dayOffsetMap[firstDayOfMonth.getDay()];
+            const totalDays = lastDayOfMonth.getDate();
+
+            const todayStr = (new Date()).toISOString().split('T')[0];
+            const selectedDateStr = currentCalDate.toISOString().split('T')[0];
+
+            let html = '';
+
+            const prevMonthLastDay = new Date(y, m, 0).getDate();
+            for (let i = startDayIndex - 1; i >= 0; i--) {
+                const pDay = prevMonthLastDay - i;
+                html +=
+                    `<div class="py-1 text-[11px] font-mono font-medium text-slate-300 dark:text-slate-600 opacity-40 select-none">${pDay}</div>`;
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(y, m, d);
+                const yStr = dateObj.getFullYear();
+                const mStr = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dStr = String(d).padStart(2, '0');
+                const dFormatted = `${yStr}-${mStr}-${dStr}`;
+
+                const isToday = (dFormatted === todayStr);
+                const isSelected = (dFormatted === selectedDateStr);
+                const dayEvs = rawCalendarEvents.filter(ev => ev.date_str === dFormatted);
+
+                let dotsHtml = '';
+                if (dayEvs.length > 0) {
+                    const dotCount = Math.min(dayEvs.length, 3);
+                    dotsHtml = `<div class="flex items-center justify-center gap-0.5 mt-0.5">`;
+                    for (let k = 0; k < dotCount; k++) {
+                        const pal = getCalCoursePalette(dayEvs[k].course_id);
+                        dotsHtml += `<span class="w-1 h-1 rounded-full ${pal.dot}"></span>`;
+                    }
+                    dotsHtml += `</div>`;
+                }
+
+                let badgeClass = 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+                if (isSelected) {
+                    badgeClass = 'bg-indigo-600 text-white font-black shadow-xs';
+                } else if (isToday) {
+                    badgeClass = 'border border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold';
+                }
+
+                html += `
+                    <button type="button" onclick="selectMiniCalendarDate('${dFormatted}')"
+                        class="py-0.5 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer group min-h-[32px]">
+                        <span class="w-6 sm:w-7 h-6 sm:h-7 rounded-full flex items-center justify-center text-xs font-mono ${badgeClass}">
+                            ${d}
+                        </span>
+                        ${dotsHtml}
+                    </button>
+                `;
+            }
+
+            const currentGridCount = startDayIndex + totalDays;
+            const targetGridCount = currentGridCount > 35 ? 42 : 35;
+            const nextPadding = targetGridCount - currentGridCount;
+            for (let n = 1; n <= nextPadding; n++) {
+                html +=
+                    `<div class="py-1 text-[11px] font-mono font-medium text-slate-300 dark:text-slate-600 opacity-40 select-none">${n}</div>`;
+            }
+
+            gridEl.innerHTML = html;
+        }
+
+        function renderCategoriesCard() {
+            const listEl = document.getElementById('calCategoriesList');
+            if (!listEl) return;
+
+            const courseMap = new Map();
+            rawCalendarEvents.forEach(ev => {
+                if (ev.course_id && !courseMap.has(String(ev.course_id))) {
+                    courseMap.set(String(ev.course_id), {
+                        id: ev.course_id,
+                        title: ev.course,
+                        totalMinutes: 0
+                    });
+                }
+            });
+
+            @foreach ($courses as $c)
+                if (!courseMap.has('{{ $c->id }}')) {
+                    courseMap.set('{{ $c->id }}', {
+                        id: '{{ $c->id }}',
+                        title: @json($c->title),
+                        totalMinutes: 0
+                    });
+                }
+            @endforeach
+
+            rawCalendarEvents.forEach(ev => {
+                if (ev.course_id && courseMap.has(String(ev.course_id))) {
+                    const c = courseMap.get(String(ev.course_id));
+                    c.totalMinutes += (ev.duration_minutes || 60);
+                }
+            });
+
+            if (courseMap.size === 0) {
+                listEl.innerHTML =
+                    `<p class="text-xs font-mono text-slate-400 py-2">${isArLocale ? 'لا توجد مقررات' : 'No categories'}</p>`;
+                return;
+            }
+
+            let html = '';
+            courseMap.forEach(c => {
+                const pal = getCalCoursePalette(c.id);
+                const isChecked = (selectedCourseCategoryIds.length === 0 || selectedCourseCategoryIds.includes(
+                    String(c.id)));
+                const hours = Math.floor(c.totalMinutes / 60);
+                const mins = String(c.totalMinutes % 60).padStart(2, '0');
+                const durationFormatted = `${hours}h${mins}`;
+
+                html += `
+                    <div onclick="toggleCourseCategory('${c.id}')"
+                        class="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all cursor-pointer select-none">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-4 h-4 rounded-md flex items-center justify-center transition-all ${isChecked ? pal.dot + ' text-white' : 'border-2 border-slate-300 dark:border-slate-600'}">
+                                ${isChecked ? '<i class="fa-solid fa-check text-[9px]"></i>' : ''}
+                            </span>
+                            <span class="text-xs font-heading font-bold text-slate-800 dark:text-slate-200 truncate" title="${c.title}">
+                                ${c.title}
+                            </span>
+                        </div>
+                        <span class="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500 shrink-0 ms-2">
+                            ${durationFormatted}
+                        </span>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        // ── VIEW 1: DEDICATED DAY HOURLY TIMETABLE ─────────────────────────────────────
+        function renderCalendarDay(events) {
+            const container = document.getElementById('calendarDayContainer');
+            const heroTitle = document.getElementById('calendarHeroTitle');
+            const weekBadge = document.getElementById('calendarWeekBadge');
+            const dayStrip = document.getElementById('calDayViewDayStrip');
+            if (!container) return;
+
+            const dObj = new Date(currentCalDate);
+            const todayStr = (new Date()).toISOString().split('T')[0];
+            const activeDateStr = dObj.toISOString().split('T')[0];
+            const isToday = (activeDateStr === todayStr);
+
+            // Title & Badge
+            if (heroTitle) {
+                heroTitle.textContent = isArLocale ?
+                    dObj.toLocaleDateString('ar-EG', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }) :
+                    dObj.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+            }
+            if (weekBadge) {
+                weekBadge.textContent = isToday ?
+                    (isArLocale ? 'اليوم' : 'Today') :
+                    (isArLocale ? dObj.toLocaleDateString('ar-EG', {
+                        weekday: 'short'
+                    }) : dObj.toLocaleDateString('en-US', {
+                        weekday: 'short'
+                    }));
+            }
+
+            // Render Day View Quick Strip (Current week around this date)
+            if (dayStrip) {
+                const weekDays = getWeekDays(dObj);
+                let stripHtml = '';
+                weekDays.forEach(wDay => {
+                    const dStr = wDay.toISOString().split('T')[0];
+                    const dayName = wDay.toLocaleDateString(isArLocale ? 'ar-EG' : 'en-US', {
+                        weekday: 'short'
+                    });
+                    const dateNum = wDay.getDate();
+                    const isSelected = (dStr === activeDateStr);
+                    const isDayToday = (dStr === todayStr);
+                    const count = events.filter(ev => ev.date_str === dStr).length;
+
+                    stripHtml += `
+                        <button type="button" onclick="selectMiniCalendarDate('${dStr}')"
+                            class="shrink-0 px-2.5 sm:px-3 py-1 rounded-xl text-center border transition-all cursor-pointer ${isSelected ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : (isDayToday ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100')}">
+                            <span class="block text-[9px] font-mono font-bold leading-tight opacity-75">${dayName}</span>
+                            <span class="block text-xs font-mono font-black leading-tight mt-0.5">${dateNum}</span>
+                            ${count > 0 ? `<span class="inline-block mt-0.5 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-indigo-500'}"></span>` : ''}
+                        </button>
+                    `;
+                });
+                dayStrip.innerHTML = stripHtml;
+            }
+
+            // Hourly Day Timetable Grid (08:00 to 21:00 = 14 hours)
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            let timeLabelsHtml = `<div class="flex flex-col select-none">`;
+            for (let h = 8; h <= 21; h++) {
+                const timeLabel = `${String(h).padStart(2, '0')}:00`;
+                timeLabelsHtml += `
+                    <div class="cal-hour-label flex items-start justify-center pt-1 text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500">
+                        ${timeLabel}
+                    </div>
+                `;
+            }
+            timeLabelsHtml += `</div>`;
+
+            // Sessions on this specific date
+            const dayEvents = events.filter(ev => ev.date_str === activeDateStr);
+
+            let dayColHtml =
+                `<div class="cal-single-day-col relative ${isToday ? 'bg-indigo-50/15 dark:bg-indigo-950/15' : ''}">`;
+
+            // Real-time "now" line
+            if (isToday && currentHour >= 8 && currentHour <= 21) {
+                const minutesFrom8 = (currentHour - 8) * 60 + currentMinute;
+                const topPx = (minutesFrom8 / 60) * 65;
+                dayColHtml += `
+                    <div style="position: absolute; top: ${topPx}px; left: 0; right: 0; height: 2px; background: #4f46e5; z-index: 25; pointer-events: none;">
+                        <span style="position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: #4f46e5; box-shadow: 0 0 10px rgba(79,70,229,0.8);"></span>
+                    </div>
+                `;
+            }
+
+            if (dayEvents.length === 0) {
+                dayColHtml += `
+                    <div class="absolute inset-x-4 top-12 p-6 text-center bg-slate-50/80 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700/80 space-y-2">
+                        <i class="fa-solid fa-calendar-day text-2xl text-slate-300 dark:text-slate-600"></i>
+                        <p class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
+                            ${isArLocale ? 'لا توجد جلسات تدريس مجدولة لهذا اليوم' : 'No teaching sessions scheduled for this day.'}
+                        </p>
+                        <button type="button" onclick="openScheduleModal('singleSessionModal')"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-heading font-extrabold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 rounded-xl hover:bg-indigo-100 transition-all cursor-pointer">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>${isArLocale ? 'جدولة جلسة جديدة' : 'Schedule New Session'}</span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Check overlaps and arrange cards
+                dayEvents.forEach((ev, idx) => {
+                    const [hStr, mStr] = (ev.start_time_str || '10:00').split(':');
+                    const h = parseInt(hStr) || 8;
+                    const m = parseInt(mStr) || 0;
+                    const minutesFrom8 = Math.max(0, (h - 8) * 60 + m);
+                    const top = (minutesFrom8 / 60) * 65;
+                    const duration = ev.duration_minutes || 60;
+                    const height = Math.max(62, (duration / 60) * 65);
+                    const pal = getCalCoursePalette(ev.course_id);
+
+                    dayColHtml += `
+                        <div onclick="openCalendarSessionDetails(${ev.id})"
+                            style="position: absolute; top: ${top}px; height: ${height}px; left: 8px; right: 8px; z-index: 15;"
+                            class="${pal.bgClass} rounded-2xl p-3 shadow-xs hover:shadow-md hover:scale-[1.008] transition-all cursor-pointer overflow-hidden flex flex-col justify-between">
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <span class="text-xs font-heading font-black truncate">${ev.title}</span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold bg-white/70 dark:bg-slate-900/60 shadow-2xs">${ev.time_formatted}</span>
+                                        ${ev.is_recurring ? '<span title="Recurring" class="w-5 h-5 rounded-full bg-white/70 dark:bg-slate-900/60 flex items-center justify-center text-[9px]"><i class="fa-solid fa-rotate text-purple-600"></i></span>' : ''}
+                                    </div>
+                                </div>
+                                <p class="text-[11px] font-mono opacity-85 truncate">
+                                    <i class="fa-solid fa-book-open me-1"></i> ${ev.course} ${ev.subject ? `&bull; ${ev.subject}` : ''}
+                                </p>
+                                <p class="text-[10px] font-mono opacity-80 truncate">
+                                    <i class="fa-solid fa-user-graduate me-1"></i> ${ev.student_name}
+                                </p>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 pt-1 border-t border-black/5 dark:border-white/5">
+                                <span class="text-[10px] font-mono font-bold opacity-75">${ev.duration_minutes}m</span>
+                                ${ev.meeting_link ? `
+                                        <a href="${ev.meeting_link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();"
+                                            class="px-2.5 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                            <i class="fa-solid fa-video text-[9px]"></i>
+                                            <span>${isArLocale ? 'انضمام' : 'Join'}</span>
+                                        </a>
+                                    ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            dayColHtml += `</div>`;
+
+            container.innerHTML = `
+                <div class="cal-single-day-grid relative">
+                    ${timeLabelsHtml}
+                    ${dayColHtml}
+                </div>
+            `;
+        }
+
+        // ── VIEW 2: HERO WEEK TIMETABLE ──────────────────────────────────────────────
+        function renderCalendarWeek(events) {
+            const container = document.getElementById('calendarWeekContainer');
+            const heroTitle = document.getElementById('calendarHeroTitle');
+            const weekBadge = document.getElementById('calendarWeekBadge');
+            if (!container) return;
+
+            const weekDays = getWeekDays(currentCalDate);
+            const firstDay = weekDays[0];
+            const lastDay = weekDays[6];
+
+            const startNum = firstDay.getDate();
+            const endNum = lastDay.getDate();
+            const monthName = firstDay.toLocaleString(isArLocale ? 'ar-EG' : 'en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
+            if (heroTitle) {
+                heroTitle.textContent = isArLocale ? `${startNum} - ${endNum} ${monthName}` :
+                    `${monthName.split(' ')[0]} ${startNum} - ${endNum}, ${firstDay.getFullYear()}`;
+            }
+            if (weekBadge) {
+                const wNum = getWeekNumber(firstDay);
+                weekBadge.textContent = isArLocale ? `الأسبوع ${wNum}` : `Week ${wNum}`;
+            }
+
+            const todayStr = (new Date()).toISOString().split('T')[0];
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            let todayIndex = -1;
+
+            // Render Mobile Day Strip
+            const mobileStrip = document.getElementById('calMobileDayStrip');
+            if (mobileStrip) {
+                let stripHtml = '';
+                weekDays.forEach((wDay, idx) => {
+                    const dStr = wDay.toISOString().split('T')[0];
+                    const dayName = wDay.toLocaleDateString(isArLocale ? 'ar-EG' : 'en-US', {
+                        weekday: 'short'
+                    });
+                    const dateNum = wDay.getDate();
+                    const isToday = (dStr === todayStr);
+                    if (isToday) todayIndex = idx;
+                    const dayEventsCount = events.filter(ev => ev.date_str === dStr).length;
+
+                    stripHtml += `
+                        <button type="button" onclick="scrollCalendarToDay(${idx})"
+                            class="cal-day-strip-btn shrink-0 px-2.5 py-1 rounded-xl text-center border transition-all cursor-pointer ${isToday ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100'}">
+                            <span class="block text-[9px] font-mono font-bold leading-tight opacity-75">${dayName}</span>
+                            <span class="block text-xs font-mono font-black leading-tight mt-0.5">${dateNum}</span>
+                            ${dayEventsCount > 0 ? `<span class="inline-block mt-0.5 w-1.5 h-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-indigo-500'}"></span>` : ''}
+                        </button>
+                    `;
+                });
+                mobileStrip.innerHTML = stripHtml;
+            }
+
+            let headerHtml = `
+                <div class="cal-timetable-grid pb-2 border-b border-slate-100 dark:border-slate-800 text-center">
+                    <div class="w-12 sm:w-14"></div>
+            `;
+
+            weekDays.forEach((wDay, idx) => {
+                const dStr = wDay.toISOString().split('T')[0];
+                const dayName = wDay.toLocaleDateString(isArLocale ? 'ar-EG' : 'en-US', {
+                    weekday: 'short'
+                });
+                const dateNum = wDay.getDate();
+                const isToday = (dStr === todayStr);
+
+                headerHtml += `
+                    <div class="px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity" onclick="scrollCalendarToDay(${idx})">
+                        <span class="block text-[11px] font-mono font-bold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'} uppercase tracking-wider">${dayName}</span>
+                        <span class="inline-flex items-center justify-center w-7 sm:w-8 h-7 sm:h-8 rounded-full font-mono text-xs sm:text-sm font-black mt-0.5 ${isToday ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-300' : 'text-slate-800 dark:text-slate-100'}">
+                            ${dateNum}
+                        </span>
+                    </div>
+                `;
+            });
+            headerHtml += `</div>`;
+
+            let bodyHtml = `
+                <div class="cal-timetable-grid relative mt-2">
+                    <div class="flex flex-col">
+            `;
+
+            for (let h = 8; h <= 21; h++) {
+                const timeLabel = `${String(h).padStart(2, '0')}:00`;
+                bodyHtml += `
+                    <div class="cal-hour-label flex items-start justify-center pt-1 text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500 select-none">
+                        ${timeLabel}
+                    </div>
+                `;
+            }
+            bodyHtml += `</div>`;
+
+            weekDays.forEach((wDay, idx) => {
+                const dStr = wDay.toISOString().split('T')[0];
+                const isToday = (dStr === todayStr);
+                const dayEvents = events.filter(ev => ev.date_str === dStr);
+
+                bodyHtml +=
+                    `<div class="cal-day-col ${isToday ? 'cal-today-col bg-indigo-50/20 dark:bg-indigo-950/20' : ''}" data-is-today="${isToday}" data-day-idx="${idx}">`;
+
+                if (isToday && currentHour >= 8 && currentHour <= 21) {
+                    const minutesFrom8am = (currentHour - 8) * 60 + currentMinute;
+                    const topPx = (minutesFrom8am / 60) * 65;
+                    bodyHtml += `
+                        <div style="position: absolute; top: ${topPx}px; left: 0; right: 0; height: 2px; background: #4f46e5; z-index: 20; pointer-events: none;">
+                            <span style="position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: #4f46e5; box-shadow: 0 0 8px rgba(79,70,229,0.8);"></span>
+                        </div>
+                    `;
+                }
+
+                dayEvents.forEach(ev => {
+                    const [hStr, mStr] = (ev.start_time_str || '10:00').split(':');
+                    const h = parseInt(hStr) || 8;
+                    const m = parseInt(mStr) || 0;
+                    const minutesFrom8 = Math.max(0, (h - 8) * 60 + m);
+                    const top = (minutesFrom8 / 60) * 65;
+                    const duration = ev.duration_minutes || 60;
+                    const height = Math.max(54, (duration / 60) * 65);
+                    const pal = getCalCoursePalette(ev.course_id);
+
+                    bodyHtml += `
+                        <div onclick="event.stopPropagation(); openCalendarSessionDetails(${ev.id})"
+                            style="position: absolute; top: ${top}px; height: ${height}px; left: 3px; right: 3px; z-index: 10;"
+                            class="${pal.bgClass} rounded-2xl p-2 sm:p-2.5 shadow-2xs hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer overflow-hidden flex flex-col justify-between"
+                            title="${ev.title} (${ev.time_formatted})">
+                            <div class="space-y-0.5 min-w-0">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="text-xs font-heading font-black truncate leading-tight">${ev.title}</span>
+                                    ${ev.is_recurring ? '<i class="fa-solid fa-rotate text-[9px] opacity-75 shrink-0"></i>' : ''}
+                                </div>
+                                <span class="block text-[10px] font-mono opacity-85 truncate">${ev.course}</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-1 pt-1">
+                                <span class="text-[10px] font-mono font-extrabold opacity-90">${ev.time_formatted}</span>
+                                ${ev.meeting_link ? `
+                                        <a href="${ev.meeting_link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();"
+                                            class="px-2 py-0.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold shadow-2xs flex items-center gap-1 shrink-0 transition-all">
+                                            <i class="fa-solid fa-video text-[8px]"></i>
+                                        </a>
+                                    ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                bodyHtml += `</div>`;
+            });
+
+            bodyHtml += `</div>`;
+
+            container.innerHTML = headerHtml + bodyHtml;
+
+            // Auto-scroll on mobile to today column if today is in this week
+            if (window.innerWidth < 1024 && todayIndex >= 0) {
+                setTimeout(() => {
+                    scrollCalendarToDay(todayIndex);
+                }, 100);
+            }
+        }
+
+        // ── VIEW 3: MONTH GRID VIEW ──────────────────────────────────────────────────
+        function renderCalendarGrid(year, month, events) {
+            const grid = document.getElementById('calendarMonthGrid');
+            const heroTitle = document.getElementById('calendarHeroTitle');
+            const weekBadge = document.getElementById('calendarWeekBadge');
+            if (!grid) return;
+
+            if (heroTitle) {
+                const d = new Date(year, month, 1);
+                heroTitle.textContent = d.toLocaleString(isArLocale ? 'ar-EG' : 'en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+            if (weekBadge) {
+                weekBadge.textContent = isArLocale ? 'عرض الشهر' : 'Month View';
+            }
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+
+            const dayOffsetMap = isArLocale ? [1, 2, 3, 4, 5, 6, 0] : [6, 0, 1, 2, 3, 4, 5];
+            const startDayIndex = dayOffsetMap[firstDayOfMonth.getDay()];
+            const totalDays = lastDayOfMonth.getDate();
+
+            const todayStr = (new Date()).toISOString().split('T')[0];
+
+            let html = '';
+
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startDayIndex - 1; i >= 0; i--) {
+                const pDay = prevMonthLastDay - i;
+                html += `<div class="cal-month-cell rounded-2xl bg-slate-50/40 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 opacity-30 select-none flex flex-col justify-between">
+                    <span class="text-xs font-mono font-bold text-slate-400">${pDay}</span>
+                </div>`;
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(year, month, d);
+                const yearStr = dateObj.getFullYear();
+                const monthStr = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dayStr = String(d).padStart(2, '0');
+                const formattedDateStr = `${yearStr}-${monthStr}-${dayStr}`;
+
+                const isToday = (formattedDateStr === todayStr);
+                const dayEvents = events.filter(ev => ev.date_str === formattedDateStr);
+
+                // Desktop events view
+                let desktopEventsHtml = '';
+                const displayCount = Math.min(dayEvents.length, 3);
+                for (let k = 0; k < displayCount; k++) {
+                    const ev = dayEvents[k];
+                    const pal = getCalCoursePalette(ev.course_id);
+
+                    desktopEventsHtml += `
+                        <div onclick="event.stopPropagation(); openCalendarSessionDetails(${ev.id})"
+                            class="px-1.5 py-0.5 rounded-lg ${pal.bgClass} text-[10px] font-mono font-bold truncate cursor-pointer hover:opacity-90 transition-all flex items-center justify-between gap-1 shadow-2xs"
+                            title="${ev.title} (${ev.time_formatted})">
+                            <span class="truncate">${ev.start_time_str} ${ev.title}</span>
+                            ${ev.is_recurring ? '<i class="fa-solid fa-rotate text-[8px] opacity-80"></i>' : ''}
+                        </div>
+                    `;
+                }
+                if (dayEvents.length > 3) {
+                    desktopEventsHtml += `
+                        <div class="text-[9px] font-mono font-extrabold text-indigo-600 dark:text-indigo-400 text-center">
+                            +${dayEvents.length - 3} ${isArLocale ? 'أكثر' : 'more'}
+                        </div>
+                    `;
+                }
+
+                // Mobile dots view (Guarantees zero text overflow on phone screens!)
+                let mobileDotsHtml = '';
+                if (dayEvents.length > 0) {
+                    mobileDotsHtml = `<div class="flex items-center justify-center gap-1 flex-wrap mt-1">`;
+                    const mCount = Math.min(dayEvents.length, 3);
+                    for (let m = 0; m < mCount; m++) {
+                        const pal = getCalCoursePalette(dayEvents[m].course_id);
+                        mobileDotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${pal.dot}"></span>`;
+                    }
+                    if (dayEvents.length > 3) {
+                        mobileDotsHtml +=
+                            `<span class="text-[9px] font-mono font-black text-indigo-600 dark:text-indigo-400">+</span>`;
+                    }
+                    mobileDotsHtml += `</div>`;
+                }
+
+                const todayBorder = isToday ? 'border-2 border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30 shadow-xs' :
+                    'border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/90 hover:border-indigo-300 dark:hover:border-indigo-700';
+
+                html += `
+                    <div onclick="openDayDetailsModal('${formattedDateStr}')"
+                        class="cal-month-cell rounded-2xl ${todayBorder} transition-all cursor-pointer flex flex-col justify-between">
+                        <div class="flex items-center justify-between w-full">
+                            <span class="text-xs font-mono font-black ${isToday ? 'w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${d}</span>
+                            ${dayEvents.length > 0 ? `<span class="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-mono font-bold rounded-full bg-indigo-100 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300">${dayEvents.length}</span>` : ''}
+                        </div>
+                        {{-- Desktop Event Pills --}}
+                        <div class="cal-grid-cell-content-desktop space-y-1 overflow-hidden flex-1 mt-1">
+                            ${desktopEventsHtml}
+                        </div>
+                        {{-- Mobile Responsive Dots --}}
+                        <div class="cal-grid-cell-content-mobile items-center justify-center flex-1">
+                            ${mobileDotsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const currentGridCount = startDayIndex + totalDays;
+            const targetGridCount = currentGridCount > 35 ? 42 : 35;
+            const nextPadding = targetGridCount - currentGridCount;
+
+            for (let n = 1; n <= nextPadding; n++) {
+                html += `<div class="cal-month-cell rounded-2xl bg-slate-50/40 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 opacity-30 select-none flex flex-col justify-between">
+                    <span class="text-xs font-mono font-bold text-slate-400">${n}</span>
+                </div>`;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        // ── VIEW 4: DAILY AGENDA LIST VIEW (GROUPED BY DATES) ────────────────────────
+        function renderCalendarAgenda(events) {
+            const container = document.getElementById('calendarAgendaContainer');
+            const heroTitle = document.getElementById('calendarHeroTitle');
+            const weekBadge = document.getElementById('calendarWeekBadge');
+            if (!container) return;
+
+            if (heroTitle) {
+                const d = new Date(currentCalDate);
+                heroTitle.textContent = isArLocale ?
+                    `أجندة ${d.toLocaleString('ar-EG', { month: 'long', year: 'numeric' })}` :
+                    `Agenda: ${d.toLocaleString('en-US', { month: 'long', year: 'numeric' })}`;
+            }
+            if (weekBadge) {
+                weekBadge.textContent = `${events.length} ${isArLocale ? 'جلسات' : 'Sessions'}`;
+            }
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 space-y-3">
+                        <i class="fa-solid fa-calendar-xmark text-3xl text-slate-300 dark:text-slate-600 mb-1"></i>
+                        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">${isArLocale ? 'لا توجد حصص مجدولة لهذا الشهر' : 'No sessions scheduled for this period.'}</p>
+                        <button type="button" onclick="openScheduleModal('singleSessionModal')"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all cursor-pointer">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>${isArLocale ? 'إنشاء جلسة جديدة' : 'Create Session'}</span>
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort chronologically
+            const sortedEvents = [...events].sort((a, b) => {
+                const dtA = (a.date_str || '') + ' ' + (a.start_time_str || '');
+                const dtB = (b.date_str || '') + ' ' + (b.start_time_str || '');
+                return dtA.localeCompare(dtB);
+            });
+
+            // Group by date_str
+            const groups = new Map();
+            sortedEvents.forEach(ev => {
+                const dKey = ev.date_str || 'Undated';
+                if (!groups.has(dKey)) {
+                    groups.set(dKey, []);
+                }
+                groups.get(dKey).push(ev);
+            });
+
+            const todayStr = (new Date()).toISOString().split('T')[0];
+            const tomorrowObj = new Date();
+            tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+            const tomorrowStr = tomorrowObj.toISOString().split('T')[0];
+
+            let html = '';
+
+            groups.forEach((dayEvs, dKey) => {
+                const dateObj = new Date(dKey + 'T00:00:00');
+                const isToday = (dKey === todayStr);
+                const isTomorrow = (dKey === tomorrowStr);
+
+                let dateBadgeText = '';
+                if (isToday) {
+                    dateBadgeText =
+                        `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black bg-indigo-600 text-white shadow-2xs">${isArLocale ? 'اليوم' : 'Today'}</span>`;
+                } else if (isTomorrow) {
+                    dateBadgeText =
+                        `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300">${isArLocale ? 'غداً' : 'Tomorrow'}</span>`;
+                }
+
+                const dateFormatted = dateObj.toLocaleDateString(isArLocale ? 'ar-EG' : 'en-US', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                html += `
+                    <div class="space-y-2.5">
+                        {{-- Date Section Header --}}
+                        <div class="flex items-center gap-2 pt-2 border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                            <span class="w-2 h-2 rounded-full ${isToday ? 'bg-indigo-600 animate-ping' : 'bg-slate-300 dark:bg-slate-600'}"></span>
+                            <h4 class="font-heading font-black text-xs sm:text-sm text-slate-800 dark:text-slate-200">${dateFormatted}</h4>
+                            ${dateBadgeText}
+                            <span class="text-[10px] font-mono text-slate-400 ms-auto">${dayEvs.length} ${isArLocale ? 'حصص' : 'sessions'}</span>
+                        </div>
+
+                        {{-- Session Cards for this date --}}
+                        <div class="space-y-2">
+                `;
+
+                dayEvs.forEach(ev => {
+                    const pal = getCalCoursePalette(ev.course_id);
+                    const statusBadge = ev.status === 'completed' ?
+                        `<span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">${isArLocale ? 'مكتملة' : 'Completed'}</span>` :
+                        (ev.status === 'in_progress' ?
+                            `<span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200 animate-pulse">${isArLocale ? 'جارية الآن' : 'Live Now'}</span>` :
+                            (ev.status === 'cancelled' ?
+                                `<span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">${isArLocale ? 'ملغاة' : 'Cancelled'}</span>` :
+                                `<span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">${isArLocale ? 'مجدولة' : 'Scheduled'}</span>`
+                                ));
+
+                    html += `
+                        <div class="p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs border-s-4" style="border-inline-start-color: ${pal.bar};">
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h5 class="font-heading font-extrabold text-sm text-slate-900 dark:text-white truncate">${ev.title}</h5>
+                                    ${statusBadge}
+                                    ${ev.is_recurring ? `<span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300"><i class="fa-solid fa-rotate text-[8px] me-1"></i>${isArLocale ? 'دوري' : 'Recurring'}</span>` : ''}
+                                </div>
+                                <p class="text-xs font-mono text-slate-500 dark:text-slate-400">
+                                    <i class="fa-solid fa-clock text-indigo-500 me-1"></i> ${ev.time_formatted} (${ev.duration_minutes}m)
+                                </p>
+                                <p class="text-xs font-mono text-slate-600 dark:text-slate-300 truncate">
+                                    <i class="fa-solid fa-book-open text-slate-400 me-1"></i> ${ev.course} ${ev.subject ? `&bull; ${ev.subject}` : ''} &bull; <i class="fa-solid fa-user-graduate text-slate-400 me-1"></i> ${ev.student_name}
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                                ${ev.meeting_link ? `
+                                        <a href="${ev.meeting_link}" target="_blank" rel="noopener noreferrer"
+                                            class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all">
+                                            <i class="fa-solid fa-video text-xs"></i>
+                                            <span>${isArLocale ? 'انضمام' : 'Join'}</span>
+                                        </a>
+                                    ` : ''}
+                                <button type="button" onclick="openCalendarSessionDetails(${ev.id})"
+                                    class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-extrabold text-xs rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                                    ${isArLocale ? 'التفاصيل' : 'Details'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ── MODAL: DAY DETAILS & SESSION DETAILS ──────────────────────────────────────
+        window.openDayDetailsModal = function(dateStr) {
+            const modal = document.getElementById('dayDetailsModal');
+            const title = document.getElementById('dayDetailsModalTitle');
+            const body = document.getElementById('dayDetailsModalBody');
+            if (!modal || !body) return;
+
+            if (title) {
+                title.innerHTML =
+                    `<i class="fa-solid fa-calendar-day text-indigo-500"></i> <span>${isArLocale ? 'حصص يوم' : 'Sessions for'} ${dateStr}</span>`;
+            }
+
+            const dayEvents = rawCalendarEvents.filter(ev => ev.date_str === dateStr);
+
+            if (dayEvents.length === 0) {
+                body.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 font-mono text-xs space-y-2">
+                        <i class="fa-solid fa-calendar-xmark text-2xl text-slate-300 mb-1"></i>
+                        <p>${isArLocale ? 'لا توجد حصص مجدولة لهذا اليوم.' : 'No sessions scheduled for this day.'}</p>
+                        <button type="button" onclick="closeModal('dayDetailsModal'); openScheduleModal('singleSessionModal');"
+                            class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-xs inline-flex items-center gap-1 mt-2 cursor-pointer">
+                            <i class="fa-solid fa-plus text-xs"></i> ${isArLocale ? 'جدولة حصة' : 'Schedule Session'}
+                        </button>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                dayEvents.forEach(ev => {
+                    const pal = getCalCoursePalette(ev.course_id);
+                    html += `
+                        <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 space-y-2 border-s-4" style="border-inline-start-color: ${pal.bar};">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <h4 class="font-heading font-extrabold text-sm text-slate-900 dark:text-white truncate">${ev.title}</h4>
+                                <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 shrink-0">${ev.time_formatted}</span>
+                            </div>
+                            <p class="text-xs font-mono text-slate-500 dark:text-slate-400 truncate">
+                                <i class="fa-solid fa-book-open me-1"></i> ${ev.course} &bull; ${ev.student_name}
+                            </p>
+                            ${ev.meeting_link ? `
+                                    <div class="pt-2 border-t border-slate-200/60 dark:border-slate-700 flex justify-end">
+                                        <a href="${ev.meeting_link}" target="_blank" rel="noopener"
+                                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5">
+                                            <i class="fa-solid fa-video"></i> ${isArLocale ? 'رابط البث' : 'Meeting Link'}
+                                        </a>
+                                    </div>
+                                ` : ''}
+                        </div>
+                    `;
+                });
+                body.innerHTML = html;
+            }
+
+            if (window.openModal) window.openModal('dayDetailsModal');
+        };
+
+        window.openCalendarSessionDetails = function(sessionId) {
+            const ev = rawCalendarEvents.find(e => String(e.id) === String(sessionId));
+            if (!ev) return;
+
+            openDayDetailsModal(ev.date_str);
+        };
+
         // ── Tab Switcher for Main Teacher Portal ──────────────────────────────────────
         function switchTeacherTab(tabKey) {
             if (!tabKey) return;
             const cleanKey = String(tabKey).replace('#', '').trim();
             const validTabs = ['overview', 'students', 'sessions', 'assignments', 'attendance', 'notifications',
-                'schedules', 'exceptions'
+                'schedules', 'calendar', 'exceptions'
             ];
             const targetKey = validTabs.includes(cleanKey) ? cleanKey : 'overview';
 
@@ -4362,7 +6725,7 @@
             if (activeContent) activeContent.classList.remove('hidden');
             if (activeBtn) {
                 activeBtn.classList.remove('text-slate-700', 'hover:bg-slate-100');
-                const btnColor = targetKey === 'schedules' ? 'bg-indigo-600' : 'bg-teal-600';
+                const btnColor = (targetKey === 'schedules' || targetKey === 'calendar') ? 'bg-indigo-600' : 'bg-teal-600';
                 activeBtn.classList.add(btnColor, 'text-white', 'shadow-md', 'active');
             }
 
@@ -4372,6 +6735,10 @@
                     btn.classList.add('active');
                 }
             });
+
+            if (targetKey === 'calendar' && typeof window.initTeacherCalendar === 'function') {
+                window.initTeacherCalendar();
+            }
 
             // Keep URL hash updated without full page reload or jump
             if (window.history && window.history.replaceState) {
@@ -4391,10 +6758,12 @@
 
         function filterTeacherExceptions(status, btn) {
             document.querySelectorAll('.exception-filter-btn').forEach(b => {
-                b.className = 'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-all cursor-pointer';
+                b.className =
+                    'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-all cursor-pointer';
             });
             if (btn) {
-                btn.className = 'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white shadow-xs transition-all cursor-pointer';
+                btn.className =
+                    'exception-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white shadow-xs transition-all cursor-pointer';
             }
 
             document.querySelectorAll('.teacher-exception-card').forEach(card => {
@@ -4409,15 +6778,20 @@
 
         async function reviewTeacherException(exceptionId, action) {
             const isApprove = action === 'approve';
-            const confirmMsg = isApprove
-                ? (isArLocale ? 'هل أنت متأكد من قبول العذر؟ لن يتم خصم الحصة من رصيد باقة الطالب.' : 'Are you sure you want to approve this excuse? The session will NOT be deducted from the student balance.')
-                : (isArLocale ? 'هل أنت متأكد من رفض العذر؟ سيتم خصم حصة واحدة من رصيد باقة الطالب.' : 'Are you sure you want to reject this excuse? 1 session credit WILL be deducted from the student package balance.');
+            const confirmMsg = isApprove ?
+                (isArLocale ? 'هل أنت متأكد من قبول العذر؟ لن يتم خصم الحصة من رصيد باقة الطالب.' :
+                    'Are you sure you want to approve this excuse? The session will NOT be deducted from the student balance.'
+                    ) :
+                (isArLocale ? 'هل أنت متأكد من رفض العذر؟ سيتم خصم حصة واحدة من رصيد باقة الطالب.' :
+                    'Are you sure you want to reject this excuse? 1 session credit WILL be deducted from the student package balance.'
+                    );
 
             if (!confirm(confirmMsg)) return;
 
             try {
                 const url = `${appBaseUrl}/ajax/teacher/exceptions/${exceptionId}/${action}`;
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                    '{{ csrf_token() }}';
 
                 const res = await fetch(url, {
                     method: 'POST',
@@ -4802,19 +7176,25 @@
             window.openModal('addNoteModal');
         }
 
-                // ════════════════════════════════════════════════════════════════════════
-        // UNIVERSAL RESPONSIVE SECTION PAGINATOR ENGINE
+        // ════════════════════════════════════════════════════════════════════════
+        // UNIVERSAL RESPONSIVE SECTION PAGINATOR ENGINE (SEE MORE & SCROLL LOADING)
         // ════════════════════════════════════════════════════════════════════════
         class EliteSectionPaginator {
             constructor(options) {
-                this.container = typeof options.containerId === 'string' ? document.getElementById(options.containerId) : options.containerId;
+                this.container = typeof options.containerId === 'string' ? document.getElementById(options
+                    .containerId) : options.containerId;
                 this.itemSelector = options.itemSelector;
-                this.paginationContainer = typeof options.paginationId === 'string' ? document.getElementById(options.paginationId) : options.paginationId;
+                this.paginationContainer = typeof options.paginationId === 'string' ? document.getElementById(options
+                    .paginationId) : options.paginationId;
                 this.pageSize = options.pageSize || 9;
-                this.currentPage = 1;
+                this.visibleCount = this.pageSize;
                 this.scrollToTop = options.scrollToTop || false;
                 this.onPageChange = options.onPageChange || null;
                 this.filterFn = options.filterFn || ((el) => el.getAttribute('data-filtered-out') !== '1');
+                this.isLoadingMore = false;
+                this.observer = null;
+
+                this.initScrollObserver();
                 this.update();
             }
 
@@ -4824,21 +7204,63 @@
                 return allItems.filter(el => this.filterFn(el));
             }
 
+            initScrollObserver() {
+                if (!('IntersectionObserver' in window)) return;
+
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !this.isLoadingMore) {
+                            const matching = this.getMatchingItems();
+                            if (this.visibleCount < matching.length) {
+                                this.loadMore();
+                            }
+                        }
+                    });
+                }, {
+                    root: null,
+                    rootMargin: '200px',
+                    threshold: 0.05
+                });
+            }
+
+            loadMore() {
+                const matching = this.getMatchingItems();
+                if (this.visibleCount >= matching.length || this.isLoadingMore) return;
+
+                this.isLoadingMore = true;
+
+                const btn = this.paginationContainer?.querySelector('.elite-see-more-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-80', 'cursor-wait');
+                    const spinner = btn.querySelector('.elite-spinner');
+                    const icon = btn.querySelector('.elite-btn-icon');
+                    if (spinner) spinner.classList.remove('hidden');
+                    if (icon) icon.classList.add('hidden');
+                }
+
+                setTimeout(() => {
+                    this.visibleCount += this.pageSize;
+                    this.isLoadingMore = false;
+                    this.update();
+
+                    if (typeof this.onPageChange === 'function') {
+                        this.onPageChange(this.visibleCount, matching.length);
+                    }
+                }, 150);
+            }
+
             goToPage(page) {
                 const matching = this.getMatchingItems();
                 const totalPages = Math.max(1, Math.ceil(matching.length / this.pageSize));
-                this.currentPage = Math.max(1, Math.min(page, totalPages));
+                const targetPage = Math.max(1, Math.min(page, totalPages));
+                this.visibleCount = targetPage * this.pageSize;
                 this.update();
-                if (this.scrollToTop && this.container) {
-                    this.container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-                if (typeof this.onPageChange === 'function') {
-                    this.onPageChange(this.currentPage, totalPages);
-                }
             }
 
             reset() {
-                this.currentPage = 1;
+                this.visibleCount = this.pageSize;
+                this.isLoadingMore = false;
                 this.update();
             }
 
@@ -4856,111 +7278,95 @@
                 });
 
                 const totalItems = matching.length;
-                const totalPages = Math.max(1, Math.ceil(totalItems / this.pageSize));
-                if (this.currentPage > totalPages) this.currentPage = totalPages;
-
-                const startIndex = (this.currentPage - 1) * this.pageSize;
-                const endIndex = startIndex + this.pageSize;
+                if (this.visibleCount < this.pageSize) {
+                    this.visibleCount = this.pageSize;
+                }
 
                 matching.forEach((el, idx) => {
-                    if (idx >= startIndex && idx < endIndex) {
+                    if (idx < this.visibleCount) {
                         el.classList.remove('hidden');
                     } else {
                         el.classList.add('hidden');
                     }
                 });
 
-                this.renderControls(totalItems, totalPages, totalItems > 0 ? startIndex + 1 : 0, Math.min(endIndex, totalItems));
+                const shownCount = Math.min(this.visibleCount, totalItems);
+                this.renderControls(totalItems, shownCount);
             }
 
-            renderControls(totalItems, totalPages, startNum, endNum) {
+            renderControls(totalItems, shownCount) {
                 if (!this.paginationContainer) return;
-                if (totalItems <= this.pageSize) {
+
+                if (totalItems === 0) {
                     this.paginationContainer.innerHTML = '';
                     this.paginationContainer.classList.add('hidden');
+                    if (this.observer) this.observer.disconnect();
                     return;
                 }
 
                 this.paginationContainer.classList.remove('hidden');
 
-                const isAr = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang === 'ar';
-                const prevText = isAr ? 'السابق' : 'Previous';
-                const nextText = isAr ? 'التالي' : 'Next';
-                const showingText = isAr 
-                    ? `عرض <span class="font-bold text-slate-900 dark:text-white">${startNum}</span> إلى <span class="font-bold text-slate-900 dark:text-white">${endNum}</span> من أصل <span class="font-bold text-slate-900 dark:text-white">${totalItems}</span>` 
-                    : `Showing <span class="font-bold text-slate-900 dark:text-white">${startNum}</span> to <span class="font-bold text-slate-900 dark:text-white">${endNum}</span> of <span class="font-bold text-slate-900 dark:text-white">${totalItems}</span>`;
+                const isAr = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang ===
+                    'ar' || (typeof isArLocale !== 'undefined' && isArLocale);
+                const hasMore = shownCount < totalItems;
+                const remaining = totalItems - shownCount;
+                const percent = Math.min(100, Math.round((shownCount / totalItems) * 100));
 
-                let pagesHtml = '';
-                const maxButtons = 5;
-                let startPage = Math.max(1, this.currentPage - 2);
-                let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-                if (endPage - startPage < maxButtons - 1) {
-                    startPage = Math.max(1, endPage - maxButtons + 1);
-                }
+                const statusText = isAr ?
+                    `عرض <span class="font-black text-teal-600 dark:text-teal-400">${shownCount}</span> من أصل <span class="font-black text-slate-900 dark:text-white">${totalItems}</span> عنصر` :
+                    `Showing <span class="font-black text-teal-600 dark:text-teal-400">${shownCount}</span> of <span class="font-black text-slate-900 dark:text-white">${totalItems}</span> items`;
 
-                if (startPage > 1) {
-                    pagesHtml += `<button type="button" data-page="1" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">1</button>`;
-                    if (startPage > 2) {
-                        pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
-                    }
-                }
+                const loadMoreLabel = isAr ? `عرض المزيد...` : `See More...`;
+                const remainingText = isAr ? `(${remaining} متبقي)` : `(${remaining} remaining)`;
+                const allLoadedText = isAr ? `تم عرض جميع العناصر (${totalItems})` : `All items loaded (${totalItems})`;
 
-                for (let p = startPage; p <= endPage; p++) {
-                    const isActive = p === this.currentPage;
-                    pagesHtml += `
-                        <button type="button" data-page="${p}" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all ${
-                            isActive 
-                                ? 'bg-teal-600 text-white shadow-xs font-black' 
-                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }">${p}</button>
+                let actionHtml = '';
+
+                if (hasMore) {
+                    actionHtml = `
+                        <button type="button" class="elite-see-more-btn group relative inline-flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-300 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white shadow-md hover:shadow-lg hover:shadow-teal-500/25 active:scale-95 cursor-pointer">
+                            <i class="elite-spinner hidden fa-solid fa-circle-notch fa-spin text-sm"></i>
+                            <i class="elite-btn-icon fa-solid fa-angles-down group-hover:translate-y-0.5 transition-transform text-xs"></i>
+                            <span>${loadMoreLabel}</span>
+                            <span class="opacity-80 text-[11px] font-mono font-normal">${remainingText}</span>
+                        </button>
+                    `;
+                } else if (totalItems > this.pageSize) {
+                    actionHtml = `
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60">
+                            <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+                            <span>${allLoadedText}</span>
+                        </div>
                     `;
                 }
 
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) {
-                        pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
-                    }
-                    pagesHtml += `<button type="button" data-page="${totalPages}" class="elite-page-btn w-8 h-8 rounded-xl text-xs font-bold font-mono transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">${totalPages}</button>`;
-                }
-
                 this.paginationContainer.innerHTML = `
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800 w-full">
-                        <div class="text-xs font-mono text-slate-500 dark:text-slate-400">
-                            ${showingText}
+                    <div class="flex flex-col items-center justify-center gap-3 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 w-full max-w-full overflow-hidden">
+                        <div class="flex items-center justify-between w-full max-w-md px-1 text-xs font-mono text-slate-500 dark:text-slate-400">
+                            <span>${statusText}</span>
+                            <span class="font-bold text-teal-600 dark:text-teal-400">${percent}%</span>
                         </div>
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <button type="button" data-page="${this.currentPage - 1}" class="elite-prev-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 ${
-                                this.currentPage <= 1 
-                                    ? 'opacity-40 pointer-events-none text-slate-400' 
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer'
-                            }">
-                                <i class="fa-solid fa-chevron-${isAr ? 'right' : 'left'} text-[10px]"></i>
-                                <span>${prevText}</span>
-                            </button>
-                            <div class="flex items-center gap-1">
-                                ${pagesHtml}
-                            </div>
-                            <button type="button" data-page="${this.currentPage + 1}" class="elite-next-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 ${
-                                this.currentPage >= totalPages 
-                                    ? 'opacity-40 pointer-events-none text-slate-400' 
-                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer'
-                            }">
-                                <span>${nextText}</span>
-                                <i class="fa-solid fa-chevron-${isAr ? 'left' : 'right'} text-[10px]"></i>
-                            </button>
+                        <div class="w-full max-w-md bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full transition-all duration-500 rounded-full" style="width: ${percent}%"></div>
                         </div>
+                        ${actionHtml ? `<div class="mt-1 flex justify-center w-full">${actionHtml}</div>` : ''}
                     </div>
                 `;
 
-                this.paginationContainer.querySelectorAll('.elite-page-btn, .elite-prev-btn, .elite-next-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
+                const seeMoreBtn = this.paginationContainer.querySelector('.elite-see-more-btn');
+                if (seeMoreBtn) {
+                    seeMoreBtn.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const targetPage = parseInt(btn.getAttribute('data-page'), 10);
-                        if (targetPage && targetPage !== this.currentPage && targetPage >= 1 && targetPage <= totalPages) {
-                            this.goToPage(targetPage);
-                        }
+                        this.loadMore();
                     });
-                });
+                }
+
+                if (this.observer) {
+                    this.observer.disconnect();
+                    if (hasMore) {
+                        this.observer.observe(this.paginationContainer);
+                    }
+                }
             }
         }
         window.EliteSectionPaginator = EliteSectionPaginator;
@@ -5013,9 +7419,9 @@
 
             const countText = document.getElementById('studentFilterCountText');
             if (countText) {
-                countText.textContent = isArLocale 
-                    ? `عرض ${visibleCount} من أصل ${cards.length} طالباً`
-                    : `Showing ${visibleCount} of ${cards.length} students`;
+                countText.textContent = isArLocale ?
+                    `عرض ${visibleCount} من أصل ${cards.length} طالباً` :
+                    `Showing ${visibleCount} of ${cards.length} students`;
             }
         }
 
@@ -5025,7 +7431,9 @@
                 const el = document.getElementById(id);
                 if (el) {
                     el.value = '';
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', {
+                        bubbles: true
+                    }));
                 }
             });
             applyStudentFilters();
@@ -5149,9 +7557,11 @@
                     data.submissions.forEach(s => {
                         const isPassed = s.is_passed;
                         const scoreText = s.score !== null ? `${s.score}%` : '{{ __('Pending Grade') }}';
-                        const scoreClass = s.score !== null ? (isPassed ? 'text-emerald-600 dark:text-emerald-400 font-extrabold' :
+                        const scoreClass = s.score !== null ? (isPassed ?
+                            'text-emerald-600 dark:text-emerald-400 font-extrabold' :
                             'text-rose-600 dark:text-rose-400 font-extrabold') : 'text-slate-400 italic';
-                        const statusBadgeClass = s.status === 'reviewed' ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800' :
+                        const statusBadgeClass = s.status === 'reviewed' ?
+                            'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800' :
                             'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800';
 
                         subHtml += `
@@ -5521,8 +7931,12 @@
         window.filterAttendanceModalStudents = filterAttendanceModalStudents;
         window.bulkSetAttendance = bulkSetAttendance;
         window.onAttendanceStatusRadioChange = onAttendanceStatusRadioChange;
-        window.openCreateSessionModal = function() { window.openModal('createSessionModal'); };
-        window.openCreateAssignmentModal = function() { window.openModal('createAssignmentModal'); };
+        window.openCreateSessionModal = function() {
+            window.openModal('createSessionModal');
+        };
+        window.openCreateAssignmentModal = function() {
+            window.openModal('createAssignmentModal');
+        };
         window.openAssignmentDetailsModal = openAssignmentDetailsModal;
         window.openMeetingLinkModal = openMeetingLinkModal;
         window.openRescheduleModal = openRescheduleModal;
@@ -5545,15 +7959,18 @@
             const notesEl = document.getElementById('gradeEvaluationNotes');
 
             if (nameEl) nameEl.textContent = `${studentName || ''} — ${assignmentTitle || ''}`;
-            if (scoreInput) scoreInput.value = (currentScore !== undefined && currentScore !== null && currentScore !== 'null') ? currentScore : '';
-            if (notesEl) notesEl.value = (evaluationNotes && evaluationNotes !== 'null' && evaluationNotes !== 'undefined') ? evaluationNotes : '';
+            if (scoreInput) scoreInput.value = (currentScore !== undefined && currentScore !== null && currentScore !==
+                'null') ? currentScore : '';
+            if (notesEl) notesEl.value = (evaluationNotes && evaluationNotes !== 'null' && evaluationNotes !==
+                'undefined') ? evaluationNotes : '';
 
             const formEl = document.getElementById('gradeForm');
             if (formEl) formEl.action = `${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review`;
 
             const questionsContainer = document.getElementById('submissionQuestionsContainer');
             if (questionsContainer) {
-                questionsContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">${isAr ? 'جاري تحميل تفاصيل الإجابات...' : 'Loading question breakdown...'}</p>`;
+                questionsContainer.innerHTML =
+                    `<p class="text-xs text-slate-400 italic text-center py-4">${isAr ? 'جاري تحميل تفاصيل الإجابات...' : 'Loading question breakdown...'}</p>`;
             }
 
             window.openModal('gradeModal');
@@ -5568,7 +7985,8 @@
                 const data = await res.json();
                 if (data.success && data.submission) {
                     if (nameEl && data.submission.student_name) {
-                        nameEl.textContent = `${data.submission.student_name} — ${data.submission.assignment_title || ''}`;
+                        nameEl.textContent =
+                            `${data.submission.student_name} — ${data.submission.assignment_title || ''}`;
                     }
                     if (scoreInput && data.submission.score !== null && data.submission.score !== undefined) {
                         scoreInput.value = data.submission.score;
@@ -5586,18 +8004,25 @@
 
                         let optsHtml = '';
                         q.options.forEach(opt => {
-                            let optStyle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200';
+                            let optStyle =
+                                'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200';
                             let badge = '';
 
                             if (opt.is_correct && opt.is_selected) {
-                                optStyle = 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold';
-                                badge = `<span class="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الصحيحة' : 'Student Selected (Correct)'}</span>`;
+                                optStyle =
+                                    'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold';
+                                badge =
+                                    `<span class="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الصحيحة' : 'Student Selected (Correct)'}</span>`;
                             } else if (opt.is_correct) {
-                                optStyle = 'bg-teal-50 dark:bg-teal-950/50 border-teal-300 dark:border-teal-800 text-teal-900 dark:text-teal-200 font-bold';
-                                badge = `<span class="text-teal-600 dark:text-teal-400 font-mono text-[10px]">${isAr ? 'الإجابة النموذجية' : 'Correct Answer'}</span>`;
+                                optStyle =
+                                    'bg-teal-50 dark:bg-teal-950/50 border-teal-300 dark:border-teal-800 text-teal-900 dark:text-teal-200 font-bold';
+                                badge =
+                                    `<span class="text-teal-600 dark:text-teal-400 font-mono text-[10px]">${isAr ? 'الإجابة النموذجية' : 'Correct Answer'}</span>`;
                             } else if (opt.is_selected) {
-                                optStyle = 'bg-red-50 dark:bg-rose-950/50 border-red-300 dark:border-rose-800 text-red-900 dark:text-rose-200 font-bold';
-                                badge = `<span class="text-red-600 dark:text-rose-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الخاطئة' : 'Student Selected (Wrong)'}</span>`;
+                                optStyle =
+                                    'bg-red-50 dark:bg-rose-950/50 border-red-300 dark:border-rose-800 text-red-900 dark:text-rose-200 font-bold';
+                                badge =
+                                    `<span class="text-red-600 dark:text-rose-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الخاطئة' : 'Student Selected (Wrong)'}</span>`;
                             }
 
                             optsHtml += `<div class="p-2.5 rounded-xl border ${optStyle} text-xs flex items-center justify-between gap-2">
@@ -5606,7 +8031,8 @@
                             </div>`;
 
                             if (opt.explanation && opt.is_correct) {
-                                optsHtml += `<p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono italic pl-2">${isAr ? 'التوضيح:' : 'Explanation:'} ${escapeHtml(opt.explanation)}</p>`;
+                                optsHtml +=
+                                    `<p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono italic pl-2">${isAr ? 'التوضيح:' : 'Explanation:'} ${escapeHtml(opt.explanation)}</p>`;
                             }
                         });
 
@@ -5622,10 +8048,12 @@
                     });
                     if (questionsContainer) questionsContainer.innerHTML = html;
                 } else {
-                    if (questionsContainer) questionsContainer.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 italic text-center py-4">${isAr ? 'لا توجد تفاصيل أسئلة متاحة' : 'No question details available'}</p>`;
+                    if (questionsContainer) questionsContainer.innerHTML =
+                        `<p class="text-xs text-slate-500 dark:text-slate-400 italic text-center py-4">${isAr ? 'لا توجد تفاصيل أسئلة متاحة' : 'No question details available'}</p>`;
                 }
             } catch (err) {
-                if (questionsContainer) questionsContainer.innerHTML = `<p class="text-xs text-rose-500 italic text-center py-4">${isAr ? 'تعذر تحميل التفاصيل' : 'Unable to load details'}</p>`;
+                if (questionsContainer) questionsContainer.innerHTML =
+                    `<p class="text-xs text-rose-500 italic text-center py-4">${isAr ? 'تعذر تحميل التفاصيل' : 'Unable to load details'}</p>`;
             }
         }
 
@@ -5742,11 +8170,11 @@
             <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 ${[0, 1, 2, 3].map(optIdx => `
-                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
-                        <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
-                    </div>
-                `).join('')}
+                        <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
+                            <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                        </div>
+                    `).join('')}
             </div>
         </div>
     </div>`;
@@ -5848,7 +8276,8 @@
                 });
                 const data = await res.json();
                 if (!res.ok || !data.success || !data.assignment) {
-                    showTeacherToast(data.message || (isArLocale ? 'تعذر جلب تفاصيل الواجب للتعديل' : 'Failed to load assignment details for editing'), false);
+                    showTeacherToast(data.message || (isArLocale ? 'تعذر جلب تفاصيل الواجب للتعديل' :
+                        'Failed to load assignment details for editing'), false);
                     return;
                 }
 
@@ -5858,14 +8287,16 @@
                 document.getElementById('editAssignmentLiveSessionId').value = a.live_session_id || '';
                 document.getElementById('editAssignmentTitle').value = a.title || '';
                 document.getElementById('editAssignmentDescription').value = a.description || '';
-                
+
                 if (a.due_at_raw) {
-                    document.getElementById('editAssignmentDueAt').value = a.due_at_raw.replace(' ', 'T').substring(0, 16);
+                    document.getElementById('editAssignmentDueAt').value = a.due_at_raw.replace(' ', 'T').substring(0,
+                        16);
                 } else if (a.due_at) {
                     const d = new Date(a.due_at);
                     if (!isNaN(d)) {
                         const pad = n => n < 10 ? '0' + n : n;
-                        document.getElementById('editAssignmentDueAt').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                        document.getElementById('editAssignmentDueAt').value =
+                            `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
                     }
                 }
 
@@ -5888,16 +8319,17 @@
 
                 window.openModal('editAssignmentModal');
             } catch (err) {
-                showTeacherToast(isArLocale ? 'حدث خطأ أثناء تحميل بيانات الواجب' : 'Error loading assignment details', false);
+                showTeacherToast(isArLocale ? 'حدث خطأ أثناء تحميل بيانات الواجب' : 'Error loading assignment details',
+                    false);
             }
         }
 
         async function confirmDeleteAssignment(assignmentId, title) {
             const isAr = @json(app()->getLocale() === 'ar');
-            const confirmMsg = isAr 
-                ? `هل أنت متأكد من حذف الواجب "${title || ''}"؟ سيتم حذف جميع الأسئلة وإجابات الطلاب نهائياً.`
-                : `Are you sure you want to delete assignment "${title || ''}"? All questions and student submissions will be permanently removed.`;
-            
+            const confirmMsg = isAr ?
+                `هل أنت متأكد من حذف الواجب "${title || ''}"؟ سيتم حذف جميع الأسئلة وإجابات الطلاب نهائياً.` :
+                `Are you sure you want to delete assignment "${title || ''}"? All questions and student submissions will be permanently removed.`;
+
             if (!confirm(confirmMsg)) return;
 
             try {
@@ -5938,9 +8370,9 @@
 
         async function confirmDeleteSession(sessionId, title) {
             const isAr = @json(app()->getLocale() === 'ar');
-            const confirmMsg = isAr
-                ? `هل أنت متأكد من حذف الحصة "${title || ''}" نهائياً؟`
-                : `Are you sure you want to permanently delete session "${title || ''}"?`;
+            const confirmMsg = isAr ?
+                `هل أنت متأكد من حذف الحصة "${title || ''}" نهائياً؟` :
+                `Are you sure you want to permanently delete session "${title || ''}"?`;
 
             if (!confirm(confirmMsg)) return;
 
@@ -5967,12 +8399,26 @@
         }
 
         function openEditRecurringScheduleModal(scheduleId, el) {
-            let title = '', courseId = '', recurrenceType = '', startTime = '10:00', duration = 60, startDate = '', endDate = '', days = [], meetingLink = '', notes = '';
+            let title = '',
+                courseId = '',
+                recurrenceType = '',
+                startTime = '10:00',
+                duration = 60,
+                startDate = '',
+                endDate = '',
+                days = [],
+                meetingLink = '',
+                notes = '';
+            let dayStartTimes = {},
+                dayDurations = {},
+                dayMeetingLinks = {};
+
             if (el && typeof el === 'object' && el.nodeType) {
                 const card = el.closest('.schedule-item-card') || el;
                 title = card.getAttribute('data-title') || el.getAttribute('data-title') || '';
                 courseId = card.getAttribute('data-course-id') || el.getAttribute('data-course-id') || '';
-                recurrenceType = card.getAttribute('data-recurrence-type') || el.getAttribute('data-recurrence-type') || 'weekly';
+                recurrenceType = card.getAttribute('data-recurrence-type') || el.getAttribute('data-recurrence-type') ||
+                    'weekly';
                 startTime = card.getAttribute('data-start-time') || el.getAttribute('data-start-time') || '10:00';
                 duration = card.getAttribute('data-duration') || el.getAttribute('data-duration') || 60;
                 startDate = card.getAttribute('data-start-date') || el.getAttribute('data-start-date') || '';
@@ -5980,7 +8426,31 @@
                 try {
                     const daysAttr = card.getAttribute('data-days') || el.getAttribute('data-days') || '[]';
                     days = JSON.parse(daysAttr);
-                } catch(e) { days = []; }
+                } catch (e) {
+                    days = [];
+                }
+                try {
+                    const stAttr = card.getAttribute('data-day-start-times') || el.getAttribute('data-day-start-times') ||
+                        '{}';
+                    dayStartTimes = JSON.parse(stAttr) || {};
+                } catch (e) {
+                    dayStartTimes = {};
+                }
+                try {
+                    const durAttr = card.getAttribute('data-day-durations') || el.getAttribute('data-day-durations') ||
+                    '{}';
+                    dayDurations = JSON.parse(durAttr) || {};
+                } catch (e) {
+                    dayDurations = {};
+                }
+                try {
+                    const linkAttr = card.getAttribute('data-day-meeting-links') || el.getAttribute(
+                        'data-day-meeting-links') || '{}';
+                    dayMeetingLinks = JSON.parse(linkAttr) || {};
+                } catch (e) {
+                    dayMeetingLinks = {};
+                }
+
                 meetingLink = card.getAttribute('data-meeting-link') || el.getAttribute('data-meeting-link') || '';
                 notes = card.getAttribute('data-notes') || el.getAttribute('data-notes') || '';
             }
@@ -5995,9 +8465,30 @@
             document.getElementById('editRecMeetingLink').value = meetingLink;
             document.getElementById('editRecNotes').value = notes;
 
-            // Check days
-            document.querySelectorAll('.edit-rec-day-checkbox').forEach(cb => {
-                cb.checked = days.map(String).includes(String(cb.value));
+            // Populate per-day inputs & check days
+            [0, 1, 2, 3, 4, 5, 6].forEach(dayVal => {
+                const cb = document.getElementById('editRecDayCheck_' + dayVal);
+                const timeInput = document.getElementById('editRecDayTime_' + dayVal);
+                const durationInput = document.getElementById('editRecDayDuration_' + dayVal);
+                const linkInput = document.getElementById('editRecDayLink_' + dayVal);
+
+                const isDayChecked = days.map(String).includes(String(dayVal));
+                if (cb) cb.checked = isDayChecked;
+
+                if (timeInput) {
+                    timeInput.value = dayStartTimes[dayVal] || dayStartTimes[String(dayVal)] || startTime ||
+                    '10:00';
+                }
+                if (durationInput) {
+                    durationInput.value = dayDurations[dayVal] || dayDurations[String(dayVal)] || duration || 60;
+                }
+                if (linkInput) {
+                    linkInput.value = dayMeetingLinks[dayVal] || dayMeetingLinks[String(dayVal)] || '';
+                }
+
+                if (cb && typeof window.toggleEditDayTimeCard === 'function') {
+                    window.toggleEditDayTimeCard(cb, 'editRecDayCard_' + dayVal);
+                }
             });
 
             if (typeof window.openScheduleModal === 'function') {
@@ -6009,9 +8500,9 @@
 
         async function confirmDeleteRecurringSchedule(scheduleId, title) {
             const isAr = @json(app()->getLocale() === 'ar');
-            const confirmMsg = isAr
-                ? `هل أنت متأكد من حذف الجدول المتكرر "${title || ''}"؟ سيتم حذف جميع الحصص المستقبلية غير المكتملة المرتبطة به.`
-                : `Are you sure you want to delete recurring schedule "${title || ''}"? All future uncompleted session instances will be cancelled and deleted.`;
+            const confirmMsg = isAr ?
+                `هل أنت متأكد من حذف الجدول المتكرر "${title || ''}"؟ سيتم حذف جميع الحصص المستقبلية غير المكتملة المرتبطة به.` :
+                `Are you sure you want to delete recurring schedule "${title || ''}"? All future uncompleted session instances will be cancelled and deleted.`;
 
             if (!confirm(confirmMsg)) return;
 
@@ -6030,7 +8521,8 @@
                     if (card) card.remove();
                     setTimeout(() => location.reload(), 800);
                 } else {
-                    showTeacherToast(data.message || (isAr ? 'فشل حذف الجدول المتكرر' : 'Failed to delete recurring schedule'), false);
+                    showTeacherToast(data.message || (isAr ? 'فشل حذف الجدول المتكرر' :
+                        'Failed to delete recurring schedule'), false);
                 }
             } catch (err) {
                 showTeacherToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
@@ -6295,13 +8787,15 @@
                 liveSessionSearch.addEventListener('input', function() {
                     const term = this.value.trim().toLowerCase();
                     const rows = document.querySelectorAll('#sessionsTableBody .session-table-row');
-                    const cards = document.querySelectorAll('#sessionsMobileListContainer .session-mobile-card');
+                    const cards = document.querySelectorAll(
+                        '#sessionsMobileListContainer .session-mobile-card');
                     let visibleCount = 0;
                     rows.forEach(r => {
                         const title = r.getAttribute('data-title') || '';
                         const course = r.getAttribute('data-course') || '';
                         const date = r.getAttribute('data-date') || '';
-                        const match = !term || title.includes(term) || course.includes(term) || date.includes(term);
+                        const match = !term || title.includes(term) || course.includes(term) || date
+                            .includes(term);
                         if (match) {
                             r.removeAttribute('data-filtered-out');
                             visibleCount++;
@@ -6313,7 +8807,8 @@
                         const title = c.getAttribute('data-title') || '';
                         const course = c.getAttribute('data-course') || '';
                         const date = c.getAttribute('data-date') || '';
-                        const match = !term || title.includes(term) || course.includes(term) || date.includes(term);
+                        const match = !term || title.includes(term) || course.includes(term) || date
+                            .includes(term);
                         if (match) {
                             c.removeAttribute('data-filtered-out');
                         } else {
@@ -6380,9 +8875,10 @@
                 if (url.searchParams.has('notif_page') || url.searchParams.has('sessions_page')) {
                     url.searchParams.delete('notif_page');
                     url.searchParams.delete('sessions_page');
-                    window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : ''));
+                    window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ?
+                        '?' + url.searchParams.toString() : ''));
                 }
-            } catch(e) {}
+            } catch (e) {}
 
             // Helper function to detect phone numbers in client JS
             function clientHasPhoneNumber(text) {
@@ -6489,6 +8985,132 @@
                     }
                 });
             }
+
+            window.toggleDayTimeCard = function(checkboxEl, cardId) {
+                const card = document.getElementById(cardId);
+                if (!card) return;
+                const timeContainer = card.querySelector('.rec-day-time-container');
+                const timeInput = card.querySelector('.rec-day-time-picker');
+                const durationInput = card.querySelector('.rec-day-duration-picker');
+                const linkInput = card.querySelector('.rec-day-link-picker');
+                const badge = card.querySelector('.rec-day-status-badge');
+
+                if (checkboxEl.checked) {
+                    card.classList.add('is-selected-day', 'bg-teal-50/90', 'dark:bg-teal-950/50',
+                        'border-teal-500', 'shadow-xs');
+                    card.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200',
+                        'dark:border-slate-800', 'opacity-60');
+                    if (timeContainer) timeContainer.classList.remove('hidden');
+                    if (timeInput) timeInput.disabled = false;
+                    if (durationInput) durationInput.disabled = false;
+                    if (linkInput) linkInput.disabled = false;
+                    if (badge) {
+                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'مُفَعَّل' :
+                            'Active';
+                        badge.className =
+                            'rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200';
+                    }
+                } else {
+                    card.classList.remove('is-selected-day', 'bg-teal-50/90', 'dark:bg-teal-950/50',
+                        'border-teal-500', 'shadow-xs');
+                    card.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200',
+                        'dark:border-slate-800', 'opacity-60');
+                    if (timeContainer) timeContainer.classList.add('hidden');
+                    if (timeInput) timeInput.disabled = true;
+                    if (durationInput) durationInput.disabled = true;
+                    if (linkInput) linkInput.disabled = true;
+                    if (badge) {
+                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'غير محدد' :
+                            'Off';
+                        badge.className =
+                            'rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400';
+                    }
+                }
+            };
+            window.toggleDayTimeInput = window.toggleDayTimeCard;
+
+            window.applyMainTimeToAllDays = function() {
+                const mainStartTime = document.getElementById('recStartTime')?.value || '10:00';
+                const mainDuration = document.getElementById('recDuration')?.value || '60';
+                const mainLink = document.getElementById('recMeetingLink')?.value || '';
+
+                document.querySelectorAll('.rec-day-time-picker').forEach(input => {
+                    input.value = mainStartTime;
+                    delete input.dataset.userEdited;
+                });
+
+                document.querySelectorAll('.rec-day-duration-picker').forEach(input => {
+                    input.value = mainDuration;
+                });
+
+                if (mainLink) {
+                    document.querySelectorAll('.rec-day-link-picker').forEach(input => {
+                        input.value = mainLink;
+                    });
+                }
+
+                if (window.Toast) {
+                    window.Toast.success(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days');
+                } else if (typeof showTeacherToast === 'function') {
+                    showTeacherToast(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days', true);
+                }
+            };
+
+            window.applyMainTimeToAllPortalDays = function() {
+                const portalForm = document.getElementById('recurringSchedulePortalForm');
+                if (!portalForm) return;
+                const mainStartTime = portalForm.querySelector('input[name="start_time"]')?.value || '10:00';
+                const mainDuration = portalForm.querySelector('input[name="duration_minutes"]')?.value || '60';
+                const mainLink = portalForm.querySelector('input[name="meeting_link"]')?.value || '';
+
+                portalForm.querySelectorAll('.rec-day-time-picker').forEach(input => {
+                    input.value = mainStartTime;
+                    delete input.dataset.userEdited;
+                });
+
+                portalForm.querySelectorAll('.rec-day-duration-picker').forEach(input => {
+                    input.value = mainDuration;
+                });
+
+                if (mainLink) {
+                    portalForm.querySelectorAll('.rec-day-link-picker').forEach(input => {
+                        input.value = mainLink;
+                    });
+                }
+
+                if (window.Toast) {
+                    window.Toast.success(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days');
+                } else if (typeof showTeacherToast === 'function') {
+                    showTeacherToast(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days', true);
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const mainStartTimeInput = document.getElementById('recStartTime');
+                if (mainStartTimeInput) {
+                    mainStartTimeInput.addEventListener('change', function() {
+                        const newTime = this.value;
+                        document.querySelectorAll('.rec-day-time-picker').forEach(input => {
+                            if (!input.dataset.userEdited) {
+                                input.value = newTime;
+                            }
+                        });
+                    });
+                }
+                document.querySelectorAll('.rec-day-time-picker').forEach(input => {
+                    input.addEventListener('change', function() {
+                        this.dataset.userEdited = 'true';
+                    });
+                });
+            });
 
             // ── Recurring Schedule Helpers ──────────────────────────────────────────
             window.openCreateRecurringModal = function() {
@@ -6768,11 +9390,13 @@
                     const submitBtn = document.getElementById('editAssignmentSubmitBtn');
                     if (submitBtn) {
                         submitBtn.disabled = true;
-                        submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+                        submitBtn.innerHTML =
+                            `<i class="fa-solid fa-spinner animate-spin"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
                     }
                     try {
                         const formData = new FormData(editAssignForm);
-                        const res = await fetch(`${appBaseUrl}/ajax/teacher/assignments/${aId}/update`, {
+                        const res = await fetch(
+                        `${appBaseUrl}/ajax/teacher/assignments/${aId}/update`, {
                             method: 'POST',
                             body: formData,
                             headers: {
@@ -6786,14 +9410,17 @@
                             closeModal('editAssignmentModal');
                             setTimeout(() => location.reload(), 800);
                         } else {
-                            showTeacherToast(data.message || (isArLocale ? 'فشل تحديث الواجب' : 'Failed to update assignment'), false);
+                            showTeacherToast(data.message || (isArLocale ? 'فشل تحديث الواجب' :
+                                'Failed to update assignment'), false);
                         }
                     } catch (err) {
-                        showTeacherToast(isArLocale ? 'خطأ في الاتصال بالخادم' : 'Connection error', false);
+                        showTeacherToast(isArLocale ? 'خطأ في الاتصال بالخادم' : 'Connection error',
+                            false);
                     } finally {
                         if (submitBtn) {
                             submitBtn.disabled = false;
-                            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk text-xs"></i> <span>${isArLocale ? 'حفظ التغييرات' : 'Save Changes'}</span>`;
+                            submitBtn.innerHTML =
+                                `<i class="fa-solid fa-floppy-disk text-xs"></i> <span>${isArLocale ? 'حفظ التغييرات' : 'Save Changes'}</span>`;
                         }
                     }
                 });
@@ -6804,21 +9431,23 @@
                 editRecForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const sId = document.getElementById('editRecScheduleId').value;
-                    const submitBtn = document.getElementById('editRecSubmitBtn') || document.getElementById('saveEditRecurringBtn');
+                    const submitBtn = document.getElementById('editRecSubmitBtn') || document
+                        .getElementById('saveEditRecurringBtn');
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i>`;
                     }
                     try {
                         const formData = new FormData(editRecForm);
-                        const res = await fetch(`${appBaseUrl}/ajax/teacher/recurring-schedules/${sId}/update`, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        });
+                        const res = await fetch(
+                            `${appBaseUrl}/ajax/teacher/recurring-schedules/${sId}/update`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            });
                         const data = await res.json();
                         if (data.success) {
                             showTeacherToast(data.message, true);
@@ -6829,14 +9458,16 @@
                             }
                             setTimeout(() => location.reload(), 800);
                         } else {
-                            showTeacherToast(data.message || (isArLocale ? 'فشل تعديل الجدول الدوري' : 'Failed to update schedule'), false);
+                            showTeacherToast(data.message || (isArLocale ? 'فشل تعديل الجدول الدوري' :
+                                'Failed to update schedule'), false);
                         }
                     } catch (err) {
                         showTeacherToast(isArLocale ? 'خطأ في الاتصال' : 'Connection error', false);
                     } finally {
                         if (submitBtn) {
                             submitBtn.disabled = false;
-                            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>${isArLocale ? 'حفظ التعديلات' : 'Save Changes'}</span>`;
+                            submitBtn.innerHTML =
+                                `<i class="fa-solid fa-floppy-disk"></i> <span>${isArLocale ? 'حفظ التعديلات' : 'Save Changes'}</span>`;
                         }
                     }
                 });

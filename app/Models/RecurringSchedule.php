@@ -21,6 +21,8 @@ class RecurringSchedule extends Model
         'title',
         'recurrence_type',
         'days_of_week',
+        'day_start_times',
+        'day_meeting_links',
         'monthly_pattern',
         'start_time',
         'end_time',
@@ -37,6 +39,8 @@ class RecurringSchedule extends Model
 
     protected $casts = [
         'days_of_week' => 'array',
+        'day_start_times' => 'array',
+        'day_meeting_links' => 'array',
         'monthly_pattern' => 'array',
         'duration_minutes' => 'integer',
         'start_date' => 'date',

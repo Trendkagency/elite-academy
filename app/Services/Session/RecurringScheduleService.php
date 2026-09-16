@@ -76,15 +76,57 @@ class RecurringScheduleService
             return $dates;
         }
 
+        $dayStartTimes = $params['day_start_times'] ?? [];
+        $dayDurations = $params['day_durations'] ?? [];
+        $dayMeetingLinks = $params['day_meeting_links'] ?? [];
+        $mainMeetingLink = $params['meeting_link'] ?? null;
+
         if ($recurrenceType === 'weekly' || $recurrenceType === 'multi_month' || $recurrenceType === 'yearly') {
             if (empty($normalizedDays)) {
                 $normalizedDays = [$startDate->dayOfWeek];
             }
 
             while ($current->lte($endDate) && $count < $maxLimit) {
-                if (in_array($current->dayOfWeek, $normalizedDays, true)) {
-                    $sessionStart = Carbon::parse($current->format('Y-m-d') . ' ' . $startTime);
-                    $sessionEnd = $sessionStart->copy()->addMinutes($duration);
+                $dayOfWeek = $current->dayOfWeek;
+                if (in_array($dayOfWeek, $normalizedDays, true)) {
+                    $dayCustomTime = null;
+                    if (is_array($dayStartTimes)) {
+                        if (!empty($dayStartTimes[$dayOfWeek])) {
+                            $dayCustomTime = $dayStartTimes[$dayOfWeek];
+                        } elseif (!empty($dayStartTimes[(string)$dayOfWeek])) {
+                            $dayCustomTime = $dayStartTimes[(string)$dayOfWeek];
+                        } else {
+                            $dayName = strtolower($current->englishDayOfWeek);
+                            if (!empty($dayStartTimes[$dayName])) {
+                                $dayCustomTime = $dayStartTimes[$dayName];
+                            }
+                        }
+                    }
+
+                    $dayCustomDuration = null;
+                    if (is_array($dayDurations)) {
+                        if (!empty($dayDurations[$dayOfWeek])) {
+                            $dayCustomDuration = (int) $dayDurations[$dayOfWeek];
+                        } elseif (!empty($dayDurations[(string)$dayOfWeek])) {
+                            $dayCustomDuration = (int) $dayDurations[(string)$dayOfWeek];
+                        }
+                    }
+
+                    $dayCustomLink = null;
+                    if (is_array($dayMeetingLinks)) {
+                        if (!empty($dayMeetingLinks[$dayOfWeek])) {
+                            $dayCustomLink = $dayMeetingLinks[$dayOfWeek];
+                        } elseif (!empty($dayMeetingLinks[(string)$dayOfWeek])) {
+                            $dayCustomLink = $dayMeetingLinks[(string)$dayOfWeek];
+                        }
+                    }
+
+                    $effectiveStartTime = $dayCustomTime ?: $startTime;
+                    $effectiveDuration = ($dayCustomDuration && $dayCustomDuration >= 15) ? $dayCustomDuration : $duration;
+                    $effectiveLink = $dayCustomLink ?: $mainMeetingLink;
+
+                    $sessionStart = Carbon::parse($current->format('Y-m-d') . ' ' . $effectiveStartTime);
+                    $sessionEnd = $sessionStart->copy()->addMinutes($effectiveDuration);
                     $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd);
 
                     $dates[] = [
@@ -92,6 +134,7 @@ class RecurringScheduleService
                         'day_name' => $sessionStart->locale(app()->getLocale())->translatedFormat('l'),
                         'start_time' => $sessionStart->format('H:i'),
                         'end_time' => $sessionEnd->format('H:i'),
+                        'meeting_link' => $effectiveLink,
                         'has_conflict' => !empty($conflicts),
                         'conflict_details' => $conflicts,
                     ];
@@ -256,6 +299,8 @@ class RecurringScheduleService
                 'title' => $data['title'],
                 'recurrence_type' => $data['recurrence_type'] ?? 'weekly',
                 'days_of_week' => $data['days_of_week'] ?? [],
+                'day_start_times' => $data['day_start_times'] ?? null,
+                'day_meeting_links' => $data['day_meeting_links'] ?? null,
                 'monthly_pattern' => $data['monthly_pattern'] ?? null,
                 'start_time' => $data['start_time'],
                 'end_time' => $data['end_time'] ?? Carbon::parse($data['start_time'])->addMinutes((int)($data['duration_minutes'] ?? 60))->format('H:i:s'),
@@ -287,8 +332,8 @@ class RecurringScheduleService
                     'scheduled_at' => $start,
                     'start_at' => $start,
                     'end_at' => $end,
-                    'duration_minutes' => $schedule->duration_minutes,
-                    'meeting_link' => $schedule->meeting_link,
+                    'duration_minutes' => $start->diffInMinutes($end),
+                    'meeting_link' => !empty($item['meeting_link']) ? $item['meeting_link'] : $schedule->meeting_link,
                     'meeting_platform' => $schedule->meeting_platform,
                     'status' => 'scheduled',
                     'lifecycle_state' => 'scheduled',
@@ -408,9 +453,14 @@ class RecurringScheduleService
             $schedule->update([
                 'title' => $data['title'] ?? $schedule->title,
                 'days_of_week' => $data['days_of_week'] ?? $schedule->days_of_week,
+                'day_start_times' => array_key_exists('day_start_times', $data) ? $data['day_start_times'] : $schedule->day_start_times,
+                'day_durations' => array_key_exists('day_durations', $data) ? $data['day_durations'] : $schedule->day_durations,
+                'day_meeting_links' => array_key_exists('day_meeting_links', $data) ? $data['day_meeting_links'] : $schedule->day_meeting_links,
                 'start_time' => $data['start_time'] ?? $schedule->start_time,
                 'end_time' => $data['end_time'] ?? $schedule->end_time,
                 'duration_minutes' => (int) ($data['duration_minutes'] ?? $schedule->duration_minutes),
+                'start_date' => $data['start_date'] ?? $schedule->start_date,
+                'end_date' => $data['end_date'] ?? $schedule->end_date,
                 'meeting_link' => $data['meeting_link'] ?? $schedule->meeting_link,
                 'notes' => $data['notes'] ?? $schedule->notes,
             ]);
@@ -422,21 +472,43 @@ class RecurringScheduleService
                 ->whereNotIn('status', ['completed', 'cancelled'])
                 ->get();
 
-            $newStartTime = $data['start_time'] ?? null;
-            $newDuration = (int) ($data['duration_minutes'] ?? $schedule->duration_minutes);
+            $dayStartTimes = $schedule->day_start_times ?? [];
+            $dayDurations = $schedule->day_durations ?? [];
+            $dayMeetingLinks = $schedule->day_meeting_links ?? [];
 
             foreach ($activeSessions as $session) {
+                $dayOfWeek = $session->scheduled_at->dayOfWeek;
+
+                $dayCustomTime = null;
+                if (is_array($dayStartTimes)) {
+                    $dayCustomTime = $dayStartTimes[$dayOfWeek] ?? $dayStartTimes[(string)$dayOfWeek] ?? null;
+                }
+
+                $dayCustomDuration = null;
+                if (is_array($dayDurations)) {
+                    $dayCustomDuration = $dayDurations[$dayOfWeek] ?? $dayDurations[(string)$dayOfWeek] ?? null;
+                }
+
+                $dayCustomLink = null;
+                if (is_array($dayMeetingLinks)) {
+                    $dayCustomLink = $dayMeetingLinks[$dayOfWeek] ?? $dayMeetingLinks[(string)$dayOfWeek] ?? null;
+                }
+
+                $effectiveStartTime = $dayCustomTime ?: $schedule->start_time;
+                $effectiveDuration = ($dayCustomDuration && (int)$dayCustomDuration >= 15) ? (int)$dayCustomDuration : $schedule->duration_minutes;
+                $effectiveLink = $dayCustomLink ?: $schedule->meeting_link;
+
                 $dateStr = $session->scheduled_at->format('Y-m-d');
-                $start = $newStartTime ? Carbon::parse($dateStr . ' ' . $newStartTime) : $session->scheduled_at;
-                $end = $start->copy()->addMinutes($newDuration);
+                $start = Carbon::parse($dateStr . ' ' . $effectiveStartTime);
+                $end = $start->copy()->addMinutes($effectiveDuration);
 
                 $session->update([
                     'title' => $schedule->title,
                     'scheduled_at' => $start,
                     'start_at' => $start,
                     'end_at' => $end,
-                    'duration_minutes' => $newDuration,
-                    'meeting_link' => $schedule->meeting_link,
+                    'duration_minutes' => $effectiveDuration,
+                    'meeting_link' => $effectiveLink,
                 ]);
             }
 
@@ -446,7 +518,7 @@ class RecurringScheduleService
                 'action' => 'updated_entire_schedule',
                 'old_values' => $oldValues,
                 'new_values' => $schedule->fresh()->toArray(),
-                'reason' => 'Updated entire schedule rule and active sessions',
+                'reason' => 'Updated entire schedule rule and active sessions with per-day custom settings',
                 'ip_address' => request()->ip(),
             ]);
         });

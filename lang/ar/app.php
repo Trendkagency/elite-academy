@@ -219,4 +219,5 @@ return [
         'og_title' => 'أكاديمية إيليت | المنصة التعليمية الأولى للدروس والبث المباشر',
         'og_description' => 'انضم إلى المنصة الأكاديمية الأولى في مصر للبث المباشر والمسارات المعتمدة.',
     ],
+    'Automatically generate recurring class sessions with custom per-day schedules and conflict validation.' => 'إنشاء جداول حصص متكررة تلقائيًا مع أوقات مخصصة لكل يوم والتحقق من التعارضات.',
 ];

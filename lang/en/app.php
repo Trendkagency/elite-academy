@@ -219,4 +219,5 @@ return [
         'og_title' => 'Elite Academy | Premier Learning & Tutoring Platform',
         'og_description' => 'Join Egypt’s premier academic platform for live classes, accredited tracks, and expert mentors.',
     ],
+    'Automatically generate recurring class sessions with custom per-day schedules and conflict validation.' => 'Automatically generate recurring class sessions with custom per-day schedules and conflict validation.',
 ];
