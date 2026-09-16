@@ -6,6 +6,7 @@ use BackedEnum;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -99,13 +100,24 @@ class SubjectsRelationManager extends RelationManager
                 IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean(),
+
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
-            ->defaultSort('sort_order', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->headerActions([
                 CreateAction::make()
                     ->label(__('Add New Subject under Category')),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

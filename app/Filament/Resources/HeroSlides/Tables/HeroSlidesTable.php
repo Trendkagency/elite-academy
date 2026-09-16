@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HeroSlides\Tables;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -60,10 +61,21 @@ class HeroSlidesTable
                     ->boolean()
                     ->trueColor('success')
                     ->falseColor('danger'),
+
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
-            ->defaultSort('sort_order', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->reorderable('sort_order')
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

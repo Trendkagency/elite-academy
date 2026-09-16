@@ -11,6 +11,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -90,6 +91,16 @@ class StudentPackagesTable
                     ->placeholder(__('No Expiry'))
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : null),
+
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -250,6 +261,7 @@ class StudentPackagesTable
                         }
                     }),
 
+                ViewAction::make(),
                 EditAction::make()->label(__('Edit')),
                 DeleteAction::make(),
                 RestoreAction::make(),

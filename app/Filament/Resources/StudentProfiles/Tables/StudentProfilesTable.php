@@ -11,6 +11,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -52,6 +53,14 @@ class StudentProfilesTable
                 TextColumn::make('user.status')
                     ->label(__('Account Status'))
                     ->badge(),
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -76,6 +85,7 @@ class StudentProfilesTable
                         Notification::make()->title('Student Rejected')->warning()->send();
                     })
                     ->visible(fn ($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make(),

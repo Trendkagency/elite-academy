@@ -867,4 +867,177 @@
     html.dark .fi-modal-heading {
         color: #F8FAFC !important;
     }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE & SCROLLABLE FILAMENT MODALS (UNIVERSAL FIX)
+       ------------------------------------------------------------- */
+    .fi-modal-window-ctn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1rem !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+    }
+
+    .fi-modal-window {
+        display: flex !important;
+        flex-direction: column !important;
+        max-height: min(calc(100vh - 2.5rem), calc(100dvh - 2.5rem)) !important;
+        overflow: hidden !important;
+        border-radius: 1.25rem !important;
+        margin: auto !important;
+        position: relative !important;
+    }
+
+    .fi-modal-header {
+        flex-shrink: 0 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 30 !important;
+        padding: 1.25rem 1.5rem !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(12px) !important;
+    }
+
+    html.dark .fi-modal-header {
+        border-bottom: 1px solid rgba(51, 65, 85, 0.7) !important;
+        background: rgba(15, 23, 42, 0.98) !important;
+    }
+
+    .fi-modal-content {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        max-height: min(calc(100vh - 12rem), calc(100dvh - 12rem)) !important;
+        padding: 1.5rem !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(13, 148, 136, 0.4) transparent !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .fi-modal-content::-webkit-scrollbar {
+        width: 6px !important;
+    }
+
+    .fi-modal-content::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+
+    .fi-modal-content::-webkit-scrollbar-thumb {
+        background-color: rgba(13, 148, 136, 0.4) !important;
+        border-radius: 9999px !important;
+    }
+
+    .fi-modal-content::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(13, 148, 136, 0.7) !important;
+    }
+
+    .fi-modal-footer {
+        flex-shrink: 0 !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 30 !important;
+        padding: 1rem 1.5rem !important;
+        border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(12px) !important;
+    }
+
+    html.dark .fi-modal-footer {
+        border-top: 1px solid rgba(51, 65, 85, 0.7) !important;
+        background: rgba(15, 23, 42, 0.98) !important;
+    }
+
+    /* Small screens / Mobile responsiveness */
+    @media (max-width: 640px) {
+        .fi-modal-window-ctn {
+            padding: 0.5rem !important;
+        }
+
+        .fi-modal-window {
+            max-height: calc(100dvh - 1rem) !important;
+            width: 96vw !important;
+            border-radius: 1rem !important;
+        }
+
+        .fi-modal-header {
+            padding: 1rem !important;
+        }
+
+        .fi-modal-content {
+            padding: 1rem !important;
+            max-height: calc(100dvh - 9.5rem) !important;
+        }
+
+        .fi-modal-footer {
+            padding: 0.75rem 1rem !important;
+        }
+    }
+
+    /* --- Modern "See More..." / Simple Pagination Styling --- */
+    .fi-pagination {
+        padding: 0.75rem 1.25rem !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .fi-pagination.fi-simple {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .fi-pagination-next-btn,
+    .fi-pagination-previous-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        font-weight: 700 !important;
+        font-family: 'Cairo', sans-serif !important;
+        padding: 0.5rem 1.25rem !important;
+        border-radius: 0.625rem !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .fi-pagination-next-btn {
+        background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(13, 148, 136, 0.3) !important;
+    }
+
+    .fi-pagination-next-btn:hover {
+        background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%) !important;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+        transform: translateY(-1px) !important;
+        color: #FFFFFF !important;
+    }
+
+    .fi-pagination-next-btn:active {
+        transform: translateY(0) !important;
+    }
+
+    .fi-pagination-previous-btn {
+        background: rgba(241, 245, 249, 0.8) !important;
+        color: #475569 !important;
+        border: 1px solid rgba(203, 213, 225, 0.8) !important;
+    }
+
+    html.dark .fi-pagination-previous-btn {
+        background: rgba(30, 41, 59, 0.8) !important;
+        color: #CBD5E1 !important;
+        border: 1px solid rgba(51, 65, 85, 0.8) !important;
+    }
+
+    .fi-pagination-previous-btn:hover {
+        background: rgba(226, 232, 240, 0.9) !important;
+        color: #0F172A !important;
+    }
+
+    html.dark .fi-pagination-previous-btn:hover {
+        background: rgba(51, 65, 85, 0.9) !important;
+        color: #FFFFFF !important;
+    }
 </style>

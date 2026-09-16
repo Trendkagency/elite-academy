@@ -12,6 +12,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -71,6 +72,10 @@ class ExceptionRequestsTable
                     ->label(__('Submitted At'))
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -112,6 +117,7 @@ class ExceptionRequestsTable
                     })
                     ->visible(fn ($record) => $record->status !== 'rejected'),
 
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make(),

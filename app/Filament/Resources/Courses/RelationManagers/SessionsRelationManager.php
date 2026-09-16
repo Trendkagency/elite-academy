@@ -90,7 +90,16 @@ class SessionsRelationManager extends RelationManager
                     ->falseColor('gray'),
                 ToggleColumn::make('is_free_demo')
                     ->label('Toggle Free Demo'),
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->headerActions([
                 \Filament\Actions\CreateAction::make()->label('➕ Add New Course Session'),
             ])
@@ -121,6 +130,7 @@ class SessionsRelationManager extends RelationManager
                     })
                     ->visible(fn ($record) => (bool) $record->is_free_demo),
 
+                \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
             ]);

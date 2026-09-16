@@ -12,6 +12,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -139,7 +140,18 @@ class EnrollmentsRelationManager extends RelationManager
                     ->label(__('Enrolled At'))
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
+
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->headerActions([
                 Action::make('enroll_multiple_students')
                     ->label(__('Enroll Multiple Students'))
@@ -246,6 +258,7 @@ class EnrollmentsRelationManager extends RelationManager
                     ->modalHeading(__('Enroll Student in Course')),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->label(__('Unenroll'))

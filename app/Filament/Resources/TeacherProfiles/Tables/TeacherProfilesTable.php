@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -59,6 +60,14 @@ class TeacherProfilesTable
                     ->label(__('Publicly Visible')),
                 ToggleColumn::make('is_featured')
                     ->label(__('Featured')),
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -83,6 +92,7 @@ class TeacherProfilesTable
                         \Filament\Notifications\Notification::make()->title(__('Teacher Rejected'))->warning()->send();
                     })
                     ->visible(fn($record) => $record->user?->status === \App\Enums\AccountStatus::PENDING || $record->user?->status === 'pending'),
+                ViewAction::make(),
                 EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
                 \Filament\Actions\RestoreAction::make(),

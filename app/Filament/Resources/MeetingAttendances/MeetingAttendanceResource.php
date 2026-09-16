@@ -56,8 +56,16 @@ class MeetingAttendanceResource extends Resource
                 TextColumn::make('joined_at')->dateTime()->sortable(),
                 TextColumn::make('last_seen_at')->dateTime()->sortable(),
                 TextColumn::make('ip_address')->searchable(),
+                TextColumn::make('created_at')
+                    ->label(app()->getLocale() === 'ar' ? 'تاريخ الإنشاء' : 'Created At')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(app()->getLocale() === 'ar' ? 'آخر تحديث' : 'Updated At')
+                    ->dateTime()
+                    ->sortable(),
             ])
-            ->defaultSort('joined_at', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

@@ -620,15 +620,17 @@
         }
 
         initProgressiveLoading() {
-            // Check if wrapper already has footer
             let container = this.table.closest('.table-responsive');
             if (!container) return;
 
-            let footer = container.parentNode.querySelector(`.elite-table-footer[data-table-id="${this.table.id || 'tbl'}"]`);
+            const tableId = this.table.id || 'tbl_' + Math.random().toString(36).substr(2, 6);
+            this.table.id = tableId;
+
+            let footer = container.parentNode.querySelector(`.elite-table-footer[data-table-id="${tableId}"]`);
             if (!footer) {
                 footer = document.createElement('div');
                 footer.className = 'elite-table-footer pt-3 pb-1 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500';
-                footer.setAttribute('data-table-id', this.table.id || 'tbl');
+                footer.setAttribute('data-table-id', tableId);
                 footer.innerHTML = `
                     <div class="row-counter flex items-center gap-1.5 font-bold">
                         <span class="counter-text"></span>
@@ -636,7 +638,7 @@
                     <div class="load-actions flex items-center gap-2">
                         <button type="button" class="btn-see-more px-4 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer inline-flex items-center gap-2 shadow-2xs">
                             <i class="fa-solid fa-angles-down text-teal-600 dark:text-teal-400"></i>
-                            <span>${isArLocale ? 'عرض المزيد...' : 'See More...'}</span>
+                            <span class="btn-text">${isArLocale ? 'عرض المزيد...' : 'See More...'}</span>
                         </button>
                     </div>
                 `;
@@ -644,26 +646,15 @@
 
                 const seeMoreBtn = footer.querySelector('.btn-see-more');
                 if (seeMoreBtn) {
-                    seeMoreBtn.addEventListener('click', () => {
-                        this.currentLimit += this.pageSize;
-                        this.refreshDisplay();
+                    seeMoreBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const rows = this.getMatchingRows();
+                        if (this.currentLimit < rows.length) {
+                            this.currentLimit += this.pageSize;
+                            this.refreshDisplay();
+                        }
                     });
-                }
-
-                // IntersectionObserver for auto scroll loading
-                if ('IntersectionObserver' in window) {
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const rows = this.getMatchingRows();
-                                if (this.currentLimit < rows.length) {
-                                    this.currentLimit += this.pageSize;
-                                    this.refreshDisplay();
-                                }
-                            }
-                        });
-                    }, { threshold: 0.2 });
-                    observer.observe(footer);
                 }
             }
             this.footerEl = footer;
@@ -728,6 +719,7 @@
                 const shown = Math.min(this.currentLimit, total);
                 const counterEl = this.footerEl.querySelector('.counter-text');
                 const seeMoreBtn = this.footerEl.querySelector('.btn-see-more');
+                const btnText = this.footerEl.querySelector('.btn-text');
 
                 if (counterEl) {
                     if (total === 0) {
@@ -744,26 +736,37 @@
                 }
 
                 if (seeMoreBtn) {
-                    if (shown >= total || total <= this.pageSize) {
+                    if (shown >= total) {
+                        seeMoreBtn.style.display = 'none';
                         seeMoreBtn.classList.add('hidden');
                     } else {
+                        seeMoreBtn.style.display = 'inline-flex';
                         seeMoreBtn.classList.remove('hidden');
+                        const remaining = total - shown;
+                        const nextChunk = Math.min(this.pageSize, remaining);
+                        if (btnText) {
+                            btnText.textContent = isArLocale ? `عرض المزيد (${nextChunk} إضافية)...` : `See More (${nextChunk} more)...`;
+                        }
                     }
                 }
 
-                if (total <= this.pageSize && total <= 1) {
-                    this.footerEl.classList.add('hidden');
+                if (total <= 1 && total > 0) {
+                    this.footerEl.style.display = 'none';
                 } else {
-                    this.footerEl.classList.remove('hidden');
+                    this.footerEl.style.display = '';
                 }
             }
         }
     }
 
-    // Initialize all tables on load
+    // Initialize all tables on load (singleton pattern per table)
     window.eliteTableInstances = [];
     function initEliteTables() {
         document.querySelectorAll('table.elite-sortable-table').forEach((tbl, i) => {
+            if (tbl._eliteEngine) {
+                tbl._eliteEngine.refreshDisplay();
+                return;
+            }
             if (!tbl.id) tbl.id = `elite_table_${i}`;
             const instance = new EliteTableEngine(tbl);
             tbl._eliteEngine = instance;

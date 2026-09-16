@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -56,10 +57,14 @@ class CategoriesTable
                 TextColumn::make('created_at')
                     ->label(__('Created At'))
                     ->dateTime('d M Y, H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime('d M Y, H:i')
+                    ->sortable(),
             ])
-            ->defaultSort('sort_order', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('is_active')
                     ->label(__('Active Status'))
@@ -69,6 +74,7 @@ class CategoriesTable
                     ]),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->before(function (DeleteAction $action, $record) {

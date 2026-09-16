@@ -190,6 +190,16 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
                         '✓ Complete' => 'success',
                         default => 'danger',
                     }),
+
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('group')

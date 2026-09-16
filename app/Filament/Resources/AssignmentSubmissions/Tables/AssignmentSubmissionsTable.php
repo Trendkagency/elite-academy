@@ -14,6 +14,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -115,6 +116,16 @@ class AssignmentSubmissionsTable
                     ->label(app()->getLocale() === 'ar' ? 'تم التقييم بواسطة' : 'Reviewed By')
                     ->placeholder('— (Auto)')
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label(app()->getLocale() === 'ar' ? 'تاريخ الإنشاء' : 'Created At')
+                    ->dateTime()
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(app()->getLocale() === 'ar' ? 'آخر تحديث' : 'Updated At')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('assignment_id')
@@ -244,6 +255,7 @@ class AssignmentSubmissionsTable
                             ->send();
                     }),
 
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make(),

@@ -97,14 +97,23 @@ class LiveSessionsRelationManager extends RelationManager
                     }),
                 ToggleColumn::make('is_free_demo')
                     ->label('Free Demo'),
+                TextColumn::make('created_at')
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make()->label('📡 Schedule Live Session'),
             ])
             ->recordActions([
+                \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
             ])
-            ->defaultSort('scheduled_at', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
 }

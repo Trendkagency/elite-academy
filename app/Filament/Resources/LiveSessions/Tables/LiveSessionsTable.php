@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -107,9 +108,14 @@ class LiveSessionsTable
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
+                    ->label(app()->getLocale() === 'ar' ? 'تاريخ الإنشاء' : 'Created At')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(app()->getLocale() === 'ar' ? 'آخر تحديث' : 'Updated At')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -209,6 +215,7 @@ class LiveSessionsTable
                             ->send();
                     }),
 
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
