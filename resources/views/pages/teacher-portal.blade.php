@@ -4471,7 +4471,7 @@
     <div id="createAssignmentModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
             <div
                 class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white flex items-center justify-between shrink-0 border-b border-teal-800/40">
@@ -4497,7 +4497,7 @@
             </div>
 
             <form id="createAssignmentForm" action="{{ route('ajax.teacher.assignments.create') }}" method="POST"
-                class="flex-1 flex flex-col overflow-hidden m-0">
+                enctype="multipart/form-data" class="flex-1 flex flex-col overflow-hidden m-0">
                 @csrf
 
                 {{-- Scrollable Form Body --}}
@@ -4680,7 +4680,7 @@
                 </button>
             </div>
 
-            <form id="editAssignmentForm" method="POST" class="flex-1 flex flex-col overflow-hidden m-0">
+            <form id="editAssignmentForm" method="POST" enctype="multipart/form-data" class="flex-1 flex flex-col overflow-hidden m-0">
                 @csrf
                 <input type="hidden" id="editAssignmentId" name="assignment_id">
 
@@ -7512,18 +7512,27 @@
                         let optsHtml = '';
                         (q.options || []).forEach(opt => {
                             const isCorrect = opt.is_correct;
+                            const optImgHtml = opt.image_url ?
+                                `<img src="${opt.image_url}" class="h-9 w-auto max-w-[120px] rounded-lg border border-slate-200 dark:border-slate-700 object-contain shadow-2xs ms-2 shrink-0 pointer-events-none" alt="Option Image">` : '';
+
                             optsHtml += `
-                        <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-bold shadow-2xs' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'} flex items-start justify-between gap-2 text-xs">
-                            <div class="flex items-center gap-2 min-w-0">
+                        <div class="p-2.5 rounded-xl border ${isCorrect ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-bold shadow-2xs' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'} flex items-center justify-between gap-2 text-xs">
+                            <div class="flex items-center gap-2 min-w-0 flex-1">
                                 <span class="w-5 h-5 rounded-lg ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'} flex items-center justify-center shrink-0 text-[10px]">
                                     ${isCorrect ? '<i class="fa-solid fa-check"></i>' : '•'}
                                 </span>
                                 <span class="break-words">${escapeHtml(opt.option_text)}</span>
+                                ${optImgHtml}
                             </div>
                             ${isCorrect ? '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-emerald-200 dark:bg-emerald-900/70 text-emerald-900 dark:text-emerald-200 shrink-0 font-extrabold"><i class="fa-solid fa-circle-check me-1"></i>{{ __('Correct Answer') }}</span>' : ''}
                         </div>
                     `;
                         });
+
+                        const qImgHtml = q.image_url ?
+                            `<div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 max-w-md my-2">
+                                <img src="${q.image_url}" class="max-h-48 rounded-lg object-contain mx-auto" alt="Question Diagram">
+                            </div>` : '';
 
                         qHtml += `
                     <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
@@ -7532,6 +7541,7 @@
                             <span class="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400">${q.points} {{ __('pts') }}</span>
                         </div>
                         <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">${escapeHtml(q.question_text)}</p>
+                        ${qImgHtml}
                         <div class="space-y-1.5 pt-1">
                             ${optsHtml}
                         </div>
@@ -8136,6 +8146,46 @@
         // ── Interactive Question Builder for Assignment Creator ───────────────────────
         let teacherQuestionCount = 0;
 
+        function previewQuestionImage(input, previewContainerId) {
+            const previewContainer = document.getElementById(previewContainerId);
+            if (!previewContainer) return;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `
+                        <div class="relative inline-block mt-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs bg-white dark:bg-slate-900 p-1">
+                            <img src="${e.target.result}" class="h-20 sm:h-24 w-auto rounded-lg object-contain" alt="Preview">
+                            <button type="button" onclick="clearSelectedImage('${input.id}', '${previewContainerId}')" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-[10px] shadow-sm cursor-pointer" title="Remove image">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearSelectedImage(inputId, previewContainerId) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = '';
+            const previewContainer = document.getElementById(previewContainerId);
+            if (previewContainer) previewContainer.innerHTML = '';
+        }
+
+        function removeExistingQuestionImage(qIdx) {
+            const preview = document.getElementById(`editQImagePreview_${qIdx}`);
+            const hiddenRemove = document.getElementById(`editQRemoveImage_${qIdx}`);
+            if (hiddenRemove) hiddenRemove.value = '1';
+            if (preview) preview.innerHTML = '';
+        }
+
+        function removeExistingOptionImage(qIdx, optIdx) {
+            const preview = document.getElementById(`editOptImagePreview_${qIdx}_${optIdx}`);
+            const hiddenRemove = document.getElementById(`editOptRemoveImage_${qIdx}_${optIdx}`);
+            if (hiddenRemove) hiddenRemove.value = '1';
+            if (preview) preview.innerHTML = '';
+        }
+
         function addTeacherQuestion() {
             const container = document.getElementById('teacherQuestionsContainer');
             const emptyState = document.getElementById('teacherQuestionsEmptyState');
@@ -8146,7 +8196,7 @@
             const isAr = @json(app()->getLocale() === 'ar');
 
             const html = `
-    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 relative" id="teacherQCard_${qIdx}">
+    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3.5 relative" id="teacherQCard_${qIdx}">
         <div class="flex items-center justify-between">
             <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-950/70 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
                 ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
@@ -8166,13 +8216,36 @@
             <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600"></textarea>
         </div>
 
+        {{-- Question Diagram / Image Attachment --}}
+        <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/80">
+            <div class="flex items-center justify-between gap-2">
+                <label class="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-image text-teal-600 dark:text-teal-400 text-xs"></i>
+                    <span>${isAr ? 'صورة / رسم بياني للسؤال (اختياري)' : 'Question Image / Diagram (Optional)'}</span>
+                </label>
+                <label for="createQImage_${qIdx}" class="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 text-[10px] font-mono font-bold hover:bg-teal-100 cursor-pointer transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                    <span>${isAr ? 'رفع صورة' : 'Upload Image'}</span>
+                </label>
+                <input type="file" id="createQImage_${qIdx}" name="questions[${qIdx}][image]" accept="image/*" class="hidden" onchange="previewQuestionImage(this, 'createQPreview_${qIdx}')">
+            </div>
+            <div id="createQPreview_${qIdx}"></div>
+        </div>
+
         <div class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة وأرفق صورة لكل خيار إن وُجد):' : 'Answer Choices (Select radio button for the correct option and attach choice images if needed):'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 ${[0, 1, 2, 3].map(optIdx => `
-                        <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
-                            <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                        <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0">
+                                <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                                <label for="createOptImage_${qIdx}_${optIdx}" class="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer p-1 shrink-0" title="${isAr ? 'إرفاق صورة للخيار' : 'Attach image to choice'}">
+                                    <i class="fa-regular fa-image text-xs"></i>
+                                </label>
+                                <input type="file" id="createOptImage_${qIdx}_${optIdx}" name="questions[${qIdx}][option_images][${optIdx}]" accept="image/*" class="hidden" onchange="previewQuestionImage(this, 'createOptPreview_${qIdx}_${optIdx}')">
+                            </div>
+                            <div id="createOptPreview_${qIdx}_${optIdx}"></div>
                         </div>
                     `).join('')}
             </div>
@@ -8208,24 +8281,48 @@
             const qText = existingData?.question_text || '';
             const qPoints = existingData?.points || 1;
             const existingOptions = existingData?.options || [];
+            const qImagePath = existingData?.image_path || '';
+            const qImageUrl = existingData?.image_url || (qImagePath ? `${appBaseUrl}/storage/${qImagePath}` : '');
 
             let optionsHtml = '';
             for (let optIdx = 0; optIdx < 4; optIdx++) {
                 const optObj = existingOptions[optIdx] || {};
                 const optText = optObj.option_text || '';
                 const isChecked = optObj.is_correct ? 'checked' : (optIdx === 0 && !existingData ? 'checked' : '');
+                const optImagePath = optObj.image_path || '';
+                const optImageUrl = optObj.image_url || (optImagePath ? `${appBaseUrl}/storage/${optImagePath}` : '');
 
                 optionsHtml += `
-                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${isChecked} class="text-teal-600 focus:ring-teal-500 cursor-pointer">
-                        <input type="text" name="questions[${qIdx}][options][${optIdx}]" value="${escapeHtml(optText)}" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                    <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
+                        <input type="hidden" name="questions[${qIdx}][existing_option_images][${optIdx}]" value="${escapeHtml(optImagePath)}">
+                        <input type="hidden" id="editOptRemoveImage_${qIdx}_${optIdx}" name="questions[${qIdx}][remove_option_images][${optIdx}]" value="0">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${isChecked} class="text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0">
+                            <input type="text" name="questions[${qIdx}][options][${optIdx}]" value="${escapeHtml(optText)}" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                            <label for="editOptImage_${qIdx}_${optIdx}" class="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer p-1 shrink-0" title="${isAr ? 'إرفاق صورة للخيار' : 'Attach image to choice'}">
+                                <i class="fa-regular fa-image text-xs"></i>
+                            </label>
+                            <input type="file" id="editOptImage_${qIdx}_${optIdx}" name="questions[${qIdx}][option_images][${optIdx}]" accept="image/*" class="hidden" onchange="previewQuestionImage(this, 'editOptImagePreview_${qIdx}_${optIdx}')">
+                        </div>
+                        <div id="editOptImagePreview_${qIdx}_${optIdx}">
+                            ${optImageUrl ? `
+                                <div class="relative inline-block mt-1 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs bg-white dark:bg-slate-900 p-1">
+                                    <img src="${optImageUrl}" class="h-16 w-auto rounded-lg object-contain" alt="Option Image">
+                                    <button type="button" onclick="removeExistingOptionImage(${qIdx}, ${optIdx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-[9px] shadow-sm cursor-pointer" title="${isAr ? 'حذف الصورة' : 'Remove image'}">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }
 
             const html = `
-    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 relative" id="editTeacherQCard_${qIdx}">
+    <div class="teacher-q-card p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3.5 relative" id="editTeacherQCard_${qIdx}">
         <input type="hidden" name="questions[${qIdx}][id]" value="${qId}">
+        <input type="hidden" name="questions[${qIdx}][existing_image]" value="${escapeHtml(qImagePath)}">
+        <input type="hidden" id="editQRemoveImage_${qIdx}" name="questions[${qIdx}][remove_image]" value="0">
         <div class="flex items-center justify-between">
             <span class="text-xs font-mono font-extrabold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-950/70 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
                 ${isAr ? 'السؤال رقم ' : 'Question #'}${qIdx + 1}
@@ -8245,9 +8342,34 @@
             <textarea name="questions[${qIdx}][question_text]" rows="2" required placeholder="${isAr ? 'اكتب نص السؤال هنا...' : 'Type question text here...'}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-teal-600">${escapeHtml(qText)}</textarea>
         </div>
 
+        {{-- Question Diagram / Image Attachment --}}
+        <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/80">
+            <div class="flex items-center justify-between gap-2">
+                <label class="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-image text-teal-600 dark:text-teal-400 text-xs"></i>
+                    <span>${isAr ? 'صورة / رسم بياني للسؤال (اختياري)' : 'Question Image / Diagram (Optional)'}</span>
+                </label>
+                <label for="editQImage_${qIdx}" class="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 text-[10px] font-mono font-bold hover:bg-teal-100 cursor-pointer transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                    <span>${isAr ? 'تغيير أو رفع صورة' : 'Change or Upload Image'}</span>
+                </label>
+                <input type="file" id="editQImage_${qIdx}" name="questions[${qIdx}][image]" accept="image/*" class="hidden" onchange="previewQuestionImage(this, 'editQImagePreview_${qIdx}')">
+            </div>
+            <div id="editQImagePreview_${qIdx}">
+                ${qImageUrl ? `
+                    <div class="relative inline-block mt-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs bg-white dark:bg-slate-900 p-1">
+                        <img src="${qImageUrl}" class="h-20 sm:h-24 w-auto rounded-lg object-contain" alt="Question Diagram">
+                        <button type="button" onclick="removeExistingQuestionImage(${qIdx})" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-[10px] shadow-sm cursor-pointer" title="${isAr ? 'حذف الصورة' : 'Remove image'}">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+
         <div class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة):' : 'Answer Choices (Select radio button for the correct option):'}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">${isAr ? 'الخيارات (حدد الدائرة بجانب الإجابة الصحيحة وأرفق صورة لكل خيار إن وُجد):' : 'Answer Choices (Select radio button for the correct option and attach choice images if needed):'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 ${optionsHtml}
             </div>
         </div>

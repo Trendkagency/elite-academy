@@ -28,6 +28,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class TeacherPortalController extends Controller
@@ -874,6 +875,9 @@ class TeacherPortalController extends Controller
             'questions.*.correct_index' => 'nullable|integer|min:0|max:10',
             'questions.*.options' => 'nullable|array|min:2',
             'questions.*.options.*' => 'nullable|string|max:500',
+            'questions.*.image' => 'nullable|image|max:5120',
+            'questions.*.option_images' => 'nullable|array',
+            'questions.*.option_images.*' => 'nullable|image|max:5120',
         ]);
 
         $course = Course::findOrFail($validated['course_id']);
@@ -901,10 +905,17 @@ class TeacherPortalController extends Controller
                 $qPoints = (float) ($qData['points'] ?? 1.0);
                 $correctIndex = isset($qData['correct_index']) ? (int) $qData['correct_index'] : 0;
 
+                // Handle Question Diagram Image
+                $questionImagePath = null;
+                if ($request->hasFile("questions.{$qIdx}.image")) {
+                    $questionImagePath = $request->file("questions.{$qIdx}.image")->store('assignment-questions', 'public');
+                }
+
                 $question = \App\Models\AssignmentQuestion::create([
                     'assignment_id' => $assignment->id,
                     'question_text' => $qData['question_text'],
-                    'question_type' => 'text',
+                    'image_path' => $questionImagePath,
+                    'question_type' => $questionImagePath ? 'both' : 'text',
                     'points' => $qPoints,
                     'sort_order' => $qIdx + 1,
                     'is_multiple_choice' => false,
@@ -914,9 +925,16 @@ class TeacherPortalController extends Controller
                     foreach ($qData['options'] as $optIdx => $optText) {
                         if (trim((string)$optText) === '') continue;
 
+                        // Handle Option Choice Image
+                        $optImagePath = null;
+                        if ($request->hasFile("questions.{$qIdx}.option_images.{$optIdx}")) {
+                            $optImagePath = $request->file("questions.{$qIdx}.option_images.{$optIdx}")->store('assignment-options', 'public');
+                        }
+
                         \App\Models\AssignmentQuestionOption::create([
                             'question_id' => $question->id,
                             'option_text' => trim($optText),
+                            'image_path' => $optImagePath,
                             'sort_order' => $optIdx + 1,
                             'is_correct' => ($optIdx === $correctIndex),
                         ]);
@@ -967,6 +985,15 @@ class TeacherPortalController extends Controller
             'questions.*.correct_index' => 'nullable|integer|min:0|max:10',
             'questions.*.options' => 'nullable|array|min:2',
             'questions.*.options.*' => 'nullable|string|max:500',
+            'questions.*.existing_image' => 'nullable|string',
+            'questions.*.remove_image' => 'nullable|string',
+            'questions.*.image' => 'nullable|image|max:5120',
+            'questions.*.existing_option_images' => 'nullable|array',
+            'questions.*.existing_option_images.*' => 'nullable|string',
+            'questions.*.remove_option_images' => 'nullable|array',
+            'questions.*.remove_option_images.*' => 'nullable|string',
+            'questions.*.option_images' => 'nullable|array',
+            'questions.*.option_images.*' => 'nullable|image|max:5120',
         ]);
 
         $course = Course::findOrFail($validated['course_id']);
@@ -974,7 +1001,7 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized course ownership'], 403);
         }
 
-        DB::transaction(function () use ($assignment, $validated, $course) {
+        DB::transaction(function () use ($assignment, $validated, $course, $request) {
             $assignment->update([
                 'course_id' => $course->id,
                 'live_session_id' => $validated['live_session_id'] ?? null,
@@ -995,11 +1022,30 @@ class TeacherPortalController extends Controller
                 $correctIndex = isset($qData['correct_index']) ? (int) $qData['correct_index'] : 0;
                 $qId = !empty($qData['id']) ? (int) $qData['id'] : null;
 
+                // Handle question image upload / removal / keep
+                $existingImage = $qData['existing_image'] ?? null;
+                $removeImage = !empty($qData['remove_image']) && $qData['remove_image'] === '1';
+                $questionImagePath = $existingImage;
+
+                if ($removeImage && $existingImage) {
+                    Storage::disk('public')->delete($existingImage);
+                    $questionImagePath = null;
+                }
+
+                if ($request->hasFile("questions.{$qIdx}.image")) {
+                    if ($existingImage) {
+                        Storage::disk('public')->delete($existingImage);
+                    }
+                    $questionImagePath = $request->file("questions.{$qIdx}.image")->store('assignment-questions', 'public');
+                }
+
                 if ($qId) {
                     $question = \App\Models\AssignmentQuestion::where('assignment_id', $assignment->id)->find($qId);
                     if ($question) {
                         $question->update([
                             'question_text' => $qData['question_text'],
+                            'image_path' => $questionImagePath,
+                            'question_type' => $questionImagePath ? 'both' : 'text',
                             'points' => $qPoints,
                             'sort_order' => $qIdx + 1,
                         ]);
@@ -1007,7 +1053,8 @@ class TeacherPortalController extends Controller
                         $question = \App\Models\AssignmentQuestion::create([
                             'assignment_id' => $assignment->id,
                             'question_text' => $qData['question_text'],
-                            'question_type' => 'text',
+                            'image_path' => $questionImagePath,
+                            'question_type' => $questionImagePath ? 'both' : 'text',
                             'points' => $qPoints,
                             'sort_order' => $qIdx + 1,
                             'is_multiple_choice' => false,
@@ -1017,7 +1064,8 @@ class TeacherPortalController extends Controller
                     $question = \App\Models\AssignmentQuestion::create([
                         'assignment_id' => $assignment->id,
                         'question_text' => $qData['question_text'],
-                        'question_type' => 'text',
+                        'image_path' => $questionImagePath,
+                        'question_type' => $questionImagePath ? 'both' : 'text',
                         'points' => $qPoints,
                         'sort_order' => $qIdx + 1,
                         'is_multiple_choice' => false,
@@ -1026,15 +1074,32 @@ class TeacherPortalController extends Controller
 
                 $keepQuestionIds[] = $question->id;
 
-                // Update options: delete old and re-create fresh with correct sort and flag
+                // Update options: delete old and re-create fresh with correct sort, flag, and image
                 $question->options()->delete();
                 if (! empty($qData['options']) && is_array($qData['options'])) {
                     foreach ($qData['options'] as $optIdx => $optText) {
                         if (trim((string)$optText) === '') continue;
 
+                        $existingOptImg = $qData['existing_option_images'][$optIdx] ?? null;
+                        $removeOptImg = !empty($qData['remove_option_images'][$optIdx]) && $qData['remove_option_images'][$optIdx] === '1';
+                        $optImagePath = $existingOptImg;
+
+                        if ($removeOptImg && $existingOptImg) {
+                            Storage::disk('public')->delete($existingOptImg);
+                            $optImagePath = null;
+                        }
+
+                        if ($request->hasFile("questions.{$qIdx}.option_images.{$optIdx}")) {
+                            if ($existingOptImg) {
+                                Storage::disk('public')->delete($existingOptImg);
+                            }
+                            $optImagePath = $request->file("questions.{$qIdx}.option_images.{$optIdx}")->store('assignment-options', 'public');
+                        }
+
                         \App\Models\AssignmentQuestionOption::create([
                             'question_id' => $question->id,
                             'option_text' => trim($optText),
+                            'image_path' => $optImagePath,
                             'sort_order' => $optIdx + 1,
                             'is_correct' => ($optIdx === $correctIndex),
                         ]);
@@ -1043,9 +1108,22 @@ class TeacherPortalController extends Controller
             }
 
             // Delete questions removed during edit
-            \App\Models\AssignmentQuestion::where('assignment_id', $assignment->id)
+            $deletedQuestions = \App\Models\AssignmentQuestion::where('assignment_id', $assignment->id)
                 ->whereNotIn('id', $keepQuestionIds)
-                ->delete();
+                ->get();
+
+            foreach ($deletedQuestions as $delQ) {
+                if ($delQ->image_path) {
+                    Storage::disk('public')->delete($delQ->image_path);
+                }
+                foreach ($delQ->options as $delOpt) {
+                    if ($delOpt->image_path) {
+                        Storage::disk('public')->delete($delOpt->image_path);
+                    }
+                }
+                $delQ->options()->delete();
+                $delQ->delete();
+            }
         });
 
         return response()->json([
@@ -1831,12 +1909,16 @@ class TeacherPortalController extends Controller
                 'number' => $idx + 1,
                 'question_text' => $q->question_text,
                 'points' => (float) $q->points,
+                'image_path' => $q->image_path,
+                'image_url' => $q->image_path ? asset('storage/' . $q->image_path) : null,
                 'options' => $q->options->map(function ($opt) {
                     return [
                         'id' => $opt->id,
                         'option_text' => $opt->option_text,
                         'is_correct' => (bool) $opt->is_correct,
                         'explanation' => $opt->explanation,
+                        'image_path' => $opt->image_path,
+                        'image_url' => $opt->image_path ? asset('storage/' . $opt->image_path) : null,
                     ];
                 }),
             ];
