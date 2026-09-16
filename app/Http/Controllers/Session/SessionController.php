@@ -128,7 +128,8 @@ class SessionController extends Controller
                 $validated['attachment_path'] ?? null,
                 $validated['course_id'] ?? null,
                 $validated['is_global'] ?? false,
-                $validated['scope'] ?? 'course'
+                $validated['scope'] ?? 'course',
+                $validated['homework_assignment_id'] ?? null
             );
 
             return response()->json([
@@ -137,11 +138,18 @@ class SessionController extends Controller
                 'request_id' => $exceptionRequest->id,
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first() ?: $e->getMessage();
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $firstError,
                 'errors' => $e->errors(),
             ], 422);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('[ExceptionRequest] Submission error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while submitting your exception request. Please try again.',
+            ], 500);
         }
     }
 }

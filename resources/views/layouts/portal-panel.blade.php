@@ -277,8 +277,65 @@
         html.dark .table-responsive::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
         }
-        html.dark .table-responsive::-webkit-scrollbar-thumb {
-            background: rgba(20, 184, 166, 0.5);
+        /* ─── Ultra-Smooth Portal Table Hover System (Prevents White Flashes in Light & Dark Modes) ─── */
+        .portal-main-canvas table tbody tr {
+            transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+        }
+
+        /* Light mode table row hover: gentle, elegant slate tint */
+        html:not(.dark) .portal-main-canvas table tbody tr:hover,
+        html:not(.dark) .portal-main-canvas table tbody tr.hover\:bg-slate-50\/80:hover,
+        html:not(.dark) .portal-main-canvas table tbody tr.hover\:bg-slate-50:hover,
+        html:not(.dark) .portal-main-canvas table tbody tr.hover\:bg-slate-100:hover {
+            background-color: #F1F5F9 !important; /* Soft slate-100, no harsh white flash */
+        }
+
+        /* Dark mode table row hover: deep slate-800, perfectly dark */
+        html.dark .portal-main-canvas table tbody tr:hover,
+        html.dark .portal-main-canvas table tbody tr.hover\:bg-slate-50\/80:hover,
+        html.dark .portal-main-canvas table tbody tr.hover\:bg-slate-50:hover,
+        html.dark .portal-main-canvas table tbody tr.hover\:bg-slate-100:hover,
+        html.dark .portal-main-canvas table tbody tr.dark\:hover\:bg-slate-800\/50:hover,
+        html.dark .portal-main-canvas table tbody tr.dark\:hover\:bg-slate-800:hover {
+            background-color: #1E293B !important; /* Slate 800 */
+        }
+
+        /* Prevent white hover flashes across all dark mode interactive table elements */
+        html.dark [class*="hover:bg-slate-50"]:hover,
+        html.dark [class*="hover:bg-white"]:hover,
+        html.dark [class*="hover:bg-slate-100"]:hover,
+        html.dark [class*="hover:bg-gray-50"]:hover,
+        html.dark [class*="hover:bg-gray-100"]:hover {
+            background-color: #1E293B !important;
+        }
+
+        /* Table header sortable hover */
+        .sortable-header {
+            transition: color 0.15s ease, background-color 0.15s ease;
+        }
+        html:not(.dark) .sortable-header:hover {
+            color: #0D9488 !important;
+            background-color: #F8FAFC !important;
+        }
+        html.dark .sortable-header:hover {
+            color: #2DD4BF !important;
+            background-color: #162032 !important;
+        }
+
+        /* Active Highlighted Rows in Dark Mode (Live sessions, In Progress) - Soft Eye-Friendly Ambient Tint */
+        html.dark .portal-main-canvas table tbody tr.bg-emerald-50\/40,
+        html.dark .portal-main-canvas table tbody tr.is-live-row {
+            background-color: rgba(16, 185, 129, 0.06) !important;
+        }
+        html.dark .portal-main-canvas table tbody tr.bg-emerald-50\/40:hover,
+        html.dark .portal-main-canvas table tbody tr.is-live-row:hover {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+        }
+        html.dark .portal-main-canvas table tbody tr.bg-amber-50\/40 {
+            background-color: rgba(245, 158, 11, 0.06) !important;
+        }
+        html.dark .portal-main-canvas table tbody tr.bg-amber-50\/40:hover {
+            background-color: rgba(245, 158, 11, 0.12) !important;
         }
 
         /* ── Complete Viewport Scroll-Locking when Modal is Active ── */

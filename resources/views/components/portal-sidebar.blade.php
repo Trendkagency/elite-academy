@@ -60,29 +60,39 @@
 
             @if($role === 'student')
                 <!-- Student Navigation -->
-                <a href="#overview" onclick="switchPortalSection('overview')" class="portal-nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-column"></i></span>
+                <a href="#overview" onclick="switchStudentTab('overview')" class="student-nav-item portal-nav-item active flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="overview">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-pie"></i></span>
                     <span class="truncate min-w-0">{{ __('app.portal.welcome_back') }} & {{ __('Overview') }}</span>
                 </a>
 
-                <a href="#liveSessions" onclick="switchPortalSection('liveSessions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-video"></i></span>
+                <a href="#sessions" onclick="switchStudentTab('sessions')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="sessions">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-satellite-dish"></i></span>
                     <span class="truncate min-w-0">{{ __('app.portal.upcoming_sessions') }}</span>
                 </a>
 
-                <a href="#assignments" onclick="switchPortalSection('assignments')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
+                <a href="#courses" onclick="switchStudentTab('courses')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="courses">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open"></i></span>
+                    <span class="truncate min-w-0">{{ app()->getLocale() === 'ar' ? 'الكورسات والمنهج' : 'Enrolled Courses' }}</span>
+                </a>
+
+                <a href="#assignments" onclick="switchStudentTab('assignments')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="assignments">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
                     <span class="truncate min-w-0">{{ __('Assignments & Tests') }}</span>
                 </a>
 
-                <a href="#packages" onclick="switchPortalSection('packages')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-credit-card"></i></span>
-                    <span class="truncate min-w-0">{{ __('app.portal.current_package') }} & {{ __('Credits') }}</span>
+                <a href="#submissions" onclick="switchStudentTab('submissions')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="submissions">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-square-poll-vertical"></i></span>
+                    <span class="truncate min-w-0">{{ app()->getLocale() === 'ar' ? 'سجل التسليمات والدرجات' : 'Submissions & Grades' }}</span>
                 </a>
 
-                <a href="#exceptions" onclick="switchPortalSection('exceptions')" class="portal-nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0">
-                    <span class="text-lg text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scroll"></i></span>
+                <a href="#exceptions" onclick="switchStudentTab('exceptions')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="exceptions">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clipboard-list"></i></span>
                     <span class="truncate min-w-0">{{ __('Excuses & Exceptions') }}</span>
+                </a>
+
+                <a href="#notifications" onclick="switchStudentTab('notifications')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="notifications">
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-bell"></i></span>
+                    <span class="truncate min-w-0">{{ __('app.portal.notifications') }} & {{ app()->getLocale() === 'ar' ? 'الملاحظات' : 'Notes' }}</span>
                 </a>
 
             @elseif($role === 'teacher')

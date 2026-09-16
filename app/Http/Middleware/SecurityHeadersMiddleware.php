@@ -96,8 +96,10 @@ class SecurityHeadersMiddleware
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // 4. Cross-Origin-Opener-Policy (Strictly applicable only on secure HTTPS origins)
-        if ($request->isSecure()) {
+        // 4. Cross-Origin-Opener-Policy (Only emit on secure HTTPS origins or localhost to avoid browser untrustworthy origin warnings)
+        $host = $request->getHost();
+        $isTrustworthyOrigin = $request->isSecure() || in_array($host, ['localhost', '127.0.0.1'], true);
+        if ($isTrustworthyOrigin && $request->isSecure()) {
             $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
         } else {
             $response->headers->remove('Cross-Origin-Opener-Policy');

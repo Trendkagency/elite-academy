@@ -269,53 +269,65 @@
             let sharedAudioCtx = null;
             let audioUnlocked = false;
 
+            function getAudioContext() {
+                if (!sharedAudioCtx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        try {
+                            sharedAudioCtx = new AudioCtx();
+                        } catch (e) {}
+                    }
+                }
+                return sharedAudioCtx;
+            }
+
             function unlockAudio(e) {
                 if (audioUnlocked) return;
-                // Only proceed on trusted user activation events
                 if (e && !e.isTrusted) return;
+                
+                // Check userActivation state if available to prevent browser autoplay warnings
+                if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+                    return;
+                }
+
                 try {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (!AudioCtx) return;
-                    if (!sharedAudioCtx) {
-                        sharedAudioCtx = new AudioCtx();
-                    }
-                    if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
-                        sharedAudioCtx.resume().then(() => {
-                            if (sharedAudioCtx.state === 'running') {
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
+                    if (ctx.state === 'suspended') {
+                        ctx.resume().then(() => {
+                            if (ctx.state === 'running') {
                                 audioUnlocked = true;
+                                cleanupListeners();
                             }
                         }).catch(() => {});
-                    } else if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
+                    } else if (ctx.state === 'running') {
                         audioUnlocked = true;
+                        cleanupListeners();
                     }
                 } catch (err) {}
             }
 
-            // Silently listen for trusted user gestures to unlock AudioContext compliant with autoplay policies
-            ['click', 'keydown', 'pointerup', 'touchend'].forEach(evt => {
+            const events = ['click', 'keydown', 'touchstart'];
+            function cleanupListeners() {
+                events.forEach(evt => document.removeEventListener(evt, unlockAudio, true));
+            }
+            events.forEach(evt => {
                 document.addEventListener(evt, unlockAudio, { once: false, passive: true, capture: true });
             });
 
             window.playNotificationChime = function () {
                 try {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (!AudioCtx) return;
-
-                    // Prevent Chrome autoplay warning before user has interacted with the page
-                    if (!audioUnlocked && !sharedAudioCtx) {
+                    if (navigator.userActivation && !navigator.userActivation.hasBeenActive && !audioUnlocked) {
                         return;
                     }
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
 
-                    if (!sharedAudioCtx) {
-                        sharedAudioCtx = new AudioCtx();
+                    if (ctx.state === 'suspended') {
+                        ctx.resume().catch(() => {});
                     }
+                    if (ctx.state !== 'running') return;
 
-                    if (sharedAudioCtx.state === 'suspended') {
-                        sharedAudioCtx.resume().catch(() => {});
-                        return;
-                    }
-
-                    const ctx = sharedAudioCtx;
                     const now = ctx.currentTime;
 
                     // Primary Tone: D5 (587.33 Hz)
@@ -378,6 +390,7 @@
             let messaging = null;
             let latestNotificationId = 0;
             let isPollingActive = false;
+            const displayedToastIds = new Set();
 
             // Global iOS Notification Setup Guide Trigger
             window.openIosNotificationGuide = function () {
@@ -422,29 +435,49 @@
 
                         // If new notifications arrived (and this wasn't just the initial page load scan)
                         if (previousLatest > 0 && data.has_new && data.new_notifications && data.new_notifications.length > 0) {
-                            window.playNotificationChime();
+                            const newNotifs = data.new_notifications.filter(n => !displayedToastIds.has(n.id));
 
-                            data.new_notifications.forEach(n => {
-                                // Show in-app Toast
-                                if (window.Toast) {
-                                    window.Toast.info(n.body, n.title);
+                            if (newNotifs.length > 0) {
+                                window.playNotificationChime();
+
+                                // If only 1 or 2 new items, display distinct toasts cleanly
+                                if (newNotifs.length <= 2) {
+                                    newNotifs.forEach((n, idx) => {
+                                        displayedToastIds.add(n.id);
+                                        setTimeout(() => {
+                                            if (window.Toast) {
+                                                window.Toast.info(n.body, n.title);
+                                            }
+                                        }, idx * 300);
+
+                                        // Native desktop push if permitted
+                                        if ('Notification' in window && Notification.permission === 'granted') {
+                                            try {
+                                                new Notification(n.title, {
+                                                    body: n.body,
+                                                    icon: '{{ asset('images/icon-192.png') }}'
+                                                });
+                                            } catch (e) {}
+                                        }
+
+                                        window.dispatchEvent(new CustomEvent('new-notification-received', {
+                                            detail: n
+                                        }));
+                                    });
+                                } else {
+                                    // Consolidated single summary toast for multiple simultaneous notifications
+                                    newNotifs.forEach(n => displayedToastIds.add(n.id));
+                                    const isAr = @json(app()->getLocale() === 'ar');
+                                    const summaryTitle = isAr ? '🔔 تنبيهات دراسية جديدة' : '🔔 New Academic Updates';
+                                    const summaryBody = isAr
+                                        ? `لديك ${newNotifs.length} إشعارات دراسية جديدة. تفقد مركز الإشعارات.`
+                                        : `You have ${newNotifs.length} new academic notifications. Check your notification center.`;
+
+                                    if (window.Toast) {
+                                        window.Toast.info(summaryBody, summaryTitle);
+                                    }
                                 }
-
-                                // Native desktop push if permitted
-                                if ('Notification' in window && Notification.permission === 'granted') {
-                                    try {
-                                        new Notification(n.title, {
-                                            body: n.body,
-                                            icon: '{{ asset('images/icon-192.png') }}'
-                                        });
-                                    } catch (e) {}
-                                }
-
-                                // Dispatch event for UI feeds (Student portal, navbar, etc.)
-                                window.dispatchEvent(new CustomEvent('new-notification-received', {
-                                    detail: n
-                                }));
-                            });
+                            }
                         }
                     }
                 } catch (e) {

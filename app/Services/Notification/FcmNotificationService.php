@@ -606,12 +606,12 @@ class FcmNotificationService
         }
 
         $title = app()->getLocale() === 'ar'
-            ? '📝 تم إضافة واجب جديد'
-            : '📝 New Assignment Added';
+            ? "📝 واجب جديد: {$assignment->title}"
+            : "📝 New Assignment: {$assignment->title}";
 
         $body = app()->getLocale() === 'ar'
-            ? "تم إضافة واجب جديد: ({$assignment->title}). يرجى الدخول والمبادرة بالحل."
-            : "A new assignment ({$assignment->title}) has been assigned. Please submit your answers.";
+            ? "تم إضافة واجب جديد في ({$assignment->course?->title}): {$assignment->title}. يرجى الدخول والمبادرة بالحل."
+            : "A new assignment has been posted in ({$assignment->course?->title}): {$assignment->title}. Please submit your answers.";
 
         $actionUrl = route('student.assignment.take', ['id' => $assignment->id]);
 

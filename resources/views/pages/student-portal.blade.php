@@ -1,14 +1,31 @@
 @extends('layouts.portal-panel')
 
 @section('content')
-    <div class="student-portal-shell space-y-5 sm:space-y-6">
-    {{-- Ultra-Premium Glassmorphic Hero Banner --}}
-    <section id="overview"
-        class="relative rounded-3xl py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-8 bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white border border-slate-800/80 overflow-hidden shadow-xl">
+@php
+    $locale = app()->getLocale();
+    $isAr = $locale === 'ar';
+    $userAuth = auth()->user();
+
+    $liveCount = $startingSoonSessions->filter(function($s) use ($userAuth) {
+        return $s->evaluateState($userAuth) === \App\Enums\LiveSessionState::LIVE;
+    })->count();
+
+    // Determine initial active section tab
+    $requestedTab = request()->query('tab', 'overview');
+    $validTabs = ['overview', 'sessions', 'courses', 'assignments', 'submissions', 'packages', 'exceptions', 'notifications'];
+    $activeTab = in_array($requestedTab, $validTabs, true) ? $requestedTab : 'overview';
+@endphp
+
+<div class="student-portal-shell space-y-6" id="studentPortalRoot">
+
+    {{-- ========================================================================= --}}
+    {{-- 1. Ultra-Premium Glassmorphic Hero Banner --}}
+    {{-- ========================================================================= --}}
+    <section class="relative rounded-3xl py-6 sm:py-8 px-4 sm:px-6 md:px-8 bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white border border-slate-800/80 overflow-hidden shadow-2xl">
         <div class="absolute -right-20 -top-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute left-10 -bottom-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="space-y-6 relative z-10">
+        <div class="space-y-5 relative z-10">
             @include('components.breadcrumb', [
                 'items' => [
                     ['label' => __('navbar.home'), 'route' => 'home'],
@@ -18,1320 +35,132 @@
 
             {{-- Learner Header Info --}}
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div class="flex items-center gap-3 sm:gap-5 min-w-0">
-                    <div class="relative">
-                        <div
-                            class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-teal-500/20 border-2 border-teal-300/40">
-                            {{ mb_substr(auth()->user()->name ?? 'S', 0, 1) }}
+                <div class="flex items-center gap-3 sm:gap-5 min-w-0">
+                    <div class="relative shrink-0">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-teal-500/20 border-2 border-teal-300/40">
+                            {{ mb_substr($userAuth->name ?? 'S', 0, 1) }}
                         </div>
-                        <span
-                            class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold"><i
-                                class="fa-solid fa-check"></i></span>
+                        <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center text-[9px] font-bold text-white shadow-xs">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
                     </div>
+
                     <div class="space-y-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span
-                                class="inline-block text-[11px] font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3 py-1 rounded-full border border-teal-700/60 shadow-xs">
-                                {{ __('app.student_portal') }}
+                            <span class="inline-block text-[11px] font-mono uppercase tracking-widest text-teal-400 font-extrabold bg-teal-950/80 px-3 py-1 rounded-full border border-teal-700/60 shadow-xs">
+                                <i class="fa-solid fa-graduation-cap"></i> {{ __('app.student_portal') }}
                             </span>
-                            <span
-                                class="text-xs font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/60">
-                                ● Active Enrollment
-                            </span>
+                            @if($hasActivePackage)
+                                <span class="text-xs font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/60 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    {{ $isAr ? 'اشتراك نشط' : 'Active Enrollment' }}
+                                </span>
+                            @else
+                                <span class="text-xs font-mono text-rose-400 font-bold bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800/60 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                                    {{ $isAr ? 'يلزم تجديد الباقة' : 'Package Required' }}
+                                </span>
+                            @endif
+
+                            @if($liveCount > 0)
+                                <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-mono font-black bg-rose-600 text-white shadow-md shadow-rose-600/40 animate-pulse">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                    {{ $liveCount }} {{ $isAr ? 'بث مباشر الآن' : 'LIVE NOW' }}
+                                </span>
+                            @endif
                         </div>
-                        <h1 class="font-heading text-xl sm:text-2xl md:text-4xl font-black text-white tracking-tight break-words">
-                            {{ __('app.portal.welcome_back') }}، <span
-                                class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ auth()->user()->name ?? __('Learner') }}!</span>
+
+                        <h1 class="font-heading text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight break-words">
+                            {{ __('app.portal.welcome_back') }}، <span class="bg-gradient-to-r from-teal-300 to-emerald-400 bg-clip-text text-transparent underline decoration-orange-500 decoration-2 underline-offset-8">{{ $userAuth->name ?? __('Learner') }}!</span>
                         </h1>
-                        <p class="text-slate-300 text-xs sm:text-sm font-mono flex flex-wrap items-center gap-2 pt-1">
-                            <span><i class="fa-solid fa-graduation-cap"></i> {{ __('app.portal.grade_level') }}: <strong
-                                    class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: __('Grade 12 STEM') }}</strong></span>
+
+                        <p class="text-slate-300 text-xs sm:text-sm font-mono flex flex-wrap items-center gap-2 pt-0.5">
+                            <span><i class="fa-solid fa-layer-group text-teal-400"></i> {{ __('app.portal.grade_level') }}: <strong class="text-teal-300">{{ $studentProfile?->gradeLevel?->name ?: ($isAr ? 'الصف الثاني عشر STEM' : 'Grade 12 STEM') }}</strong></span>
                             <span class="text-slate-600">•</span>
-                            <span><i class="fa-solid fa-school"></i> {{ __('app.portal.school') }}: <strong
-                                    class="text-slate-200">{{ $studentProfile?->school_name ?: 'Elite STEM Academy Cairo' }}</strong></span>
+                            <span><i class="fa-solid fa-school text-orange-400"></i> {{ __('app.portal.school') }}: <strong class="text-slate-200">{{ $studentProfile?->school_name ?: 'Elite STEM Academy' }}</strong></span>
                         </p>
                     </div>
                 </div>
 
                 {{-- Quick Action Buttons --}}
-                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <button onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
-                        class="portal-action-btn btn-lift px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2 transition-all">
-                        <span><i class="fa-solid fa-file-lines"></i></span> {{ __('app.portal.submit_excuse') }}
+                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <button type="button" onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
+                        class="btn-lift px-4 py-2.5 sm:py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial">
+                        <span><i class="fa-solid fa-file-signature"></i></span>
+                        <span>{{ __('app.portal.submit_excuse') }}</span>
                     </button>
-                    <button onclick="window.openModal ? window.openModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.remove('hidden')"
-                        class="portal-action-btn btn-lift px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/20 cursor-pointer flex items-center gap-2 transition-all">
-                        <span><i class="fa-solid fa-clipboard-list"></i></span> {{ __('app.portal.submit_exception') }}
+                    <button type="button" onclick="window.openModal ? window.openModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.remove('hidden')"
+                        class="btn-lift px-4 py-2.5 sm:py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-teal-600/25 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial">
+                        <span><i class="fa-solid fa-clipboard-question"></i></span>
+                        <span>{{ __('app.portal.submit_exception') }}</span>
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-4 sm:py-6 md:py-8">
-        <div class="student-portal-inner px-0 sm:px-2 lg:px-4 space-y-8 md:space-y-12">
-
-            @if(!$hasActivePackage)
-                <div
-                    class="animate-fade-in-up p-6 bg-rose-50/90 border border-rose-200 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-5 text-rose-950 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-rose-100/90 flex items-center justify-center text-rose-600 text-2xl font-bold shrink-0">
-                            <i class="fa-solid fa-credit-card"></i>
-                        </div>
-                        <div class="space-y-1">
-                            <h4 class="font-bold text-sm sm:text-base text-rose-950 leading-tight">
-                                {{ app()->getLocale() === 'ar' ? 'تنبيه: لا توجد باقة حصص نشطة لديك!' : 'Warning: No Active Package Subscription Found!' }}
-                            </h4>
-                            <p class="text-xs font-mono text-rose-800 leading-relaxed">
-                                {{ app()->getLocale() === 'ar' ? 'يلزم الاشتراك في باقة حصص للتسجيل في الكورسات والدخول للبث المباشر والواجبات التفاعلية.' : 'An active package subscription with available session credits is required to enroll in courses, access live streams, and solve assignments.' }}
-                            </p>
-                        </div>
-                    </div>
-                    <a href="{{ route('courses') }}"
-                        class="btn-lift px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-md shadow-rose-600/30 whitespace-nowrap flex items-center gap-2 shrink-0">
-                        <span><i class="fa-solid fa-cart-shopping"></i></span>
-                        {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات والباقات الآن' : 'Browse Courses & Packages' }}
-                    </a>
+    {{-- Package Alert if missing --}}
+    @if(!$hasActivePackage)
+        <div class="p-5 sm:p-6 bg-rose-50/95 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-rose-950 dark:text-rose-100 shadow-md">
+            <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-300 text-xl font-bold shrink-0 mt-0.5">
+                    <i class="fa-solid fa-credit-card"></i>
                 </div>
-            @endif
-
-            {{-- 4 Modern Stat Cards with Accent Borders --}}
-            <div id="packages" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 md:mb-12 scroll-mt-28">
-                {{-- Package & Remaining Sessions --}}
-                <div
-                    class="animate-fade-in-up stagger-1 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 {{ $hasActivePackage ? 'border-t-teal-500' : 'border-t-rose-500' }} shadow-sm hover:shadow-xl transition-all space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <span
-                            class="text-[11px] font-mono font-extrabold {{ $hasActivePackage ? 'text-teal-800 bg-teal-50 border-teal-200/80' : 'text-rose-800 bg-rose-50 border-rose-200/80' }} px-3 py-1 rounded-full border shadow-2xs">{{ __('app.portal.current_package') }}</span>
-                        <div
-                            class="w-11 h-11 rounded-2xl {{ $hasActivePackage ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }} flex items-center justify-center text-xl shadow-2xs">
-                            <i class="fa-solid fa-credit-card"></i>
-                        </div>
-                    </div>
-                    <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
-                        @if($hasActivePackage)
-                            {{ $package->remaining_sessions }} {{ app()->getLocale() === 'ar' ? 'حصص متبقية' : 'Sessions Remaining' }}
-                        @else
-                            <span
-                                class="text-rose-600 text-lg sm:text-xl font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد باقة نشطة (0 حصة)' : 'No Active Package (0 Credits)' }}</span>
-                        @endif
-                    </p>
-                    <p class="text-xs font-mono text-slate-500 truncate pt-0.5">
-                        @if($hasActivePackage)
-                            {{ $package?->packageTemplate?->name ?: "Total: {$package->total_sessions} | Used: {$package->used_sessions}" }}
-                        @else
-                            <span
-                                class="text-rose-500 font-bold">{{ app()->getLocale() === 'ar' ? 'يلزم الاشتراك في باقة للوصول للكورسات والبث' : 'Subscription required to unlock courses & streams' }}</span>
-                        @endif
-                    </p>
-                </div>
-
-                {{-- Upcoming Sessions --}}
-                <div
-                    class="animate-fade-in-up stagger-2 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-indigo-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <span
-                            class="text-[11px] font-mono font-extrabold text-indigo-800 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200/80 shadow-2xs">{{ __('app.portal.upcoming_sessions') }}</span>
-                        <div
-                            class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl shadow-2xs">
-                            <i class="fa-solid fa-calendar-days"></i>
-                        </div>
-                    </div>
-                    <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
-                        {{ count($upcomingSessions) }} <span
-                            class="text-base font-bold text-slate-600">{{ app()->getLocale() === 'ar' ? 'حصص معتمدة' : 'Confirmed Sessions' }}</span>
-                    </p>
-                    <p class="text-xs font-mono text-slate-500 pt-0.5">
-                        {{ count($upcomingSessions) > 0 ? (app()->getLocale() === 'ar' ? 'مواعيد البث المباشر القادمة' : 'Upcoming Live Stream Schedule') : (app()->getLocale() === 'ar' ? 'لا توجد حصص قادمة حالياً' : 'No upcoming sessions scheduled') }}
-                    </p>
-                </div>
-
-                {{-- Attendance & Absence Rate --}}
-                <div
-                    class="animate-fade-in-up stagger-3 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-emerald-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <span
-                            class="text-[11px] font-mono font-extrabold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 shadow-2xs">{{ __('app.portal.attendance_rate') }}</span>
-                        <div
-                            class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-2xs">
-                            <i class="fa-solid fa-bullseye"></i>
-                        </div>
-                    </div>
-                    <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
-                        @if($totalSessionCount > 0)
-                            {{ $attendanceRate }}% <span
-                                class="text-base font-bold text-slate-500">{{ $attendanceRate >= 80 ? (app()->getLocale() === 'ar' ? 'ممتاز' : 'Excellent') : (app()->getLocale() === 'ar' ? 'بحاجة للتحسين' : 'Needs Improvement') }}</span>
-                        @else
-                            <span
-                                class="text-lg text-slate-400 font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد حصص بعد' : 'No sessions yet' }}</span>
-                        @endif
-                    </p>
-                    <p class="text-xs font-mono text-slate-500 pt-0.5">
-                        {{ $attendedSessions }} {{ app()->getLocale() === 'ar' ? 'حصة حضور' : 'Attended' }} •
-                        {{ $approvedExcuses }} {{ app()->getLocale() === 'ar' ? 'أعذار مقبولة' : 'Approved Excuses' }}
-                    </p>
-                </div>
-
-                {{-- Homework Submissions Score --}}
-                <div
-                    class="animate-fade-in-up stagger-4 glass-card rounded-3xl p-6 sm:p-7 border border-slate-200/80 border-t-4 border-t-amber-500 shadow-sm hover:shadow-xl transition-all space-y-3.5">
-                    <div class="flex items-center justify-between">
-                        <span
-                            class="text-[11px] font-mono font-extrabold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs">{{ __('app.portal.homework_rate') }}</span>
-                        <div
-                            class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-xl shadow-2xs">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </div>
-                    </div>
-                    <p class="font-heading font-black text-2xl sm:text-3xl text-slate-900 leading-none pt-1">
-                        @if(!is_null($avgScore))
-                            {{ $avgScore }}% <span
-                                class="text-base font-bold text-slate-500">{{ $avgScore >= 80 ? (app()->getLocale() === 'ar' ? 'ممتاز' : 'Excellent') : (app()->getLocale() === 'ar' ? 'مقبول' : 'Fair') }}</span>
-                        @else
-                            <span
-                                class="text-lg text-slate-400 font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد درجات بعد' : 'No grades yet' }}</span>
-                        @endif
-                    </p>
-                    <p class="text-xs font-mono text-slate-500 pt-0.5">{{ count($submissions) }}
-                        {{ app()->getLocale() === 'ar' ? 'واجبات تم تصحيحها' : 'Submissions Evaluated' }}
+                <div class="space-y-1">
+                    <h4 class="font-bold text-sm sm:text-base leading-tight">
+                        {{ $isAr ? 'تنبيه: لا توجد باقة حصص نشطة لديك حالياً!' : 'Warning: No Active Session Package Subscription Found!' }}
+                    </h4>
+                    <p class="text-xs font-mono text-rose-800 dark:text-rose-300/90 leading-relaxed">
+                        {{ $isAr ? 'يلزم الاشتراك في باقة حصص للوصول الكامل إلى البث المباشر، الدروس المسجلة، وحل الواجبات التقييمية.' : 'An active package subscription is required to unlock live classroom streams, recorded modules, and interactive homework.' }}
                     </p>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-                {{-- Main Dashboard Column --}}
-                <div class="lg:col-span-8 space-y-8 lg:space-y-10">
-
-                    {{-- 1. Interactive Live Sessions Hub --}}
-                    @php
-                        $userAuth = auth()->user();
-                        $liveCount = $startingSoonSessions->filter(function($s) use ($userAuth) {
-                            return $s->evaluateState($userAuth) === \App\Enums\LiveSessionState::LIVE;
-                        })->count();
-
-                        if (count($startingSoonSessions) > 0) {
-                            $initialTab = 'soon';
-                        } elseif (count($upcomingScheduledSessions) > 0) {
-                            $initialTab = 'upcoming';
-                        } elseif (count($endedSessionsHistory) > 0) {
-                            $initialTab = 'history';
-                        } else {
-                            $initialTab = 'soon';
-                        }
-                    @endphp
-                    <div id="liveSessions"
-                        class="glass-card rounded-3xl p-4 sm:p-7 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-1 scroll-mt-28">
-                        
-                        {{-- Hub Header --}}
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                            <div>
-                                <h2 class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2.5">
-                                    <span class="w-9 h-9 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center text-lg shadow-2xs">
-                                        <i class="fa-solid fa-satellite-dish"></i>
-                                    </span>
-                                    {{ app()->getLocale() === 'ar' ? 'مركز الحصص وبث الفصول التفاعلية' : 'Interactive Sessions & Live Stream Hub' }}
-                                </h2>
-                                <p class="text-xs font-mono text-slate-500 mt-1">
-                                    {{ app()->getLocale() === 'ar' ? 'متابعة البث المباشر، الحصص التي ستبدأ قريباً، المواعيد المجدولة وسجل الحصص السابقة.' : 'Live streams, starting soon sessions, scheduled upcoming dates, and past session history.' }}
-                                </p>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                @if($liveCount > 0)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-black bg-rose-600 text-white shadow-md shadow-rose-600/30 animate-pulse">
-                                        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                                        {{ $liveCount }} {{ app()->getLocale() === 'ar' ? 'بث مباشر الآن' : 'LIVE NOW' }}
-                                    </span>
-                                @endif
-                                <span class="text-xs font-mono font-bold bg-teal-50 text-teal-800 px-3.5 py-1.5 rounded-full border border-teal-200/80 shadow-2xs">
-                                    <i class="fa-solid fa-shield-halved"></i> 30-Min & Prerequisite Rules Active
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- Package Alert if missing --}}
-                        @if(!$hasActivePackage)
-                            <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-                                <div class="flex items-start gap-3">
-                                    <span class="text-2xl leading-none text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i></span>
-                                    <div>
-                                        <h4 class="font-bold text-sm text-amber-900">
-                                            {{ app()->getLocale() === 'ar' ? 'تنبيه الحصص التجريبية والباقات:' : 'Demo & Package Subscription Alert:' }}
-                                        </h4>
-                                        <p class="text-xs font-mono text-amber-800 mt-0.5">
-                                            {{ app()->getLocale() === 'ar'
-                                                ? 'الكورس لا يتضمن حصة تجريبية مجانية. يلزم الاشتراك في باقة حصص لتفعيل ودخول الحصص المباشرة والمنهجية.'
-                                                : 'Course does not have a free demo session. An active package subscription is required to unlock live streams and curriculum sessions.' }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('courses') }}"
-                                    class="btn-lift px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold font-mono shadow-sm flex items-center gap-1.5 whitespace-nowrap self-stretch sm:self-auto justify-center">
-                                    <span><i class="fa-solid fa-cart-shopping"></i></span>
-                                    {{ app()->getLocale() === 'ar' ? 'عرض الكورسات والتفعيل' : 'Explore Courses & Activate' }}
-                                </a>
-                            </div>
-                        @endif
-
-                        {{-- Professional Responsive Tabs Bar --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80">
-                            {{-- Tab 1: Starting Soon & Live (FIRST!) --}}
-                            <button type="button" onclick="switchSessionTab('soon')" id="tabBtn_soon"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'soon' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="relative flex h-2.5 w-2.5 shrink-0">
-                                        @if($liveCount > 0)
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                                        @else
-                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
-                                        @endif
-                                    </span>
-                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'حصص قريبة وبث مباشر' : 'Starting Soon & Live' }}</span>
-                                </div>
-                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'soon' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
-                                    {{ count($startingSoonSessions) }}
-                                </span>
-                            </button>
-
-                            {{-- Tab 2: Upcoming Scheduled Dates --}}
-                            <button type="button" onclick="switchSessionTab('upcoming')" id="tabBtn_upcoming"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'upcoming' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="shrink-0 text-slate-400"><i class="fa-solid fa-calendar-days"></i></span>
-                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'مواعيد الحصص القادمة' : 'Upcoming Dates' }}</span>
-                                </div>
-                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'upcoming' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
-                                    {{ count($upcomingScheduledSessions) }}
-                                </span>
-                            </button>
-
-                            {{-- Tab 3: Ended Sessions & History --}}
-                            <button type="button" onclick="switchSessionTab('history')" id="tabBtn_history"
-                                class="session-tab-btn w-full px-3.5 sm:px-4 py-3 sm:py-2.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer whitespace-normal sm:whitespace-nowrap {{ $initialTab === 'history' ? 'bg-white text-teal-900 shadow-sm border border-teal-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60' }}">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="shrink-0 text-slate-400"><i class="fa-solid fa-clock-rotate-left"></i></span>
-                                    <span class="truncate">{{ app()->getLocale() === 'ar' ? 'سجل الحصص المنتهية' : 'Session History' }}</span>
-                                </div>
-                                <span class="tab-count-badge px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 {{ $initialTab === 'history' ? 'bg-teal-100 text-teal-900' : 'bg-slate-200 text-slate-700' }}">
-                                    {{ count($endedSessionsHistory) }}
-                                </span>
-                            </button>
-                        </div>
-
-                        {{-- Sessions Container (Maintained id for dynamic polling compatibility) --}}
-                        <div id="upcomingSessionsContainer">
-                            
-                            {{-- ===================== TAB PANE 1: STARTING SOON & LIVE ===================== --}}
-                            <div id="pane_soon" class="session-pane space-y-4 {{ $initialTab === 'soon' ? '' : 'hidden' }}">
-                                @forelse($startingSoonSessions as $s)
-                                    @php
-                                        $state = $s->evaluateState($userAuth);
-                                        $startAt = $s->effective_start_at;
-                                        $endAt = $s->effective_end_at;
-                                        $joinableAt = $s->joinable_at;
-                                        // isLive depends ONLY on evaluateState which enforces the 30-min window.
-                                        // Do NOT use raw status ('link_visible', 'in_progress') here because
-                                        // that bypasses the time check and shows the join button too early.
-                                        $isLive = ($state === \App\Enums\LiveSessionState::LIVE);
-                                    @endphp
-                                    <div class="session-card-item p-5 bg-gradient-to-r {{ $isLive ? 'from-emerald-50/70 via-white to-teal-50/50 border-emerald-300 shadow-md ring-1 ring-emerald-400/30' : 'from-slate-50/90 to-white border-slate-200/90' }} rounded-2xl border space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                            <div class="flex items-center gap-3">
-                                                @if($isLive)
-                                                    <span class="relative flex h-3.5 w-3.5">
-                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
-                                                    </span>
-                                                @else
-                                                    <span class="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center text-[8px] text-amber-950 font-bold">
-                                                        <i class="fa-solid fa-clock"></i>
-                                                    </span>
-                                                @endif
-                                                <div>
-                                                    <div class="flex items-center gap-2">
-                                                        <h3 class="font-bold text-base text-slate-900">
-                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
-                                                        </h3>
-                                                        @if($isLive)
-                                                            <span class="text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow-xs animate-pulse">
-                                                                {{ app()->getLocale() === 'ar' ? 'مباشر الآن' : 'LIVE NOW' }}
-                                                            </span>
-                                                        @else
-                                                            <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md border border-amber-200">
-                                                                {{ app()->getLocale() === 'ar' ? 'تبدأ قريباً' : 'Starting Soon' }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    @if($s->course)
-                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
-                                                            {{ $s->course->title }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                                <span class="bg-blue-100/90 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap shadow-2xs">
-                                                    <i class="fa-solid fa-calendar-days"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'البداية' : 'Start' }}:
-                                                    {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Scheduled' }}
-                                                </span>
-                                                @if($startAt && $startAt->isFuture())
-                                                    <span class="session-countdown-pill bg-indigo-50 text-indigo-900 px-3 py-1 rounded-full border border-indigo-200 font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap tabular-nums"
-                                                        data-start-time="{{ $startAt->toIso8601String() }}"
-                                                        data-join-time="{{ $joinableAt ? $joinableAt->toIso8601String() : $startAt->toIso8601String() }}">
-                                                        <span><i class="fa-solid fa-hourglass-half"></i></span>
-                                                        <span class="countdown-text">{{ app()->getLocale() === 'ar' ? 'حساب الوقت...' : 'Calculating...' }}</span>
-                                                    </span>
-                                                @endif
-                                                @if($endAt)
-                                                    <span class="bg-slate-200/80 text-slate-800 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
-                                                        <i class="fa-solid fa-stopwatch"></i>
-                                                        {{ app()->getLocale() === 'ar' ? 'النهاية' : 'End' }}:
-                                                        {{ $endAt->format('h:i A') }}
-                                                    </span>
-                                                @endif
-                                                @php
-                                                    $halfAt = $startAt ? $startAt->copy()->addMinutes((int) ceil(($s->duration_minutes ?: 60) / 2)) : null;
-                                                @endphp
-                                                @if($halfAt)
-                                                    <span class="bg-amber-100/90 text-amber-900 px-3 py-1 rounded-full border border-amber-300/80 whitespace-nowrap"
-                                                        title="{{ app()->getLocale() === 'ar' ? 'آخر موعد للدخول هو منتصف وقت الحصة' : 'Last allowed join time is half-session' }}">
-                                                        <i class="fa-solid fa-door-closed"></i>
-                                                        {{ app()->getLocale() === 'ar' ? 'إغلاق الدخول' : 'Cutoff' }}:
-                                                        {{ $halfAt->format('h:i A') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
-                                            <div class="flex flex-wrap items-center gap-4">
-                                                <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
-                                                    <strong class="text-slate-900">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
-                                                </span>
-                                                <span><i class="fa-solid fa-book-open text-teal-600"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
-                                                    <strong class="text-slate-900">{{ $s->subject?->name ?: 'Physics' }}</strong>
-                                                </span>
-                                            </div>
-
-                                            @if($isLive)
-                                                <a href="{{ route('student.meeting.show', ['id' => $s->id]) }}"
-                                                    class="portal-action-btn btn-lift px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-black text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'انضم للبث المباشر الآن' : 'Join Live Stream Now' }}
-                                                </a>
-                                            @elseif($state === \App\Enums\LiveSessionState::BEFORE_JOINABLE)
-                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xs"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'رابط الدخول ينشط تلقائياً قبل 30 دقيقة من موعد الحصة' : 'Join button activates 30 minutes before start time' }}">
-                                                    <span><i class="fa-solid fa-lock text-slate-500"></i></span>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'يتفعل الدخول:' : 'Access Opens:' }}</span>
-                                                    <span class="text-teal-700 font-extrabold">{{ $joinableAt ? $joinableAt->format('h:i A') : ($startAt ? $startAt->format('h:i A') : '30 mins before') }}</span>
-                                                </span>
-                                            @elseif($state === \App\Enums\LiveSessionState::PACKAGE_REQUIRED)
-                                                <a href="{{ route('courses') }}"
-                                                    class="btn-lift text-xs font-mono font-extrabold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/90 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs">
-                                                    <span><i class="fa-solid fa-lock"></i></span> {{ $state->label() }}
-                                                </a>
-                                            @elseif($state === \App\Enums\LiveSessionState::PREREQUISITE_REQUIRED)
-                                                <span class="text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs">
-                                                    <span><i class="fa-solid fa-triangle-exclamation text-amber-600"></i></span> {{ $state->label() }}
-                                                </span>
-                                            @else
-                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300/80 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                                    <span><i class="fa-solid fa-lock text-slate-500"></i></span> {{ $state->label() }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
-                                        <div class="text-4xl text-teal-600/70"><i class="fa-solid fa-satellite-dish"></i></div>
-                                        <h3 class="font-bold text-slate-800 text-base">
-                                            {{ app()->getLocale() === 'ar' ? 'لا توجد حصص بث مباشر جارية أو تبدأ اليوم' : 'No Live Streams or Sessions Starting Today' }}
-                                        </h3>
-                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
-                                            {{ app()->getLocale() === 'ar'
-                                                ? 'لا يوجد بث تفاعلي نشط حالياً. يمكنك تصفح مواعيد الحصص القادمة المجدولة أو مراجعة سجل الحصص السابقة.'
-                                                : 'No live stream is active right now. You can browse upcoming scheduled dates or check your past session history.' }}
-                                        </p>
-                                        <div class="pt-2 flex flex-wrap items-center justify-center gap-2">
-                                            @if(count($upcomingScheduledSessions) > 0)
-                                                <button type="button" onclick="switchSessionTab('upcoming')"
-                                                    class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-teal-600/20 cursor-pointer">
-                                                    <span><i class="fa-solid fa-calendar-days"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'مواعيد الحصص القادمة' : 'View Upcoming Dates' }} ({{ count($upcomingScheduledSessions) }})
-                                                </button>
-                                            @endif
-                                            @if(count($endedSessionsHistory) > 0)
-                                                <button type="button" onclick="switchSessionTab('history')"
-                                                    class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-slate-800/20 cursor-pointer">
-                                                    <span><i class="fa-solid fa-clock-rotate-left"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'سجل الحصص المنتهية' : 'View Session History' }} ({{ count($endedSessionsHistory) }})
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforelse
-
-                                {{-- Tab 1 Pagination Controls --}}
-                                <div id="paginationBar_soon" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($startingSoonSessions) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_soon" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
-                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($startingSoonSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($startingSoonSessions) }}
-                                    </div>
-                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
-                                        <button id="prevBtn_soon" type="button" onclick="changeSessionPage('soon', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                                        </button>
-                                        <div id="pagePills_soon" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
-                                        <button id="nextBtn_soon" type="button" onclick="changeSessionPage('soon', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- ===================== TAB PANE 2: UPCOMING SCHEDULED DATES ===================== --}}
-                            <div id="pane_upcoming" class="session-pane space-y-4 {{ $initialTab === 'upcoming' ? '' : 'hidden' }}">
-                                @forelse($upcomingScheduledSessions as $s)
-                                    @php
-                                        $state = $s->evaluateState($userAuth);
-                                        $startAt = $s->effective_start_at;
-                                        $endAt = $s->effective_end_at;
-                                        $daysRemaining = $startAt ? (int) max(1, ceil(now()->diffInDays($startAt, false))) : null;
-                                    @endphp
-                                    <div class="session-card-item p-5 bg-slate-50/90 hover:bg-white rounded-2xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                            <div class="flex items-center gap-3.5">
-                                                {{-- Calendar Date Chip --}}
-                                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-teal-50 border border-teal-200/80 text-teal-900 shadow-2xs shrink-0">
-                                                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-600">
-                                                        {{ $startAt ? $startAt->translatedFormat('M') : 'SCH' }}
-                                                    </span>
-                                                    <span class="text-lg font-heading font-black leading-none text-slate-900">
-                                                        {{ $startAt ? $startAt->format('d') : '--' }}
-                                                    </span>
-                                                    <span class="text-[9px] font-mono text-slate-500 leading-none pt-0.5">
-                                                        {{ $startAt ? $startAt->translatedFormat('D') : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <div>
-                                                    <div class="flex items-center gap-2">
-                                                        <h3 class="font-bold text-base text-slate-900">
-                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة منهجية قادمة' : 'Scheduled Curriculum Session') }}
-                                                        </h3>
-                                                        @if($daysRemaining)
-                                                            <span class="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200/80">
-                                                                {{ app()->getLocale() === 'ar' ? 'خلال ' . $daysRemaining . ' يوم' : 'In ' . $daysRemaining . ' days' }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    @if($s->course)
-                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
-                                                            {{ $s->course->title }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                                <span class="bg-blue-100/90 text-blue-900 px-3 py-1 rounded-full border border-blue-200 whitespace-nowrap shadow-2xs">
-                                                    <i class="fa-solid fa-clock"></i>
-                                                    {{ $startAt ? $startAt->format('h:i A') : 'Scheduled' }}
-                                                    @if($endAt)
-                                                        — {{ $endAt->format('h:i A') }}
-                                                    @endif
-                                                </span>
-                                                @if($s->duration_minutes)
-                                                    <span class="bg-slate-200/80 text-slate-700 px-3 py-1 rounded-full border border-slate-300/60 whitespace-nowrap">
-                                                        <i class="fa-solid fa-hourglass"></i> {{ $s->duration_minutes }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'mins' }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
-                                            <div class="flex flex-wrap items-center gap-4">
-                                                <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
-                                                    <strong class="text-slate-900">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
-                                                </span>
-                                                <span><i class="fa-solid fa-book-open text-teal-600"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
-                                                    <strong class="text-slate-900">{{ $s->subject?->name ?: 'Physics' }}</strong>
-                                                </span>
-                                            </div>
-
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300/80 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'يتفعل زر الدخول التفاعلي قبل بداية الحصة بـ 30 دقيقة' : 'Stream access opens 30 minutes before start time' }}">
-                                                    <span><i class="fa-solid fa-calendar-check text-teal-600"></i></span>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'موعد مجدول' : 'Scheduled' }}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
-                                        <div class="text-4xl text-slate-400"><i class="fa-solid fa-calendar-xmark"></i></div>
-                                        <h3 class="font-bold text-slate-800 text-base">
-                                            {{ app()->getLocale() === 'ar' ? 'لا توجد مواعيد مجدولة بتواريخ مستقبلية حالياً' : 'No Scheduled Upcoming Dates Currently' }}
-                                        </h3>
-                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
-                                            {{ app()->getLocale() === 'ar'
-                                                ? 'سيقوم المعلمون بجدولة الحصص القادمة وفقاً لخطة الفصل الدراسي. يمكنك مراجعة الكورسات أو سجل الحصص السابقة.'
-                                                : 'Teachers will schedule upcoming sessions according to the term curriculum. Check back soon or review your history.' }}
-                                        </p>
-                                    </div>
-                                @endforelse
-
-                                {{-- Tab 2 Pagination Controls --}}
-                                <div id="paginationBar_upcoming" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($upcomingScheduledSessions) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_upcoming" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
-                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($upcomingScheduledSessions) . ' حصة' : 'Showing 1 - 4 of ' . count($upcomingScheduledSessions) }}
-                                    </div>
-                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
-                                        <button id="prevBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                                        </button>
-                                        <div id="pagePills_upcoming" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
-                                        <button id="nextBtn_upcoming" type="button" onclick="changeSessionPage('upcoming', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- ===================== TAB PANE 3: ENDED SESSIONS & HISTORY ===================== --}}
-                            <div id="pane_history" class="session-pane space-y-4 hidden">
-                                @forelse($endedSessionsHistory as $s)
-                                    @php
-                                        $startAt = $s->effective_start_at;
-                                        $endAt = $s->effective_end_at;
-                                        $isCancelled = in_array($s->status, ['cancelled', 'cancelled_by_teacher'], true);
-                                        $userAttendance = $s->attendances ? $s->attendances->firstWhere('student_user_id', $userAuth->id) : null;
-                                        $attended = $userAttendance && in_array($userAttendance->status, ['attended', 'present', 'completed'], true);
-                                    @endphp
-                                    <div class="session-card-item p-5 bg-slate-50/70 hover:bg-white rounded-2xl border border-slate-200/80 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5">
-                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-xl bg-slate-200/80 text-slate-600 flex items-center justify-center shrink-0 text-base shadow-2xs">
-                                                    @if($isCancelled)
-                                                        <i class="fa-solid fa-ban text-rose-500"></i>
-                                                    @elseif($attended)
-                                                        <i class="fa-solid fa-check text-emerald-600"></i>
-                                                    @else
-                                                        <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
-                                                    @endif
-                                                </div>
-
-                                                <div>
-                                                    <div class="flex items-center gap-2">
-                                                        <h3 class="font-bold text-base text-slate-800">
-                                                            {{ $s->studentFacingTitle(app()->getLocale() === 'ar' ? 'حصة مباشرة سابقة' : 'Past Live Session') }}
-                                                        </h3>
-                                                        @if($isCancelled)
-                                                            <span class="text-[10px] font-mono font-bold bg-rose-100 text-rose-900 px-2.5 py-0.5 rounded-full border border-rose-200">
-                                                                {{ app()->getLocale() === 'ar' ? 'ملغاة' : 'Cancelled' }}
-                                                            </span>
-                                                        @else
-                                                            <span class="text-[10px] font-mono font-bold bg-slate-200/80 text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-300/80">
-                                                                {{ app()->getLocale() === 'ar' ? 'منتهية' : 'Ended' }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    @if($s->course)
-                                                        <p class="text-xs text-slate-500 font-mono mt-0.5">
-                                                            {{ $s->course->title }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
-                                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap">
-                                                    <i class="fa-solid fa-calendar-day"></i>
-                                                    {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Recorded' }}
-                                                </span>
-                                                @if($s->duration_minutes)
-                                                    <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200 whitespace-nowrap">
-                                                        <i class="fa-solid fa-stopwatch"></i> {{ $s->duration_minutes }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'mins' }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200/70 text-xs font-mono text-slate-700">
-                                            <div class="flex flex-wrap items-center gap-4">
-                                                <span><i class="fa-solid fa-chalkboard-user text-slate-500"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المدرس' : 'Instructor' }}:
-                                                    <strong>{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</strong>
-                                                </span>
-                                                <span><i class="fa-solid fa-book-open text-slate-500"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'المادة' : 'Subject' }}:
-                                                    <strong>{{ $s->subject?->name ?: 'Physics' }}</strong>
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                @if($isCancelled)
-                                                    <span class="text-xs font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-xl">
-                                                        <i class="fa-solid fa-circle-xmark"></i> {{ app()->getLocale() === 'ar' ? 'تم إلغاء الجلسة' : 'Session Cancelled' }}
-                                                    </span>
-                                                @elseif($attended)
-                                                    <span class="text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-xl shadow-2xs">
-                                                        <i class="fa-solid fa-circle-check text-emerald-600"></i> {{ app()->getLocale() === 'ar' ? 'تم الحضور بنجاح' : 'Attended' }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-xl">
-                                                        <i class="fa-solid fa-circle-check text-slate-400"></i> {{ app()->getLocale() === 'ar' ? 'انعقدت الحصة' : 'Completed' }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-6">
-                                        <div class="text-4xl text-slate-400"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                                        <h3 class="font-bold text-slate-800 text-base">
-                                            {{ app()->getLocale() === 'ar' ? 'لا يوجد سجل لحصص سابقة حتى الآن' : 'No Session History Recorded Yet' }}
-                                        </h3>
-                                        <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
-                                            {{ app()->getLocale() === 'ar'
-                                                ? 'عند انتهاء أي حصة بث مباشر، سيتم تسجيلها وحفظ حالتها في هذا الأرشيف تلقائياً.'
-                                                : 'Once any live session concludes, its record and attendance status will appear here automatically.' }}
-                                        </p>
-                                    </div>
-                                @endforelse
-
-                                {{-- Tab 3 Pagination Controls --}}
-                                <div id="paginationBar_history" class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono min-w-0 {{ count($endedSessionsHistory) <= 4 ? 'hidden' : '' }}">
-                                    <div id="pageText_history" class="text-slate-600 text-center sm:text-start shrink-0 whitespace-nowrap">
-                                        {{ app()->getLocale() === 'ar' ? 'عرض 1 - 4 من ' . count($endedSessionsHistory) . ' حصة' : 'Showing 1 - 4 of ' . count($endedSessionsHistory) }}
-                                    </div>
-                                    <div class="flex items-center gap-2 min-w-0 max-w-full flex-wrap justify-center">
-                                        <button id="prevBtn_history" type="button" onclick="changeSessionPage('history', -1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                                        </button>
-                                        <div id="pagePills_history" class="flex items-center gap-1 flex-wrap justify-center max-w-full"></div>
-                                        <button id="nextBtn_history" type="button" onclick="changeSessionPage('history', 1)"
-                                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 shadow-2xs shrink-0">
-                                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {{-- 2. Pending & In-Progress MSQ Assignments Department --}}
-                    <div id="assignments"
-                        class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-2 scroll-mt-28">
-                        <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                            <div>
-                                <h2
-                                    class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                    <span><i class="fa-solid fa-pen-to-square"></i></span>
-                                    {{ app()->getLocale() === 'ar' ? 'قسم الواجبات والاختبارات التفاعلية (Assignments & Quizzes)' : 'Assignments & MSQ Quizzes Department' }}
-                                </h2>
-                                <p class="text-xs font-mono text-slate-500 mt-1">
-                                    {{ app()->getLocale() === 'ar' ? 'تظهر هنا الواجبات المتاحة والمستمرة لجميع الكورسات المشترك بها. بمجرد الإجابة تنتقل لسجل النتائج.' : 'Shows available and in-progress assignments for all your enrolled courses. Answered assignments move to submission history.' }}
-                                </p>
-                            </div>
-                            <span
-                                class="text-xs font-mono font-extrabold bg-teal-100 text-teal-900 px-3.5 py-1.5 rounded-full border border-teal-200 self-start sm:self-auto shadow-2xs">
-                                {{ count($availableAssignments) }}
-                                {{ app()->getLocale() === 'ar' ? 'واجبات متاحة' : 'Available' }}
-                            </span>
-                        </div>
-
-                        {{-- Course Filter Tabs for Assignments --}}
-                        @if(isset($filterCourses) && count($filterCourses) > 1)
-                            <div class="chip-scroll">
-                                <button type="button" onclick="filterAssignmentsByCourse('all')"
-                                    class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer border border-transparent"
-                                    data-course="all">
-                                    {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }}
-                                    ({{ count($availableAssignments) }})
-                                </button>
-                                @foreach($filterCourses as $fc)
-                                    @php
-                                        $cCount = $availableAssignments->where('course_id', $fc->id)->count();
-                                    @endphp
-                                    <button type="button" onclick="filterAssignmentsByCourse({{ $fc->id }})"
-                                        class="assign-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 cursor-pointer"
-                                        data-course="{{ $fc->id }}">
-                                        {{ $fc->title }} ({{ $cCount }})
-                                    </button>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <div id="availableAssignmentsContainer" class="space-y-4">
-                            @forelse($availableAssignments as $assign)
-                                @php
-                                    $isInProgress = isset($inProgressSubmissions[$assign->id]);
-                                    $courseTitle = $assign->course?->title ?: ($assign->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Course Domain'));
-                                    $sessionTitle = $assign->session?->title ?: ($assign->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
-                                @endphp
-                                <div class="available-assign-card p-6 bg-gradient-to-br from-teal-50/70 via-emerald-50/30 to-white rounded-3xl border border-teal-200/80 space-y-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
-                                    data-course-id="{{ $assign->course_id ?? 0 }}">
-
-                                    {{-- Course & Session Context Badges --}}
-                                    <div
-                                        class="flex flex-wrap items-center justify-between gap-2 border-b border-teal-100/80 pb-3 text-xs font-mono">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span
-                                                class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                                <i class="fa-solid fa-book-open"></i> {{ $courseTitle }}
-                                            </span>
-                                            <span class="font-bold text-slate-800 bg-slate-200/80 px-3 py-0.5 rounded-full">
-                                                <i class="fa-solid fa-tv"></i> {{ $sessionTitle }}
-                                            </span>
-                                            @if($isInProgress)
-                                                <span
-                                                    class="bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold text-[10px] animate-pulse">
-                                                    <i class="fa-solid fa-bolt"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'قيد الحل حالياً' : 'In Progress' }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <span class="text-teal-700 font-bold bg-teal-100/60 px-2.5 py-0.5 rounded-md">
-                                            <i class="fa-solid fa-stopwatch"></i> {{ $assign->duration_minutes ?: 30 }}
-                                            {{ app()->getLocale() === 'ar' ? 'دقيقة إجابة' : 'Mins Duration' }}
-                                        </span>
-                                    </div>
-
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div class="space-y-1">
-                                            <div class="flex items-center gap-2">
-                                                <span
-                                                    class="text-[10px] font-mono font-bold uppercase {{ $isInProgress ? 'bg-amber-600' : 'bg-teal-700' }} text-white px-2 py-0.5 rounded">
-                                                    {{ $isInProgress ? 'Active Attempt' : 'MSQ Evaluation' }}
-                                                </span>
-                                                <h3 class="font-bold text-base text-slate-900">{{ $assign->title }}</h3>
-                                            </div>
-                                            <p class="text-xs text-slate-600 font-mono leading-relaxed">
-                                                {{ $assign->description ?: (app()->getLocale() === 'ar' ? 'واجب تقييمي تفاعلي لغلق فجوات الدرس والتأكد من الفهم الكامل.' : 'Interactive MSQ assignment to verify lesson mastery.') }}
-                                            </p>
-                                        </div>
-                                        <span
-                                            class="text-xs font-mono font-extrabold text-slate-800 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs self-start sm:self-auto">
-                                            <i class="fa-solid fa-bullseye"></i>
-                                            {{ app()->getLocale() === 'ar' ? 'درجة النجاح:' : 'Pass Mark:' }}
-                                            {{ number_format($assign->passing_score ?? 70, 0) }}%
-                                        </span>
-                                    </div>
-
-                                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-mono">
-                                        <div class="flex flex-wrap items-center gap-3 text-slate-600">
-                                            <span
-                                                class="flex items-center gap-1 font-bold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                                                <i class="fa-solid fa-clock"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'الموعد النهائي' : 'Deadline' }}:
-                                                {{ $assign->effective_due_at ? $assign->effective_due_at->format('Y-m-d H:i') : '24h Pre-Session' }}
-                                            </span>
-                                            <span
-                                                class="bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-200 font-bold">
-                                                <i class="fa-solid fa-lock"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'محاولة واحدة فقط' : '1 Attempt Only' }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            @if($isInProgress)
-                                                <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                                    class="portal-action-btn btn-lift px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-xs shadow-md shadow-amber-500/30 flex items-center gap-2">
-                                                    <span><i class="fa-solid fa-bolt"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'استكمال حل الواجب' : 'Resume Assignment' }}
-                                                    &rarr;
-                                                </a>
-                                            @else
-                                                <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                                    class="portal-action-btn btn-lift px-6 py-3 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-extrabold text-xs shadow-md shadow-teal-600/30 flex items-center gap-2">
-                                                    <span><i class="fa-solid fa-bolt"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'بدء حل الواجب التفاعلي' : 'Start Interactive MSQ' }}
-                                                </a>
-                                            @endif
-                                            <button onclick="openMsqAssignmentModal({{ $assign->id }})"
-                                                class="btn-lift px-4 py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs border border-slate-300 shadow-2xs cursor-pointer inline-flex items-center gap-1.5">
-                                                <span>{{ app()->getLocale() === 'ar' ? 'معاينة سريعة' : 'Quick Preview' }}</span>
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="p-8 bg-emerald-50/70 rounded-3xl border border-emerald-200 text-center space-y-2">
-                                    <div class="text-4xl animate-bounce"><i class="fa-solid fa-sparkles text-amber-400"></i>
-                                    </div>
-                                    <h4 class="font-bold text-lg text-emerald-950">
-                                        {{ app()->getLocale() === 'ar' ? 'ممتاز! تم حل جميع الواجبات المتاحة بنجاح' : 'All Available Assignments Completed!' }}
-                                    </h4>
-                                    <p class="text-xs font-mono text-emerald-800">
-                                        {{ app()->getLocale() === 'ar' ? 'لا توجد واجبات معلقة حالياً. يمكن مراجعة النتائج والتفاصيل في قسم السجل أدناه.' : 'No pending assignments remaining. Inspect your scores and evaluations in the submission history below.' }}
-                                    </p>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    {{-- 2.5 Enrolled Courses & Detailed Sessions Roadmap --}}
-                    <div
-                        class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-3">
-                        <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                            <div>
-                                <h2
-                                    class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                    <span><i class="fa-solid fa-book-open"></i></span>
-                                    {{ app()->getLocale() === 'ar' ? 'الكورسات المشترك بها والمنهج التفصيلي' : 'My Enrolled Courses & Detailed Modules' }}
-                                </h2>
-                                <p class="text-xs font-mono text-slate-500 mt-1">
-                                    {{ app()->getLocale() === 'ar'
-        ? 'استكشف المقررات الدراسية المشترك بها، وتصفح تفاصيل كل كورس، الجدول الزمني، والحصص المباشرة والمسجلة.'
-        : 'Explore your active enrolled courses, inspect full module roadmaps, live stream schedules, and session materials.' }}
-                                </p>
-                            </div>
-                            <span
-                                class="text-xs font-mono font-extrabold bg-teal-100 text-teal-900 px-3.5 py-1.5 rounded-full border border-teal-200 self-start sm:self-auto shadow-2xs">
-                                {{ count($enrollments) }}
-                                {{ app()->getLocale() === 'ar' ? 'كورسات مسجلة' : 'Active Courses' }}
-                            </span>
-                        </div>
-
-                        @if(count($enrollmentCards) > 0)
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                @foreach($enrollmentCards as $card)
-                                    <div
-                                        class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group space-y-4">
-                                        <div class="space-y-3">
-                                            <div class="flex items-center justify-between">
-                                                <span
-                                                    class="bg-teal-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
-                                                    {{ $card['subject'] }}
-                                                </span>
-                                                <span
-                                                    class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                                                    <i class="fa-solid fa-check"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'مشترك بنجاح' : 'Enrolled' }}
-                                                </span>
-                                            </div>
-
-                                            <h3
-                                                class="font-heading font-black text-lg sm:text-xl text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">
-                                                {{ $card['course']->title }}
-                                            </h3>
-
-                                            <p class="text-xs text-slate-600 font-mono leading-relaxed line-clamp-2">
-                                                {{ $card['course']->description ?: (app()->getLocale() === 'ar' ? 'مقرر تعليمي تفاعلي شامل للمرحلة الثانوية مع متابعة واختبارات.' : 'Comprehensive interactive curriculum with practical labs.') }}
-                                            </p>
-
-                                            <div class="flex items-center gap-2 pt-1 text-xs font-mono text-slate-700">
-                                                <img src="{{ asset('images/instructor_portrait.webp') }}"
-                                                    alt="{{ $card['teacher'] }}"
-                                                    class="w-6 h-6 rounded-full object-cover border border-teal-500">
-                                                <span><i class="fa-solid fa-chalkboard-user"></i>
-                                                    <strong>{{ $card['teacher'] }}</strong></span>
-                                            </div>
-
-                                            {{-- Progress Bar --}}
-                                            <div class="space-y-1.5 pt-2 border-t border-slate-100">
-                                                <div class="flex justify-between text-[11px] font-mono font-bold text-slate-600">
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'نسبة إنجاز المنهج' : 'Curriculum Progress' }}</span>
-                                                    <span class="text-teal-600 font-extrabold">{{ $card['progressPct'] }}%</span>
-                                                </div>
-                                                <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-500"
-                                                        style="width: {{ max(8, $card['progressPct']) }}%;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                                            <div class="flex items-center gap-2 text-xs font-mono text-slate-500">
-                                                <span><i class="fa-solid fa-video"></i> <strong>{{ $card['recCount'] }}</strong>
-                                                    {{ app()->getLocale() === 'ar' ? 'دروس' : 'Lectures' }}</span>
-                                                <span>•</span>
-                                                <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>
-                                                    <strong>{{ $card['liveCount'] }}</strong>
-                                                    {{ app()->getLocale() === 'ar' ? 'بث مباشر' : 'Live Streams' }}</span>
-                                            </div>
-
-                                            <div class="flex items-center gap-2">
-                                                <button onclick="openEnrolledCourseModal({{ $card['course']->id }})"
-                                                    class="btn-lift px-4 py-2 bg-slate-900 hover:bg-teal-600 text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 cursor-pointer transition-all">
-                                                    <span><i class="fa-solid fa-magnifying-glass"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'التفاصيل والحصص' : 'Full Details & Sessions' }}
-                                                </button>
-                                                <a href="{{ route('course-details', ['slug' => $card['course']->slug]) }}"
-                                                    class="btn-lift px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-bold border border-teal-200/80 flex items-center gap-1"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'صفحة الكورس' : 'Course Page' }}">
-                                                    <span>▶</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                                        <div
-                                            class="py-10 text-center text-slate-500 space-y-3 bg-slate-50/50 rounded-2xl border border-slate-200/80 p-6">
-                                            <div class="text-4xl"><i class="fa-solid fa-book-open"></i></div>
-                                            <h3 class="font-bold text-slate-800 text-base">
-                                                {{ app()->getLocale() === 'ar' ? 'لم تقم بالتسجيل في أي كورس بعد' : 'No Enrolled Courses Yet' }}
-                                            </h3>
-                                            <p class="text-xs font-mono text-slate-600 max-w-md mx-auto">
-                                                {{ app()->getLocale() === 'ar'
-                            ? 'تصفح قائمة الكورسات والمناهج المتاحة في الأكاديمية وقم بالتسجيل فوراً لبدء رحلة التعلم.'
-                            : 'Explore the full course catalog and enroll in accredited STEM programs to unlock your modules.' }}
-                                            </p>
-                                            <div class="pt-2">
-                                                <a href="{{ route('courses') }}"
-                                                    class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold font-mono rounded-xl shadow-md shadow-teal-600/20">
-                                                    <span><i class="fa-solid fa-rocket"></i></span>
-                                                    {{ app()->getLocale() === 'ar' ? 'تصفح الكورسات المتاحة الآن' : 'Browse Available Courses' }}
-                                                </a>
-                                            </div>
-                                        </div>
-                        @endif
-                    </div>
-
-                    {{-- 3. Dedicated Assignment Submission History & Graded Evaluation Section --}}
-                    <div
-                        class="glass-card rounded-3xl p-6 sm:p-8 md:p-9 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-6 animate-fade-in-up stagger-3">
-                        <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                            <div>
-                                <h2
-                                    class="font-heading font-black text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
-                                    <span><i class="fa-solid fa-scroll"></i></span>
-                                    {{ app()->getLocale() === 'ar' ? 'سجل تسليمات الواجبات والدرجات (Submissions History)' : 'Assignment Submission History & Graded Evaluation' }}
-                                </h2>
-                                <p class="text-xs font-mono text-slate-500 mt-1">
-                                    {{ app()->getLocale() === 'ar' ? 'تظهر هنا جميع الواجبات التي تمت إجابتها لجميع الكورسات مع تفاصيل الكورس والجلسة والنتيجة المحققة.' : 'Complete record of all answered assignments across all your enrolled courses with evaluated scores.' }}
-                                </p>
-                            </div>
-                            <span
-                                class="text-xs font-mono font-extrabold bg-slate-100 text-slate-800 px-3.5 py-1.5 rounded-full border border-slate-200 self-start sm:self-auto shadow-2xs">
-                                {{ count($submissions) }} {{ app()->getLocale() === 'ar' ? 'تسليمات سابقة' : 'Submitted' }}
-                            </span>
-                        </div>
-
-                        {{-- Course Filter Tabs for Submissions --}}
-                        @if(isset($filterCourses) && count($filterCourses) > 1)
-                            <div class="chip-scroll">
-                                <button type="button" onclick="filterSubmissionsByCourse('all')"
-                                    class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-teal-600 text-white shadow-xs cursor-pointer border border-transparent"
-                                    data-course="all">
-                                    {{ app()->getLocale() === 'ar' ? 'جميع الكورسات' : 'All Courses' }}
-                                    ({{ count($submissions) }})
-                                </button>
-                                @foreach($filterCourses as $fc)
-                                    @php
-                                        $sCount = $submissions->filter(fn($s) => ($s->assignment?->course_id == $fc->id || $s->assignment?->liveSession?->course_id == $fc->id))->count();
-                                    @endphp
-                                    <button type="button" onclick="filterSubmissionsByCourse({{ $fc->id }})"
-                                        class="sub-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold font-mono transition-all bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 cursor-pointer"
-                                        data-course="{{ $fc->id }}">
-                                        {{ $fc->title }} ({{ $sCount }})
-                                    </button>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <div id="submissionsContainer" class="space-y-4">
-                            @forelse($submissions as $sub)
-                                @php
-                                    $subCourseId = $sub->assignment?->course_id ?: ($sub->assignment?->liveSession?->course_id ?: 0);
-                                    $subCourseTitle = $sub->assignment?->course?->title ?: ($sub->assignment?->liveSession?->course?->title ?: (app()->getLocale() === 'ar' ? 'كورس مادة التخصص' : 'Subject Course'));
-                                    $subSessionTitle = $sub->assignment?->session?->title ?: ($sub->assignment?->liveSession?->title ?: (app()->getLocale() === 'ar' ? 'الجلسة التفاعلية' : 'Interactive Session'));
-                                @endphp
-                                <div class="submission-record-card p-6 bg-slate-50/90 hover:bg-slate-100/80 rounded-3xl border border-slate-200/90 space-y-4 transition-all hover:shadow-md hover:-translate-y-0.5"
-                                    data-course-id="{{ $subCourseId }}">
-
-                                    {{-- Course & Session Context Header --}}
-                                    <div
-                                        class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3 text-xs font-mono">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span
-                                                class="font-bold text-teal-900 bg-teal-100/90 px-3 py-0.5 rounded-full border border-teal-200">
-                                                <i class="fa-solid fa-book-open"></i> {{ $subCourseTitle }}
-                                            </span>
-                                            <span class="font-bold text-slate-800 bg-slate-200 px-3 py-0.5 rounded-full">
-                                                <i class="fa-solid fa-tv"></i> {{ $subSessionTitle }}
-                                            </span>
-                                        </div>
-                                        <span class="text-slate-500">
-                                            <i class="fa-solid fa-calendar-days"></i>
-                                            {{ app()->getLocale() === 'ar' ? 'تاريخ التسليم' : 'Submitted' }}:
-                                            <strong>{{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Completed' }}</strong>
-                                        </span>
-                                    </div>
-
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div class="space-y-1">
-                                            <h4 class="font-bold text-base text-slate-900">
-                                                {{ $sub->assignment?->title ?: (app()->getLocale() === 'ar' ? 'واجب الجلسة التفاعلية' : 'Session MSQ Assignment') }}
-                                            </h4>
-                                            <p class="text-xs font-mono text-slate-600 leading-relaxed">
-                                                {{ $sub->evaluation_notes ?: ($sub->teacher_notes ?: (app()->getLocale() === 'ar' ? 'تم التقييم التلقائي بنجاح.' : 'Server evaluated submission cleanly.')) }}
-                                            </p>
-                                        </div>
-
-                                        <div class="flex items-center gap-3 self-start sm:self-auto">
-                                            <span
-                                                class="text-base font-mono font-black text-slate-900 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-2xs">
-                                                {{ $sub->percentage !== null ? number_format($sub->percentage, 1) . '%' : ($sub->grade !== null ? number_format($sub->grade, 1) . '%' : 'Evaluated') }}
-                                            </span>
-                                            @if($sub->isPassed())
-                                                <span
-                                                    class="text-xs font-mono font-extrabold bg-emerald-100 text-emerald-900 px-4 py-2 rounded-2xl border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
-                                                    <i class="fa-solid fa-check"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'ناجح' : 'PASSED' }}
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="text-xs font-mono font-extrabold bg-rose-100 text-rose-900 px-4 py-2 rounded-2xl border border-rose-300 flex items-center gap-1.5 shadow-2xs">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                    {{ app()->getLocale() === 'ar' ? 'لم يجتاز' : 'FAILED' }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div
-                                    class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono">
-                                    {{ app()->getLocale() === 'ar' ? 'لا توجد تسليمات واجبات سابقة في السجل حتى الآن.' : 'No previous assignment submission history recorded yet.' }}
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                </div>
-
-                {{-- Sidebar (Notifications & Exception Status) --}}
-                <div class="lg:col-span-4 space-y-8">
-
-                    {{-- Notifications Feed --}}
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-5">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 gap-2 min-w-0">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 flex items-center gap-2 min-w-0">
-                                    <span><i class="fa-solid fa-bell text-teal-600"></i></span> {{ __('app.portal.notifications') }}
-                                </h3>
-                                <span id="notifTotalAlerts"
-                                    class="text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/80 shadow-2xs">
-                                    {{ $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator ? $userNotifications->total() : count($userNotifications) }}
-                                    Alerts
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3 transition-opacity duration-200" id="notificationsFeedContainer">
-                            @forelse($userNotifications as $n)
-                                <div
-                                    class="p-4 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md transition-all">
-                                    <div class="flex justify-between items-center text-[11px] font-mono font-bold">
-                                        @if($n->type === 'ASSIGNMENT_DEADLINE_REMINDER')
-                                            <span
-                                                class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200"><i
-                                                    class="fa-solid fa-clock"></i> Deadline 24h</span>
-                                        @elseif($n->type === 'ADMIN_APPROVAL_ALERT')
-                                            <span
-                                                class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200"><i
-                                                    class="fa-solid fa-circle-check text-emerald-500"></i> Admin Approved</span>
-                                        @else
-                                            <span
-                                                class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200"><i
-                                                    class="fa-solid fa-bell"></i> Real-Time FCM Alert</span>
-                                        @endif
-                                        <span
-                                            class="text-slate-400 font-normal">{{ $n->created_at ? $n->created_at->diffForHumans() : 'Just now' }}</span>
-                                    </div>
-                                    <h4 class="font-bold text-xs text-slate-900 leading-snug">{{ $n->title }}</h4>
-                                    <p class="text-xs text-slate-600 leading-relaxed font-mono">{{ $n->body }}</p>
-                                </div>
-                            @empty
-                                <div
-                                    class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                                    <div class="text-2xl"><i class="fa-solid fa-bell-slash"></i></div>
-                                    <div>
-                                        {{ app()->getLocale() === 'ar' ? 'لا توجد إشعارات مسجلة حالياً.' : 'No notifications in feed yet.' }}
-                                    </div>
-                                </div>
-                            @endforelse
-                        </div>
-
-
-                        <div id="notificationsPaginationBar"
-                            class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono {{ $notifLastPage <= 1 ? 'hidden' : '' }}">
-                            <button id="btnNotifPrev" onclick="fetchNotificationsPage(notifCurrentPage - 1)"
-                                class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                                <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                            </button>
-
-                            <div
-                                class="text-slate-600 font-bold bg-slate-100/80 px-3.5 py-1 rounded-xl border border-slate-200/90 text-[11px] shadow-2xs">
-                                {{ app()->getLocale() === 'ar' ? 'صفحة' : 'Page' }} <span id="notifCurrentPageText"
-                                    class="text-teal-700 font-extrabold">{{ $notifCurrentPage }}</span>
-                                {{ app()->getLocale() === 'ar' ? 'من' : 'of' }} <span id="notifLastPageText"
-                                    class="text-slate-800">{{ $notifLastPage }}</span>
-                            </div>
-
-                            <button id="btnNotifNext" onclick="fetchNotificationsPage(notifCurrentPage + 1)"
-                                class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                                <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    {{-- Teacher Pedagogical Notes Section --}}
-                    <div id="teacher-notes"
-                        class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                            <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white flex items-center gap-2">
-                                <span class="text-teal-600 dark:text-teal-400"><i class="fa-solid fa-comments"></i></span>
-                                {{ app()->getLocale() === 'ar' ? 'ملاحظات المعلمين والتوجيه الأكاديمي' : 'Teacher Notes & Pedagogical Feedback' }}
-                            </h3>
-                            <span
-                                class="px-2.5 py-1 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800 text-[11px] font-mono font-extrabold rounded-xl shrink-0 whitespace-nowrap shadow-2xs">
-                                {{ count($teacherNotes) }} {{ app()->getLocale() === 'ar' ? 'ملاحظات' : 'Notes' }}
-                            </span>
-                        </div>
-
-                        <div class="space-y-3.5">
-                            @forelse($teacherNotes as $n)
-                                @php
-                                    $catConfig = match ($n->category) {
-                                        'academic' => ['label' => (app()->getLocale() === 'ar' ? 'أكاديمي' : 'Academic'), 'bg' => 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800'],
-                                        'homework' => ['label' => (app()->getLocale() === 'ar' ? 'الواجبات' : 'Homework'), 'bg' => 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800'],
-                                        'participation' => ['label' => (app()->getLocale() === 'ar' ? 'المشاركة' : 'Participation'), 'bg' => 'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800'],
-                                        'behavior' => ['label' => (app()->getLocale() === 'ar' ? 'السلوك والانضباط' : 'Behavior'), 'bg' => 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'],
-                                        default => ['label' => (app()->getLocale() === 'ar' ? 'توجيه عام' : 'General'), 'bg' => 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'],
-                                    };
-                                @endphp
-                                <div
-                                    class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <div class="flex items-center gap-2.5 min-w-0">
-                                            <div
-                                                class="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-heading font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                                                {{ mb_substr($n->teacherProfile?->user?->name ?? 'T', 0, 1) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
-                                                    {{ $n->teacherProfile?->user?->name ?: __('Academic Teacher') }}
-                                                </p>
-                                                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
-                                                    {{ $n->teacherProfile?->subjects?->pluck('name')->join(', ') ?: 'Elite Academy Faculty' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2 shrink-0">
-                                            <span
-                                                class="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-full border {{ $catConfig['bg'] }}">
-                                                {{ $catConfig['label'] }}
-                                            </span>
-                                            <span
-                                                class="text-[10px] font-mono text-slate-400 dark:text-slate-500">{{ $n->created_at ? $n->created_at->diffForHumans() : '' }}</span>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-700/80 text-xs font-mono text-slate-800 dark:text-slate-200 leading-relaxed">
-                                        {{ $n->note }}
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
-                                    <div class="text-2xl text-slate-400 dark:text-slate-500"><i class="fa-solid fa-comments"></i></div>
-                                    <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        {{ app()->getLocale() === 'ar' ? 'لا توجد ملاحظات مسجلة لك من المعلمين حتى الآن.' : 'No pedagogical notes recorded by your teachers yet.' }}
-                                    </p>
-                                    <p class="text-[10px] font-mono text-slate-400 dark:text-slate-500">
-                                        {{ app()->getLocale() === 'ar' ? 'ستظهر هنا أي ملاحظات أو توجيهات أكاديمية يرسلها معلموك.' : 'Any feedback or guidance from your instructors will appear here.' }}
-                                    </p>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    {{-- Submitted Exceptions List --}}
-                    <div id="exceptions"
-                        class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-lg transition-all space-y-5 animate-fade-in-up stagger-2 scroll-mt-28">
-                        <h3
-                            class="font-heading font-black text-xl text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <span><i class="fa-solid fa-clipboard-list"></i></span>
-                            {{ __('app.portal.exceptions_history') }}
-                        </h3>
-                        <div class="space-y-3">
-                            @forelse($exceptions as $exc)
-                                <div
-                                    class="p-4 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md transition-all">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-bold text-xs text-slate-900">
-                                            {{ $exc->is_global || $exc->scope === 'global' ? (app()->getLocale() === 'ar' ? 'استثناء شامل (كل الكورسات)' : 'Global System Exemption') : (app()->getLocale() === 'ar' ? 'عذر كورس خاص' : 'Course Exception') }}
-                                        </span>
-                                        <span
-                                            class="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full {{ $exc->status === 'approved' ? 'bg-emerald-100 text-emerald-900 border border-emerald-200' : ($exc->status === 'rejected' ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-amber-100 text-amber-900 border border-amber-200') }}">
-                                            {{ $exc->status }}
-                                        </span>
-                                    </div>
-                                    <p class="text-xs font-mono text-slate-600 truncate">{{ $exc->reason }}</p>
-                                </div>
-                            @empty
-                                <div
-                                    class="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                                    <div class="text-xl"><i class="fa-solid fa-clipboard-list"></i></div>
-                                    <div>
-                                        {{ app()->getLocale() === 'ar' ? 'لا توجد طلبات استثناء سابقة.' : 'No previous exception requests found.' }}
-                                    </div>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
+            <a href="{{ route('courses') }}"
+                class="btn-lift px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-md shadow-rose-600/30 whitespace-nowrap flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-center">
+                <span><i class="fa-solid fa-cart-shopping"></i></span>
+                <span>{{ $isAr ? 'تصفح الباقات والكورسات' : 'Explore Packages & Courses' }}</span>
+            </a>
         </div>
-    </section>
+    @endif
+
+    {{-- ========================================================================= --}}
+    {{-- 2. MASTER FULL-SECTION PANES CONTAINER (Zero Page Scroll) --}}
+    {{-- ========================================================================= --}}
+    <div id="studentSectionsMasterContainer">
+        {{-- Modular Separated Section Views --}}
+        @include('pages.student.sections.overview')
+        @include('pages.student.sections.sessions')
+        @include('pages.student.sections.courses')
+        @include('pages.student.sections.assignments')
+        @include('pages.student.sections.submissions')
+        @include('pages.student.sections.exceptions')
+        @include('pages.student.sections.notifications')
     </div>
 
+    {{-- ========================================================================= --}}
+    {{-- 4. MODALS (MSQ Solver, Excuses, Homework Exceptions, Own Package Details, Course Syllabus) --}}
+    {{-- ========================================================================= --}}
+    @include('pages.student.sections.packages')
+
     {{-- 1. Modal: Interactive MSQ Assignment Solver --}}
-    <div id="takeMsqModal"
-        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 relative max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="p-5 sm:p-6 bg-slate-50 border-b border-slate-200/80 flex justify-between items-start shrink-0">
+    <div id="takeMsqModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-5 sm:p-6 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700 flex justify-between items-start shrink-0">
                 <div>
-                    <span
-                        class="text-[10px] font-mono font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full uppercase border border-teal-200">Interactive
-                        MSQ Evaluation</span>
-                    <h3 id="msqModalTitle" class="font-heading font-black text-xl sm:text-2xl text-slate-900 mt-1">Loading Assignment...</h3>
+                    <span class="text-[10px] font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-3 py-1 rounded-full uppercase border border-teal-200 dark:border-teal-800">
+                        Interactive MSQ Evaluation
+                    </span>
+                    <h3 id="msqModalTitle" class="font-heading font-black text-xl sm:text-2xl text-slate-900 dark:text-white mt-1">Loading Assignment...</h3>
                     <p id="msqModalDesc" class="text-xs text-slate-500 font-mono mt-0.5"></p>
                 </div>
                 <button type="button" onclick="closeMsqModal()"
-                    class="w-9 h-9 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 shrink-0 text-xl font-bold"
+                    class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 shrink-0 text-xl font-bold"
                     aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
             <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar space-y-5 flex-1">
-                {{-- Timer & Warning Banner --}}
-                <div id="msqTimerBar"
-                    class="flex items-center justify-between p-4 bg-slate-900 text-white rounded-2xl text-xs font-mono shadow-md">
+                {{-- Timer & Warning Bar --}}
+                <div id="msqTimerBar" class="flex items-center justify-between p-4 bg-slate-900 text-white rounded-2xl text-xs font-mono shadow-md">
                     <span class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
                         <span>Session Deadline Rule Active</span>
@@ -1348,8 +177,8 @@
                     </div>
 
                     <button type="submit" id="msqSubmitBtn"
-                        class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/30 touch-press font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
-                        <span>Submit Assignment for Automated Evaluation</span> &rarr;
+                        class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-600/30 font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
+                        <span>{{ $isAr ? 'إرسال الإجابات والتصحيح التلقائي' : 'Submit Assignment for Automated Evaluation' }}</span> &rarr;
                     </button>
                 </form>
             </div>
@@ -1357,9 +186,7 @@
     </div>
 
     {{-- 2. Modal: Submit Session Absence Excuse --}}
-    {{-- 2. Modal: Submit Session Absence Excuse --}}
-    <div id="excuseModal"
-        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+    <div id="excuseModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
         <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex items-center gap-2.5">
@@ -1369,7 +196,7 @@
                     <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('app.portal.submit_excuse') }}</h3>
                 </div>
                 <button type="button" onclick="window.closeModal ? window.closeModal('excuseModal') : document.getElementById('excuseModal').classList.add('hidden')"
-                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
+                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
                     aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
@@ -1382,11 +209,11 @@
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                         <i class="fa-solid fa-book-open text-teal-600 dark:text-teal-400"></i>
-                        {{ app()->getLocale() === 'ar' ? 'اختر المقرر الدراسي' : 'Select Target Course' }}
+                        {{ $isAr ? 'اختر المقرر الدراسي' : 'Select Target Course' }}
                     </label>
                     <select name="course_id" id="excuseCourseSelect" required class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
                         onchange="onExcuseCourseChange(this.value, 'excuseSessionSelect')">
-                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
+                        <option value="">{{ $isAr ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
                         @if(isset($enrollments) && count($enrollments) > 0)
                             @foreach($enrollments as $e)
                                 <option value="{{ $e->course_id }}">{{ $e->course?->title ?: ('Course #' . $e->course_id) }}</option>
@@ -1399,49 +226,49 @@
                     </select>
                 </div>
 
-                {{-- Dynamic Specific Session Selection --}}
-                <div class="space-y-1.5" id="excuseSessionGroup">
+                {{-- Target Session Selection --}}
+                <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-video text-teal-600 dark:text-teal-400"></i>
-                        {{ app()->getLocale() === 'ar' ? 'اختر الحصة المحددة' : 'Select Specific Session' }}
+                        <i class="fa-solid fa-satellite-dish text-teal-600 dark:text-teal-400"></i>
+                        {{ $isAr ? 'الحصة الدراسية المستهدفة' : 'Target Session' }}
                     </label>
-                    <select name="live_session_id" id="excuseSessionSelect" required class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
-                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --' }}</option>
+                    <select name="session_id" id="excuseSessionSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
+                        <option value="">{{ $isAr ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first --' }}</option>
                     </select>
                 </div>
 
+                {{-- Reason --}}
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'سبب الاعتذار عن الحصة' : 'Reason for Absence' }}</label>
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen text-teal-600 dark:text-teal-400"></i>
+                        {{ $isAr ? 'سبب الغياب أو العذر' : 'Excuse Reason' }}
+                    </label>
                     <textarea name="reason" required minlength="10"
-                        placeholder="{{ app()->getLocale() === 'ar' ? 'اذكر سبب الغياب بالتفصيل...' : 'Provide detailed absence reason...' }}"
+                        placeholder="{{ $isAr ? 'يرجى توضيح سبب الغياب بالتفصيل لإحالته للإدارة والمعلم...' : 'Explain the reason for absence...' }}"
                         class="input-mobile h-24 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"></textarea>
-                    <p class="text-[11px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        {{ __('app.sessions.excuse_2h_rule') }}
-                    </p>
                 </div>
 
-                <button type="submit"
-                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer font-bold py-3 rounded-2xl">
-                    {{ app()->getLocale() === 'ar' ? 'إرسال عذر الغياب' : 'Submit Absence Excuse' }}
+                <button type="submit" id="excuseSubmitBtn"
+                    class="w-full btn-mobile-lg btn-lift text-slate-950 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md font-bold py-3 rounded-2xl cursor-pointer transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>{{ $isAr ? 'إرسال طلب العذر' : 'Submit Excuse Request' }}</span>
                 </button>
             </form>
         </div>
     </div>
 
-    {{-- 3. Modal: Submit Homework Exception Request --}}
-    <div id="homeworkExceptionModal"
-        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+    {{-- 3. Modal: Submit Homework Exception --}}
+    <div id="homeworkExceptionModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
         <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 flex items-center justify-center text-sm border border-amber-200/60 dark:border-amber-800">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    <div class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 flex items-center justify-center text-sm border border-teal-200/60 dark:border-teal-800">
+                        <i class="fa-solid fa-clipboard-question"></i>
                     </div>
                     <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white">{{ __('app.portal.submit_exception') }}</h3>
                 </div>
                 <button type="button" onclick="window.closeModal ? window.closeModal('homeworkExceptionModal') : document.getElementById('homeworkExceptionModal').classList.add('hidden')"
-                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
+                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-700 text-lg font-bold"
                     aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
@@ -1450,28 +277,15 @@
             <form id="hwExceptionForm" action="{{ route('ajax.exception.submit') }}" method="POST" class="space-y-4">
                 @csrf
 
+                {{-- Course Selection --}}
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'نطاق الاستثناء' : 'Exception Scope' }}</label>
-                    <select name="scope" id="exceptionScopeSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
-                        onchange="document.getElementById('hwCourseSelectGroup').style.display = this.value === 'global' ? 'none' : 'block'; document.getElementById('hwSessionSelectGroup').style.display = this.value === 'global' ? 'none' : 'block';">
-                        <option value="course">
-                            {{ app()->getLocale() === 'ar' ? 'كورس معين محدد وحصة محددة' : 'Single Specific Course & Session' }}
-                        </option>
-                        <option value="global">
-                            {{ app()->getLocale() === 'ar' ? 'استثناء شامل لجميع الكورسات' : 'Global System Exception (All Enrolled Courses)' }}
-                        </option>
-                    </select>
-                </div>
-
-                {{-- Target Course Selection --}}
-                <div id="hwCourseSelectGroup" class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-book-open text-amber-600 dark:text-amber-400"></i>
-                        {{ app()->getLocale() === 'ar' ? 'اختر الكورس المستهدف' : 'Target Enrolled Course' }}
+                        <i class="fa-solid fa-book-open text-teal-600 dark:text-teal-400"></i>
+                        {{ $isAr ? 'اختر المقرر الدراسي' : 'Select Target Course' }}
                     </label>
-                    <select name="course_id" id="hwExceptionCourseSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+                    <select name="course_id" id="hwExceptionCourseSelect" required class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
                         onchange="onExcuseCourseChange(this.value, 'hwExceptionSessionSelect')">
-                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
+                        <option value="">{{ $isAr ? '-- اختر الكورس --' : '-- Select Course --' }}</option>
                         @if(isset($enrollments) && count($enrollments) > 0)
                             @foreach($enrollments as $e)
                                 <option value="{{ $e->course_id }}">{{ $e->course?->title ?: ('Course #' . $e->course_id) }}</option>
@@ -1484,1050 +298,1183 @@
                     </select>
                 </div>
 
-                {{-- Specific Session / Homework Selection --}}
-                <div id="hwSessionSelectGroup" class="space-y-1.5">
+                {{-- Session Selection --}}
+                <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-pen text-amber-600 dark:text-amber-400"></i>
-                        {{ app()->getLocale() === 'ar' ? 'الحصة / الواجب المستهدف (اختياري)' : 'Target Session / Homework (Optional)' }}
+                        <i class="fa-solid fa-tv text-teal-600 dark:text-teal-400"></i>
+                        {{ $isAr ? 'الحصة أو الدرس المرتبط' : 'Target Session' }}
                     </label>
-                    <select name="live_session_id" id="hwExceptionSessionSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
-                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --' }}</option>
+                    <select name="session_id" id="hwExceptionSessionSelect" class="input-mobile bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
+                        <option value="">{{ $isAr ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first --' }}</option>
                     </select>
                 </div>
 
+                {{-- Reason --}}
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'تفاصيل مشكلة الواجب أو سبب الاستثناء' : 'Homework Exception Details' }}</label>
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen text-teal-600 dark:text-teal-400"></i>
+                        {{ $isAr ? 'سبب طلب استثناء الواجب' : 'Reason for Exception' }}
+                    </label>
                     <textarea name="reason" required minlength="10"
-                        placeholder="{{ app()->getLocale() === 'ar' ? 'اشرح المشكلة التقنية أو سبب طلب استثناء الواجب...' : 'Describe technical issue or homework exception...' }}"
+                        placeholder="{{ $isAr ? 'اشرح المشكلة التقنية أو سبب طلب استثناء الواجب...' : 'Describe technical issue or homework exception...' }}"
                         class="input-mobile h-24 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"></textarea>
                 </div>
 
-                <button type="submit"
-                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md touch-press cursor-pointer font-bold py-3 rounded-2xl">
-                    {{ app()->getLocale() === 'ar' ? 'إرسال طلب استثناء الواجب' : 'Submit Homework Exception' }}
+                <button type="submit" id="hwExceptionSubmitBtn"
+                    class="w-full btn-mobile-lg btn-lift text-white bg-teal-600 hover:bg-teal-700 shadow-md font-bold py-3 rounded-2xl cursor-pointer transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>{{ $isAr ? 'إرسال طلب استثناء الواجب' : 'Submit Homework Exception' }}</span>
                 </button>
             </form>
         </div>
     </div>
 
-    <script>
-        let msqTimerInterval = null;
-
-        async function openMsqAssignmentModal(assignmentId) {
-            const modal = document.getElementById('takeMsqModal');
-            const titleEl = document.getElementById('msqModalTitle');
-            const descEl = document.getElementById('msqModalDesc');
-            const container = document.getElementById('msqQuestionsContainer');
-            const assignIdInput = document.getElementById('msqAssignmentId');
-
-            assignIdInput.value = assignmentId;
-            if (window.openModal) {
-                window.openModal('takeMsqModal');
-            } else {
-                modal.classList.remove('hidden');
-            }
-            container.innerHTML = '<div class="text-center py-8 text-slate-500 font-mono text-xs">Loading assignment questions...</div>';
-
-            try {
-                const baseUrl = "{{ url('/ajax/assignments') }}";
-                const res = await fetch(`${baseUrl}/${assignmentId}/details`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await res.json();
-
-                if (!res.ok || !data.success) {
-                    if (window.Toast) window.Toast.error(data.message || 'Error loading assignment details');
-                    closeMsqModal();
-                    return;
-                }
-
-                const assign = data.assignment;
-                titleEl.textContent = assign.title;
-                descEl.textContent = assign.description || 'Complete all MSQ questions before the timer runs out.';
-
-                // Setup Timer
-                let durationSecs = (assign.duration_minutes || 30) * 60;
-                const timerDisplay = document.getElementById('msqTimerDisplay');
-                if (msqTimerInterval) clearInterval(msqTimerInterval);
-
-                msqTimerInterval = setInterval(() => {
-                    if (durationSecs <= 0) {
-                        clearInterval(msqTimerInterval);
-                        timerDisplay.textContent = 'TIME EXPIRED';
-                        timerDisplay.className = 'font-bold text-red-400 animate-pulse';
-                        if (window.Toast) window.Toast.warning('Assignment time expired!', 'Deadline Alert');
-                        return;
-                    }
-                    durationSecs--;
-                    const mins = Math.floor(durationSecs / 60);
-                    const secs = durationSecs % 60;
-                    timerDisplay.textContent = `Time Remaining: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                }, 1000);
-
-                if (!assign.questions || assign.questions.length === 0) {
-                    container.innerHTML = '<div class="p-6 text-center text-slate-500 font-mono text-xs bg-slate-50 rounded-2xl">No questions configured for this assignment yet.</div>';
-                    return;
-                }
-
-                let html = '';
-                assign.questions.forEach((q, idx) => {
-                    const inputType = q.is_multiple_choice ? 'checkbox' : 'radio';
-                    html += `
-                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-sm text-slate-900">Q${idx + 1}. ${q.question_text || ''}</span>
-                                <span class="text-[10px] font-mono font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">${q.points || 1} Points</span>
-                            </div>
-                            ${q.image_path ? `<img src="${q.image_path}" class="max-h-48 rounded-xl border border-slate-200 my-2 object-contain">` : ''}
-                            <div class="space-y-2 pt-1">
-                    `;
-
-                    (q.options || []).forEach(opt => {
-                        html += `
-                            <label class="flex items-center gap-3 p-3 bg-white hover:bg-teal-50/50 rounded-xl border border-slate-200/90 cursor-pointer transition-colors text-xs font-semibold text-slate-800">
-                                <input type="${inputType}" name="answers[${q.id}][]" value="${opt.id}" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
-                                <span>${opt.option_text || ''}</span>
-                            </label>
-                        `;
-                    });
-
-                    html += `</div></div>`;
-                });
-
-                container.innerHTML = html;
-            } catch (err) {
-                if (window.Toast) window.Toast.error('Network error loading assignment');
-                closeMsqModal();
-            }
-        }
-
-        function closeMsqModal() {
-            if (window.closeModal) {
-                window.closeModal('takeMsqModal');
-            } else {
-                document.getElementById('takeMsqModal').classList.add('hidden');
-            }
-            if (msqTimerInterval) clearInterval(msqTimerInterval);
-        }
-        window.closeMsqModal = closeMsqModal;
-
-        const enrolledCoursesDataMap = @json($enrolledCoursesDataMap ?? []);
-        const isArLocale = @json(app()->getLocale() === 'ar');
-
-        function onExcuseCourseChange(courseId, selectElId) {
-            const selectEl = document.getElementById(selectElId);
-            if (!selectEl) return;
-            selectEl.innerHTML = '';
-
-            if (!courseId) {
-                const opt = document.createElement('option');
-                opt.value = '';
-                opt.textContent = isArLocale ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first to see sessions --';
-                selectEl.appendChild(opt);
-                return;
-            }
-
-            const courseData = enrolledCoursesDataMap[courseId];
-            if (!courseData) {
-                const opt = document.createElement('option');
-                opt.value = '';
-                opt.textContent = isArLocale ? 'كافة حصص المقرر' : 'All Course Sessions';
-                selectEl.appendChild(opt);
-                return;
-            }
-
-            const defaultOpt = document.createElement('option');
-            defaultOpt.value = '';
-            defaultOpt.textContent = isArLocale ? '-- اختر الحصة الدراسية المحددة --' : '-- Select Specific Session --';
-            selectEl.appendChild(defaultOpt);
-
-            let hasSessions = false;
-
-            // 1. Live sessions
-            if (courseData.live_sessions && courseData.live_sessions.length > 0) {
-                const liveGroup = document.createElement('optgroup');
-                liveGroup.label = isArLocale ? 'الحصص المباشرة (Live Sessions)' : 'Live Sessions';
-                courseData.live_sessions.forEach(ls => {
-                    const opt = document.createElement('option');
-                    opt.value = ls.id;
-                    opt.textContent = `${ls.title} (${ls.start_at || 'Scheduled'})`;
-                    liveGroup.appendChild(opt);
-                    hasSessions = true;
-                });
-                selectEl.appendChild(liveGroup);
-            }
-
-            // 2. Recorded curriculum sessions
-            if (courseData.recorded_sessions && courseData.recorded_sessions.length > 0) {
-                const recGroup = document.createElement('optgroup');
-                recGroup.label = isArLocale ? 'الدروس المسجلة للمقرر' : 'Curriculum Lessons';
-                courseData.recorded_sessions.forEach(cs => {
-                    const opt = document.createElement('option');
-                    opt.value = cs.id;
-                    opt.textContent = `${cs.title} (${cs.duration} min)`;
-                    recGroup.appendChild(opt);
-                    hasSessions = true;
-                });
-                selectEl.appendChild(recGroup);
-            }
-
-            if (!hasSessions) {
-                const opt = document.createElement('option');
-                opt.value = '';
-                opt.textContent = isArLocale ? 'لا توجد حصص مجدولة حالياً (استثناء عام للمقرر)' : 'No sessions scheduled yet (General Course Exception)';
-                selectEl.appendChild(opt);
-            }
-        }
-        window.onExcuseCourseChange = onExcuseCourseChange;
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Pre-initialize session dropdowns if course already selected
-            const excuseCourseSelect = document.getElementById('excuseCourseSelect');
-            if (excuseCourseSelect && excuseCourseSelect.value) {
-                onExcuseCourseChange(excuseCourseSelect.value, 'excuseSessionSelect');
-            }
-            const hwCourseSelect = document.getElementById('hwExceptionCourseSelect');
-            if (hwCourseSelect && hwCourseSelect.value) {
-                onExcuseCourseChange(hwCourseSelect.value, 'hwExceptionSessionSelect');
-            }
-            const excuseForm = document.getElementById('excuseForm');
-            const excuseAlert = document.getElementById('excuseAlert');
-            if (excuseForm) {
-                excuseForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    excuseAlert.classList.add('hidden');
-                    const formData = new FormData(excuseForm);
-
-                    try {
-                        const res = await fetch(excuseForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        const data = await res.json();
-
-                        excuseAlert.className = `p-3 rounded-xl text-xs font-semibold ${data.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
-                        excuseAlert.textContent = data.message;
-                        excuseAlert.classList.remove('hidden');
-
-                        if (data.success) {
-                            setTimeout(() => {
-                                if (window.closeModal) window.closeModal('excuseModal');
-                                else document.getElementById('excuseModal').classList.add('hidden');
-                            }, 1500);
-                        }
-                    } catch (err) {
-                        excuseAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
-                        excuseAlert.textContent = 'Network error. Please try again.';
-                        excuseAlert.classList.remove('hidden');
-                    }
-                });
-            }
-
-            const hwForm = document.getElementById('hwExceptionForm');
-            const hwAlert = document.getElementById('hwExceptionAlert');
-            if (hwForm) {
-                hwForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    hwAlert.classList.add('hidden');
-                    const formData = new FormData(hwForm);
-
-                    try {
-                        const res = await fetch(hwForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        const data = await res.json();
-
-                        hwAlert.className = `p-3 rounded-xl text-xs font-semibold ${data.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
-                        hwAlert.textContent = data.message;
-                        hwAlert.classList.remove('hidden');
-
-                        if (data.success) {
-                            setTimeout(() => {
-                                if (window.closeModal) window.closeModal('homeworkExceptionModal');
-                                else document.getElementById('homeworkExceptionModal').classList.add('hidden');
-                            }, 1500);
-                        }
-                    } catch (err) {
-                        hwAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200';
-                        hwAlert.textContent = 'Network error. Please try again.';
-                        hwAlert.classList.remove('hidden');
-                    }
-                });
-            }
-
-            const msqForm = document.getElementById('msqAnswerForm');
-            const submitBtn = document.getElementById('msqSubmitBtn');
-
-            if (msqForm) {
-                msqForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-
-                    try {
-                        const formData = new FormData(msqForm);
-                        const res = await fetch("{{ route('ajax.assignment.submit') }}", {
-                            method: 'POST',
-                            body: formData,
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        const data = await res.json();
-
-                        if (!res.ok || !data.success) {
-                            if (window.Toast) window.Toast.error(data.message || 'Submission failed');
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                            return;
-                        }
-
-                        if (window.Toast) {
-                            if (data.is_passed) {
-                                window.Toast.success(`Score: ${data.percentage}% (PASSED <i class="fa-solid fa-check"></i>)`, 'Assignment Completed!');
-                            } else {
-                                window.Toast.error(`Score: ${data.percentage}% (FAILED <i class="fa-solid fa-xmark"></i> - Passing: ${data.passing_score}%)`, 'Assignment Result');
-                            }
-                        }
-
-                        closeMsqModal();
-                        setTimeout(() => window.location.reload(), 1200);
-                    } catch (err) {
-                        if (window.Toast) window.Toast.error('Network error submitting assignment');
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                    }
-                });
-            }
-        });
-
-        // ─────────────────────────────────────────────────────────────────────────
-        // Real-Time AJAX Notifications Pagination (No Page Refresh)
-        // ─────────────────────────────────────────────────────────────────────────
-        let notifCurrentPage = {{ $notifCurrentPage }};
-        let notifLastPage = {{ $notifLastPage }};
-
-        function updatePaginationControls(page, lastPage, total) {
-            notifCurrentPage = page;
-            notifLastPage = lastPage;
-
-            const btnPrev = document.getElementById('btnNotifPrev');
-            const btnNext = document.getElementById('btnNotifNext');
-            const currText = document.getElementById('notifCurrentPageText');
-            const lastText = document.getElementById('notifLastPageText');
-            const totalAlerts = document.getElementById('notifTotalAlerts');
-            const pagBar = document.getElementById('notificationsPaginationBar');
-
-            if (currText) currText.textContent = page;
-            if (lastText) lastText.textContent = lastPage;
-            if (totalAlerts) totalAlerts.textContent = `${total} Alerts`;
-
-            if (btnPrev) btnPrev.disabled = (page <= 1);
-            if (btnNext) btnNext.disabled = (page >= lastPage);
-
-            if (pagBar) {
-                if (lastPage <= 1) {
-                    pagBar.classList.add('hidden');
-                } else {
-                    pagBar.classList.remove('hidden');
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            updatePaginationControls(notifCurrentPage, notifLastPage, {{ $totalAlertsCount }});
-        });
-
-        async function fetchNotificationsPage(page) {
-            if (page < 1 || (notifLastPage && page > notifLastPage)) return;
-
-            const container = document.getElementById('notificationsFeedContainer');
-            if (container) container.classList.add('opacity-40');
-
-            try {
-                const res = await fetch(`{{ route('ajax.notifications.feed') }}?page=${page}&per_page=5`);
-                const data = await res.json();
-
-                if (!data.success) {
-                    if (container) container.classList.remove('opacity-40');
-                    return;
-                }
-
-                if (container) {
-                    container.innerHTML = '';
-                    if (data.notifications && data.notifications.length > 0) {
-                        data.notifications.forEach(n => {
-                            const card = document.createElement('div');
-                            card.className = 'p-4 bg-slate-50/90 hover:bg-slate-100/90 rounded-2xl border border-slate-200/90 space-y-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md transition-all';
-
-                            let badgeHtml = '<span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200"><i class="fa-solid fa-bell"></i> Real-Time FCM Alert</span>';
-                            if (n.type === 'ASSIGNMENT_DEADLINE_REMINDER') {
-                                badgeHtml = '<span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200"><i class="fa-solid fa-clock"></i> Deadline 24h</span>';
-                            } else if (n.type === 'ADMIN_APPROVAL_ALERT') {
-                                badgeHtml = '<span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200"><i class="fa-solid fa-circle-check text-emerald-500"></i> Admin Approved</span>';
-                            }
-
-                            const timeStr = n.created_at ? formatTimeAgo(n.created_at) : 'Just now';
-
-                            card.innerHTML = `
-                                <div class="flex justify-between items-center text-[11px] font-mono font-bold">
-                                    ${badgeHtml}
-                                    <span class="text-slate-400 font-normal">${timeStr}</span>
-                                </div>
-                                <h4 class="font-bold text-xs text-slate-900 leading-snug">${escapeHtml(n.title)}</h4>
-                                <p class="text-xs text-slate-600 leading-relaxed font-mono">${escapeHtml(n.body)}</p>
-                            `;
-                            container.appendChild(card);
-                        });
-                    } else {
-                        container.innerHTML = `
-                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 text-center font-mono space-y-1">
-                                <div class="text-2xl"><i class="fa-solid fa-bell-slash"></i></div>
-                                <div>${@json(app()->getLocale() === 'ar' ? 'لا توجد إشعارات مسجلة حالياً.' : 'No notifications in feed yet.')}</div>
-                            </div>
-                        `;
-                    }
-                    container.classList.remove('opacity-40');
-                }
-
-                if (data.pagination) {
-                    updatePaginationControls(data.pagination.current_page, data.pagination.last_page, data.pagination.total);
-                }
-
-            } catch (err) {
-                if (container) container.classList.remove('opacity-40');
-            }
-        }
-
-        function formatTimeAgo(dateStr) {
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins} minutes ago`;
-            const diffHours = Math.floor(diffMins / 60);
-            if (diffHours < 24) return `${diffHours} hours ago`;
-            return `${Math.floor(diffHours / 24)} days ago`;
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>"']/g, function (m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
-        }
-
-        // Live Real-Time In-App Prepend Handler
-        window.addEventListener('new-notification-received', function (e) {
-            const n = e.detail;
-            const container = document.getElementById('notificationsFeedContainer');
-            if (!container) return;
-
-            // Remove empty placeholder if present
-            const emptyNotice = container.querySelector('.fa-bell-slash')?.closest('div.p-6');
-            if (emptyNotice) emptyNotice.remove();
-
-            const card = document.createElement('div');
-            card.className = 'p-4 bg-teal-50/90 rounded-2xl border-2 border-teal-500/80 space-y-1.5 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all animate-pulse';
-
-            let badgeHtml = '<span class="text-teal-800 bg-teal-100/90 px-2.5 py-0.5 rounded-md border border-teal-200"><i class="fa-solid fa-bolt text-teal-600"></i> Real-Time FCM Alert</span>';
-            if (n.type === 'ASSIGNMENT_DEADLINE_REMINDER') {
-                badgeHtml = '<span class="text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-md border border-amber-200"><i class="fa-solid fa-clock"></i> Deadline 24h</span>';
-            } else if (n.type === 'ADMIN_APPROVAL_ALERT') {
-                badgeHtml = '<span class="text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-md border border-emerald-200"><i class="fa-solid fa-circle-check text-emerald-500"></i> Admin Approved</span>';
-            }
-
-            card.innerHTML = `
-                <div class="flex justify-between items-center text-[11px] font-mono font-bold">
-                    ${badgeHtml}
-                    <span class="text-teal-600 font-bold">${@json(app()->getLocale() === 'ar' ? 'الآن' : 'Just now')}</span>
-                </div>
-                <h4 class="font-bold text-xs text-slate-900 leading-snug">${escapeHtml(n.title)}</h4>
-                <p class="text-xs text-slate-600 leading-relaxed font-mono">${escapeHtml(n.body)}</p>
-            `;
-
-            container.prepend(card);
-            setTimeout(() => card.classList.remove('animate-pulse'), 4000);
-
-            // Update alerts badge
-            const totalAlerts = document.getElementById('notifTotalAlerts');
-            if (totalAlerts) {
-                const current = parseInt(totalAlerts.textContent) || 0;
-                totalAlerts.textContent = `${current + 1} Alerts`;
-            }
-        });
-    </script>
-
-    {{-- Ultra-Premium Glassmorphic Enrolled Course Details Modal --}}
-    <div id="enrolledCourseModal"
-        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
-        <div
-            class="elite-modal-dialog bg-white rounded-[28px] max-w-4xl w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border border-slate-200/90 flex flex-col relative">
-
+    {{-- 4. Modal: Enrolled Course Details & Syllabus Explorer --}}
+    <div id="enrolledCourseModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[28px] max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200/90 dark:border-slate-800 flex flex-col relative">
+            
             {{-- Modal Header --}}
-            <div
-                class="bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white p-6 sm:p-8 flex items-start justify-between relative overflow-hidden shrink-0">
-                <div class="absolute -right-10 -top-10 w-48 h-48 bg-teal-500/10 rounded-full blur-2xl pointer-events-none">
-                </div>
+            <div class="bg-gradient-to-r from-slate-900 via-slate-950 to-teal-950 text-white p-6 sm:p-8 flex items-start justify-between relative overflow-hidden shrink-0">
+                <div class="absolute -right-10 -top-10 w-48 h-48 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
                 <div class="space-y-2 relative z-10">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span id="modalCourseSubject"
-                            class="bg-teal-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow-xs"></span>
-                        <span id="modalCourseGrade"
-                            class="bg-slate-800 text-slate-300 text-xs font-mono px-2.5 py-0.5 rounded-full border border-slate-700"></span>
-                        <span
-                            class="bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40"><i
-                                class="fa-solid fa-check"></i>
-                            {{ app()->getLocale() === 'ar' ? 'مشترك بالنظام' : 'Enrolled' }}</span>
+                        <span id="modalCourseSubject" class="bg-teal-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow-xs"></span>
+                        <span id="modalCourseGrade" class="bg-slate-800 text-slate-300 text-xs font-mono px-2.5 py-0.5 rounded-full border border-slate-700"></span>
+                        <span class="bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40">
+                            <i class="fa-solid fa-check"></i> {{ $isAr ? 'مشترك بالنظام' : 'Enrolled' }}
+                        </span>
                     </div>
-                    <h2 id="modalCourseTitle"
-                        class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"></h2>
+                    <h2 id="modalCourseTitle" class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"></h2>
                     <p id="modalCourseTeacher" class="text-xs font-mono text-teal-300 flex items-center gap-1.5"></p>
                 </div>
                 <button type="button" onclick="closeEnrolledCourseModal()"
                     class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition-all cursor-pointer border border-slate-700 shrink-0 relative z-10"
-                    aria-label="{{ __('Close') }}">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                    aria-label="{{ __('Close') }}">&times;</button>
             </div>
 
             {{-- Modal Scrollable Body --}}
-            <div class="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[calc(90vh-180px)] font-mono text-slate-800 flex-1">
+            <div class="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[calc(90vh-180px)] font-mono text-slate-800 dark:text-slate-200 flex-1">
                 {{-- Overview Card --}}
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500">
-                        {{ app()->getLocale() === 'ar' ? 'نبذة عن الكورس والمحتوى' : 'Course Overview & Learning Objectives' }}
+                <div class="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {{ $isAr ? 'نبذة عن الكورس والمحتوى التعليمي' : 'Course Overview & Learning Objectives' }}
                     </h4>
-                    <p id="modalCourseDesc" class="text-xs text-slate-700 leading-relaxed"></p>
+                    <p id="modalCourseDesc" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
                 </div>
 
-                {{-- Tabs / Section Header --}}
-                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                    <h3 class="font-heading font-black text-lg text-slate-900 flex items-center gap-2">
-                        <span><i class="fa-solid fa-tv"></i></span>
-                        {{ app()->getLocale() === 'ar' ? 'منهج الكورس والحصص التفصيلية' : 'Full Curriculum & Session Modules' }}
+                {{-- Curriculum Header --}}
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+                    <h3 class="font-heading font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-tv text-teal-600"></i>
+                        <span>{{ $isAr ? 'منهج الكورس والحصص التفصيلية' : 'Full Curriculum & Session Modules' }}</span>
                     </h3>
-                    <span id="modalTotalSessionsBadge"
-                        class="text-xs font-bold bg-teal-100 text-teal-900 px-3 py-1 rounded-full border border-teal-200"></span>
+                    <span id="modalTotalSessionsBadge" class="text-xs font-bold bg-teal-100 dark:bg-teal-950 text-teal-900 dark:text-teal-200 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800"></span>
                 </div>
 
-                {{-- Live Sessions Subsection --}}
+                {{-- Live Streams Subsection --}}
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <h4 class="font-bold text-xs uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
-                            <span><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i></span>
-                            {{ app()->getLocale() === 'ar' ? 'جدول الحصص والبث المباشر (Live Streams)' : 'Live Stream Schedule' }}
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i>
+                            <span>{{ $isAr ? 'جدول الحصص والبث المباشر (Live Streams)' : 'Live Stream Schedule' }}</span>
                         </h4>
                         <span id="liveSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
                     </div>
                     <div id="modalLiveSessionsList" class="space-y-2.5"></div>
-                    {{-- Live Sessions Pagination Bar --}}
-                    <div id="modalLivePaginationBar"
-                        class="hidden flex items-center justify-between pt-2 text-xs font-mono text-slate-600 border-t border-slate-100">
-                        <button id="btnLivePrev" onclick="changeModalLivePage(-1)"
-                            class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                        </button>
-                        <span id="modalLivePageText"
-                            class="font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">Page 1 of
-                            1</span>
-                        <button id="btnLiveNext" onclick="changeModalLivePage(1)"
-                            class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                        </button>
-                    </div>
                 </div>
 
-                {{-- Recorded Course Sessions Subsection --}}
-                <div class="space-y-3 pt-4 border-t border-slate-100">
+                {{-- Recorded Modules Subsection --}}
+                <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div class="flex items-center justify-between">
-                        <h4 class="font-bold text-xs uppercase tracking-wider text-indigo-800 flex items-center gap-1.5">
-                            <span><i class="fa-solid fa-video"></i></span>
-                            {{ app()->getLocale() === 'ar' ? 'دروس الفيديو والواجبات المنهجية (Recorded Modules & MSQs)' : 'Recorded Modules & Assignments' }}
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-video text-indigo-500"></i>
+                            <span>{{ $isAr ? 'دروس الفيديو والواجبات المنهجية (Recorded Modules & MSQs)' : 'Recorded Modules & Assignments' }}</span>
                         </h4>
                         <span id="recSessionsCountBadge" class="text-[11px] font-mono text-slate-500 font-bold"></span>
                     </div>
                     <div id="modalRecordedSessionsList" class="space-y-2.5"></div>
-                    {{-- Recorded Sessions Pagination Bar --}}
-                    <div id="modalRecPaginationBar"
-                        class="hidden flex items-center justify-between pt-2 text-xs font-mono text-slate-600 border-t border-slate-100">
-                        <button id="btnRecPrev" onclick="changeModalRecPage(-1)"
-                            class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                            <span>&larr;</span> <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                        </button>
-                        <span id="modalRecPageText"
-                            class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-200">Page
-                            1 of 1</span>
-                        <button id="btnRecNext" onclick="changeModalRecPage(1)"
-                            class="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1">
-                            <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span> <span>&rarr;</span>
-                        </button>
-                    </div>
                 </div>
             </div>
 
             {{-- Modal Footer --}}
-            <div
-                class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs font-mono text-slate-500 shrink-0">
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-mono text-slate-500 shrink-0">
                 <span><i class="fa-solid fa-graduation-cap"></i> Elite Academy Certified Curriculum</span>
-                <button onclick="closeEnrolledCourseModal()"
+                <button type="button" onclick="closeEnrolledCourseModal()"
                     class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold cursor-pointer transition-all">
-                    {{ app()->getLocale() === 'ar' ? 'إغلاق النافذة' : 'Close' }}
+                    {{ $isAr ? 'إغلاق النافذة' : 'Close' }}
                 </button>
             </div>
         </div>
     </div>
 
+</div>
 
-    <script>
-        window.enrolledCoursesData = @json($enrolledCoursesDataMap);
+{{-- ========================================================================= --}}
+{{-- 5. JAVASCRIPT CONTROLLER & REAL-TIME LOGIC --}}
+{{-- ========================================================================= --}}
+<script>
+    const isArLocale = @json($isAr);
+    window.enrolledCoursesData = @json($enrolledCoursesDataMap ?? []);
 
-        let currentModalCourseId = null;
-        let currentModalLivePage = 1;
-        let currentModalRecPage = 1;
-        const MODAL_LIVE_PER_PAGE = 3;
-        const MODAL_REC_PER_PAGE = 3;
+    // ─────────────────────────────────────────────────────────────────────────
+    // Master Full-Section Tab Controller (Zero Page Scroll)
+    // ─────────────────────────────────────────────────────────────────────────
+    let currentMasterTab = @json($activeTab);
 
-        function openEnrolledCourseModal(courseId) {
-            const data = window.enrolledCoursesData[courseId];
-            if (!data) return;
-
-            currentModalCourseId = courseId;
-            currentModalLivePage = 1;
-            currentModalRecPage = 1;
-
-            document.getElementById('modalCourseTitle').textContent = data.title;
-            document.getElementById('modalCourseSubject').textContent = data.subject;
-            document.getElementById('modalCourseGrade').textContent = data.grade;
-            document.getElementById('modalCourseTeacher').innerHTML = '<i class="fa-solid fa-chalkboard-user"></i> ' + (data.teacher || 'Dr. Instructor');
-            document.getElementById('modalCourseDesc').textContent = data.description;
-
-            const liveCount = data.live_sessions ? data.live_sessions.length : 0;
-            const recCount = data.recorded_sessions ? data.recorded_sessions.length : 0;
-            document.getElementById('modalTotalSessionsBadge').textContent = (liveCount + recCount) + ' Sessions Total';
-
-            document.getElementById('liveSessionsCountBadge').textContent = liveCount + ' ' + @json(app()->getLocale() === 'ar' ? 'بث مباشر' : 'streams');
-            document.getElementById('recSessionsCountBadge').textContent = recCount + ' ' + @json(app()->getLocale() === 'ar' ? 'دروس مسجلة' : 'modules');
-
-            renderModalLiveSessions();
-            renderModalRecordedSessions();
-
-            if (window.openModal) {
-                window.openModal('enrolledCourseModal');
-            } else {
-                const modal = document.getElementById('enrolledCourseModal');
-                if (modal) modal.classList.remove('hidden');
-            }
+    function switchStudentTab(tabKey) {
+        if (tabKey === 'packages') {
+            tabKey = 'overview';
+            setTimeout(() => {
+                if (window.openModal) window.openModal('studentOwnPackageModal');
+                else {
+                    const m = document.getElementById('studentOwnPackageModal');
+                    if (m) m.classList.remove('hidden');
+                }
+            }, 60);
         }
 
-        function renderModalLiveSessions() {
-            const data = window.enrolledCoursesData[currentModalCourseId];
-            if (!data) return;
+        currentMasterTab = tabKey;
+        const validTabs = ['overview', 'sessions', 'courses', 'assignments', 'submissions', 'exceptions', 'notifications'];
+        
+        validTabs.forEach(key => {
+            const pane = document.getElementById(`sectionPane_${key}`);
+            if (pane) {
+                if (key === tabKey) {
+                    pane.classList.remove('hidden');
+                } else {
+                    pane.classList.add('hidden');
+                }
+            }
+        });
 
-            const liveContainer = document.getElementById('modalLiveSessionsList');
-            const pagBar = document.getElementById('modalLivePaginationBar');
-            liveContainer.innerHTML = '';
+        // Sync and refresh table engines
+        if (window.eliteTableInstances) {
+            window.eliteTableInstances.forEach(inst => inst.refreshDisplay());
+        }
 
-            const list = data.live_sessions || [];
-            const total = list.length;
+        // Sync sidebar active links
+        document.querySelectorAll('.student-nav-item').forEach(item => {
+            const itemTab = item.getAttribute('data-tab') || item.getAttribute('href')?.replace('#', '');
+            if (itemTab === tabKey) {
+                item.classList.add('active', 'bg-teal-950/60', 'text-teal-300');
+            } else {
+                item.classList.remove('active', 'bg-teal-950/60', 'text-teal-300');
+            }
+        });
 
+        // Update URL hash smoothly without reloading
+        try {
+            history.replaceState(null, '', `#tab=${tabKey}`);
+        } catch (e) {}
+
+        // Scroll to top of content area if scrolled
+        if (window.scrollY > 200) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Close mobile sidebar off-canvas if open
+        if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
+            togglePortalSidebar(false);
+        }
+    }
+    window.switchStudentTab = switchStudentTab;
+    window.switchPortalSection = switchStudentTab; // backward compatibility
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Live Sessions Sub-Tabs Controller
+    // ─────────────────────────────────────────────────────────────────────────
+    function switchSessionSubTab(subTabKey) {
+        ['soon', 'upcoming', 'history'].forEach(key => {
+            const pane = document.getElementById(`sessionPane_${key}`);
+            const btn = document.getElementById(`sessionSubTab_${key}`);
+            const badge = btn ? btn.querySelector('.sub-tab-badge') : null;
+
+            if (key === subTabKey) {
+                if (pane) pane.classList.remove('hidden');
+                if (btn) {
+                    btn.classList.add('bg-white', 'dark:bg-slate-900', 'text-teal-900', 'dark:text-teal-300', 'shadow-sm', 'border', 'border-teal-200/60', 'dark:border-teal-800');
+                    btn.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-white/60');
+                }
+                if (badge) {
+                    badge.classList.add('bg-teal-100', 'dark:bg-teal-950', 'text-teal-900', 'dark:text-teal-200');
+                    badge.classList.remove('bg-slate-200', 'dark:bg-slate-700', 'text-slate-700', 'dark:text-slate-200');
+                }
+            } else {
+                if (pane) pane.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('bg-white', 'dark:bg-slate-900', 'text-teal-900', 'dark:text-teal-300', 'shadow-sm', 'border', 'border-teal-200/60', 'dark:border-teal-800');
+                    btn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-white/60');
+                }
+                if (badge) {
+                    badge.classList.remove('bg-teal-100', 'dark:bg-teal-950', 'text-teal-900', 'dark:text-teal-200');
+                    badge.classList.add('bg-slate-200', 'dark:bg-slate-700', 'text-slate-700', 'dark:text-slate-200');
+                }
+            }
+        });
+    }
+    window.switchSessionSubTab = switchSessionSubTab;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Universal EliteTableEngine: DataTable-Style Column Sorting & Progressive Scroll Loading / "See More..."
+    // ─────────────────────────────────────────────────────────────────────────
+    class EliteTableEngine {
+        constructor(table) {
+            this.table = table;
+            this.tbody = table.querySelector('tbody');
+            this.pageSize = parseInt(table.getAttribute('data-page-size')) || 6;
+            this.currentLimit = this.pageSize;
+            this.sortColumnIndex = null;
+            this.sortDirection = 'asc'; // 'asc' | 'desc'
+            this.filterPredicate = null; // optional external filter function
+
+            this.initSorting();
+            this.initProgressiveLoading();
+        }
+
+        initSorting() {
+            const headers = this.table.querySelectorAll('thead th');
+            headers.forEach((th, index) => {
+                if (th.getAttribute('data-no-sort') === 'true') return;
+                th.classList.add('cursor-pointer', 'select-none');
+                
+                // Ensure sort icon container exists
+                let iconWrapper = th.querySelector('.sort-icon');
+                if (!iconWrapper) {
+                    iconWrapper = document.createElement('span');
+                    iconWrapper.className = 'sort-icon opacity-40 text-[10px] ml-1 inline-block';
+                    iconWrapper.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                    th.appendChild(iconWrapper);
+                }
+
+                th.addEventListener('click', () => {
+                    const sortType = th.getAttribute('data-sort-type') || 'text';
+                    if (this.sortColumnIndex === index) {
+                        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        this.sortColumnIndex = index;
+                        this.sortDirection = 'asc';
+                    }
+                    this.updateHeaderIcons(headers, index);
+                    this.sortTable(index, sortType, this.sortDirection);
+                });
+            });
+        }
+
+        updateHeaderIcons(headers, activeIndex) {
+            headers.forEach((th, idx) => {
+                const icon = th.querySelector('.sort-icon');
+                if (!icon) return;
+                if (idx === activeIndex) {
+                    icon.classList.remove('opacity-40');
+                    icon.classList.add('opacity-100', 'text-teal-600', 'dark:text-teal-400');
+                    icon.innerHTML = this.sortDirection === 'asc' 
+                        ? '<i class="fa-solid fa-sort-up"></i>' 
+                        : '<i class="fa-solid fa-sort-down"></i>';
+                } else {
+                    icon.classList.remove('opacity-100', 'text-teal-600', 'dark:text-teal-400');
+                    icon.classList.add('opacity-40');
+                    icon.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                }
+            });
+        }
+
+        getCellValue(row, colIndex) {
+            const cell = row.children[colIndex];
+            if (!cell) return '';
+            return (cell.getAttribute('data-sort-value') || cell.innerText || cell.textContent || '').trim();
+        }
+
+        parseValue(val, type) {
+            if (type === 'number') {
+                const num = parseFloat(val.replace(/[^\d.-]/g, ''));
+                return isNaN(num) ? -Infinity : num;
+            }
+            if (type === 'date') {
+                const parsed = Date.parse(val);
+                return isNaN(parsed) ? 0 : parsed;
+            }
+            return val.toLowerCase();
+        }
+
+        sortTable(colIndex, sortType, direction) {
+            if (!this.tbody) return;
+            const rows = Array.from(this.tbody.querySelectorAll('tr'));
+            if (rows.length <= 1) return;
+
+            rows.sort((a, b) => {
+                const valA = this.parseValue(this.getCellValue(a, colIndex), sortType);
+                const valB = this.parseValue(this.getCellValue(b, colIndex), sortType);
+
+                let cmp = 0;
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    cmp = valA - valB;
+                } else {
+                    cmp = String(valA).localeCompare(String(valB), isArLocale ? 'ar' : 'en', { numeric: true, sensitivity: 'base' });
+                }
+                return direction === 'asc' ? cmp : -cmp;
+            });
+
+            // Re-attach sorted rows
+            rows.forEach(r => this.tbody.appendChild(r));
+            this.refreshDisplay();
+        }
+
+        initProgressiveLoading() {
+            // Check if wrapper already has footer
+            let container = this.table.closest('.table-responsive');
+            if (!container) return;
+
+            let footer = container.parentNode.querySelector(`.elite-table-footer[data-table-id="${this.table.id || 'tbl'}"]`);
+            if (!footer) {
+                footer = document.createElement('div');
+                footer.className = 'elite-table-footer pt-3 pb-1 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500';
+                footer.setAttribute('data-table-id', this.table.id || 'tbl');
+                footer.innerHTML = `
+                    <div class="row-counter flex items-center gap-1.5 font-bold">
+                        <span class="counter-text"></span>
+                    </div>
+                    <div class="load-actions flex items-center gap-2">
+                        <button type="button" class="btn-see-more px-4 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer inline-flex items-center gap-2 shadow-2xs">
+                            <i class="fa-solid fa-angles-down text-teal-600 dark:text-teal-400"></i>
+                            <span>${isArLocale ? 'عرض المزيد...' : 'See More...'}</span>
+                        </button>
+                    </div>
+                `;
+                container.parentNode.insertBefore(footer, container.nextSibling);
+
+                const seeMoreBtn = footer.querySelector('.btn-see-more');
+                if (seeMoreBtn) {
+                    seeMoreBtn.addEventListener('click', () => {
+                        this.currentLimit += this.pageSize;
+                        this.refreshDisplay();
+                    });
+                }
+
+                // IntersectionObserver for auto scroll loading
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const rows = this.getMatchingRows();
+                                if (this.currentLimit < rows.length) {
+                                    this.currentLimit += this.pageSize;
+                                    this.refreshDisplay();
+                                }
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    observer.observe(footer);
+                }
+            }
+            this.footerEl = footer;
+            this.refreshDisplay();
+        }
+
+        getMatchingRows() {
+            if (!this.tbody) return [];
+            return Array.from(this.tbody.querySelectorAll('tr:not(.empty-state-row)')).filter(r => {
+                return !r.classList.contains('filtered-out-by-category');
+            });
+        }
+
+        refreshDisplay() {
+            if (!this.tbody) return;
+            const allRows = Array.from(this.tbody.querySelectorAll('tr:not(.empty-state-row)'));
+            const matchingRows = this.getMatchingRows();
+            const total = matchingRows.length;
+
+            allRows.forEach(row => {
+                if (row.classList.contains('filtered-out-by-category')) {
+                    row.classList.remove('hidden-by-limit');
+                    row.style.display = 'none';
+                    return;
+                }
+                const matchIdx = matchingRows.indexOf(row);
+                if (matchIdx !== -1 && matchIdx < this.currentLimit) {
+                    row.classList.remove('hidden-by-limit');
+                    row.style.display = '';
+                } else {
+                    row.classList.add('hidden-by-limit');
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle empty state row inside tbody
+            let emptyStateRow = this.tbody.querySelector('.empty-state-row');
             if (total === 0) {
-                liveContainer.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 text-center font-mono">${@json(app()->getLocale() === 'ar' ? 'لا توجد جلسات بث مباشر مجدولة لهذا الكورس حالياً.' : 'No live streams currently scheduled for this course.')}</div>`;
-                if (pagBar) pagBar.classList.add('hidden');
+                if (!emptyStateRow) {
+                    emptyStateRow = document.createElement('tr');
+                    emptyStateRow.className = 'empty-state-row';
+                    const colSpan = this.table.querySelectorAll('thead th').length || 6;
+                    emptyStateRow.innerHTML = `
+                        <td colspan="${colSpan}" class="py-10 text-center text-slate-500 dark:text-slate-400 font-mono text-xs">
+                            <div class="flex flex-col items-center justify-center gap-2.5">
+                                <span class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl text-slate-400">
+                                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                                </span>
+                                <span class="font-bold text-slate-700 dark:text-slate-300 text-sm">${isArLocale ? 'لا توجد بيانات مطابقة لهذا التصنيف أو المقرر' : 'No records matching the selected filter'}</span>
+                                <p class="text-[11px] text-slate-400">${isArLocale ? 'جرب اختيار تصنيف آخر أو اختيار (جميع الكورسات).' : 'Try selecting another course or category filter.'}</p>
+                            </div>
+                        </td>
+                    `;
+                    this.tbody.appendChild(emptyStateRow);
+                }
+                emptyStateRow.style.display = '';
+            } else if (emptyStateRow) {
+                emptyStateRow.style.display = 'none';
+            }
+
+            if (this.footerEl) {
+                const shown = Math.min(this.currentLimit, total);
+                const counterEl = this.footerEl.querySelector('.counter-text');
+                const seeMoreBtn = this.footerEl.querySelector('.btn-see-more');
+
+                if (counterEl) {
+                    if (total === 0) {
+                        counterEl.innerHTML = isArLocale ? 'لا توجد سجلات مطابقة' : 'No matching records';
+                    } else if (shown >= total) {
+                        counterEl.innerHTML = isArLocale 
+                            ? `<i class="fa-solid fa-check text-emerald-500"></i> تم عرض كافة السجلات بالكامل (${total} من ${total})` 
+                            : `<i class="fa-solid fa-check text-emerald-500"></i> All records loaded (${total} of ${total})`;
+                    } else {
+                        counterEl.innerHTML = isArLocale 
+                            ? `عرض <strong>${shown}</strong> من أصل <strong>${total}</strong> سجل` 
+                            : `Showing <strong>${shown}</strong> of <strong>${total}</strong> records`;
+                    }
+                }
+
+                if (seeMoreBtn) {
+                    if (shown >= total || total <= this.pageSize) {
+                        seeMoreBtn.classList.add('hidden');
+                    } else {
+                        seeMoreBtn.classList.remove('hidden');
+                    }
+                }
+
+                if (total <= this.pageSize && total <= 1) {
+                    this.footerEl.classList.add('hidden');
+                } else {
+                    this.footerEl.classList.remove('hidden');
+                }
+            }
+        }
+    }
+
+    // Initialize all tables on load
+    window.eliteTableInstances = [];
+    function initEliteTables() {
+        document.querySelectorAll('table.elite-sortable-table').forEach((tbl, i) => {
+            if (!tbl.id) tbl.id = `elite_table_${i}`;
+            const instance = new EliteTableEngine(tbl);
+            tbl._eliteEngine = instance;
+            window.eliteTableInstances.push(instance);
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Live Sessions Instant Table Search Filter
+    // ─────────────────────────────────────────────────────────────────────────
+    function filterSessionsTable() {
+        const query = (document.getElementById('sessionTableSearch')?.value || '').toLowerCase().trim();
+        document.querySelectorAll('.session-table-row').forEach(row => {
+            const searchData = row.getAttribute('data-search') || '';
+            if (!query || searchData.includes(query)) {
+                row.classList.remove('filtered-out-by-category');
+            } else {
+                row.classList.add('filtered-out-by-category');
+            }
+        });
+        window.eliteTableInstances.forEach(inst => {
+            inst.currentLimit = inst.pageSize;
+            inst.refreshDisplay();
+        });
+    }
+    window.filterSessionsTable = filterSessionsTable;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Filter Assignments By Course & Status
+    // ─────────────────────────────────────────────────────────────────────────
+    let currentAssignCourseFilter = 'all';
+    let currentAssignStatusFilter = 'all';
+
+    function applyAssignmentFilters() {
+        document.querySelectorAll('.available-assign-row').forEach(row => {
+            const courseId = String(row.getAttribute('data-course-id') || '0');
+            const statusCat = String(row.getAttribute('data-status-category') || 'pending');
+
+            const matchCourse = (currentAssignCourseFilter === 'all' || courseId === currentAssignCourseFilter);
+            const matchStatus = (currentAssignStatusFilter === 'all' || statusCat === currentAssignStatusFilter);
+
+            if (matchCourse && matchStatus) {
+                row.classList.remove('filtered-out-by-category');
+            } else {
+                row.classList.add('filtered-out-by-category');
+            }
+        });
+        window.eliteTableInstances.forEach(inst => {
+            inst.currentLimit = inst.pageSize;
+            inst.refreshDisplay();
+        });
+    }
+
+    function filterAssignmentsByCourse(courseId) {
+        currentAssignCourseFilter = String(courseId);
+        document.querySelectorAll('.assign-filter-btn').forEach(btn => {
+            const isMatch = (btn.getAttribute('data-course') === String(courseId));
+            if (isMatch) {
+                btn.className = 'assign-filter-btn px-4 py-2 rounded-2xl text-xs font-extrabold font-mono transition-all whitespace-nowrap shrink-0 bg-teal-600 text-white shadow-md shadow-teal-600/30 border border-teal-500 cursor-pointer';
+            } else {
+                btn.className = 'assign-filter-btn px-4 py-2 rounded-2xl text-xs font-bold font-mono transition-all whitespace-nowrap shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer border border-slate-200/80 dark:border-slate-700';
+            }
+        });
+        applyAssignmentFilters();
+    }
+    window.filterAssignmentsByCourse = filterAssignmentsByCourse;
+
+    function filterAssignmentsByStatus(statusKey) {
+        currentAssignStatusFilter = statusKey;
+        ['all', 'pending', 'in_progress', 'completed'].forEach(key => {
+            const btn = document.getElementById(`assignStatusTab_${key}`);
+            if (!btn) return;
+            const badge = btn.querySelector('.status-badge');
+            if (key === statusKey) {
+                btn.className = 'assign-status-tab-btn px-3 py-2 rounded-xl text-xs font-extrabold font-mono transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-teal-600 text-white shadow-md shadow-teal-600/30 border border-teal-500 whitespace-nowrap';
+                if (badge) {
+                    badge.className = 'status-badge px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white';
+                }
+            } else {
+                btn.className = 'assign-status-tab-btn px-3 py-2 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 whitespace-nowrap';
+                if (badge) {
+                    badge.className = 'status-badge px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200';
+                }
+            }
+        });
+        applyAssignmentFilters();
+    }
+    window.filterAssignmentsByStatus = filterAssignmentsByStatus;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Filter Submissions By Course
+    // ─────────────────────────────────────────────────────────────────────────
+    function filterSubmissionsByCourse(courseId) {
+        document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+            const isMatch = (btn.getAttribute('data-course') === String(courseId));
+            if (isMatch) {
+                btn.className = 'sub-filter-btn px-4 py-2 rounded-2xl text-xs font-extrabold font-mono transition-all whitespace-nowrap shrink-0 bg-teal-600 text-white shadow-md shadow-teal-600/30 border border-teal-500 cursor-pointer';
+            } else {
+                btn.className = 'sub-filter-btn px-4 py-2 rounded-2xl text-xs font-bold font-mono transition-all whitespace-nowrap shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer border border-slate-200/80 dark:border-slate-700';
+            }
+        });
+        document.querySelectorAll('.submission-table-row').forEach(row => {
+            const rowCourseId = String(row.getAttribute('data-course-id') || '0');
+            if (courseId === 'all' || rowCourseId === String(courseId)) {
+                row.classList.remove('filtered-out-by-category');
+            } else {
+                row.classList.add('filtered-out-by-category');
+            }
+        });
+        window.eliteTableInstances.forEach(inst => {
+            inst.currentLimit = inst.pageSize;
+            inst.refreshDisplay();
+        });
+    }
+    window.filterSubmissionsByCourse = filterSubmissionsByCourse;
+    window.filterSubmissionsByCourse = filterSubmissionsByCourse;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Live Session Countdowns
+    // ─────────────────────────────────────────────────────────────────────────
+    function initSessionCountdowns() {
+        function update() {
+            const now = new Date().getTime();
+            document.querySelectorAll('.session-countdown-pill').forEach(pill => {
+                const startStr = pill.getAttribute('data-start-time');
+                const textEl = pill.querySelector('.countdown-text');
+                if (!startStr || !textEl) return;
+
+                const startTime = new Date(startStr).getTime();
+                const diff = startTime - now;
+
+                if (diff <= 0) {
+                    textEl.innerHTML = isArLocale ? 'بدأت الآن <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' : 'Live Now <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>';
+                    return;
+                }
+
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                let parts = [];
+                if (d > 0) parts.push(d + (isArLocale ? 'ي ' : 'd '));
+                if (h > 0 || d > 0) parts.push(String(h).padStart(2, '0') + (isArLocale ? 'س ' : 'h '));
+                parts.push(String(m).padStart(2, '0') + (isArLocale ? 'د ' : 'm '));
+                parts.push(String(s).padStart(2, '0') + (isArLocale ? 'ث' : 's'));
+
+                textEl.textContent = (isArLocale ? 'تبدأ خلال: ' : 'Starts in: ') + parts.join('');
+            });
+        }
+        update();
+        setInterval(update, 1000);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MSQ Interactive Modal Solver Logic
+    // ─────────────────────────────────────────────────────────────────────────
+    let msqTimerInterval = null;
+
+    async function openMsqAssignmentModal(assignmentId) {
+        const modal = document.getElementById('takeMsqModal');
+        const titleEl = document.getElementById('msqModalTitle');
+        const descEl = document.getElementById('msqModalDesc');
+        const container = document.getElementById('msqQuestionsContainer');
+        const assignIdInput = document.getElementById('msqAssignmentId');
+
+        assignIdInput.value = assignmentId;
+        if (window.openModal) window.openModal('takeMsqModal');
+        else modal.classList.remove('hidden');
+
+        container.innerHTML = '<div class="text-center py-8 text-slate-500 font-mono text-xs">Loading assignment questions...</div>';
+
+        try {
+            const baseUrl = "{{ url('/ajax/assignments') }}";
+            const res = await fetch(`${baseUrl}/${assignmentId}/details`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                if (window.Toast) window.Toast.error(data.message || 'Error loading assignment');
+                closeMsqModal();
                 return;
             }
 
-            const lastPage = Math.ceil(total / MODAL_LIVE_PER_PAGE);
-            if (currentModalLivePage < 1) currentModalLivePage = 1;
-            if (currentModalLivePage > lastPage) currentModalLivePage = lastPage;
+            const assign = data.assignment;
+            titleEl.textContent = assign.title;
+            descEl.textContent = assign.description || 'Complete all MSQ questions before the timer runs out.';
 
-            const startIdx = (currentModalLivePage - 1) * MODAL_LIVE_PER_PAGE;
-            const endIdx = startIdx + MODAL_LIVE_PER_PAGE;
-            const pageItems = list.slice(startIdx, endIdx);
+            // Setup Timer
+            let durationSecs = (assign.duration_minutes || 30) * 60;
+            const timerDisplay = document.getElementById('msqTimerDisplay');
+            if (msqTimerInterval) clearInterval(msqTimerInterval);
 
-            pageItems.forEach(ls => {
-                const card = document.createElement('div');
-                card.className = 'p-3.5 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200 space-y-2 transition-all';
-
-                let btnHtml = `<span class="text-[11px] font-bold px-3 py-1 rounded-xl bg-slate-200 text-slate-700">${escapeHtml(ls.state_label)}</span>`;
-                if (ls.can_join && ls.meeting_link) {
-                    btnHtml = `<a href="${escapeHtml(ls.meeting_link)}" target="_blank" class="btn-lift text-[11px] font-bold px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> Join Stream</a>`;
+            msqTimerInterval = setInterval(() => {
+                if (durationSecs <= 0) {
+                    clearInterval(msqTimerInterval);
+                    timerDisplay.textContent = 'TIME EXPIRED';
+                    timerDisplay.className = 'font-bold text-red-400 animate-pulse';
+                    if (window.Toast) window.Toast.warning('Assignment time expired!', 'Deadline Alert');
+                    return;
                 }
+                durationSecs--;
+                const mins = Math.floor(durationSecs / 60);
+                const secs = durationSecs % 60;
+                timerDisplay.textContent = `Time Remaining: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }, 1000);
 
+            if (!assign.questions || assign.questions.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-slate-500 font-mono text-xs bg-slate-50 dark:bg-slate-800 rounded-2xl">No questions configured for this assignment yet.</div>';
+                return;
+            }
+
+            let html = '';
+            assign.questions.forEach((q, idx) => {
+                const inputType = q.is_multiple_choice ? 'checkbox' : 'radio';
+                html += `
+                    <div class="p-5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm text-slate-900 dark:text-white">Q${idx + 1}. ${escapeHtml(q.question_text || '')}</span>
+                            <span class="text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md">${q.points || 1} Points</span>
+                        </div>
+                        ${q.image_path ? `<img src="${q.image_path}" class="max-h-48 rounded-xl border border-slate-200 dark:border-slate-700 my-2 object-contain">` : ''}
+                        <div class="space-y-2 pt-1">
+                `;
+
+                (q.options || []).forEach(opt => {
+                    html += `
+                        <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 hover:bg-teal-50/50 dark:hover:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700 cursor-pointer transition-colors text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            <input type="${inputType}" name="answers[${q.id}][]" value="${opt.id}" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                            <span>${escapeHtml(opt.option_text || '')}</span>
+                        </label>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+        } catch (err) {
+            if (window.Toast) window.Toast.error('Network error loading assignment');
+            closeMsqModal();
+        }
+    }
+    window.openMsqAssignmentModal = openMsqAssignmentModal;
+
+    function closeMsqModal() {
+        if (window.closeModal) window.closeModal('takeMsqModal');
+        else document.getElementById('takeMsqModal').classList.add('hidden');
+        if (msqTimerInterval) clearInterval(msqTimerInterval);
+    }
+    window.closeMsqModal = closeMsqModal;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Course Syllabus Explorer Modal
+    // ─────────────────────────────────────────────────────────────────────────
+    function openEnrolledCourseModal(courseId) {
+        const data = window.enrolledCoursesData[courseId];
+        if (!data) return;
+
+        document.getElementById('modalCourseTitle').textContent = data.title;
+        document.getElementById('modalCourseSubject').textContent = data.subject;
+        document.getElementById('modalCourseGrade').textContent = data.grade;
+        document.getElementById('modalCourseTeacher').innerHTML = '<i class="fa-solid fa-chalkboard-user"></i> ' + (data.teacher || 'Dr. Instructor');
+        document.getElementById('modalCourseDesc').textContent = data.description;
+
+        const liveCount = data.live_sessions ? data.live_sessions.length : 0;
+        const recCount = data.recorded_sessions ? data.recorded_sessions.length : 0;
+        document.getElementById('modalTotalSessionsBadge').textContent = (liveCount + recCount) + ' Sessions Total';
+        document.getElementById('liveSessionsCountBadge').textContent = liveCount + (isArLocale ? ' بث مباشر' : ' streams');
+        document.getElementById('recSessionsCountBadge').textContent = recCount + (isArLocale ? ' دروس مسجلة' : ' modules');
+
+        // Render Live Sessions List
+        const liveContainer = document.getElementById('modalLiveSessionsList');
+        liveContainer.innerHTML = '';
+        if (data.live_sessions && data.live_sessions.length > 0) {
+            data.live_sessions.forEach(ls => {
+                const card = document.createElement('div');
+                card.className = 'p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2';
+                let btnHtml = `<span class="text-[11px] font-bold px-3 py-1 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${escapeHtml(ls.state_label)}</span>`;
+                if (ls.can_join && ls.meeting_link) {
+                    btnHtml = `<a href="${escapeHtml(ls.meeting_link)}" target="_blank" class="btn-lift text-[11px] font-bold px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"><i class="fa-solid fa-circle text-emerald-300 text-[10px]"></i> Join</a>`;
+                }
                 card.innerHTML = `
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full ${ls.is_live ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}"></span>
-                            <span class="font-bold text-xs text-slate-900">${escapeHtml(ls.title)}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px] text-slate-500"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(ls.start_at)}</span>
-                            ${btnHtml}
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full ${ls.is_live ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}"></span>
+                        <span class="font-bold text-xs text-slate-900 dark:text-white">${escapeHtml(ls.title)}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-slate-500 font-mono"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(ls.start_at)}</span>
+                        ${btnHtml}
                     </div>
                 `;
                 liveContainer.appendChild(card);
             });
-
-            if (pagBar) {
-                if (lastPage > 1) {
-                    pagBar.classList.remove('hidden');
-                    document.getElementById('modalLivePageText').textContent = @json(app()->getLocale() === 'ar' ? 'صفحة' : 'Page') + ` ${currentModalLivePage} ` + @json(app()->getLocale() === 'ar' ? 'من' : 'of') + ` ${lastPage}`;
-                    document.getElementById('btnLivePrev').disabled = (currentModalLivePage <= 1);
-                    document.getElementById('btnLiveNext').disabled = (currentModalLivePage >= lastPage);
-                } else {
-                    pagBar.classList.add('hidden');
-                }
-            }
+        } else {
+            liveContainer.innerHTML = `<div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-500 text-center font-mono">${isArLocale ? 'لا توجد جلسات بث مباشر مجدولة لهذا الكورس حالياً.' : 'No live streams currently scheduled.'}</div>`;
         }
 
-        function changeModalLivePage(delta) {
-            currentModalLivePage += delta;
-            renderModalLiveSessions();
-        }
-
-        function renderModalRecordedSessions() {
-            const data = window.enrolledCoursesData[currentModalCourseId];
-            if (!data) return;
-
-            const recContainer = document.getElementById('modalRecordedSessionsList');
-            const pagBar = document.getElementById('modalRecPaginationBar');
-            recContainer.innerHTML = '';
-
-            const list = data.recorded_sessions || [];
-            const total = list.length;
-
-            if (total === 0) {
-                recContainer.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 text-center font-mono">${@json(app()->getLocale() === 'ar' ? 'لا توجد دروس فيديو مسجلة منشورة لهذا الكورس حالياً.' : 'No recorded video lessons published for this course yet.')}</div>`;
-                if (pagBar) pagBar.classList.add('hidden');
-                return;
-            }
-
-            const lastPage = Math.ceil(total / MODAL_REC_PER_PAGE);
-            if (currentModalRecPage < 1) currentModalRecPage = 1;
-            if (currentModalRecPage > lastPage) currentModalRecPage = lastPage;
-
-            const startIdx = (currentModalRecPage - 1) * MODAL_REC_PER_PAGE;
-            const endIdx = startIdx + MODAL_REC_PER_PAGE;
-            const pageItems = list.slice(startIdx, endIdx);
-
-            pageItems.forEach(rs => {
+        // Render Recorded Modules List
+        const recContainer = document.getElementById('modalRecordedSessionsList');
+        recContainer.innerHTML = '';
+        if (data.recorded_sessions && data.recorded_sessions.length > 0) {
+            data.recorded_sessions.forEach(rs => {
                 const card = document.createElement('div');
-                card.className = 'p-4 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200 space-y-2.5 transition-all';
-
+                card.className = 'p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5';
                 let assignHtml = '';
                 if (rs.assignments && rs.assignments.length > 0) {
-                    assignHtml = `<div class="pt-2 border-t border-slate-200/60 flex flex-wrap items-center gap-2">`;
+                    assignHtml = `<div class="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex flex-wrap items-center gap-2">`;
                     rs.assignments.forEach(a => {
-                        assignHtml += `<a href="${escapeHtml(a.url)}" class="btn-lift inline-flex items-center gap-1 text-[11px] font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-pen-to-square"></i> ${escapeHtml(a.title)} (${a.points} pts) &rarr;</a>`;
+                        assignHtml += `<a href="${escapeHtml(a.url)}" class="btn-lift inline-flex items-center gap-1 text-[11px] font-bold bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-pen-to-square"></i> ${escapeHtml(a.title)} (${a.points} pts) &rarr;</a>`;
                     });
                     assignHtml += `</div>`;
                 }
-
                 card.innerHTML = `
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div class="space-y-0.5">
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold uppercase bg-slate-200 text-slate-700 px-2 py-0.5 rounded">Module ${rs.index}</span>
-                                <span class="font-bold text-xs text-slate-900">${escapeHtml(rs.title)}</span>
+                                <span class="text-[10px] font-bold uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">Module ${rs.index}</span>
+                                <span class="font-bold text-xs text-slate-900 dark:text-white">${escapeHtml(rs.title)}</span>
                             </div>
-                            ${rs.description ? `<p class="text-[11px] text-slate-600 line-clamp-1">${escapeHtml(rs.description)}</p>` : ''}
+                            ${rs.description ? `<p class="text-[11px] text-slate-600 dark:text-slate-400">${escapeHtml(rs.description)}</p>` : ''}
                         </div>
-                        <span class="text-[11px] text-slate-500 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200"><i class="fa-solid fa-stopwatch"></i> ${rs.duration} mins</span>
+                        <span class="text-[11px] text-slate-500 font-bold bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700"><i class="fa-solid fa-stopwatch"></i> ${rs.duration} mins</span>
                     </div>
                     ${assignHtml}
                 `;
                 recContainer.appendChild(card);
             });
+        } else {
+            recContainer.innerHTML = `<div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-500 text-center font-mono">${isArLocale ? 'لا توجد دروس مسجلة منشورة لهذا الكورس حالياً.' : 'No recorded lessons published yet.'}</div>`;
+        }
 
-            if (pagBar) {
-                if (lastPage > 1) {
-                    pagBar.classList.remove('hidden');
-                    document.getElementById('modalRecPageText').textContent = @json(app()->getLocale() === 'ar' ? 'صفحة' : 'Page') + ` ${currentModalRecPage} ` + @json(app()->getLocale() === 'ar' ? 'من' : 'of') + ` ${lastPage}`;
-                    document.getElementById('btnRecPrev').disabled = (currentModalRecPage <= 1);
-                    document.getElementById('btnRecNext').disabled = (currentModalRecPage >= lastPage);
-                } else {
-                    pagBar.classList.add('hidden');
+        if (window.openModal) window.openModal('enrolledCourseModal');
+        else document.getElementById('enrolledCourseModal').classList.remove('hidden');
+    }
+    window.openEnrolledCourseModal = openEnrolledCourseModal;
+
+    function closeEnrolledCourseModal() {
+        if (window.closeModal) window.closeModal('enrolledCourseModal');
+        else document.getElementById('enrolledCourseModal').classList.add('hidden');
+    }
+    window.closeEnrolledCourseModal = closeEnrolledCourseModal;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Excuse / Exception Course Dynamic Dropdown
+    // ─────────────────────────────────────────────────────────────────────────
+    function onExcuseCourseChange(courseId, selectElId) {
+        const selectEl = document.getElementById(selectElId);
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+
+        if (!courseId) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = isArLocale ? '-- اختر الكورس أولاً لعرض الحصص --' : '-- Select Course first --';
+            selectEl.appendChild(opt);
+            return;
+        }
+
+        const courseData = window.enrolledCoursesData[courseId];
+        if (!courseData) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = isArLocale ? 'كافة حصص المقرر' : 'All Course Sessions';
+            selectEl.appendChild(opt);
+            return;
+        }
+
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = isArLocale ? '-- اختر الحصة الدراسية المحددة --' : '-- Select Specific Session --';
+        selectEl.appendChild(defaultOpt);
+
+        let hasSessions = false;
+        if (courseData.live_sessions && courseData.live_sessions.length > 0) {
+            const liveGroup = document.createElement('optgroup');
+            liveGroup.label = isArLocale ? 'الحصص المباشرة (Live Sessions)' : 'Live Sessions';
+            courseData.live_sessions.forEach(ls => {
+                const opt = document.createElement('option');
+                opt.value = ls.id;
+                opt.textContent = `${ls.title} (${ls.start_at || 'Scheduled'})`;
+                liveGroup.appendChild(opt);
+                hasSessions = true;
+            });
+            selectEl.appendChild(liveGroup);
+        }
+
+        if (courseData.recorded_sessions && courseData.recorded_sessions.length > 0) {
+            const recGroup = document.createElement('optgroup');
+            recGroup.label = isArLocale ? 'الدروس المسجلة للمقرر' : 'Curriculum Lessons';
+            courseData.recorded_sessions.forEach(cs => {
+                const opt = document.createElement('option');
+                opt.value = cs.id;
+                opt.textContent = `${cs.title} (${cs.duration} min)`;
+                recGroup.appendChild(opt);
+                hasSessions = true;
+            });
+            selectEl.appendChild(recGroup);
+        }
+
+        if (!hasSessions) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = isArLocale ? 'استثناء عام للمقرر (لا توجد حصص مجدولة)' : 'General Course Exception';
+            selectEl.appendChild(opt);
+        }
+    }
+    window.onExcuseCourseChange = onExcuseCourseChange;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Real-Time AJAX Notifications Pagination
+    // ─────────────────────────────────────────────────────────────────────────
+    let notifCurrentPage = {{ $notifCurrentPage }};
+    let notifLastPage = {{ $notifLastPage }};
+
+    function updatePaginationControls(page, lastPage, total) {
+        notifCurrentPage = page;
+        notifLastPage = lastPage;
+
+        const btnPrev = document.getElementById('btnNotifPrev');
+        const btnNext = document.getElementById('btnNotifNext');
+        const currText = document.getElementById('notifCurrentPageText');
+        const lastText = document.getElementById('notifLastPageText');
+        const totalAlerts = document.getElementById('notifTotalAlerts');
+        const pagBar = document.getElementById('notificationsPaginationBar');
+
+        if (currText) currText.textContent = page;
+        if (lastText) lastText.textContent = lastPage;
+        if (totalAlerts) totalAlerts.textContent = `${total} Alerts`;
+
+        if (btnPrev) btnPrev.disabled = (page <= 1);
+        if (btnNext) btnNext.disabled = (page >= lastPage);
+
+        if (pagBar) {
+            if (lastPage <= 1) pagBar.classList.add('hidden');
+            else pagBar.classList.remove('hidden');
+        }
+    }
+
+    async function fetchNotificationsPage(page) {
+        if (page < 1 || (notifLastPage && page > notifLastPage)) return;
+        const container = document.getElementById('notificationsFeedContainer');
+        if (container) container.classList.add('opacity-40');
+
+        try {
+            const res = await fetch(`{{ route('ajax.notifications.feed') }}?page=${page}&per_page=5`);
+            const data = await res.json();
+            if (!data.success) {
+                if (container) container.classList.remove('opacity-40');
+                return;
+            }
+
+            if (container && data.notifications) {
+                container.innerHTML = '';
+                data.notifications.forEach(n => {
+                    const card = document.createElement('div');
+                    card.className = 'p-4 bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1.5 shadow-2xs transition-all';
+                    let badgeHtml = '<span class="text-teal-800 dark:text-teal-300 bg-teal-100/90 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-md border border-teal-200 dark:border-teal-800"><i class="fa-solid fa-bell"></i> FCM Alert</span>';
+                    if (n.type === 'ASSIGNMENT_DEADLINE_REMINDER') {
+                        badgeHtml = '<span class="text-amber-800 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-md border border-amber-200 dark:border-amber-800"><i class="fa-solid fa-clock"></i> Deadline 24h</span>';
+                    }
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center text-[11px] font-mono font-bold">
+                            ${badgeHtml}
+                            <span class="text-slate-400 font-normal">${n.created_at ? formatTimeAgo(n.created_at) : 'Just now'}</span>
+                        </div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white leading-snug">${escapeHtml(n.title)}</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-mono">${escapeHtml(n.body)}</p>
+                    `;
+                    container.appendChild(card);
+                });
+                container.classList.remove('opacity-40');
+            }
+            if (data.pagination) {
+                updatePaginationControls(data.pagination.current_page, data.pagination.last_page, data.pagination.total);
+            }
+        } catch (err) {
+            if (container) container.classList.remove('opacity-40');
+        }
+    }
+    window.fetchNotificationsPage = fetchNotificationsPage;
+
+    function formatTimeAgo(dateStr) {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${Math.floor(diffHours / 24)}d ago`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Real-Time Notification Prepend Listener
+    // ─────────────────────────────────────────────────────────────────────────
+    window.addEventListener('new-notification-received', function (e) {
+        const n = e.detail;
+        const container = document.getElementById('notificationsFeedContainer');
+        if (!container) return;
+
+        const card = document.createElement('div');
+        card.className = 'p-4 bg-teal-50 dark:bg-teal-950/80 rounded-2xl border-2 border-teal-500 space-y-1.5 shadow-lg animate-pulse';
+        card.innerHTML = `
+            <div class="flex justify-between items-center text-[11px] font-mono font-bold">
+                <span class="text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-900 px-2.5 py-0.5 rounded-md border border-teal-300"><i class="fa-solid fa-bolt text-teal-600"></i> New Alert</span>
+                <span class="text-teal-600 font-bold">${isArLocale ? 'الآن' : 'Just now'}</span>
+            </div>
+            <h4 class="font-bold text-xs text-slate-900 dark:text-white leading-snug">${escapeHtml(n.title)}</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-mono">${escapeHtml(n.body)}</p>
+        `;
+        container.prepend(card);
+        setTimeout(() => card.classList.remove('animate-pulse'), 4000);
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Forms AJAX Submission Listeners
+    // ─────────────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        initSessionCountdowns();
+        initEliteTables();
+
+        // Check URL hash on page load (e.g. #tab=sessions or #sessions)
+        const hash = window.location.hash.replace('#', '').replace('tab=', '');
+        if (hash && ['overview', 'sessions', 'courses', 'assignments', 'submissions', 'packages', 'exceptions', 'notifications'].includes(hash)) {
+            switchStudentTab(hash);
+        }
+
+        // Initialize excuse dropdowns if course pre-selected
+        const excuseCourse = document.getElementById('excuseCourseSelect');
+        if (excuseCourse && excuseCourse.value) onExcuseCourseChange(excuseCourse.value, 'excuseSessionSelect');
+
+        const hwCourse = document.getElementById('hwExceptionCourseSelect');
+        if (hwCourse && hwCourse.value) onExcuseCourseChange(hwCourse.value, 'hwExceptionSessionSelect');
+
+        // Excuse Form Submit
+        const excuseForm = document.getElementById('excuseForm');
+        const excuseAlert = document.getElementById('excuseAlert');
+        const excuseSubmitBtn = document.getElementById('excuseSubmitBtn') || (excuseForm ? excuseForm.querySelector('button[type="submit"]') : null);
+
+        if (excuseForm && excuseSubmitBtn) {
+            excuseForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                if (excuseSubmitBtn.disabled) return;
+
+                excuseAlert.classList.add('hidden');
+                const originalBtnHtml = excuseSubmitBtn.innerHTML;
+
+                // Loading State & anti-multiple click
+                excuseSubmitBtn.disabled = true;
+                excuseSubmitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                excuseSubmitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>${isArLocale ? 'جاري إرسال الطلب...' : 'Submitting Request...'}</span>`;
+
+                try {
+                    const res = await fetch(excuseForm.action, {
+                        method: 'POST',
+                        body: new FormData(excuseForm),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        excuseAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                        excuseAlert.textContent = data.message;
+                        excuseAlert.classList.remove('hidden');
+                        excuseSubmitBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>${isArLocale ? 'تم الإرسال بنجاح' : 'Submitted Successfully'}</span>`;
+                        if (window.Toast) window.Toast.success(data.message, isArLocale ? 'تم إرسال العذر' : 'Success');
+                        setTimeout(() => {
+                            if (window.closeModal) window.closeModal('excuseModal');
+                            else document.getElementById('excuseModal').classList.add('hidden');
+                            window.location.reload();
+                        }, 1200);
+                    } else {
+                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat()[0] : (isArLocale ? 'تعذر إرسال الطلب، يرجى المحاولة مرة أخرى.' : 'Submission failed. Please try again.'));
+                        excuseAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+                        excuseAlert.textContent = errorMsg;
+                        excuseAlert.classList.remove('hidden');
+                        if (window.Toast) window.Toast.error(errorMsg, isArLocale ? 'تنبيه' : 'Submission Error');
+
+                        // Restore button
+                        excuseSubmitBtn.disabled = false;
+                        excuseSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                        excuseSubmitBtn.innerHTML = originalBtnHtml;
+                    }
+                } catch (err) {
+                    const errorMsg = isArLocale ? 'خطأ في الاتصال بالشبكة. يرجى إعادة المحاولة.' : 'Network error. Please try again.';
+                    excuseAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+                    excuseAlert.textContent = errorMsg;
+                    excuseAlert.classList.remove('hidden');
+                    if (window.Toast) window.Toast.error(errorMsg, isArLocale ? 'خطأ في الاتصال' : 'Network Error');
+
+                    // Restore button
+                    excuseSubmitBtn.disabled = false;
+                    excuseSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    excuseSubmitBtn.innerHTML = originalBtnHtml;
                 }
-            }
+            });
         }
 
-        function changeModalRecPage(delta) {
-            currentModalRecPage += delta;
-            renderModalRecordedSessions();
+        // Homework Exception Form Submit
+        const hwForm = document.getElementById('hwExceptionForm');
+        const hwAlert = document.getElementById('hwExceptionAlert');
+        const hwSubmitBtn = document.getElementById('hwExceptionSubmitBtn') || (hwForm ? hwForm.querySelector('button[type="submit"]') : null);
+
+        if (hwForm && hwSubmitBtn) {
+            hwForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                if (hwSubmitBtn.disabled) return;
+
+                hwAlert.classList.add('hidden');
+                const originalBtnHtml = hwSubmitBtn.innerHTML;
+
+                // Loading State & anti-multiple click
+                hwSubmitBtn.disabled = true;
+                hwSubmitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                hwSubmitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>${isArLocale ? 'جاري إرسال طلب الاستثناء...' : 'Submitting Exception...'}</span>`;
+
+                try {
+                    const res = await fetch(hwForm.action, {
+                        method: 'POST',
+                        body: new FormData(hwForm),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        hwAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                        hwAlert.textContent = data.message;
+                        hwAlert.classList.remove('hidden');
+                        hwSubmitBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>${isArLocale ? 'تم الإرسال بنجاح' : 'Submitted Successfully'}</span>`;
+                        if (window.Toast) window.Toast.success(data.message, isArLocale ? 'تم إرسال الطلب' : 'Success');
+                        setTimeout(() => {
+                            if (window.closeModal) window.closeModal('homeworkExceptionModal');
+                            else document.getElementById('homeworkExceptionModal').classList.add('hidden');
+                            window.location.reload();
+                        }, 1200);
+                    } else {
+                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat()[0] : (isArLocale ? 'تعذر إرسال طلب الاستثناء، يرجى المحاولة مرة أخرى.' : 'Submission failed. Please try again.'));
+                        hwAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+                        hwAlert.textContent = errorMsg;
+                        hwAlert.classList.remove('hidden');
+                        if (window.Toast) window.Toast.error(errorMsg, isArLocale ? 'تنبيه' : 'Submission Error');
+
+                        // Restore button
+                        hwSubmitBtn.disabled = false;
+                        hwSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                        hwSubmitBtn.innerHTML = originalBtnHtml;
+                    }
+                } catch (err) {
+                    const errorMsg = isArLocale ? 'خطأ في الاتصال بالشبكة. يرجى إعادة المحاولة.' : 'Network error. Please try again.';
+                    hwAlert.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+                    hwAlert.textContent = errorMsg;
+                    hwAlert.classList.remove('hidden');
+                    if (window.Toast) window.Toast.error(errorMsg, isArLocale ? 'خطأ في الاتصال' : 'Network Error');
+
+                    // Restore button
+                    hwSubmitBtn.disabled = false;
+                    hwSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    hwSubmitBtn.innerHTML = originalBtnHtml;
+                }
+            });
         }
 
-        function closeEnrolledCourseModal() {
-            if (window.closeModal) {
-                window.closeModal('enrolledCourseModal');
-            } else {
-                const modal = document.getElementById('enrolledCourseModal');
-                if (modal) modal.classList.add('hidden');
-            }
-        }
+        // MSQ Solver Form Submit
+        const msqForm = document.getElementById('msqAnswerForm');
+        const msqSubmitBtn = document.getElementById('msqSubmitBtn');
+        if (msqForm) {
+            msqForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                msqSubmitBtn.disabled = true;
+                msqSubmitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-        // ── Live Session Countdown Timers ──────────────────────────────────────────
-        function initSessionCountdowns() {
-            const isAr = @json(app()->getLocale() === 'ar');
+                try {
+                    const res = await fetch("{{ route('ajax.assignment.submit') }}", {
+                        method: 'POST',
+                        body: new FormData(msqForm),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
 
-            function update() {
-                const now = new Date().getTime();
-
-                // Single live ticking countdown to session start time
-                document.querySelectorAll('.session-countdown-pill').forEach(pill => {
-                    const startStr = pill.getAttribute('data-start-time');
-                    const textEl = pill.querySelector('.countdown-text');
-                    if (!startStr || !textEl) return;
-
-                    const startTime = new Date(startStr).getTime();
-                    const diff = startTime - now;
-
-                    if (diff <= 0) {
-                        textEl.innerHTML = isAr ? 'بدأت الحصة الآن <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>' : 'Session Live Now <i class="fa-solid fa-circle text-rose-500 text-[10px]"></i>';
+                    if (!res.ok || !data.success) {
+                        if (window.Toast) window.Toast.error(data.message || 'Submission failed');
+                        msqSubmitBtn.disabled = false;
+                        msqSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                         return;
                     }
 
-                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-                    let parts = [];
-                    if (d > 0) parts.push(d + (isAr ? 'ي ' : 'd '));
-                    if (h > 0 || d > 0) parts.push(String(h).padStart(2, '0') + (isAr ? 'س ' : 'h '));
-                    parts.push(String(m).padStart(2, '0') + (isAr ? 'د ' : 'm '));
-                    parts.push(String(s).padStart(2, '0') + (isAr ? 'ث' : 's'));
-
-                    textEl.textContent = (isAr ? 'تبدأ خلال: ' : 'Starts in: ') + parts.join('');
-                });
-            }
-
-            update();
-            setInterval(update, 1000);
-        }
-
-        function switchPortalSection(sectionId) {
-            const el = document.getElementById(sectionId);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            document.querySelectorAll('.portal-nav-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('href') === `#${sectionId}`) {
-                    item.classList.add('active');
-                }
-            });
-            // Only close sidebar drawer on mobile/tablet screens (< 1024px)
-            if (window.innerWidth < 1024 && typeof togglePortalSidebar === 'function') {
-                togglePortalSidebar(false);
-            }
-        }
-
-        function filterAssignmentsByCourse(courseId) {
-            document.querySelectorAll('.assign-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
-                btn.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
-                if (btn.getAttribute('data-course') == courseId) {
-                    btn.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
-                    btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
-                }
-            });
-            document.querySelectorAll('.available-assign-card').forEach(card => {
-                if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-
-        function filterSubmissionsByCourse(courseId) {
-            document.querySelectorAll('.sub-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs');
-                btn.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
-                if (btn.getAttribute('data-course') == courseId) {
-                    btn.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-200');
-                    btn.classList.add('bg-teal-600', 'text-white', 'shadow-xs');
-                }
-            });
-            document.querySelectorAll('.submission-record-card').forEach(card => {
-                if (courseId === 'all' || card.getAttribute('data-course-id') == courseId || card.getAttribute('data-course-id') == '0') {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-
-        // ── Session Tabs & Non-Overscroll Pagination Architecture ──
-        let currentSessionTab = @json($initialTab);
-        let sessionPages = {
-            soon: 1,
-            upcoming: 1,
-            history: 1
-        };
-        const SESSIONS_PER_PAGE = 4;
-
-        function switchSessionTab(tab) {
-            currentSessionTab = tab;
-            const tabs = ['soon', 'upcoming', 'history'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tabBtn_${t}`);
-                const pane = document.getElementById(`pane_${t}`);
-                const badge = btn ? btn.querySelector('.tab-count-badge') : null;
-                if (t === tab) {
-                    if (btn) {
-                        btn.classList.add('bg-white', 'text-teal-900', 'shadow-sm', 'border', 'border-teal-200/60');
-                        btn.classList.remove('text-slate-600', 'hover:bg-white/60');
-                    }
-                    if (badge) {
-                        badge.classList.add('bg-teal-100', 'text-teal-900');
-                        badge.classList.remove('bg-slate-200', 'text-slate-700');
-                    }
-                    if (pane) pane.classList.remove('hidden');
-                } else {
-                    if (btn) {
-                        btn.classList.remove('bg-white', 'text-teal-900', 'shadow-sm', 'border', 'border-teal-200/60');
-                        btn.classList.add('text-slate-600', 'hover:bg-white/60');
-                    }
-                    if (badge) {
-                        badge.classList.remove('bg-teal-100', 'text-teal-900');
-                        badge.classList.add('bg-slate-200', 'text-slate-700');
-                    }
-                    if (pane) pane.classList.add('hidden');
-                }
-            });
-            renderSessionPagination(tab);
-        }
-
-        function renderSessionPagination(tab) {
-            const pane = document.getElementById(`pane_${tab}`);
-            if (!pane) return;
-            const items = pane.querySelectorAll('.session-card-item');
-            const totalItems = items.length;
-            const totalPages = Math.max(1, Math.ceil(totalItems / SESSIONS_PER_PAGE));
-            let currentPage = sessionPages[tab] || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-            sessionPages[tab] = currentPage;
-
-            items.forEach((item, idx) => {
-                const page = Math.floor(idx / SESSIONS_PER_PAGE) + 1;
-                if (page === currentPage) {
-                    item.classList.remove('hidden');
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-
-            const paginationBar = document.getElementById(`paginationBar_${tab}`);
-            if (!paginationBar) return;
-
-            if (totalItems <= SESSIONS_PER_PAGE) {
-                paginationBar.classList.add('hidden');
-                return;
-            }
-            paginationBar.classList.remove('hidden');
-
-            const prevBtn = document.getElementById(`prevBtn_${tab}`);
-            const nextBtn = document.getElementById(`nextBtn_${tab}`);
-            const pageText = document.getElementById(`pageText_${tab}`);
-            const pagePills = document.getElementById(`pagePills_${tab}`);
-
-            if (prevBtn) prevBtn.disabled = (currentPage <= 1);
-            if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
-
-            const startItem = Math.min((currentPage - 1) * SESSIONS_PER_PAGE + 1, totalItems);
-            const endItem = Math.min(currentPage * SESSIONS_PER_PAGE, totalItems);
-
-            const isAr = @json(app()->getLocale() === 'ar');
-            if (pageText) {
-                pageText.innerHTML = isAr 
-                    ? `عرض <strong class="text-teal-700">${startItem} - ${endItem}</strong> من <strong class="text-slate-900">${totalItems}</strong> حصة`
-                    : `Showing <strong class="text-teal-700">${startItem} - ${endItem}</strong> of <strong class="text-slate-900">${totalItems}</strong> sessions`;
-            }
-
-            if (pagePills) {
-                const pillBtn = (p, active) => active
-                    ? `<button type="button" class="w-7 h-7 rounded-lg bg-teal-600 text-white font-bold text-xs shadow-xs shrink-0">${p}</button>`
-                    : `<button type="button" onclick="goToSessionPage('${tab}', ${p})" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all shadow-2xs shrink-0">${p}</button>`;
-                const ellipsis = `<span class="px-1 text-slate-400 font-bold shrink-0">…</span>`;
-                let pagesToShow = [];
-                if (totalPages <= 7) {
-                    for (let p = 1; p <= totalPages; p++) pagesToShow.push(p);
-                } else {
-                    pagesToShow.push(1);
-                    const start = Math.max(2, currentPage - 1);
-                    const end = Math.min(totalPages - 1, currentPage + 1);
-                    if (start > 2) pagesToShow.push('…');
-                    for (let p = start; p <= end; p++) pagesToShow.push(p);
-                    if (end < totalPages - 1) pagesToShow.push('…');
-                    pagesToShow.push(totalPages);
-                }
-                pagePills.innerHTML = pagesToShow.map(p => p === '…' ? ellipsis : pillBtn(p, p === currentPage)).join('');
-            }
-        }
-
-        function changeSessionPage(tab, delta) {
-            sessionPages[tab] = (sessionPages[tab] || 1) + delta;
-            renderSessionPagination(tab);
-            const container = document.getElementById('liveSessions');
-            if (container && container.getBoundingClientRect().top < 0) {
-                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        function goToSessionPage(tab, page) {
-            sessionPages[tab] = page;
-            renderSessionPagination(tab);
-            const container = document.getElementById('liveSessions');
-            if (container && container.getBoundingClientRect().top < 0) {
-                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        function initSessionTabsAndPagination() {
-            ['soon', 'upcoming', 'history'].forEach(tab => {
-                renderSessionPagination(tab);
-            });
-            switchSessionTab(currentSessionTab);
-        }
-
-        // Safe Real-Time Polling that preserves active tab and page
-        function initSessionPolling() {
-            setInterval(() => {
-                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(res => res.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newContainer = doc.querySelector('#upcomingSessionsContainer');
-                        const currentContainer = document.querySelector('#upcomingSessionsContainer');
-                        if (newContainer && currentContainer && newContainer.innerHTML.trim() !== currentContainer.innerHTML.trim()) {
-                            const savedTab = currentSessionTab;
-                            const savedPages = Object.assign({}, sessionPages);
-                            currentContainer.innerHTML = newContainer.innerHTML;
-                            currentSessionTab = savedTab;
-                            sessionPages = savedPages;
-                            initSessionTabsAndPagination();
-                            if (typeof initSessionCountdowns === 'function') initSessionCountdowns();
+                    if (window.Toast) {
+                        if (data.is_passed) {
+                            window.Toast.success(`Score: ${data.percentage}% (PASSED)`, 'Assignment Evaluated');
+                        } else {
+                            window.Toast.error(`Score: ${data.percentage}% (FAILED - Passing: ${data.passing_score}%)`, 'Assignment Result');
                         }
-                    }).catch(() => { });
-            }, 10000);
-        }
+                    }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                initSessionTabsAndPagination();
-                initSessionCountdowns();
-                initSessionPolling();
+                    closeMsqModal();
+                    setTimeout(() => window.location.reload(), 1200);
+                } catch (err) {
+                    if (window.Toast) window.Toast.error('Network error submitting assignment');
+                    msqSubmitBtn.disabled = false;
+                    msqSubmitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
             });
-        } else {
-            initSessionTabsAndPagination();
-            initSessionCountdowns();
-            initSessionPolling();
         }
-    </script>
+    });
+</script>
 @endsection

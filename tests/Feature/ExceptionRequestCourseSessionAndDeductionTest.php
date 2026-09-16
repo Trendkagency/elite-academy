@@ -248,4 +248,30 @@ class ExceptionRequestCourseSessionAndDeductionTest extends TestCase
             'balance_after' => 10,
         ]);
     }
+
+    public function test_cannot_submit_duplicate_exception_request_for_same_session()
+    {
+        // 1. Submit first exception
+        $response1 = $this->actingAs($this->student)->postJson(route('ajax.exception.submit'), [
+            'course_id' => $this->course->id,
+            'live_session_id' => $this->liveSession->id,
+            'scope' => 'course',
+            'reason' => 'First legitimate absence excuse request.',
+        ]);
+
+        $response1->assertStatus(201);
+
+        // 2. Submit second duplicate exception for same session
+        $response2 = $this->actingAs($this->student)->postJson(route('ajax.exception.submit'), [
+            'course_id' => $this->course->id,
+            'live_session_id' => $this->liveSession->id,
+            'scope' => 'course',
+            'reason' => 'Second duplicate request for the exact same session.',
+        ]);
+
+        $response2->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+            ]);
+    }
 }

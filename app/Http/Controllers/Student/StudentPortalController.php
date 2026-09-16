@@ -184,7 +184,7 @@ class StudentPortalController extends Controller
 
         $completedAssignmentIds = $completedSubmissions->pluck('assignment_id')->filter()->toArray();
 
-        $availableAssignments = $user ? \App\Models\Assignment::with([
+        $allStudentAssignments = $user ? \App\Models\Assignment::with([
                 'questions.options',
                 'course.subject',
                 'course.teacher.user',
@@ -196,7 +196,6 @@ class StudentPortalController extends Controller
             ->where(function ($q) {
                 $q->whereNull('start_at')->orWhere('start_at', '<=', now());
             })
-            ->whereNotIn('id', $completedAssignmentIds)
             ->where(function ($q) use ($allStudentCourseIds, $allSessionIds) {
                 $hasCourses = ! empty($allStudentCourseIds);
                 $hasSessions = ! empty($allSessionIds);
@@ -214,8 +213,12 @@ class StudentPortalController extends Controller
                     $q->whereRaw('1 = 0');
                 }
             })
-            ->orderBy('due_at', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get() : collect();
+
+        $availableAssignments = $allStudentAssignments->filter(function ($a) use ($completedAssignmentIds) {
+            return ! in_array($a->id, $completedAssignmentIds, true);
+        })->values();
 
         $filterCourses = $enrollments->map(fn($e) => $e->course)->filter();
         if ($filterCourses->isEmpty() && ! empty($allStudentCourseIds)) {
@@ -363,7 +366,9 @@ class StudentPortalController extends Controller
             'submissions'            => $completedSubmissions,
             'completedSubmissions'   => $completedSubmissions,
             'inProgressSubmissions'  => $inProgressSubmissions,
+            'submissionsMap'         => $submissions->keyBy('assignment_id'),
             'availableAssignments'   => $availableAssignments,
+            'allStudentAssignments'  => $allStudentAssignments,
             'filterCourses'          => $filterCourses,
             'exceptions'             => $exceptions,
             'teacherNotes'           => $teacherNotes,

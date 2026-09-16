@@ -115,6 +115,13 @@ class AppServiceProvider extends ServiceProvider
             $column->preloadOptions();
         });
 
+        // Global Filament Tables Configuration: Remove pagination & enable asynchronous deferred loading for scroll-based data flow
+        \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table): void {
+            $table
+                ->deferLoading()
+                ->paginated(false);
+        });
+
         if (! $this->app->runningInConsole() && $this->app->bound('request')) {
             $req = request();
             if (
