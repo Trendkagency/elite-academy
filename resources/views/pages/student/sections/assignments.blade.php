@@ -103,43 +103,43 @@
         @if($totalAssignmentsCount > 0)
             {{-- Assignments Comprehensive Table --}}
             <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                <table class="w-full text-start text-xs elite-sortable-table" data-page-size="8" id="portalAssignmentsTable">
+                <table class="w-full text-start text-xs sm:text-sm elite-sortable-table" data-page-size="8" id="portalAssignmentsTable">
                     <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                         <tr>
-                            <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[280px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'اسم الواجب والتفاصيل' : 'Assignment & Topic' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[200px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المقرر والمادة' : 'Course & Module' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="date">
+                            <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="date">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'الموعد النهائي' : 'Deadline' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[130px]" data-sort-type="number">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المدة والنجاح' : 'Duration & Pass' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'حالة التسليم والدرجة' : 'Status & Score' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'الإجراء والحل' : 'Action' }}</th>
+                            <th class="col-action py-3.5 px-4 text-end min-w-[150px]" data-no-sort="true">{{ $isAr ? 'الإجراء والحل' : 'Action' }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono" id="assignmentsTableBody">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="assignmentsTableBody">
                         @foreach($displayAssignments as $assign)
                             @php
                                 $sub = isset($submissionsMap[$assign->id]) ? $submissionsMap[$assign->id] : (isset($submissions) ? $submissions->where('assignment_id', $assign->id)->first() : null);
@@ -163,26 +163,26 @@
                                 data-status-category="{{ $statusCategory }}">
                                 
                                 {{-- Title & Details --}}
-                                <td class="py-3.5 px-4 allow-wrap">
+                                <td class="col-title py-3.5 px-4 min-w-[280px] max-w-[400px]">
                                     <div class="space-y-1">
-                                        <div class="flex items-center gap-2 flex-wrap">
+                                        <div class="flex items-start gap-2 flex-wrap">
                                             @if($isCompleted)
-                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25">
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shrink-0 mt-0.5">
                                                     <i class="fa-solid fa-check"></i> {{ $isAr ? 'تم التسليم' : 'Submitted' }}
                                                 </span>
                                             @elseif($isInProgress)
-                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
-                                                    {{ $isAr ? 'قيد الحل حالياً' : 'In Progress' }}
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25 shrink-0 mt-0.5 flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping inline-block"></span>
+                                                    {{ $isAr ? 'قيد الحل' : 'In Progress' }}
                                                 </span>
                                             @else
-                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 shrink-0 mt-0.5">
                                                     MSQ
                                                 </span>
                                             @endif
-                                            <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{{ $assign->title }}</h4>
+                                            <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug break-words flex-1">{{ $assign->title }}</h4>
                                         </div>
-                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal line-clamp-2">
                                             {{ $assign->description ?: ($isAr ? 'واجب تقييمي تفاعلي لغلق فجوات الدرس والتأكد من الفهم.' : 'Interactive MSQ assignment to verify lesson understanding.') }}
                                         </p>
                                         @if($qCount > 0)
@@ -194,9 +194,9 @@
                                 </td>
 
                                 {{-- Course & Module --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
+                                <td class="col-course py-3.5 px-3 min-w-[200px] max-w-[300px]">
                                     <div class="space-y-0.5">
-                                        <span class="font-bold text-slate-900 dark:text-slate-100 text-xs">{{ $courseTitle }}</span>
+                                        <span class="font-bold text-slate-900 dark:text-slate-100 text-xs line-clamp-2 leading-snug">{{ $courseTitle }}</span>
                                         <p class="text-[11px] text-teal-700 dark:text-teal-400 font-medium flex items-center gap-1">
                                             <span class="px-1.5 py-0.2 rounded bg-teal-500/10 border border-teal-500/20 text-[10px]">{{ $subjectTitle }}</span>
                                             <span>• {{ $teacherName }}</span>
@@ -205,36 +205,36 @@
                                 </td>
 
                                 {{-- Deadline --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20 flex items-center gap-1 w-fit">
+                                <td class="col-date py-3.5 px-3 whitespace-nowrap min-w-[140px]">
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20 flex items-center gap-1 w-fit">
                                         <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400"></i>
                                         <span>{{ $assign->effective_due_at ? $assign->effective_due_at->format('Y-m-d H:i') : ($isAr ? '24h قبل الحصة' : '24h Pre-Session') }}</span>
                                     </span>
                                 </td>
 
                                 {{-- Duration & Pass Mark --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                <td class="col-badge py-3.5 px-3 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[130px]">
                                     <div class="space-y-0.5 text-xs">
-                                        <div><i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400"></i> <strong class="text-slate-900 dark:text-slate-100">{{ $assign->duration_minutes ?: 30 }}</strong> {{ $isAr ? 'دقيقة' : 'mins' }}</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ $isAr ? 'درجة النجاح:' : 'Pass:' }} <strong class="text-slate-700 dark:text-slate-300">{{ number_format($assign->passing_score ?? 70, 0) }}%</strong></div>
+                                        <div><i class="fa-solid fa-stopwatch text-teal-600 dark:text-teal-400"></i> <strong class="text-slate-900 dark:text-slate-100 font-mono">{{ $assign->duration_minutes ?: 30 }}</strong> {{ $isAr ? 'دقيقة' : 'mins' }}</div>
+                                        <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ $isAr ? 'درجة النجاح:' : 'Pass:' }} <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ number_format($assign->passing_score ?? 70, 0) }}%</strong></div>
                                     </div>
                                 </td>
 
                                 {{-- Status & Achieved Score --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
+                                <td class="col-badge py-3.5 px-3 whitespace-nowrap min-w-[140px]">
                                     @if($isCompleted)
                                         <div class="space-y-0.5">
                                             @if($isPassed)
-                                                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
+                                                <span class="px-2.5 py-1 rounded-xl text-xs font-bold font-mono bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
                                                     <i class="fa-solid fa-check"></i> {{ $scorePct !== null ? number_format($scorePct, 0) . '%' : 'Passed' }}
                                                 </span>
                                             @else
-                                                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
+                                                <span class="px-2.5 py-1 rounded-xl text-xs font-bold font-mono bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
                                                     <i class="fa-solid fa-xmark"></i> {{ $scorePct !== null ? number_format($scorePct, 0) . '%' : 'Failed' }}
                                                 </span>
                                             @endif
                                             @if($sub->submitted_at)
-                                                <p class="text-[10px] text-slate-400 font-normal">{{ $sub->submitted_at->format('Y-m-d') }}</p>
+                                                <p class="text-[10px] text-slate-400 font-mono font-normal">{{ $sub->submitted_at->format('Y-m-d') }}</p>
                                             @endif
                                         </div>
                                     @elseif($isInProgress)
@@ -249,7 +249,7 @@
                                 </td>
 
                                 {{-- Action Buttons --}}
-                                <td class="py-3.5 px-4 text-end whitespace-nowrap">
+                                <td class="col-action py-3.5 px-4 text-end whitespace-nowrap min-w-[150px]">
                                     <div class="flex items-center justify-end gap-2">
                                         @if($isCompleted)
                                             <button type="button" onclick="switchStudentTab('submissions')"

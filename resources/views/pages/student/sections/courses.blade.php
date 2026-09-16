@@ -24,52 +24,52 @@
         @if(count($enrollmentCards) > 0)
             {{-- Comprehensive Full Information Table for Courses --}}
             <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                <table class="w-full text-start text-xs elite-sortable-table" data-page-size="6">
+                <table class="w-full text-start text-xs sm:text-sm elite-sortable-table" data-page-size="6">
                     <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                         <tr>
-                            <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'الكورس والمقرر' : 'Course Title' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[120px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المادة' : 'Subject' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[160px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المعلم المشرف' : 'Instructor' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[130px]" data-sort-type="number">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'الدروس والبث' : 'Modules & Streams' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="number">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'نسبة الإنجاز' : 'Progress' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'عرض التفاصيل والمنهج' : 'Curriculum Explorer' }}</th>
+                            <th class="col-action py-3.5 px-4 text-end min-w-[140px]" data-no-sort="true">{{ $isAr ? 'عرض التفاصيل والمنهج' : 'Curriculum Explorer' }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @foreach($enrollmentCards as $card)
                             <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                                 {{-- Course Title & Description --}}
-                                <td class="py-3.5 px-4 allow-wrap">
+                                <td class="col-title py-3.5 px-4 min-w-[260px] max-w-[380px]">
                                     <div class="space-y-1">
-                                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">
+                                        <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug break-words">
                                             {{ $card['course']->title }}
                                         </h4>
-                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal line-clamp-2">
                                             {{ $card['course']->description ?: ($isAr ? 'مقرر دراسي تفاعلي شامل للمرحلة الثانوية.' : 'Interactive curriculum with assessments.') }}
                                         </p>
                                     </div>

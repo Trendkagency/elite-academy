@@ -74,6 +74,10 @@
             }
         };
 
+        window.togglePortalTheme = function() {
+            window.EliteTheme.toggle();
+        };
+
         // Universal Modal Controller (Early Init in Head)
         window.openModal = function (id) {
             const modal = typeof id === 'string' ? document.getElementById(id) : id;
@@ -247,21 +251,61 @@
         }
         .table-responsive table {
             width: 100% !important;
-            min-width: 720px !important;
-            border-collapse: collapse !important;
+            min-width: 860px !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
             text-align: start !important;
         }
         .table-responsive th {
             white-space: nowrap !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.02em !important;
+            vertical-align: middle !important;
         }
         .table-responsive td {
+            font-family: 'Cairo', sans-serif !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+        }
+        .table-responsive td.allow-wrap,
+        .table-responsive th.allow-wrap {
+            white-space: normal !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            line-height: 1.55 !important;
+        }
+        .table-responsive .col-title {
+            min-width: 260px !important;
+            max-width: 380px !important;
+            white-space: normal !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            line-height: 1.55 !important;
+        }
+        .table-responsive .col-course {
+            min-width: 200px !important;
+            max-width: 300px !important;
+            white-space: normal !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            line-height: 1.45 !important;
+        }
+        .table-responsive .col-date {
+            min-width: 140px !important;
             white-space: nowrap !important;
         }
-        .table-responsive td.allow-wrap {
-            white-space: normal !important;
+        .table-responsive .col-badge {
+            min-width: 110px !important;
+            white-space: nowrap !important;
+        }
+        .table-responsive .col-action {
+            min-width: 140px !important;
+            white-space: nowrap !important;
         }
         .table-responsive::-webkit-scrollbar {
-            height: 6px;
+            height: 7px;
         }
         .table-responsive::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);

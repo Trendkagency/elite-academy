@@ -223,63 +223,63 @@
 
         @if(count($availableAssignments) > 0)
             <div class="table-responsive rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                <table class="w-full text-start text-xs elite-sortable-table">
+                <table class="w-full text-start text-xs sm:text-sm elite-sortable-table">
                     <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                         <tr>
-                            <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'عنوان الواجب' : 'Assignment' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[200px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المقرر' : 'Course' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'الموعد النهائي' : 'Deadline' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
-                                <div class="flex items-center gap-1.5">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[110px]" data-sort-type="number">
+                                <div class="flex items-center justify-center gap-1.5">
                                     <span>{{ $isAr ? 'درجة النجاح' : 'Pass Mark' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'الإجراء' : 'Action' }}</th>
+                            <th class="col-action py-3.5 px-4 text-end min-w-[140px]" data-no-sort="true">{{ $isAr ? 'الإجراء' : 'Action' }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @foreach($availableAssignments->take(6) as $assign)
                             @php
                                 $isInProgress = isset($inProgressSubmissions[$assign->id]);
                                 $courseTitle = $assign->course?->title ?: ($assign->liveSession?->course?->title ?: ($isAr ? 'كورس التخصص' : 'Course Module'));
                             @endphp
                             <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
-                                <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white allow-wrap">
-                                    <div class="flex items-center gap-2">
+                                <td class="col-title py-3.5 px-4 font-bold text-slate-900 dark:text-white leading-relaxed min-w-[260px] max-w-[380px]">
+                                    <div class="flex items-start gap-2">
                                         @if($isInProgress)
-                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0 mt-1.5"></span>
                                         @endif
-                                        <span>{{ $assign->title }}</span>
+                                        <span class="break-words font-semibold text-slate-900 dark:text-slate-100">{{ $assign->title }}</span>
                                     </div>
                                 </td>
-                                <td class="py-3.5 px-3 text-slate-600 dark:text-slate-400 truncate max-w-[200px]">
-                                    {{ $courseTitle }}
+                                <td class="col-course py-3.5 px-3 text-slate-600 dark:text-slate-300 leading-normal min-w-[200px] max-w-[300px]">
+                                    <span class="line-clamp-2">{{ $courseTitle }}</span>
                                 </td>
-                                <td class="py-3.5 px-3 text-amber-700 dark:text-amber-400 font-medium whitespace-nowrap">
+                                <td class="col-date py-3.5 px-3 text-amber-700 dark:text-amber-400 font-mono font-bold whitespace-nowrap min-w-[140px]">
                                     {{ $assign->effective_due_at ? $assign->effective_due_at->format('Y-m-d H:i') : ($isAr ? '24 ساعة قبل الحصة' : '24h Pre-Session') }}
                                 </td>
-                                <td class="py-3.5 px-3 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-700">
+                                <td class="col-badge py-3.5 px-3 text-center whitespace-nowrap min-w-[110px]">
+                                    <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono font-bold text-xs border border-slate-200 dark:border-slate-700 inline-block">
                                         {{ number_format($assign->passing_score ?? 70, 0) }}%
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-4 text-end whitespace-nowrap">
+                                <td class="col-action py-3.5 px-4 text-end whitespace-nowrap min-w-[140px]">
                                     <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
                                         class="btn-lift px-4 py-2 rounded-xl text-xs font-bold {{ $isInProgress ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-teal-600 hover:bg-teal-500 text-white' }} shadow-xs inline-flex items-center gap-1.5">
                                         <span><i class="fa-solid fa-bolt text-[11px]"></i></span>

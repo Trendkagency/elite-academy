@@ -50,43 +50,43 @@
         @if(count($submissions) > 0)
             {{-- Submissions Comprehensive Table --}}
             <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                <table class="w-full text-start text-xs elite-sortable-table" data-page-size="6">
+                <table class="w-full text-start text-xs sm:text-sm elite-sortable-table" data-page-size="6">
                     <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                         <tr>
-                            <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'عنوان الواجب' : 'Assignment' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[200px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'المقرر والحصة' : 'Course & Session' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="date">
+                            <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="date">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'تاريخ التسليم' : 'Submitted At' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[120px]" data-sort-type="number">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'الدرجة المحققة' : 'Score / Percentage' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                            <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[130px]" data-sort-type="text">
                                 <div class="flex items-center gap-1.5">
                                     <span>{{ $isAr ? 'النتيجة' : 'Result' }}</span>
                                     <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'ملاحظات التقييم' : 'Evaluation Note' }}</th>
+                            <th class="col-course py-3.5 px-4 text-end min-w-[180px]" data-no-sort="true">{{ $isAr ? 'ملاحظات التقييم' : 'Evaluation Note' }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono" id="submissionsTableBody">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="submissionsTableBody">
                         @foreach($submissions as $sub)
                             @php
                                 $subCourseId = $sub->assignment?->course_id ?: ($sub->assignment?->liveSession?->course_id ?: 0);
@@ -98,32 +98,32 @@
                                 data-course-id="{{ $subCourseId }}">
                                 
                                 {{-- Assignment Title --}}
-                                <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white allow-wrap">
-                                    {{ $sub->assignment?->title ?: ($isAr ? 'واجب الجلسة التفاعلية' : 'Session MSQ Assignment') }}
+                                <td class="col-title py-3.5 px-4 font-bold text-slate-900 dark:text-white leading-relaxed min-w-[260px] max-w-[380px]">
+                                    <span class="break-words font-semibold text-slate-900 dark:text-slate-100">{{ $sub->assignment?->title ?: ($isAr ? 'واجب الجلسة التفاعلية' : 'Session MSQ Assignment') }}</span>
                                 </td>
 
                                 {{-- Course & Session Context --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
+                                <td class="col-course py-3.5 px-3 min-w-[200px] max-w-[280px]">
                                     <div class="space-y-0.5">
-                                        <span class="font-bold text-teal-700 dark:text-teal-400">{{ $subCourseTitle }}</span>
+                                        <span class="font-bold text-teal-700 dark:text-teal-400 block line-clamp-2 leading-snug">{{ $subCourseTitle }}</span>
                                         <p class="text-[11px] text-slate-500">{{ $subSessionTitle }}</p>
                                     </div>
                                 </td>
 
                                 {{-- Submitted Date --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
+                                <td class="col-date py-3.5 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400 font-mono text-xs min-w-[140px]">
                                     {{ $sub->submitted_at ? $sub->submitted_at->format('Y-m-d H:i') : 'Completed' }}
                                 </td>
 
                                 {{-- Score Percentage --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
-                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <td class="col-badge py-3.5 px-3 whitespace-nowrap min-w-[120px]">
+                                    <span class="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 inline-block">
                                         {{ $scorePct !== null ? number_format($scorePct, 1) . '%' : 'Evaluated' }}
                                     </span>
                                 </td>
 
                                 {{-- Pass/Fail Badge --}}
-                                <td class="py-3.5 px-3 whitespace-nowrap">
+                                <td class="col-badge py-3.5 px-3 whitespace-nowrap min-w-[130px]">
                                     @if($sub->isPassed())
                                         <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5">
                                             <i class="fa-solid fa-check text-[10px]"></i>
@@ -138,8 +138,8 @@
                                 </td>
 
                                 {{-- Evaluation Note --}}
-                                <td class="py-3.5 px-4 text-end allow-wrap text-[11px] text-slate-600 dark:text-slate-400">
-                                    {{ $sub->evaluation_notes ?: ($sub->teacher_notes ?: ($isAr ? 'تم التقييم التلقائي بنجاح.' : 'Graded.')) }}
+                                <td class="col-course py-3.5 px-4 text-end text-xs text-slate-600 dark:text-slate-400 leading-normal min-w-[180px] max-w-[300px]">
+                                    <span class="line-clamp-2">{{ $sub->evaluation_notes ?: ($sub->teacher_notes ?: ($isAr ? 'تم التقييم التلقائي بنجاح.' : 'Graded.')) }}</span>
                                 </td>
                             </tr>
                         @endforeach

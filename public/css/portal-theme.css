@@ -532,3 +532,42 @@ html.dark .elite-modal-dialog span {
 html.dark .elite-modal-dialog .text-white {
     color: #FFFFFF !important;
 }
+
+/* ─── Ultra-Responsive Master Portal Navbar Enhancements ─── */
+header.sticky.top-0 {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+@media (max-width: 640px) {
+    .portal-navbar-toggle {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 148, 136, 0.7);
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(51, 65, 85, 0.7);
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(20, 184, 166, 0.7);
+}
+

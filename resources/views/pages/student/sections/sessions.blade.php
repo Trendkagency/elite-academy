@@ -79,43 +79,43 @@
             <div id="sessionPane_soon" class="session-sub-pane space-y-4">
                 @if(count($startingSoonSessions) > 0)
                     <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                        <table class="w-full text-start text-xs session-data-table elite-sortable-table" data-subtab="soon" data-page-size="6">
+                        <table class="w-full text-start text-xs sm:text-sm session-data-table elite-sortable-table" data-subtab="soon" data-page-size="6">
                             <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                                 <tr>
-                                    <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الحصة الدراسية' : 'Session & Topic' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[180px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'المادة والمعلم' : 'Subject & Teacher' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الموعد المحدد' : 'Scheduled At' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[130px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'العد التنازلي / الإغلاق' : 'Countdown & Cutoff' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[120px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الحالة' : 'Status' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'الإجراء والانضمام' : 'Action' }}</th>
+                                    <th class="col-action py-3.5 px-4 text-end min-w-[140px]" data-no-sort="true">{{ $isAr ? 'الإجراء والانضمام' : 'Action' }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 @foreach($startingSoonSessions as $s)
                                     @php
                                         $state = $s->evaluateState($userAuth);
@@ -129,23 +129,23 @@
                                         data-search="{{ strtolower($s->studentFacingTitle('') . ' ' . ($s->course?->title ?? '') . ' ' . ($s->subject?->name ?? '') . ' ' . ($s->teacherProfile?->user?->name ?? '')) }}">
                                         
                                         {{-- Title & Course --}}
-                                        <td class="py-3.5 px-4 allow-wrap">
+                                        <td class="col-title py-3.5 px-4 min-w-[260px] max-w-[380px]">
                                             <div class="space-y-1">
-                                                <div class="flex items-center gap-2">
+                                                <div class="flex items-start gap-2">
                                                     @if($isLive)
-                                                        <span class="relative flex h-2.5 w-2.5">
+                                                        <span class="relative flex h-2.5 w-2.5 shrink-0 mt-1">
                                                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                                                             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                                                         </span>
                                                     @else
-                                                        <span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"></span>
+                                                        <span class="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500 shrink-0 mt-1.5"></span>
                                                     @endif
-                                                    <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
+                                                    <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug break-words flex-1">
                                                         {{ $s->studentFacingTitle($isAr ? 'حصة البث المباشر التفاعلية' : 'Interactive Live Session') }}
                                                     </span>
                                                 </div>
                                                 @if($s->course)
-                                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ $s->course->title }}</p>
+                                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal">{{ $s->course->title }}</p>
                                                 @endif
                                             </div>
                                         </td>
@@ -239,43 +239,43 @@
             <div id="sessionPane_upcoming" class="session-sub-pane space-y-4 hidden">
                 @if(count($upcomingScheduledSessions) > 0)
                     <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                        <table class="w-full text-start text-xs session-data-table elite-sortable-table" data-subtab="upcoming" data-page-size="6">
+                        <table class="w-full text-start text-xs sm:text-sm session-data-table elite-sortable-table" data-subtab="upcoming" data-page-size="6">
                             <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                                 <tr>
-                                    <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الحصة والمقرر' : 'Session & Course' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[180px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'المادة والمعلم' : 'Subject & Instructor' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'التاريخ والوقت' : 'Scheduled Date & Time' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="number">
+                                    <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[120px]" data-sort-type="number">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'المدة' : 'Duration' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[120px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الحالة' : 'Status' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'تقديم عذر' : 'Excuse' }}</th>
+                                    <th class="col-action py-3.5 px-4 text-end min-w-[140px]" data-no-sort="true">{{ $isAr ? 'تقديم عذر' : 'Excuse' }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 @foreach($upcomingScheduledSessions as $s)
                                     @php
                                         $startAt = $s->effective_start_at;
@@ -284,18 +284,18 @@
                                     <tr class="session-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
                                         data-search="{{ strtolower($s->studentFacingTitle('') . ' ' . ($s->course?->title ?? '') . ' ' . ($s->subject?->name ?? '') . ' ' . ($s->teacherProfile?->user?->name ?? '')) }}">
                                         
-                                        <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white allow-wrap">
+                                        <td class="col-title py-3.5 px-4 min-w-[260px] max-w-[380px]">
                                             <div class="space-y-0.5">
-                                                <span>{{ $s->studentFacingTitle($isAr ? 'حصة دراسية قادمة' : 'Scheduled Live Session') }}</span>
+                                                <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug break-words block">{{ $s->studentFacingTitle($isAr ? 'حصة دراسية قادمة' : 'Scheduled Live Session') }}</span>
                                                 @if($s->course)
-                                                    <p class="text-[11px] text-slate-500 font-normal">{{ $s->course->title }}</p>
+                                                    <p class="text-[11px] text-slate-500 font-normal line-clamp-1 leading-normal">{{ $s->course->title }}</p>
                                                 @endif
                                             </div>
                                         </td>
 
-                                        <td class="py-3.5 px-3 whitespace-nowrap">
+                                        <td class="col-course py-3.5 px-3 whitespace-nowrap min-w-[180px]">
                                             <div class="space-y-0.5">
-                                                <span class="font-bold text-teal-700 dark:text-teal-400">{{ $s->subject?->name ?: 'STEM' }}</span>
+                                                <span class="font-bold text-teal-700 dark:text-teal-400 block">{{ $s->subject?->name ?: 'STEM' }}</span>
                                                 <p class="text-[11px] text-slate-600 dark:text-slate-400">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</p>
                                             </div>
                                         </td>
@@ -338,37 +338,37 @@
             <div id="sessionPane_history" class="session-sub-pane space-y-4 hidden">
                 @if(count($endedSessionsHistory) > 0)
                     <div class="table-responsive rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                        <table class="w-full text-start text-xs session-data-table elite-sortable-table" data-subtab="history" data-page-size="6">
+                        <table class="w-full text-start text-xs sm:text-sm session-data-table elite-sortable-table" data-subtab="history" data-page-size="6">
                             <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-mono font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700 select-none">
                                 <tr>
-                                    <th class="py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-title py-3.5 px-4 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[260px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'الحصة المنتهية' : 'Completed Session' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-course py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[180px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'المادة والمعلم' : 'Subject & Teacher' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-date py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[140px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'تاريخ الانعقاد' : 'Held Date' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors" data-sort-type="text">
+                                    <th class="col-badge py-3.5 px-3 sortable-header cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors min-w-[130px]" data-sort-type="text">
                                         <div class="flex items-center gap-1.5">
                                             <span>{{ $isAr ? 'حالة الحضور' : 'Attendance Status' }}</span>
                                             <span class="sort-icon opacity-40 text-[10px]"><i class="fa-solid fa-sort"></i></span>
                                         </div>
                                     </th>
-                                    <th class="py-3.5 px-4 text-end" data-no-sort="true">{{ $isAr ? 'التفاصيل' : 'Details' }}</th>
+                                    <th class="col-action py-3.5 px-4 text-end min-w-[120px]" data-no-sort="true">{{ $isAr ? 'التفاصيل' : 'Details' }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 @foreach($endedSessionsHistory as $s)
                                     @php
                                         $startAt = $s->effective_start_at;
@@ -379,19 +379,19 @@
                                     <tr class="session-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
                                         data-search="{{ strtolower($s->studentFacingTitle('') . ' ' . ($s->course?->title ?? '') . ' ' . ($s->subject?->name ?? '') . ' ' . ($s->teacherProfile?->user?->name ?? '')) }}">
                                         
-                                        <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white allow-wrap">
-                                            <div>{{ $s->studentFacingTitle($isAr ? 'حصة مكتملة' : 'Completed Live Session') }}</div>
+                                        <td class="col-title py-3.5 px-4 font-bold text-slate-900 dark:text-white min-w-[260px] max-w-[380px]">
+                                            <div><span class="break-words font-semibold text-slate-900 dark:text-slate-100 block leading-snug">{{ $s->studentFacingTitle($isAr ? 'حصة مكتملة' : 'Completed Live Session') }}</span></div>
                                             @if($s->course)
-                                                <p class="text-[11px] text-slate-500 font-normal">{{ $s->course->title }}</p>
+                                                <p class="text-[11px] text-slate-500 font-normal line-clamp-1 leading-normal">{{ $s->course->title }}</p>
                                             @endif
                                         </td>
 
-                                        <td class="py-3.5 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
-                                            <div>{{ $s->subject?->name ?: 'STEM' }}</div>
+                                        <td class="col-course py-3.5 px-3 whitespace-nowrap min-w-[180px]">
+                                            <div class="font-bold text-teal-700 dark:text-teal-400">{{ $s->subject?->name ?: 'STEM' }}</div>
                                             <div class="text-[11px] text-slate-500">{{ $s->teacherProfile?->user?->name ?: 'Dr. Instructor' }}</div>
                                         </td>
 
-                                        <td class="py-3.5 px-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        <td class="col-date py-3.5 px-3 whitespace-nowrap text-slate-700 dark:text-slate-300 font-mono text-xs min-w-[140px]">
                                             {{ $startAt ? $startAt->format('Y-m-d h:i A') : 'Completed' }}
                                         </td>
 
