@@ -3481,6 +3481,12 @@
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" id="spModalCreateSessionBtn" onclick="createSessionForCurrentStudent()"
+                        class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                        title="{{ __('Schedule Session') }}">
+                        <span><i class="fa-solid fa-video"></i></span>
+                        <span>{{ __('Schedule Session') }}</span>
+                    </button>
                     <button type="button" onclick="openAddNoteModal()"
                         class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
                         <span><i class="fa-solid fa-pen-nib"></i></span> {{ __('app.teacher.add_educational_note') }}
@@ -3612,6 +3618,20 @@
 
                 {{-- 3. SP SESSIONS TAB --}}
                 <div id="sp-pane-sessions" class="sp-tab-pane space-y-4 hidden">
+                    <div class="flex items-center justify-between gap-3 flex-wrap bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                        <div>
+                            <h4 class="font-heading font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <span><i class="fa-solid fa-calendar-days text-teal-600"></i></span> {{ __('Sessions') }}
+                            </h4>
+                            <p class="text-[11px] text-slate-500 font-mono">{{ __('All 1-to-1 and group live sessions for this student') }}</p>
+                        </div>
+                        <button type="button" onclick="createSessionForCurrentStudent()"
+                            class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>{{ __('Schedule Session') }}</span>
+                        </button>
+                    </div>
+
                     <div
                         class="table-responsive w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200/80 dark:border-slate-800">
                         <table class="w-full min-w-[520px] text-left rtl:text-right border-collapse text-xs">
@@ -3813,17 +3833,33 @@
 
                 {{-- Scrollable Form Body --}}
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                    {{-- 1. Student Selection (Student-First Lifecycle) --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Student') }}
+                            *</label>
+                        <input type="hidden" id="createSessionStudentId" name="student_user_id" value="">
+                        <select id="createSessionStudentSelect" required
+                            onchange="onSessionStudentChange(this.value)"
+                            class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                            <option value="">{{ __('Select Student...') }}</option>
+                            <option value="__group__">{{ __('👥 Group Session (All Enrolled Students)') }}</option>
+                            @foreach ($assignedStudents as $st)
+                                <option value="{{ $st->user_id }}">{{ $st->user?->name }} ({{ $st->gradeLevel?->name ?: ($isAr ? 'طالب' : 'Student') }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- 2. Course Selection (Dynamic based on selected student) --}}
                     <div>
                         <label
                             class="block text-xs font-mono font-bold text-slate-500 uppercase tracking-wider mb-1.5">{{ __('Select Course') }}
                             *</label>
-                        <select name="course_id" required
-                            class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-                            @foreach ($courses as $c)
-                                <option value="{{ $c->id }}">{{ $c->title }} ({{ $c->subject?->name }})
-                                </option>
-                            @endforeach
+                        <select id="createSessionCourseId" name="course_id" required disabled
+                            class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800">
+                            <option value="">{{ __('Select Student First...') }}</option>
                         </select>
+                        <p id="createSessionCourseHelp" class="text-[11px] font-mono text-rose-600 dark:text-rose-400 mt-1 hidden"></p>
                     </div>
 
                     <div>
@@ -7035,7 +7071,12 @@
                     sesTableBody.innerHTML = sesHtml;
                 } else {
                     sesTableBody.innerHTML =
-                        `<tr><td colspan="4" class="py-4 text-center text-slate-400 italic">${i18n.noSessions}</td></tr>`;
+                        `<tr><td colspan="4" class="py-8 text-center text-slate-400">
+                            <p class="italic text-xs mb-3">${i18n.noSessions}</p>
+                            <button type="button" onclick="createSessionForCurrentStudent()" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-all active:scale-95">
+                                <i class="fa-solid fa-calendar-plus"></i> ${isArLocale ? 'جدولة حصة جديدة لهذا الطالب' : 'Schedule Session for this student'}
+                            </button>
+                        </td></tr>`;
                 }
 
                 // 5. Populate Attendance Tab
@@ -7175,6 +7216,26 @@
             document.getElementById('addNoteForm').reset();
             window.openModal('addNoteModal');
         }
+
+        // ── Quick Schedule Session For Current Student from Details Modal ────────────
+        function createSessionForCurrentStudent(studentUserId) {
+            const targetUserId = studentUserId || currentViewingStudentId;
+            if (!targetUserId) {
+                if (typeof showTeacherToast === 'function') {
+                    showTeacherToast(isArLocale ? 'يرجى تحديد الطالب أولاً' : 'No student selected', false);
+                }
+                return;
+            }
+
+            // Close Student Profile modal
+            if (typeof closeModal === 'function') {
+                closeModal('studentProfileModal');
+            }
+
+            // Open Create Session modal pre-configured for this student
+            openCreateSessionModal(targetUserId);
+        }
+        window.createSessionForCurrentStudent = createSessionForCurrentStudent;
 
         // ════════════════════════════════════════════════════════════════════════
         // UNIVERSAL RESPONSIVE SECTION PAGINATOR ENGINE (SEE MORE & SCROLL LOADING)
@@ -7440,8 +7501,153 @@
         }
 
         // ── Open Modals & Action Helpers ─────────────────────────────────────────────
-        function openCreateSessionModal() {
-            window.openModal('createSessionModal');
+        const allTeacherCourses = [
+            @foreach ($courses as $c)
+                { id: {{ $c->id }}, title: @json($c->title), subject_name: @json($c->subject?->name ?: '') },
+            @endforeach
+        ];
+
+        async function onSessionStudentChange(selectedValue) {
+            const hiddenInput = document.getElementById('createSessionStudentId');
+            const courseSelect = document.getElementById('createSessionCourseId');
+            const helpText = document.getElementById('createSessionCourseHelp');
+
+            if (!courseSelect) return;
+
+            courseSelect.innerHTML = '';
+            courseSelect.value = '';
+            if (helpText) {
+                helpText.classList.add('hidden');
+                helpText.textContent = '';
+            }
+
+            if (!selectedValue) {
+                if (hiddenInput) hiddenInput.value = '';
+                courseSelect.disabled = true;
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = isArLocale ? 'يرجى اختيار الطالب أولاً...' : 'Select Student First...';
+                courseSelect.appendChild(opt);
+                return;
+            }
+
+            if (selectedValue === '__group__') {
+                if (hiddenInput) hiddenInput.value = '';
+                courseSelect.disabled = false;
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = isArLocale ? 'اختر الكورس / المادة...' : 'Select Course...';
+                courseSelect.appendChild(defaultOpt);
+
+                allTeacherCourses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.title} (${c.subject_name})`;
+                    courseSelect.appendChild(opt);
+                });
+                return;
+            }
+
+            // Specific student selected (1-to-1 session)
+            const studentUserId = parseInt(selectedValue, 10);
+            if (hiddenInput) hiddenInput.value = studentUserId;
+
+            courseSelect.disabled = true;
+            const loadingOpt = document.createElement('option');
+            loadingOpt.value = '';
+            loadingOpt.textContent = isArLocale ? 'جاري تحميل كورسات الطالب...' : 'Loading student courses...';
+            courseSelect.appendChild(loadingOpt);
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/students/${studentUserId}/courses`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await res.json();
+
+                courseSelect.innerHTML = '';
+
+                if (!res.ok || !data.success || !data.courses || data.courses.length === 0) {
+                    courseSelect.disabled = true;
+                    const noOpt = document.createElement('option');
+                    noOpt.value = '';
+                    noOpt.textContent = isArLocale ? 'لا توجد كورسات متاحة لهذا الطالب' : 'No courses available for this student';
+                    courseSelect.appendChild(noOpt);
+
+                    if (helpText) {
+                        helpText.textContent = isArLocale 
+                            ? 'هذا الطالب غير مسجل في أي من كورساتك النشطة.'
+                            : 'This student is not enrolled in any of your active courses.';
+                        helpText.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                courseSelect.disabled = false;
+                const chooseOpt = document.createElement('option');
+                chooseOpt.value = '';
+                chooseOpt.textContent = isArLocale ? 'اختر كورس الطالب...' : 'Select Course...';
+                courseSelect.appendChild(chooseOpt);
+
+                data.courses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.title} (${c.subject_name})`;
+                    courseSelect.appendChild(opt);
+                });
+            } catch (e) {
+                courseSelect.innerHTML = '';
+                courseSelect.disabled = true;
+                const errOpt = document.createElement('option');
+                errOpt.value = '';
+                errOpt.textContent = isArLocale ? 'حدث خطأ في تحميل الكورسات' : 'Error loading courses';
+                courseSelect.appendChild(errOpt);
+            }
+        }
+
+        function openCreateSessionModal(preSelectedStudentUserId = null) {
+            const form = document.getElementById('createSessionForm');
+            if (form) form.reset();
+            const studentSelect = document.getElementById('createSessionStudentSelect');
+            const studentHidden = document.getElementById('createSessionStudentId');
+            const courseSelect = document.getElementById('createSessionCourseId');
+            const helpText = document.getElementById('createSessionCourseHelp');
+
+            if (courseSelect) {
+                courseSelect.innerHTML = `<option value="">${isArLocale ? 'يرجى اختيار الطالب أولاً...' : 'Select Student First...'}</option>`;
+                courseSelect.disabled = true;
+            }
+            if (helpText) {
+                helpText.classList.add('hidden');
+                helpText.textContent = '';
+            }
+
+            if (preSelectedStudentUserId) {
+                const targetId = parseInt(preSelectedStudentUserId, 10);
+                if (studentSelect) {
+                    let optExists = Array.from(studentSelect.options).some(o => parseInt(o.value, 10) === targetId);
+                    if (!optExists) {
+                        const studentNameEl = document.getElementById('spModalName');
+                        const studentName = studentNameEl ? studentNameEl.textContent.trim() : `Student #${targetId}`;
+                        const newOpt = document.createElement('option');
+                        newOpt.value = targetId;
+                        newOpt.textContent = studentName;
+                        studentSelect.appendChild(newOpt);
+                    }
+                    studentSelect.value = targetId;
+                }
+                if (studentHidden) {
+                    studentHidden.value = targetId;
+                }
+                window.openModal('createSessionModal');
+                onSessionStudentChange(targetId);
+            } else {
+                if (studentSelect) studentSelect.value = '';
+                if (studentHidden) studentHidden.value = '';
+                window.openModal('createSessionModal');
+            }
         }
 
         function openCreateAssignmentModal() {
@@ -7941,9 +8147,9 @@
         window.filterAttendanceModalStudents = filterAttendanceModalStudents;
         window.bulkSetAttendance = bulkSetAttendance;
         window.onAttendanceStatusRadioChange = onAttendanceStatusRadioChange;
-        window.openCreateSessionModal = function() {
-            window.openModal('createSessionModal');
-        };
+        window.openCreateSessionModal = openCreateSessionModal;
+        window.createSessionForCurrentStudent = createSessionForCurrentStudent;
+        window.onSessionStudentChange = onSessionStudentChange;
         window.openCreateAssignmentModal = function() {
             window.openModal('createAssignmentModal');
         };
@@ -8239,7 +8445,7 @@
                         <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
                             <div class="flex items-center gap-2">
                                 <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0">
-                                <input type="text" name="questions[${qIdx}][options][${optIdx}]" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                                <input type="text" name="questions[${qIdx}][options][${optIdx}]" placeholder="${isAr ? 'نص الخيار ' + String.fromCharCode(65 + optIdx) + ' (أو ارفع صورة فقط)' : 'Option ' + String.fromCharCode(65 + optIdx) + ' text (or image only)'}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
                                 <label for="createOptImage_${qIdx}_${optIdx}" class="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer p-1 shrink-0" title="${isAr ? 'إرفاق صورة للخيار' : 'Attach image to choice'}">
                                     <i class="fa-regular fa-image text-xs"></i>
                                 </label>
@@ -8298,7 +8504,7 @@
                         <input type="hidden" id="editOptRemoveImage_${qIdx}_${optIdx}" name="questions[${qIdx}][remove_option_images][${optIdx}]" value="0">
                         <div class="flex items-center gap-2">
                             <input type="radio" name="questions[${qIdx}][correct_index]" value="${optIdx}" ${isChecked} class="text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0">
-                            <input type="text" name="questions[${qIdx}][options][${optIdx}]" value="${escapeHtml(optText)}" required placeholder="${isAr ? 'الخيار ' + String.fromCharCode(65 + optIdx) : 'Option ' + String.fromCharCode(65 + optIdx)}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
+                            <input type="text" name="questions[${qIdx}][options][${optIdx}]" value="${escapeHtml(optText)}" placeholder="${isAr ? 'نص الخيار ' + String.fromCharCode(65 + optIdx) + ' (أو صورة فقط)' : 'Option ' + String.fromCharCode(65 + optIdx) + ' text (or image only)'}" class="w-full text-xs font-mono border-0 focus:ring-0 p-0 text-slate-800 dark:text-slate-100 bg-transparent">
                             <label for="editOptImage_${qIdx}_${optIdx}" class="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer p-1 shrink-0" title="${isAr ? 'إرفاق صورة للخيار' : 'Attach image to choice'}">
                                 <i class="fa-regular fa-image text-xs"></i>
                             </label>

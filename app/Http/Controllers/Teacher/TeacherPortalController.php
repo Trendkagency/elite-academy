@@ -513,6 +513,7 @@ class TeacherPortalController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'course_id' => 'required|exists:courses,id',
+            'student_user_id' => 'nullable|exists:users,id',
             'scheduled_at' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'meeting_platform' => 'nullable|string|max:50',
@@ -525,25 +526,97 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized: You do not own this course.'], 403);
         }
 
+        $studentUserId = ! empty($validated['student_user_id']) ? (int) $validated['student_user_id'] : null;
+
+        // If 1-to-1 session, strictly validate that selected student is enrolled in the selected course
+        if ($studentUserId) {
+            $isEnrolled = CourseEnrollment::where('student_user_id', $studentUserId)
+                ->where('course_id', $course->id)
+                ->exists();
+
+            if (! $isEnrolled) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('The selected student is not enrolled in this course.'),
+                    'errors' => [
+                        'course_id' => [__('The selected student is not enrolled in this course.')],
+                    ],
+                ], 422);
+            }
+        }
+
         $scheduledAt = Carbon::parse($validated['scheduled_at']);
         $duration = (int) ($validated['duration_minutes'] ?? 60);
         $endAt = $scheduledAt->copy()->addMinutes($duration);
+        $subjectId = $course->subject_id ?: ($teacherProfile->subjects()->first()?->id ?? null);
 
-        $liveSession = LiveSession::create([
-            'title' => $validated['title'],
-            'teacher_profile_id' => $teacherProfile->id,
-            'course_id' => $course->id,
-            'subject_id' => $course->subject_id,
-            'scheduled_at' => $scheduledAt,
-            'start_at' => $scheduledAt,
-            'end_at' => $endAt,
-            'duration_minutes' => $duration,
-            'meeting_platform' => $validated['meeting_platform'] ?? 'agora',
-            'meeting_link' => $validated['meeting_link'] ?? null,
-            'status' => 'scheduled',
-            'lifecycle_state' => 'scheduled',
-            'is_free_demo' => (bool) ($validated['is_free_demo'] ?? false),
-        ]);
+        $liveSession = DB::transaction(function () use ($validated, $studentUserId, $teacherProfile, $course, $subjectId, $scheduledAt, $endAt, $duration) {
+            $session = LiveSession::create([
+                'title' => $validated['title'],
+                'student_user_id' => $studentUserId,
+                'teacher_profile_id' => $teacherProfile->id,
+                'course_id' => $course->id,
+                'subject_id' => $subjectId,
+                'scheduled_at' => $scheduledAt,
+                'start_at' => $scheduledAt,
+                'end_at' => $endAt,
+                'duration_minutes' => $duration,
+                'meeting_platform' => $validated['meeting_platform'] ?? 'agora',
+                'meeting_link' => $validated['meeting_link'] ?? null,
+                'status' => 'scheduled',
+                'lifecycle_state' => 'scheduled',
+                'is_free_demo' => (bool) ($validated['is_free_demo'] ?? false),
+            ]);
+
+            if ($studentUserId) {
+                \App\Models\StudentSession::updateOrCreate([
+                    'student_user_id' => $studentUserId,
+                    'live_session_id' => $session->id,
+                ], [
+                    'session_status' => 'scheduled',
+                ]);
+            }
+
+            return $session;
+        });
+
+        // Dispatch instant real-time notification to student(s)
+        try {
+            $fcmService = app(\App\Services\Notification\FcmNotificationService::class);
+            if ($studentUserId) {
+                $targetStudent = User::find($studentUserId);
+                if ($targetStudent) {
+                    $fcmService->sendNotification(
+                        $targetStudent,
+                        'session_scheduled',
+                        __('New 1-to-1 Live Session Scheduled'),
+                        __('Teacher :teacher scheduled a session ":title" on :date.', [
+                            'teacher' => $teacherProfile->user?->name ?: __('Instructor'),
+                            'title' => $liveSession->title,
+                            'date' => $scheduledAt->format('Y-m-d h:i A'),
+                        ]),
+                        route('student-portal', ['tab' => 'sessions'])
+                    );
+                }
+            } elseif ($course) {
+                $enrolledStudentIds = CourseEnrollment::where('course_id', $course->id)->pluck('student_user_id')->toArray();
+                $enrolledStudents = User::whereIn('id', $enrolledStudentIds)->get();
+                foreach ($enrolledStudents as $sUser) {
+                    $fcmService->sendNotification(
+                        $sUser,
+                        'session_scheduled',
+                        __('New Live Session Scheduled'),
+                        __('A new live session ":title" was scheduled for course :course.', [
+                            'title' => $liveSession->title,
+                            'course' => $course->title,
+                        ]),
+                        route('student-portal', ['tab' => 'sessions'])
+                    );
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[Session RealTime Notification] ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -573,6 +646,7 @@ class TeacherPortalController extends Controller
             'meeting_link' => 'nullable|url|max:500',
             'teacher_notes' => 'nullable|string|max:1000',
             'reason' => 'nullable|string|max:255',
+            'student_user_id' => 'nullable',
         ]);
 
         $scope = $validated['scope'];
@@ -620,33 +694,89 @@ class TeacherPortalController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => 'nullable|required_without:student_user_id|exists:courses,id',
+            'student_user_id' => 'nullable|required_without:course_id|exists:users,id',
             'scheduled_at' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'meeting_link' => 'nullable|url|max:500',
             'is_free_demo' => 'nullable|boolean',
         ]);
 
-        $course = Course::findOrFail($validated['course_id']);
-        if ((int) $course->teacher_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized course ownership'], 403);
+        $course = null;
+        if (! empty($validated['course_id'])) {
+            $course = Course::findOrFail($validated['course_id']);
+            if ((int) $course->teacher_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized course ownership'], 403);
+            }
+        }
+
+        $studentUserId = ! empty($validated['student_user_id']) ? (int) $validated['student_user_id'] : null;
+
+        // If 1-to-1 session, strictly validate that selected student is enrolled in the selected course
+        if ($studentUserId && $course) {
+            $isEnrolled = CourseEnrollment::where('student_user_id', $studentUserId)
+                ->where('course_id', $course->id)
+                ->exists();
+
+            if (! $isEnrolled) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('The selected student is not enrolled in this course.'),
+                    'errors' => [
+                        'course_id' => [__('The selected student is not enrolled in this course.')],
+                    ],
+                ], 422);
+            }
         }
 
         $scheduledAt = Carbon::parse($validated['scheduled_at']);
         $duration = (int) ($validated['duration_minutes'] ?? $session->duration_minutes ?? 60);
         $endAt = $scheduledAt->copy()->addMinutes($duration);
 
-        $session->update([
-            'title' => $validated['title'],
-            'course_id' => $course->id,
-            'subject_id' => $course->subject_id,
-            'scheduled_at' => $scheduledAt,
-            'start_at' => $scheduledAt,
-            'end_at' => $endAt,
-            'duration_minutes' => $duration,
-            'meeting_link' => $validated['meeting_link'] ?? null,
-            'is_free_demo' => (bool) ($validated['is_free_demo'] ?? false),
-        ]);
+        DB::transaction(function () use ($session, $validated, $course, $studentUserId, $teacherProfile, $scheduledAt, $endAt, $duration) {
+            $session->update([
+                'title' => $validated['title'],
+                'course_id' => $course?->id,
+                'student_user_id' => $studentUserId,
+                'subject_id' => $course ? $course->subject_id : ($session->subject_id ?? $teacherProfile->subjects()->first()?->id),
+                'scheduled_at' => $scheduledAt,
+                'start_at' => $scheduledAt,
+                'end_at' => $endAt,
+                'duration_minutes' => $duration,
+                'meeting_link' => $validated['meeting_link'] ?? null,
+                'is_free_demo' => (bool) ($validated['is_free_demo'] ?? false),
+            ]);
+
+            if ($studentUserId) {
+                \App\Models\StudentSession::updateOrCreate([
+                    'student_user_id' => $studentUserId,
+                    'live_session_id' => $session->id,
+                ], [
+                    'session_status' => 'scheduled',
+                ]);
+            }
+        });
+
+        // Dispatch instant real-time notification to student
+        if ($studentUserId) {
+            try {
+                $targetStudent = User::find($studentUserId);
+                if ($targetStudent) {
+                    app(\App\Services\Notification\FcmNotificationService::class)->sendNotification(
+                        $targetStudent,
+                        'session_updated',
+                        __('Session Details Updated'),
+                        __('Teacher updated session ":title" scheduled on :date.', [
+                            'title' => $session->title,
+                            'date' => $scheduledAt->format('Y-m-d h:i A'),
+                        ]),
+                        route('student-portal', ['tab' => 'sessions'])
+                    );
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[Session Update Notification] ' . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -763,11 +893,31 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => __('Unauthorized')], 403);
         }
 
+        $deletedStudentUserId = $session->student_user_id;
+        $deletedSessionTitle = $session->title;
+
         DB::transaction(function () use ($session) {
             \App\Models\StudentSession::where('live_session_id', $session->id)->delete();
             \App\Models\MeetingAttendance::where('live_session_id', $session->id)->delete();
             $session->delete();
         });
+
+        if ($deletedStudentUserId) {
+            try {
+                $targetStudent = User::find($deletedStudentUserId);
+                if ($targetStudent) {
+                    app(\App\Services\Notification\FcmNotificationService::class)->sendNotification(
+                        $targetStudent,
+                        'session_cancelled',
+                        __('Live Session Removed'),
+                        __('The session ":title" has been removed by the instructor.', ['title' => $deletedSessionTitle]),
+                        route('student-portal', ['tab' => 'sessions'])
+                    );
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[Session Delete Notification] ' . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -923,17 +1073,23 @@ class TeacherPortalController extends Controller
 
                 if (! empty($qData['options']) && is_array($qData['options'])) {
                     foreach ($qData['options'] as $optIdx => $optText) {
-                        if (trim((string)$optText) === '') continue;
+                        $hasImage = $request->hasFile("questions.{$qIdx}.option_images.{$optIdx}");
+                        $text = trim((string) $optText);
+
+                        // Save if either text or image exists
+                        if ($text === '' && ! $hasImage) {
+                            continue;
+                        }
 
                         // Handle Option Choice Image
                         $optImagePath = null;
-                        if ($request->hasFile("questions.{$qIdx}.option_images.{$optIdx}")) {
+                        if ($hasImage) {
                             $optImagePath = $request->file("questions.{$qIdx}.option_images.{$optIdx}")->store('assignment-options', 'public');
                         }
 
                         \App\Models\AssignmentQuestionOption::create([
                             'question_id' => $question->id,
-                            'option_text' => trim($optText),
+                            'option_text' => $text !== '' ? $text : __('Option') . ' ' . chr(65 + $optIdx),
                             'image_path' => $optImagePath,
                             'sort_order' => $optIdx + 1,
                             'is_correct' => ($optIdx === $correctIndex),
@@ -1078,27 +1234,32 @@ class TeacherPortalController extends Controller
                 $question->options()->delete();
                 if (! empty($qData['options']) && is_array($qData['options'])) {
                     foreach ($qData['options'] as $optIdx => $optText) {
-                        if (trim((string)$optText) === '') continue;
-
                         $existingOptImg = $qData['existing_option_images'][$optIdx] ?? null;
                         $removeOptImg = !empty($qData['remove_option_images'][$optIdx]) && $qData['remove_option_images'][$optIdx] === '1';
+                        $hasNewImage = $request->hasFile("questions.{$qIdx}.option_images.{$optIdx}");
                         $optImagePath = $existingOptImg;
+                        $text = trim((string) $optText);
 
                         if ($removeOptImg && $existingOptImg) {
                             Storage::disk('public')->delete($existingOptImg);
                             $optImagePath = null;
                         }
 
-                        if ($request->hasFile("questions.{$qIdx}.option_images.{$optIdx}")) {
+                        if ($hasNewImage) {
                             if ($existingOptImg) {
                                 Storage::disk('public')->delete($existingOptImg);
                             }
                             $optImagePath = $request->file("questions.{$qIdx}.option_images.{$optIdx}")->store('assignment-options', 'public');
                         }
 
+                        // Save if either text or image exists
+                        if ($text === '' && ! $optImagePath) {
+                            continue;
+                        }
+
                         \App\Models\AssignmentQuestionOption::create([
                             'question_id' => $question->id,
-                            'option_text' => trim($optText),
+                            'option_text' => $text !== '' ? $text : __('Option') . ' ' . chr(65 + $optIdx),
                             'image_path' => $optImagePath,
                             'sort_order' => $optIdx + 1,
                             'is_correct' => ($optIdx === $correctIndex),
@@ -1411,43 +1572,44 @@ class TeacherPortalController extends Controller
         // Collect registered student user IDs for this specific session / course
         $studentUserIds = collect();
 
-        if ($session->course_id) {
-            $enrolledIds = CourseEnrollment::where('course_id', $session->course_id)
+        if ($session->student_user_id) {
+            // Strictly 1-to-1 Session: Roster MUST contain solely the assigned student
+            $studentUserIds->push((int) $session->student_user_id);
+        } elseif ($session->recurringSchedule?->student_user_id) {
+            // 1-to-1 Recurring Schedule instance
+            $studentUserIds->push((int) $session->recurringSchedule->student_user_id);
+        } else {
+            // Group Session: All enrolled students in the course
+            if ($session->course_id) {
+                $enrolledIds = CourseEnrollment::where('course_id', $session->course_id)
+                    ->pluck('student_user_id')
+                    ->filter();
+                $studentUserIds = $studentUserIds->merge($enrolledIds);
+            }
+
+            // Also check any already recorded student_sessions for this live session
+            $existingStudentSessionIds = StudentSession::where('live_session_id', $session->id)
                 ->pluck('student_user_id')
                 ->filter();
-            $studentUserIds = $studentUserIds->merge($enrolledIds);
-        }
+            $studentUserIds = $studentUserIds->merge($existingStudentSessionIds);
 
-        if ($session->student_user_id) {
-            $studentUserIds->push($session->student_user_id);
-        }
+            // Check meeting attendances
+            $existingMeetingAttendanceIds = \App\Models\MeetingAttendance::where('live_session_id', $session->id)
+                ->pluck('student_user_id')
+                ->filter();
+            $studentUserIds = $studentUserIds->merge($existingMeetingAttendanceIds)->unique()->values();
 
-        if ($session->recurringSchedule?->student_user_id) {
-            $studentUserIds->push($session->recurringSchedule->student_user_id);
-        }
-
-        // Also check any already recorded student_sessions for this live session
-        $existingStudentSessionIds = StudentSession::where('live_session_id', $session->id)
-            ->pluck('student_user_id')
-            ->filter();
-        $studentUserIds = $studentUserIds->merge($existingStudentSessionIds);
-
-        // Check meeting attendances
-        $existingMeetingAttendanceIds = \App\Models\MeetingAttendance::where('live_session_id', $session->id)
-            ->pluck('student_user_id')
-            ->filter();
-        $studentUserIds = $studentUserIds->merge($existingMeetingAttendanceIds)->unique()->values();
-
-        // Fallback: If no students explicitly enrolled in this course yet, include teacher's active students
-        if ($studentUserIds->isEmpty()) {
-            $allTeacherCourseIds = Course::where('teacher_id', $teacherProfile->id)->pluck('id')->filter()->toArray();
-            $fallbackIds = CourseEnrollment::whereIn('course_id', $allTeacherCourseIds)->pluck('student_user_id')->filter();
-            if ($fallbackIds->isNotEmpty()) {
-                $studentUserIds = $fallbackIds->unique()->values();
-            } else {
-                // If still empty, check teacher's overall students
-                $directIds = LiveSession::where('teacher_profile_id', $teacherProfile->id)->whereNotNull('student_user_id')->pluck('student_user_id')->filter();
-                $studentUserIds = $directIds->unique()->values();
+            // Fallback: If no students explicitly enrolled in this course yet, include teacher's active students
+            if ($studentUserIds->isEmpty()) {
+                $allTeacherCourseIds = Course::where('teacher_id', $teacherProfile->id)->pluck('id')->filter()->toArray();
+                $fallbackIds = CourseEnrollment::whereIn('course_id', $allTeacherCourseIds)->pluck('student_user_id')->filter();
+                if ($fallbackIds->isNotEmpty()) {
+                    $studentUserIds = $fallbackIds->unique()->values();
+                } else {
+                    // If still empty, check teacher's overall students
+                    $directIds = LiveSession::where('teacher_profile_id', $teacherProfile->id)->whereNotNull('student_user_id')->pluck('student_user_id')->filter();
+                    $studentUserIds = $directIds->unique()->values();
+                }
             }
         }
 
@@ -1994,6 +2156,47 @@ class TeacherPortalController extends Controller
             ->values();
 
         return response()->json(['success' => true, 'students' => $students]);
+    }
+
+    /**
+     * AJAX Endpoint: Get Courses Enrolled by a Specific Student (Filtered by Teacher)
+     */
+    public function getStudentCourses(Request $request, int $studentUserId): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::where('id', $studentUserId)->first();
+        if (! $student) {
+            return response()->json(['success' => false, 'message' => 'Student not found', 'courses' => []], 404);
+        }
+
+        $courses = Course::query()
+            ->where(function ($q) use ($teacherProfile) {
+                $q->where('teacher_id', $teacherProfile->id)
+                  ->when(auth()->user()?->isAdmin(), fn ($q2) => $q2->orWhereNotNull('id'));
+            })
+            ->where('is_active', true)
+            ->whereHas('enrollments', function ($eq) use ($studentUserId) {
+                $eq->where('student_user_id', $studentUserId);
+            })
+            ->with('subject')
+            ->orderBy('title', 'asc')
+            ->get()
+            ->map(function ($course) {
+                return [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'subject_name' => $course->subject?->name ?: '',
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'courses' => $courses,
+        ]);
     }
 
     /**

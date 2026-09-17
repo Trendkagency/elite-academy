@@ -296,4 +296,14 @@ class TeacherPortalIntegrationTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals('ar', app()->getLocale());
     }
+
+    public function test_student_profile_modal_contains_direct_create_session_action(): void
+    {
+        $response = $this->actingAs($this->teacherUser)->get('/teacher-portal');
+
+        $response->assertStatus(200)
+            ->assertSee('id="spModalCreateSessionBtn"', false)
+            ->assertSee('createSessionForCurrentStudent()', false)
+            ->assertSee('createSessionStudentSelect', false);
+    }
 }

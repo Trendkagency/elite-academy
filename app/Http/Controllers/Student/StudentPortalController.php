@@ -9,6 +9,7 @@ use App\Models\ExceptionRequest;
 use App\Models\LiveSession;
 use App\Models\StudentPackage;
 use App\Models\StudentProfile;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -25,139 +26,19 @@ class StudentPortalController extends Controller
 
         $studentProfile = $user ? StudentProfile::where('user_id', $user->id)->with(['gradeLevel', 'subjects'])->first() : null;
 
-        $package = $user ? StudentPackage::where('student_user_id', $user->id)
-            ->with('packageTemplate')
-            ->orderBy('created_at', 'desc')
-            ->first() : null;
+        $sessionData = $this->getStudentSessionsData($user, now());
 
-        $hasActivePackage = $package && $package->status === 'active' && $package->remaining_sessions > 0 && (! $package->expires_at || $package->expires_at->isFuture());
-
-        $enrollments = $user ? CourseEnrollment::where('student_user_id', $user->id)
-            ->with([
-                'course.subject',
-                'course.teacher.user',
-                'course.sessions.assignments',
-                'course.liveSessions.teacherProfile.user',
-                'course.gradeLevel',
-                'progress'
-            ])
-            ->latest('created_at')
-            ->get() : collect();
-
-        $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();
-
-        // Also resolve any course IDs and session IDs linked via direct 1:1 sessions or student_sessions
-        $assignedSessionCourseIds = $user ? \App\Models\LiveSession::where('student_user_id', $user->id)
-            ->whereNotNull('course_id')
-            ->pluck('course_id')
-            ->toArray() : [];
-
-        $studentSessionCourseIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
-            ->join('live_sessions', 'student_sessions.live_session_id', '=', 'live_sessions.id')
-            ->where('student_sessions.student_user_id', $user->id)
-            ->whereNotNull('live_sessions.course_id')
-            ->pluck('live_sessions.course_id')
-            ->toArray() : [];
-
-        $allStudentCourseIds = array_values(array_unique(array_filter(array_merge(
-            $enrolledCourseIds,
-            $assignedSessionCourseIds,
-            $studentSessionCourseIds
-        ))));
-
-        $allStudentSessionIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
-            ->where('student_user_id', $user->id)
-            ->pluck('live_session_id')
-            ->toArray() : [];
-
-        $directLiveSessionIds = $user ? \App\Models\LiveSession::where('student_user_id', $user->id)
-            ->pluck('id')
-            ->toArray() : [];
-
-        $visibleSessionIds = $user ? \App\Models\LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
-            ->pluck('id')
-            ->toArray() : [];
-
-        $allSessionIds = array_values(array_unique(array_filter(array_merge(
-            $directLiveSessionIds,
-            $allStudentSessionIds,
-            $visibleSessionIds
-        ))));
-
-        $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
-            ->where(function ($q) {
-                $q->whereNull('course_id')
-                  ->orWhereHas('course', function ($cQuery) {
-                      $cQuery->where('is_active', true);
-                  });
-            })
-            ->with(['teacherProfile.user', 'subject', 'course', 'attendances'])
-            ->orderBy('scheduled_at', 'asc')
-            ->get()
-            ->filter(function ($session) use ($user, $hasActivePackage) {
-                if ($session->course && ! $session->course->is_active) {
-                    return false;
-                }
-                // If session is NOT a free demo, it strictly REQUIRES an active paid package!
-                if (! $session->is_free_demo_session) {
-                    return $hasActivePackage;
-                }
-                // If it IS a free demo session, it is visible for free trial
-                return true;
-            })
-            ->unique('id')
-            ->values() : collect();
-
-        // Categorize sessions for professional tabs & clean pagination
-        $now = now();
-        $startingSoonSessions = collect();
-        $upcomingScheduledSessions = collect();
-        $endedSessionsHistory = collect();
-
-        foreach ($upcomingSessions as $session) {
-            $state = $session->evaluateState($user, $now);
-            $startAt = $session->effective_start_at;
-            $endAt = $session->effective_end_at;
-            $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher'], true);
-            $isCompleted = $session->status === 'completed' || $state === \App\Enums\LiveSessionState::ENDED;
-            $isPast = ($endAt && $endAt->isPast()) || ($startAt && $startAt->isPast() && (!$endAt || $endAt->isPast()));
-
-            // 1. Ended & Past Session History
-            if ($isCompleted || $isCancelled || ($isPast && $state !== \App\Enums\LiveSessionState::LIVE)) {
-                $endedSessionsHistory->push($session);
-                continue;
-            }
-
-            // 2. Starting Soon & Live (Live right now, or starting today, or within the next 24 hours)
-            // isLive depends ONLY on evaluateState which enforces the 30-min window.
-            $isLive = ($state === \App\Enums\LiveSessionState::LIVE);
-            $isSoon = $startAt && ($startAt->isToday() || ($startAt->isFuture() && $startAt->diffInHours($now) <= 24));
-
-            if ($isLive || $isSoon) {
-                $startingSoonSessions->push($session);
-                continue;
-            }
-
-            // 3. Upcoming Scheduled Sessions (Future dates beyond 24h)
-            $upcomingScheduledSessions->push($session);
-        }
-
-        // Sort Starting Soon: LIVE sessions first, then earliest startAt
-        $startingSoonSessions = $startingSoonSessions->sortBy(function ($s) use ($user, $now) {
-            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE);
-            $ts = $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
-            return $isLive ? 0 : $ts;
-        })->values();
-
-        // Sort Upcoming Scheduled by chronological order
-        $upcomingScheduledSessions = $upcomingScheduledSessions->sortBy(function ($s) {
-            return $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
-        })->values();
-
-        // Sort Ended History: most recently ended/held first
-        $endedSessionsHistory = $endedSessionsHistory->sortByDesc(function ($s) {
-            return $s->effective_end_at ? $s->effective_end_at->timestamp : ($s->effective_start_at ? $s->effective_start_at->timestamp : 0);
-        })->values();
+        $package = $sessionData['package'];
+        $hasActivePackage = $sessionData['hasActivePackage'];
+        $enrollments = $sessionData['enrollments'];
+        $allStudentCourseIds = $sessionData['allStudentCourseIds'];
+        $allSessionIds = $sessionData['allSessionIds'];
+        $upcomingSessions = $sessionData['upcomingSessions'];
+        $startingSoonSessions = $sessionData['startingSoonSessions'];
+        $upcomingScheduledSessions = $sessionData['upcomingScheduledSessions'];
+        $endedSessionsHistory = $sessionData['endedSessionsHistory'];
+        $liveCount = $sessionData['liveCount'];
+        $sessionsHash = $sessionData['sessionsHash'];
 
         $submissions = $user ? AssignmentSubmission::where('student_user_id', $user->id)
             ->with([
@@ -373,6 +254,8 @@ class StudentPortalController extends Controller
             'exceptions'             => $exceptions,
             'teacherNotes'           => $teacherNotes,
             'userNotifications'      => $userNotifications,
+            'liveCount'              => $liveCount,
+            'sessionsHash'           => $sessionsHash,
             // KPI cards
             'attendedSessions'       => $attendedSessions,
             'totalSessionCount'      => $totalSessionCount,
@@ -383,6 +266,242 @@ class StudentPortalController extends Controller
             'notifCurrentPage'       => $notifCurrentPage,
             'notifLastPage'          => $notifLastPage,
             'totalAlertsCount'       => $totalAlertsCount,
+        ]);
+    }
+
+    /**
+     * Reusable logic to calculate, filter, and categorize student sessions with high-precision hash.
+     */
+    public function getStudentSessionsData(?\App\Models\User $user, ?\Carbon\Carbon $now = null): array
+    {
+        $now = $now ?: now();
+
+        $package = $user ? StudentPackage::where('student_user_id', $user->id)
+            ->with('packageTemplate')
+            ->orderBy('created_at', 'desc')
+            ->first() : null;
+
+        $hasActivePackage = $package && $package->status === 'active' && $package->remaining_sessions > 0 && (! $package->expires_at || $package->expires_at->isFuture());
+
+        $enrollments = $user ? CourseEnrollment::where('student_user_id', $user->id)
+            ->with([
+                'course.subject',
+                'course.teacher.user',
+                'course.sessions.assignments',
+                'course.liveSessions.teacherProfile.user',
+                'course.gradeLevel',
+                'progress'
+            ])
+            ->latest('created_at')
+            ->get() : collect();
+
+        $enrolledCourseIds = $enrollments->pluck('course_id')->filter()->toArray();
+
+        // Also resolve any course IDs and session IDs linked via direct 1:1 sessions or student_sessions
+        $assignedSessionCourseIds = $user ? LiveSession::where('student_user_id', $user->id)
+            ->whereNotNull('course_id')
+            ->pluck('course_id')
+            ->toArray() : [];
+
+        $studentSessionCourseIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
+            ->join('live_sessions', 'student_sessions.live_session_id', '=', 'live_sessions.id')
+            ->where('student_sessions.student_user_id', $user->id)
+            ->whereNotNull('live_sessions.course_id')
+            ->pluck('live_sessions.course_id')
+            ->toArray() : [];
+
+        $allStudentCourseIds = array_values(array_unique(array_filter(array_merge(
+            $enrolledCourseIds,
+            $assignedSessionCourseIds,
+            $studentSessionCourseIds
+        ))));
+
+        $allStudentSessionIds = $user ? \Illuminate\Support\Facades\DB::table('student_sessions')
+            ->where('student_user_id', $user->id)
+            ->pluck('live_session_id')
+            ->toArray() : [];
+
+        $directLiveSessionIds = $user ? LiveSession::where('student_user_id', $user->id)
+            ->pluck('id')
+            ->toArray() : [];
+
+        $visibleSessionIds = $user ? LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
+            ->pluck('id')
+            ->toArray() : [];
+
+        $allSessionIds = array_values(array_unique(array_filter(array_merge(
+            $directLiveSessionIds,
+            $allStudentSessionIds,
+            $visibleSessionIds
+        ))));
+
+        $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
+            ->where(function ($q) {
+                $q->whereNull('course_id')
+                  ->orWhereHas('course', function ($cQuery) {
+                      $cQuery->where('is_active', true);
+                  });
+            })
+            ->with(['teacherProfile.user', 'subject', 'course', 'attendances'])
+            ->orderBy('scheduled_at', 'asc')
+            ->get()
+            ->filter(function ($session) use ($user, $hasActivePackage) {
+                if ($session->course && ! $session->course->is_active) {
+                    return false;
+                }
+                // If session is NOT a free demo, it strictly REQUIRES an active paid package!
+                if (! $session->is_free_demo_session) {
+                    return $hasActivePackage;
+                }
+                // If it IS a free demo session, it is visible for free trial
+                return true;
+            })
+            ->unique('id')
+            ->values() : collect();
+
+        // Categorize sessions for professional tabs & clean pagination
+        $startingSoonSessions = collect();
+        $upcomingScheduledSessions = collect();
+        $endedSessionsHistory = collect();
+
+        foreach ($upcomingSessions as $session) {
+            $state = $session->evaluateState($user, $now);
+            $startAt = $session->effective_start_at;
+            $endAt = $session->effective_end_at;
+            $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher'], true);
+            $isCompleted = $session->status === 'completed' || $state === \App\Enums\LiveSessionState::ENDED;
+            $isPast = ($endAt && $endAt->isPast()) || ($startAt && $startAt->isPast() && (!$endAt || $endAt->isPast()));
+
+            // 1. Ended & Past Session History
+            if ($isCompleted || $isCancelled || ($isPast && $state !== \App\Enums\LiveSessionState::LIVE)) {
+                $endedSessionsHistory->push($session);
+                continue;
+            }
+
+            // 2. Starting Soon & Live (Live right now, or starting today, or within the next 24 hours)
+            $isLive = ($state === \App\Enums\LiveSessionState::LIVE);
+            $isSoon = $startAt && ($startAt->isToday() || ($startAt->isFuture() && $startAt->diffInHours($now) <= 24));
+
+            if ($isLive || $isSoon) {
+                $startingSoonSessions->push($session);
+                continue;
+            }
+
+            // 3. Upcoming Scheduled Sessions (Future dates beyond 24h)
+            $upcomingScheduledSessions->push($session);
+        }
+
+        // Sort Starting Soon: LIVE sessions first, then earliest startAt
+        $startingSoonSessions = $startingSoonSessions->sortBy(function ($s) use ($user, $now) {
+            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE);
+            $ts = $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+            return $isLive ? 0 : $ts;
+        })->values();
+
+        // Sort Upcoming Scheduled by chronological order
+        $upcomingScheduledSessions = $upcomingScheduledSessions->sortBy(function ($s) {
+            return $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+        })->values();
+
+        // Sort Ended History: most recently ended/held first
+        $endedSessionsHistory = $endedSessionsHistory->sortByDesc(function ($s) {
+            return $s->effective_end_at ? $s->effective_end_at->timestamp : ($s->effective_start_at ? $s->effective_start_at->timestamp : 0);
+        })->values();
+
+        $liveCount = $startingSoonSessions->filter(function ($s) use ($user, $now) {
+            return $s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE;
+        })->count();
+
+        // Compute high-precision fingerprint signature
+        $fingerprintItems = [];
+        foreach ($upcomingSessions as $s) {
+            $evalState = $s->evaluateState($user, $now);
+            $updatedTs = $s->updated_at ? $s->updated_at->timestamp : 0;
+            $startTs = $s->effective_start_at ? $s->effective_start_at->timestamp : 0;
+            $endTs = $s->effective_end_at ? $s->effective_end_at->timestamp : 0;
+            $fingerprintItems[] = "{$s->id}:{$s->status}:{$evalState->value}:{$startTs}:{$endTs}:{$updatedTs}:{$s->meeting_link}:{$s->title}";
+        }
+
+        $packageFlag = $hasActivePackage ? '1' : '0';
+        $sessionsHash = md5(implode('|', $fingerprintItems) . "|p:{$packageFlag}|s:" . $startingSoonSessions->count() . "|u:" . $upcomingScheduledSessions->count() . "|h:" . $endedSessionsHistory->count());
+
+        return [
+            'package' => $package,
+            'hasActivePackage' => $hasActivePackage,
+            'enrollments' => $enrollments,
+            'allStudentCourseIds' => $allStudentCourseIds,
+            'allSessionIds' => $allSessionIds,
+            'upcomingSessions' => $upcomingSessions,
+            'startingSoonSessions' => $startingSoonSessions,
+            'upcomingScheduledSessions' => $upcomingScheduledSessions,
+            'endedSessionsHistory' => $endedSessionsHistory,
+            'liveCount' => $liveCount,
+            'sessionsHash' => $sessionsHash,
+        ];
+    }
+
+    /**
+     * Real-Time AJAX Feed for Student Portal Interactive Sessions Hub.
+     */
+    public function sessionsFeed(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $clientHash = $request->query('hash');
+        $now = now();
+        $sessionData = $this->getStudentSessionsData($user, $now);
+
+        if ($clientHash && $clientHash === $sessionData['sessionsHash']) {
+            return response()->json([
+                'success' => true,
+                'has_changes' => false,
+                'hash' => $sessionData['sessionsHash'],
+                'live_count' => $sessionData['liveCount'],
+            ]);
+        }
+
+        $isAr = app()->getLocale() === 'ar';
+        $userAuth = $user;
+
+        $soonHtml = view('pages.student.sections.partials.session_pane_soon', [
+            'startingSoonSessions' => $sessionData['startingSoonSessions'],
+            'isAr' => $isAr,
+            'userAuth' => $userAuth,
+            'now' => $now,
+        ])->render();
+
+        $upcomingHtml = view('pages.student.sections.partials.session_pane_upcoming', [
+            'upcomingScheduledSessions' => $sessionData['upcomingScheduledSessions'],
+            'isAr' => $isAr,
+            'userAuth' => $userAuth,
+            'now' => $now,
+        ])->render();
+
+        $historyHtml = view('pages.student.sections.partials.session_pane_history', [
+            'endedSessionsHistory' => $sessionData['endedSessionsHistory'],
+            'isAr' => $isAr,
+            'userAuth' => $userAuth,
+            'now' => $now,
+        ])->render();
+
+        return response()->json([
+            'success' => true,
+            'has_changes' => true,
+            'hash' => $sessionData['sessionsHash'],
+            'counts' => [
+                'soon' => count($sessionData['startingSoonSessions']),
+                'upcoming' => count($sessionData['upcomingScheduledSessions']),
+                'history' => count($sessionData['endedSessionsHistory']),
+                'live' => $sessionData['liveCount'],
+            ],
+            'panes' => [
+                'soon' => $soonHtml,
+                'upcoming' => $upcomingHtml,
+                'history' => $historyHtml,
+            ],
         ]);
     }
 }

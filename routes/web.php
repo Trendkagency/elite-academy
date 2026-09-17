@@ -93,6 +93,7 @@ Route::middleware(SetLocale::class)->group(function () {
             // Sessions & Stream Access
             Route::get('/ajax/sessions/{id}/access', [SessionController::class, 'show'])->name('ajax.session.access');
             Route::get('/ajax/live-sessions/{id}/access', [SessionController::class, 'liveSessionAccess'])->name('ajax.live-session.access');
+            Route::get('/ajax/student/sessions/feed', [\App\Http\Controllers\Student\StudentPortalController::class, 'sessionsFeed'])->name('ajax.student.sessions.feed');
             Route::post('/ajax/exceptions/submit', [SessionController::class, 'submitException'])->middleware('throttle:strict_actions')->name('ajax.exception.submit');
 
             // In-System Live Meeting & Attendance Routes
@@ -147,6 +148,7 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::get('/ajax/teacher/students/{studentUserId}/details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentDetails'])->name('ajax.teacher.students.details');
             Route::get('/teacher/students/{studentUserId}', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'showStudentProfile'])->name('teacher.students.show');
             Route::post('/ajax/teacher/students/{studentUserId}/notes', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'storeStudentNote'])->middleware('throttle:strict_actions')->name('ajax.teacher.students.notes.create');
+            Route::get('/ajax/teacher/students/{studentUserId}/courses', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentCourses'])->name('ajax.teacher.students.courses');
             Route::match(['get', 'post'], '/ajax/teacher/courses/{course_id}/students', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getStudentsByCourse'])->name('ajax.teacher.courses.students');
             Route::post('/ajax/teacher/exceptions/{id}/approve', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'approveException'])->middleware('throttle:strict_actions')->name('ajax.teacher.exceptions.approve');
             Route::post('/ajax/teacher/exceptions/{id}/reject', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'rejectException'])->middleware('throttle:strict_actions')->name('ajax.teacher.exceptions.reject');

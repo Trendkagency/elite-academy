@@ -366,7 +366,7 @@ class RecurringScheduleService
             $duration = (int) ($data['duration_minutes'] ?? $session->duration_minutes);
             $endAt = $scheduledAt->copy()->addMinutes($duration);
 
-            $session->update([
+            $updatePayload = [
                 'title' => $data['title'] ?? $session->title,
                 'scheduled_at' => $scheduledAt,
                 'start_at' => $scheduledAt,
@@ -378,7 +378,22 @@ class RecurringScheduleService
                 'override_reason' => $reason,
                 'status' => $data['status'] ?? $session->status,
                 'lifecycle_state' => $data['lifecycle_state'] ?? $session->lifecycle_state,
-            ]);
+            ];
+
+            if (array_key_exists('student_user_id', $data)) {
+                $updatePayload['student_user_id'] = ! empty($data['student_user_id']) ? (int) $data['student_user_id'] : null;
+            }
+
+            $session->update($updatePayload);
+
+            if (! empty($updatePayload['student_user_id'])) {
+                \App\Models\StudentSession::firstOrCreate([
+                    'student_user_id' => $updatePayload['student_user_id'],
+                    'live_session_id' => $session->id,
+                ], [
+                    'session_status' => 'scheduled',
+                ]);
+            }
 
             SessionAuditLog::create([
                 'user_id' => $user->id,
@@ -420,14 +435,29 @@ class RecurringScheduleService
                 $start = $newStartTime ? Carbon::parse($dateStr . ' ' . $newStartTime) : $session->scheduled_at;
                 $end = $start->copy()->addMinutes($newDuration);
 
-                $session->update([
+                $futurePayload = [
                     'title' => $data['title'] ?? $session->title,
                     'scheduled_at' => $start,
                     'start_at' => $start,
                     'end_at' => $end,
                     'duration_minutes' => $newDuration,
                     'meeting_link' => $data['meeting_link'] ?? $session->meeting_link,
-                ]);
+                ];
+
+                if (array_key_exists('student_user_id', $data)) {
+                    $futurePayload['student_user_id'] = ! empty($data['student_user_id']) ? (int) $data['student_user_id'] : null;
+                }
+
+                $session->update($futurePayload);
+
+                if (! empty($futurePayload['student_user_id'])) {
+                    \App\Models\StudentSession::firstOrCreate([
+                        'student_user_id' => $futurePayload['student_user_id'],
+                        'live_session_id' => $session->id,
+                    ], [
+                        'session_status' => 'scheduled',
+                    ]);
+                }
             }
 
             SessionAuditLog::create([

@@ -481,9 +481,12 @@
     window.switchPortalSection = switchStudentTab; // backward compatibility
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Live Sessions Sub-Tabs Controller
+    // Live Sessions Sub-Tabs Controller & Real-Time Sync
     // ─────────────────────────────────────────────────────────────────────────
+    let currentSessionSubTab = 'soon';
+
     function switchSessionSubTab(subTabKey) {
+        currentSessionSubTab = subTabKey;
         ['soon', 'upcoming', 'history'].forEach(key => {
             const pane = document.getElementById(`sessionPane_${key}`);
             const btn = document.getElementById(`sessionSubTab_${key}`);
@@ -513,6 +516,156 @@
         });
     }
     window.switchSessionSubTab = switchSessionSubTab;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Real-Time Sessions Sync Engine (Automatic live update on create/update/delete)
+    // ─────────────────────────────────────────────────────────────────────────
+    let studentSessionsHash = @json($sessionsHash ?? '');
+    let isSessionsPollingActive = false;
+
+    async function pollStudentSessions(forceImmediate = false) {
+        if (isSessionsPollingActive && !forceImmediate) return;
+        isSessionsPollingActive = true;
+
+        try {
+            const feedUrl = '{{ route('ajax.student.sessions.feed') }}?hash=' + encodeURIComponent(studentSessionsHash);
+            const res = await fetch(feedUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                isSessionsPollingActive = false;
+                return;
+            }
+
+            const data = await res.json();
+            if (data && data.success && data.has_changes) {
+                const prevHash = studentSessionsHash;
+                studentSessionsHash = data.hash;
+
+                // 1. Update Subpane HTML contents
+                if (data.panes) {
+                    const paneSoon = document.getElementById('sessionPane_soon');
+                    const paneUpcoming = document.getElementById('sessionPane_upcoming');
+                    const paneHistory = document.getElementById('sessionPane_history');
+
+                    if (paneSoon && data.panes.soon !== undefined) paneSoon.innerHTML = data.panes.soon;
+                    if (paneUpcoming && data.panes.upcoming !== undefined) paneUpcoming.innerHTML = data.panes.upcoming;
+                    if (paneHistory && data.panes.history !== undefined) paneHistory.innerHTML = data.panes.history;
+
+                    // Ensure user's current subtab remains active and others hidden
+                    ['soon', 'upcoming', 'history'].forEach(key => {
+                        const pane = document.getElementById(`sessionPane_${key}`);
+                        if (pane) {
+                            if (key === currentSessionSubTab) {
+                                pane.classList.remove('hidden');
+                            } else {
+                                pane.classList.add('hidden');
+                            }
+                        }
+                    });
+                }
+
+                // 2. Update Badge Counts
+                if (data.counts) {
+                    const badgeSoon = document.querySelector('#sessionSubTab_soon .sub-tab-badge');
+                    const badgeUpcoming = document.querySelector('#sessionSubTab_upcoming .sub-tab-badge');
+                    const badgeHistory = document.querySelector('#sessionSubTab_history .sub-tab-badge');
+
+                    if (badgeSoon) badgeSoon.textContent = data.counts.soon;
+                    if (badgeUpcoming) badgeUpcoming.textContent = data.counts.upcoming;
+                    if (badgeHistory) badgeHistory.textContent = data.counts.history;
+
+                    // Live Ping indicator on Sub-tab
+                    const subtabPingWrapper = document.querySelector('#sessionSubTab_soon .relative.flex');
+                    if (subtabPingWrapper) {
+                        if (data.counts.live > 0) {
+                            subtabPingWrapper.innerHTML = `
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                            `;
+                        } else {
+                            subtabPingWrapper.innerHTML = `
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+                            `;
+                        }
+                    }
+                }
+
+                // 3. Re-initialize Countdowns
+                if (typeof initSessionCountdowns === 'function') {
+                    initSessionCountdowns();
+                }
+
+                // 4. Re-bind Elite Table Engine for updated session tables
+                if (typeof initEliteTables === 'function') {
+                    if (window.eliteTableInstances) {
+                        window.eliteTableInstances = window.eliteTableInstances.filter(inst => {
+                            return !inst.table || !inst.table.classList.contains('session-data-table');
+                        });
+                    }
+                    document.querySelectorAll('table.session-data-table').forEach(tbl => {
+                        delete tbl._eliteEngine;
+                        if (tbl.parentElement && tbl.parentElement.parentElement) {
+                            const oldFooters = tbl.parentElement.parentElement.querySelectorAll('.table-pagination-footer');
+                            oldFooters.forEach(f => f.remove());
+                        }
+                    });
+                    initEliteTables();
+                }
+
+                // 5. Re-apply any active search filter
+                if (typeof filterSessionsTable === 'function') {
+                    filterSessionsTable();
+                }
+
+                // 6. Flash Live Sync indicator
+                const syncPill = document.getElementById('sessionRealtimeStatus');
+                if (syncPill) {
+                    syncPill.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-100', 'dark:bg-emerald-900');
+                    setTimeout(() => {
+                        syncPill.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-100', 'dark:bg-emerald-900');
+                    }, 1200);
+                }
+
+                // 7. If this wasn't initial load and a session is live, alert student
+                if (prevHash && data.counts && data.counts.live > 0 && window.Toast) {
+                    window.Toast.info(
+                        isArLocale ? 'هناك حصة تفاعلية نشطة الآن! يمكنك الانضمام مباشرة.' : 'A live stream is active now! You can join directly.',
+                        isArLocale ? 'بث مباشر' : 'Live Session'
+                    );
+                }
+            }
+        } catch (err) {
+            console.debug('[Sessions RealTime] Sync error note:', err);
+        } finally {
+            isSessionsPollingActive = false;
+        }
+    }
+    window.pollStudentSessions = pollStudentSessions;
+
+    // Automatic Live Poll interval every 4.5s
+    setInterval(() => {
+        pollStudentSessions(false);
+    }, 4500);
+
+    // Immediate sync on tab focus or notification events
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            pollStudentSessions(true);
+        }
+    });
+
+    window.addEventListener('new-notification-received', () => {
+        setTimeout(() => pollStudentSessions(true), 300);
+    });
+
+    window.addEventListener('notifications-updated', () => {
+        pollStudentSessions(false);
+    });
 
     // ─────────────────────────────────────────────────────────────────────────
     // Universal EliteTableEngine: DataTable-Style Column Sorting & Progressive Scroll Loading / "See More..."
