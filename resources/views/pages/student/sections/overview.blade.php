@@ -1,6 +1,30 @@
-{{-- SECTION 1: OVERVIEW & DASHBOARD SUMMARY --}}
 <section id="sectionPane_overview" class="student-section-pane space-y-6 {{ $activeTab === 'overview' ? '' : 'hidden' }}">
     
+    {{-- Interactive Student Guide Welcome Banner --}}
+    <div class="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 border border-teal-500/30 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center gap-3.5 z-10">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 text-slate-950 flex items-center justify-center text-lg font-black shrink-0 shadow-md shadow-amber-400/20">
+                <i class="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
+            </div>
+            <div>
+                <h3 class="font-heading font-black text-sm sm:text-base text-white flex items-center gap-2">
+                    <span>{{ $isAr ? 'دليل الطالب التفاعلي والتجربة الحية لكافة أقسام البوابة' : 'Interactive Student Portal Guide & Live Demo' }}</span>
+                    <span class="text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">{{ $isAr ? 'جديد' : 'New' }}</span>
+                </h3>
+                <p class="text-xs text-slate-300 font-mono mt-0.5">
+                    {{ $isAr ? 'استكشف شرحاً شاملاً وتجربة محاكاة مباشرة للحصص، حل الواجبات، واحتساب رصيد الباقة بضغطة واحدة.' : 'Interactive guided tour with live classroom simulators, quiz solvers, and wallet breakdown.' }}
+                </p>
+            </div>
+        </div>
+
+        <button type="button" onclick="openStudentPreviewGuide('overview')"
+            class="btn-lift px-5 py-2.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 text-xs font-black rounded-xl shadow-md shadow-amber-400/25 cursor-pointer flex items-center gap-2 transition-all shrink-0 z-10 whitespace-nowrap self-stretch sm:self-auto justify-center">
+            <span>{{ $isAr ? 'بدء المعاينة والشرح' : 'Launch Interactive Guide' }}</span>
+            <i class="fa-solid fa-arrow-{{ $isAr ? 'left' : 'right' }} text-xs"></i>
+        </button>
+    </div>
+
     {{-- 4 Stat KPI Cards with Accent Borders & Fluid Typography --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         

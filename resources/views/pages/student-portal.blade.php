@@ -84,6 +84,11 @@
 
                 {{-- Quick Action Buttons --}}
                 <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <button type="button" onclick="openStudentPreviewGuide('overview')"
+                        class="btn-lift px-4 py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 text-xs sm:text-sm font-black rounded-2xl shadow-lg shadow-amber-400/25 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial group">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs sm:text-sm animate-pulse"></i>
+                        <span>{{ $isAr ? 'دليل الطالب والمعاينة التفاعلية' : 'Portal Guide & Live Demo' }}</span>
+                    </button>
                     <button type="button" onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
                         class="btn-lift px-4 py-2.5 sm:py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-extrabold rounded-2xl shadow-lg shadow-orange-500/20 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial">
                         <span><i class="fa-solid fa-file-signature"></i></span>
@@ -141,6 +146,7 @@
     {{-- 4. MODALS (MSQ Solver, Excuses, Homework Exceptions, Own Package Details, Course Syllabus) --}}
     {{-- ========================================================================= --}}
     @include('pages.student.sections.packages')
+    @include('components.student-preview-guide-modal')
 
     {{-- 1. Modal: Interactive MSQ Assignment Solver --}}
     <div id="takeMsqModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">

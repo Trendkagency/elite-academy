@@ -306,4 +306,67 @@ class TeacherPortalIntegrationTest extends TestCase
             ->assertSee('createSessionForCurrentStudent()', false)
             ->assertSee('createSessionStudentSelect', false);
     }
+
+    public function test_teacher_can_fetch_course_enrolled_students_without_422_error(): void
+    {
+        $studentUser = User::create([
+            'name' => 'Enrolled Student Maria',
+            'email' => 'maria@student.com',
+            'password' => bcrypt('password'),
+            'status' => AccountStatus::APPROVED,
+        ]);
+
+        \App\Models\CourseEnrollment::create([
+            'student_user_id' => $studentUser->id,
+            'course_id' => $this->course->id,
+            'status' => 'active',
+        ]);
+
+        // 1. GET route with URL route parameter: /ajax/teacher/courses/{course_id}/students
+        $response = $this->actingAs($this->teacherUser)
+            ->getJson("/ajax/teacher/courses/{$this->course->id}/students");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'students' => [
+                    [
+                        'id' => $studentUser->id,
+                        'name' => 'Enrolled Student Maria',
+                    ],
+                ],
+            ]);
+
+        // 2. POST route with URL route parameter
+        $postResponse = $this->actingAs($this->teacherUser)
+            ->postJson("/ajax/teacher/courses/{$this->course->id}/students");
+
+        $postResponse->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_teacher_can_preview_recurring_schedule(): void
+    {
+        $payload = [
+            'course_id' => $this->course->id,
+            'student_user_id' => '',
+            'start_date' => now()->format('Y-m-d'),
+            'end_date' => now()->addWeeks(4)->format('Y-m-d'),
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [0, 2],
+            'meeting_link' => '',
+        ];
+
+        $response = $this->actingAs($this->teacherUser)
+            ->postJson(route('ajax.teacher.recurring.preview'), $payload);
+
+        if ($response->status() !== 200) {
+            dump($response->json());
+        }
+
+        $response->assertStatus(200);
+    }
 }
+

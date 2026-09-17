@@ -23,6 +23,11 @@
                         onkeyup="filterSessionsTable()">
                     <i class="fa-solid fa-magnifying-glass absolute {{ $isAr ? 'right-3' : 'left-3' }} top-3 text-slate-400 text-xs"></i>
                 </div>
+                <button type="button" onclick="openStudentPreviewGuide('sessions')"
+                    class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                    <span>{{ $isAr ? 'معاينة وشرح الحصص' : 'Preview & Guide' }}</span>
+                </button>
                 <span class="text-xs font-mono font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 px-3 py-1.5 rounded-xl border border-teal-200/80 dark:border-teal-800 shadow-2xs whitespace-nowrap">
                     <i class="fa-solid fa-shield-halved"></i> 30-Min Join Rule Active
                 </span>

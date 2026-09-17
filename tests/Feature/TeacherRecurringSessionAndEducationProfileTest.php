@@ -481,4 +481,84 @@ class TeacherRecurringSessionAndEducationProfileTest extends TestCase
         $this->assertArrayHasKey('start_time_str', $calendarEvent);
         $this->assertArrayHasKey('end_time_str', $calendarEvent);
     }
+
+    public function test_teacher_can_create_recurring_schedule_specifically_for_one_student(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+        $endDate = Carbon::now()->startOfWeek()->addWeeks(3)->format('Y-m-d');
+
+        $response = $this->postJson(route('ajax.teacher.recurring.create'), [
+            'title' => '1:1 Private Quantum Tutoring',
+            'course_id' => $this->course->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => '16:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [1, 3], // Mon & Wed
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true);
+
+        $schedule = RecurringSchedule::where('title', '1:1 Private Quantum Tutoring')->first();
+        $this->assertNotNull($schedule);
+        $this->assertEquals($this->studentUser->id, $schedule->student_user_id);
+
+        $sessions = LiveSession::where('recurring_schedule_id', $schedule->id)->get();
+        $this->assertNotEmpty($sessions);
+
+        foreach ($sessions as $session) {
+            $this->assertEquals($this->studentUser->id, $session->student_user_id);
+            $this->assertDatabaseHas('student_sessions', [
+                'student_user_id' => $this->studentUser->id,
+                'live_session_id' => $session->id,
+                'session_status' => 'scheduled',
+            ]);
+        }
+    }
+
+    public function test_teacher_cannot_create_recurring_schedule_for_student_not_enrolled_in_course(): void
+    {
+        $this->actingAs($this->teacherUser);
+
+        $unenrolledStudent = User::create([
+            'name' => 'Unenrolled Student Ziyad',
+            'email' => 'ziyad@student.com',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+            'status' => \App\Enums\AccountStatus::APPROVED,
+        ]);
+
+        $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+        $endDate = Carbon::now()->startOfWeek()->addWeeks(2)->format('Y-m-d');
+
+        $response = $this->postJson(route('ajax.teacher.recurring.create'), [
+            'title' => 'Invalid Student Recurring Schedule',
+            'course_id' => $this->course->id,
+            'student_user_id' => $unenrolledStudent->id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [0],
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_teacher_portal_renders_student_selection_in_recurring_schedule_modal(): void
+    {
+        $response = $this->actingAs($this->teacherUser)->get('/teacher-portal');
+
+        $response->assertStatus(200)
+            ->assertSee('id="recPortalStudentSelect"', false)
+            ->assertSee('onRecurrenceStudentChange', false)
+            ->assertSee('id="recPortalStudentBadge"', false);
+    }
 }

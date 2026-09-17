@@ -3007,30 +3007,76 @@
                             class="input-mobile">
                     </div>
 
-                    {{-- Course & Students --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{-- Student & Course Selection (1-to-1 or Group Recurring Schedule) --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                        {{-- 1. Student Selector --}}
                         <div class="min-w-0">
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Course') }}
-                                *</label>
-                            <select name="course_id" id="recPortalCourseId" required class="input-mobile text-xs"
-                                onchange="fetchCourseStudents(this.value)">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label
+                                    class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-tag text-indigo-500"></i>
+                                    <span>{{ __('Target Student / Audience') }} *</span>
+                                </label>
+                                <span id="recPortalStudentBadge"
+                                    class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">{{ __('Group Schedule') }}</span>
+                            </div>
+                            <input type="hidden" id="recPortalStudentId" name="student_user_id" value="">
+                            <select id="recPortalStudentSelect"
+                                onchange="onRecurrenceStudentChange(this.value)"
+                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                                <option value="__group__">{{ __('👥 Group Schedule (All Enrolled Students)') }}</option>
+                                <optgroup label="{{ __('🎯 1-to-1 Private Recurring Schedule (Single Student)') }}">
+                                    @foreach ($assignedStudents as $st)
+                                        <option value="{{ $st->user_id }}">{{ $st->user?->name }} ({{ $st->gradeLevel?->name ?: ($isAr ? 'طالب' : 'Student') }})</option>
+                                    @endforeach
+                                </optgroup>
+                            </select>
+                            <p id="recPortalStudentHelp" class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
+                                {{ __('Select a specific student for a 1-to-1 recurring schedule, or keep Group for all enrolled students.') }}
+                            </p>
+                        </div>
+
+                        {{-- 2. Course Selection --}}
+                        <div class="min-w-0">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label
+                                    class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-book-open text-indigo-500"></i>
+                                    <span>{{ __('Course') }} *</span>
+                                </label>
+                            </div>
+                            <select name="course_id" id="recPortalCourseId" required
+                                onchange="onRecurrenceCourseChange(this.value)"
+                                class="input-mobile text-xs dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 <option value="">{{ __('Select Course') }}</option>
                                 @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}">{{ $course->title }}
-                                        ({{ $course->subject?->name }})</option>
+                                    <option value="{{ $course->id }}">{{ $course->title }} ({{ $course->subject?->name }})</option>
                                 @endforeach
                             </select>
+                            <p id="recPortalCourseHelp" class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
+                                {{ __('Course for the recurring lessons.') }}
+                            </p>
                         </div>
-                        <div class="min-w-0">
+                    </div>
+
+                    {{-- 3. Enrolled / Assigned Students Status Preview Box --}}
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Enrolled Students') }}</label>
-                            <div id="recPortalStudentsContainer"
-                                class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 min-h-[42px] text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center">
-                                <span
-                                    id="recPortalStudentsPlaceholder">{{ __('Select a course to load enrolled students') }}</span>
-                                <div id="recPortalStudentsList" class="hidden space-y-1 w-full"></div>
-                            </div>
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-graduate text-indigo-500"></i>
+                                <span id="recPortalStudentsBoxTitle">{{ __('Enrolled Students Preview') }}</span>
+                            </label>
+                            <span id="recPortalStudentsCount"
+                                class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-100 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800">0</span>
+                        </div>
+                        <div id="recPortalStudentsContainer"
+                            class="p-3 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 bg-slate-50/70 dark:bg-slate-800/40 min-h-[48px] max-h-[140px] overflow-y-auto custom-scrollbar flex items-center transition-all">
+                            <span id="recPortalStudentsPlaceholder" class="text-xs font-mono text-slate-400 dark:text-slate-500 italic flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info text-indigo-400 text-[11px]"></i>
+                                <span>{{ __('Select a course to view enrolled students, or select a student above.') }}</span>
+                            </span>
+                            <div id="recPortalStudentsList" class="hidden flex flex-wrap gap-2 w-full"></div>
                         </div>
                     </div>
 
@@ -3625,11 +3671,19 @@
                             </h4>
                             <p class="text-[11px] text-slate-500 font-mono">{{ __('All 1-to-1 and group live sessions for this student') }}</p>
                         </div>
-                        <button type="button" onclick="createSessionForCurrentStudent()"
-                            class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
-                            <i class="fa-solid fa-calendar-plus"></i>
-                            <span>{{ __('Schedule Session') }}</span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="createSessionForCurrentStudent()"
+                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                                <span>{{ __('Schedule Session') }}</span>
+                            </button>
+                            <button type="button" onclick="createRecurringScheduleForCurrentStudent()"
+                                class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                                title="{{ __('Create 1-to-1 recurring schedule for this student') }}">
+                                <i class="fa-solid fa-rotate"></i>
+                                <span>{{ __('Recurring Schedule') }}</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div
@@ -7237,6 +7291,24 @@
         }
         window.createSessionForCurrentStudent = createSessionForCurrentStudent;
 
+        // ── Quick Create Recurring Schedule For Current Student from Details Modal ────
+        function createRecurringScheduleForCurrentStudent(studentUserId) {
+            const targetUserId = studentUserId || currentViewingStudentId;
+            if (!targetUserId) {
+                if (typeof showTeacherToast === 'function') {
+                    showTeacherToast(isArLocale ? 'يرجى تحديد الطالب أولاً' : 'No student selected', false);
+                }
+                return;
+            }
+
+            if (typeof closeModal === 'function') {
+                closeModal('studentProfileModal');
+            }
+
+            window.openScheduleModal('recurringSchedulePortalModal', targetUserId);
+        }
+        window.createRecurringScheduleForCurrentStudent = createRecurringScheduleForCurrentStudent;
+
         // ════════════════════════════════════════════════════════════════════════
         // UNIVERSAL RESPONSIVE SECTION PAGINATOR ENGINE (SEE MORE & SCROLL LOADING)
         // ════════════════════════════════════════════════════════════════════════
@@ -8149,6 +8221,7 @@
         window.onAttendanceStatusRadioChange = onAttendanceStatusRadioChange;
         window.openCreateSessionModal = openCreateSessionModal;
         window.createSessionForCurrentStudent = createSessionForCurrentStudent;
+        window.createRecurringScheduleForCurrentStudent = createRecurringScheduleForCurrentStudent;
         window.onSessionStudentChange = onSessionStudentChange;
         window.openCreateAssignmentModal = function() {
             window.openModal('createAssignmentModal');
@@ -9924,8 +9997,35 @@
             // ════════════════════════════════════════════════════════════════
 
             // Open / close schedule modals
-            window.openScheduleModal = function(modalId) {
+            window.openScheduleModal = function(modalId, preSelectedStudentId = null) {
                 window.openModal(modalId);
+
+                if (modalId === 'recurringSchedulePortalModal') {
+                    const studentSelect = document.getElementById('recPortalStudentSelect');
+                    const studentHidden = document.getElementById('recPortalStudentId');
+
+                    if (preSelectedStudentId) {
+                        const targetId = parseInt(preSelectedStudentId, 10);
+                        if (studentSelect) {
+                            let optExists = Array.from(studentSelect.options).some(o => parseInt(o.value, 10) === targetId);
+                            if (!optExists) {
+                                const studentNameEl = document.getElementById('spModalName');
+                                const studentName = studentNameEl ? studentNameEl.textContent.trim() : `Student #${targetId}`;
+                                const newOpt = document.createElement('option');
+                                newOpt.value = targetId;
+                                newOpt.textContent = studentName;
+                                studentSelect.appendChild(newOpt);
+                            }
+                            studentSelect.value = targetId;
+                        }
+                        if (studentHidden) studentHidden.value = targetId;
+                        window.onRecurrenceStudentChange(targetId);
+                    } else if (!studentSelect || !studentSelect.value) {
+                        if (studentSelect) studentSelect.value = '__group__';
+                        if (studentHidden) studentHidden.value = '';
+                        window.onRecurrenceStudentChange('__group__');
+                    }
+                }
             };
 
             window.closeScheduleModal = function(modalId) {
@@ -9942,22 +10042,186 @@
                 }
             });
 
+            // ── Recurrence Student Selection Change Handler ───────────────────
+            window.onRecurrenceStudentChange = async function(selectedValue) {
+                const studentHidden = document.getElementById('recPortalStudentId');
+                const courseSelect = document.getElementById('recPortalCourseId');
+                const badge = document.getElementById('recPortalStudentBadge');
+                const boxTitle = document.getElementById('recPortalStudentsBoxTitle');
+                const placeholder = document.getElementById('recPortalStudentsPlaceholder');
+                const list = document.getElementById('recPortalStudentsList');
+                const countBadge = document.getElementById('recPortalStudentsCount');
+                const studentHelp = document.getElementById('recPortalStudentHelp');
+                const courseHelp = document.getElementById('recPortalCourseHelp');
+
+                if (selectedValue === '__group__' || !selectedValue) {
+                    if (studentHidden) studentHidden.value = '';
+                    if (badge) {
+                        badge.textContent = isArLocale ? 'جدول جماعي (كل الطلاب)' : 'Group Schedule';
+                        badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300';
+                    }
+                    if (boxTitle) {
+                        boxTitle.textContent = isArLocale ? 'الطلاب المسجلون في المقرر' : 'Enrolled Students Preview';
+                    }
+                    if (studentHelp) {
+                        studentHelp.textContent = isArLocale ? 'جدول جماعي: يتم إضافة جميع الطلاب المسجلين في الكورس تلقائياً.' : 'Group Schedule: All enrolled students will be assigned automatically.';
+                    }
+                    if (courseHelp) {
+                        courseHelp.textContent = isArLocale ? 'اختر المقرر لإنشاء جدول دوري لكل الطلاب المسجلين فيه.' : 'Select course for recurring group sessions.';
+                    }
+
+                    // Restore all teacher courses
+                    if (courseSelect) {
+                        const curVal = courseSelect.value;
+                        courseSelect.innerHTML = `<option value="">${isArLocale ? 'اختر المقرر...' : 'Select Course...'}</option>`;
+                        allTeacherCourses.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = `${c.title} (${c.subject_name})`;
+                            courseSelect.appendChild(opt);
+                        });
+                        if (curVal) courseSelect.value = curVal;
+                        courseSelect.disabled = false;
+                    }
+
+                    if (courseSelect && courseSelect.value) {
+                        window.fetchCourseStudents(courseSelect.value);
+                    } else {
+                        if (countBadge) {
+                            countBadge.classList.add('hidden');
+                            countBadge.textContent = '0';
+                        }
+                        if (placeholder && list) {
+                            placeholder.innerHTML = `<span class="flex items-center gap-2 text-slate-400 dark:text-slate-500 italic"><i class="fa-solid fa-circle-info text-indigo-400 text-[11px]"></i> <span>${isArLocale ? 'اختر المقرر لعرض الطلاب المسجلين فيه' : 'Select a course to load enrolled students'}</span></span>`;
+                            placeholder.classList.remove('hidden');
+                            list.classList.add('hidden');
+                            list.innerHTML = '';
+                        }
+                    }
+                    return;
+                }
+
+                // 1-to-1 Specific Student Selected
+                const studentUserId = parseInt(selectedValue, 10);
+                if (studentHidden) studentHidden.value = studentUserId;
+                if (badge) {
+                    badge.textContent = isArLocale ? 'جدول فردي 1:1 خاص' : '1-to-1 Private';
+                    badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300';
+                }
+                if (boxTitle) {
+                    boxTitle.textContent = isArLocale ? 'الطالب المستهدف للجلسات الفردية' : 'Assigned Student (1-to-1)';
+                }
+                if (studentHelp) {
+                    studentHelp.textContent = isArLocale ? 'تم تفعيل نمط الجلسات الفردية 1:1 لهذا الطالب فقط.' : '1-to-1 private recurring schedule active for this student.';
+                }
+
+                const studentSelectEl = document.getElementById('recPortalStudentSelect');
+                const studentLabel = studentSelectEl?.options[studentSelectEl.selectedIndex]?.textContent || `Student #${studentUserId}`;
+
+                if (countBadge) {
+                    countBadge.textContent = isArLocale ? 'طالب واحد (1:1)' : '1 Student (1:1)';
+                    countBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-900/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800';
+                    countBadge.classList.remove('hidden');
+                }
+
+                if (placeholder && list) {
+                    placeholder.classList.add('hidden');
+                    list.classList.remove('hidden');
+                    const initial = studentLabel.trim().charAt(0).toUpperCase();
+                    list.innerHTML = `<div class="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 text-xs">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                                ${initial}
+                            </span>
+                            <div class="min-w-0">
+                                <span class="font-extrabold text-slate-900 dark:text-white block truncate">${studentLabel}</span>
+                                <span class="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 font-semibold">${isArLocale ? 'جدول دوري فردي (حصة بحصة) يخصم من رصيد الطالب' : '1:1 Private sessions automatically assigned to this student'}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="window.onRecurrenceStudentChange('__group__')" class="px-2 py-1 bg-white dark:bg-slate-900 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-600 hover:text-rose-600 dark:text-slate-300 text-[10px] font-bold rounded-lg border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shrink-0">
+                            ${isArLocale ? 'تغيير إلى جماعي' : 'Switch to Group'}
+                        </button>
+                    </div>`;
+                }
+
+                // Dynamically fetch and filter courses for this student
+                if (courseSelect) {
+                    courseSelect.disabled = true;
+                    courseSelect.innerHTML = `<option value="">${isArLocale ? 'جاري تحميل كورسات الطالب...' : 'Loading student courses...'}</option>`;
+                    try {
+                        const res = await fetch(`${appBaseUrl}/ajax/teacher/students/${studentUserId}/courses`, {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await res.json();
+                        courseSelect.innerHTML = '';
+                        if (!res.ok || !data.success || !data.courses || data.courses.length === 0) {
+                            courseSelect.disabled = true;
+                            const noOpt = document.createElement('option');
+                            noOpt.value = '';
+                            noOpt.textContent = isArLocale ? 'لا توجد كورسات متاحة لهذا الطالب' : 'No courses available for this student';
+                            courseSelect.appendChild(noOpt);
+                            if (courseHelp) courseHelp.textContent = isArLocale ? 'هذا الطالب غير مسجل في أي من كورساتك النشطة.' : 'This student is not enrolled in any of your active courses.';
+                        } else {
+                            courseSelect.disabled = false;
+                            const chooseOpt = document.createElement('option');
+                            chooseOpt.value = '';
+                            chooseOpt.textContent = isArLocale ? 'اختر كورس الطالب...' : 'Select Course...';
+                            courseSelect.appendChild(chooseOpt);
+                            data.courses.forEach(c => {
+                                const opt = document.createElement('option');
+                                opt.value = c.id;
+                                opt.textContent = `${c.title} (${c.subject_name})`;
+                                courseSelect.appendChild(opt);
+                            });
+                            if (courseHelp) courseHelp.textContent = isArLocale ? 'تم حصر الكورسات على المسجلة لهذا الطالب فقط وفق منطق النظام.' : 'Showing only courses enrolled by this student.';
+                        }
+                    } catch (e) {
+                        courseSelect.innerHTML = `<option value="">${isArLocale ? 'خطأ في تحميل الكورسات' : 'Error loading courses'}</option>`;
+                        courseSelect.disabled = true;
+                    }
+                }
+            };
+
+            window.onRecurrenceCourseChange = function(courseId) {
+                const studentSelect = document.getElementById('recPortalStudentSelect');
+                const isGroup = !studentSelect || studentSelect.value === '__group__' || !studentSelect.value;
+                if (isGroup) {
+                    window.fetchCourseStudents(courseId);
+                }
+            };
+
+            window.selectRecurrenceStudent = function(studentUserId) {
+                const studentSelect = document.getElementById('recPortalStudentSelect');
+                if (studentSelect) {
+                    studentSelect.value = studentUserId;
+                    window.onRecurrenceStudentChange(studentUserId);
+                }
+            };
+
             // ── Fetch enrolled students for a course ────────────────────────
             window.fetchCourseStudents = async function(courseId) {
                 const placeholder = document.getElementById('recPortalStudentsPlaceholder');
                 const list = document.getElementById('recPortalStudentsList');
+                const countBadge = document.getElementById('recPortalStudentsCount');
                 if (!list || !placeholder) return;
+
                 if (!courseId) {
-                    placeholder.textContent = isArLocale ? 'اختر المقرر لتحميل الطلاب' :
-                        'Select a course to load enrolled students';
+                    if (countBadge) {
+                        countBadge.classList.add('hidden');
+                        countBadge.textContent = '0';
+                    }
+                    placeholder.innerHTML = `<span class="flex items-center gap-2 text-slate-400 dark:text-slate-500"><i class="fa-solid fa-arrow-left rtl:rotate-180 text-indigo-400 text-[11px]"></i> <span>${isArLocale ? 'اختر المقرر لتحميل الطلاب المسجلين' : 'Select a course to load enrolled students'}</span></span>`;
                     placeholder.classList.remove('hidden');
                     list.classList.add('hidden');
                     list.innerHTML = '';
                     return;
                 }
-                placeholder.textContent = isArLocale ? 'جاري تحميل الطلاب...' : 'Loading students...';
+
+                if (countBadge) countBadge.classList.add('hidden');
+                placeholder.innerHTML = `<span class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-medium animate-pulse"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>${isArLocale ? 'جاري تحميل الطلاب المسجلين...' : 'Loading enrolled students...'}</span></span>`;
                 placeholder.classList.remove('hidden');
                 list.classList.add('hidden');
+
                 try {
                     const res = await fetch(`/ajax/teacher/courses/${courseId}/students`, {
                         headers: {
@@ -9966,18 +10230,45 @@
                         }
                     });
                     const data = await res.json();
-                    if (data.success && data.students.length > 0) {
-                        list.innerHTML = data.students.map(s =>
-                            `<div class="flex items-center gap-2 py-1"><span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">${s.name.charAt(0)}</span><span class="text-slate-800 font-semibold">${s.name}</span></div>`
-                        ).join('');
+                    if (data.success && data.students && data.students.length > 0) {
+                        if (countBadge) {
+                            countBadge.textContent = isArLocale ?
+                                `${data.students.length} ${data.students.length > 2 ? 'طلاب' : (data.students.length === 2 ? 'طالبان' : 'طالب')}` :
+                                `${data.students.length} Student${data.students.length > 1 ? 's' : ''}`;
+                            countBadge.classList.remove('hidden');
+                        }
+
+                        list.innerHTML = data.students.map(s => {
+                            const initial = (s.name || 'S').trim().charAt(0).toUpperCase();
+                            return `<div class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/80 shadow-2xs hover:shadow-xs transition-all">
+                                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 via-indigo-600 to-teal-400 text-white font-black flex items-center justify-center text-[10px] shrink-0 shadow-2xs">
+                                    ${initial}
+                                </span>
+                                <span class="font-bold text-xs text-slate-800 dark:text-slate-100">${s.name}</span>
+                                <button type="button" onclick="window.selectRecurrenceStudent(${s.id})" title="${isArLocale ? 'جدولة دورية فردية 1:1 لهذا الطالب' : 'Make 1:1 schedule for this student'}" class="ms-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800 transition-colors cursor-pointer">
+                                    ${isArLocale ? 'تحديد 1:1' : '1:1'}
+                                </button>
+                            </div>`;
+                        }).join('');
+
                         placeholder.classList.add('hidden');
                         list.classList.remove('hidden');
                     } else {
-                        placeholder.textContent = isArLocale ? 'لا يوجد طلاب مسجلون في هذا المقرر' :
-                            'No enrolled students found for this course';
+                        if (countBadge) {
+                            countBadge.textContent = isArLocale ? '0 طلاب' : '0 Students';
+                            countBadge.classList.remove('hidden');
+                        }
+                        placeholder.innerHTML = `<span class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium text-xs"><i class="fa-solid fa-circle-info text-amber-500"></i> <span>${isArLocale ? 'لا يوجد طلاب مسجلون في هذا المقرر حالياً' : 'No enrolled students found for this course yet'}</span></span>`;
+                        placeholder.classList.remove('hidden');
+                        list.classList.add('hidden');
+                        list.innerHTML = '';
                     }
                 } catch (e) {
-                    placeholder.textContent = isArLocale ? 'فشل تحميل الطلاب' : 'Failed to load students';
+                    if (countBadge) countBadge.classList.add('hidden');
+                    placeholder.innerHTML = `<span class="flex items-center gap-2 text-rose-500 font-medium text-xs"><i class="fa-solid fa-circle-xmark"></i> <span>${isArLocale ? 'فشل تحميل الطلاب المسجلين' : 'Failed to load enrolled students'}</span></span>`;
+                    placeholder.classList.remove('hidden');
+                    list.classList.add('hidden');
+                    list.innerHTML = '';
                 }
             };
 
@@ -10015,15 +10306,63 @@
             window.previewPortalSchedule = async function() {
                 const form = document.getElementById('recurringSchedulePortalForm');
                 if (!form) return;
-                const formData = new FormData(form);
+
+                const courseSelect = document.getElementById('recPortalCourseId');
                 const previewContainer = document.getElementById('recPortalPreviewContainer');
                 const previewSummary = document.getElementById('recPortalPreviewSummary');
                 const conflictWarning = document.getElementById('recPortalConflictWarning');
                 const conflictText = document.getElementById('recPortalConflictText');
                 const previewList = document.getElementById('recPortalPreviewList');
+
+                // Client-side validation: Course must be selected
+                if (!courseSelect || !courseSelect.value) {
+                    if (previewContainer) previewContainer.classList.remove('hidden');
+                    if (previewSummary) previewSummary.innerHTML =
+                        `<i class="fa-solid fa-circle-exclamation text-amber-500"></i> ${isArLocale ? 'يرجى اختيار المقرر الدراسي أولاً لمعاينة الحصص والتعارضات' : 'Please select a course first to preview sessions'}`;
+                    if (courseSelect) {
+                        courseSelect.focus();
+                        courseSelect.classList.add('ring-2', 'ring-amber-400');
+                        setTimeout(() => courseSelect.classList.remove('ring-2', 'ring-amber-400'), 2500);
+                    }
+                    if (typeof showTeacherToast === 'function') {
+                        showTeacherToast(isArLocale ? 'يرجى اختيار المقرر الدراسي أولاً' : 'Please select a course first', false);
+                    }
+                    return;
+                }
+
+                // Client-side validation: Weekly recurrence must have at least one day selected
+                const recType = document.getElementById('recPortalType')?.value || 'weekly';
+                if (recType === 'weekly') {
+                    const checkedDays = form.querySelectorAll('input[name="days_of_week[]"]:checked');
+                    if (checkedDays.length === 0) {
+                        if (previewContainer) previewContainer.classList.remove('hidden');
+                        if (previewSummary) previewSummary.innerHTML =
+                            `<i class="fa-solid fa-circle-exclamation text-amber-500"></i> ${isArLocale ? 'يرجى تحديد يوم واحد على الأقل في أيام الأسبوع' : 'Please select at least one day of the week'}`;
+                        if (typeof showTeacherToast === 'function') {
+                            showTeacherToast(isArLocale ? 'يرجى تحديد يوم واحد على الأقل للتكرار' : 'Please select at least one day', false);
+                        }
+                        return;
+                    }
+                }
+
+                const formData = new FormData(form);
+
+                // Sanitize student_user_id in formData if empty or '__group__'
+                const studentVal = formData.get('student_user_id');
+                if (!studentVal || studentVal === '__group__') {
+                    formData.delete('student_user_id');
+                }
+
+                // Sanitize meeting_link in formData if empty
+                const linkVal = formData.get('meeting_link');
+                if (!linkVal || linkVal.trim() === '' || linkVal === 'https://...') {
+                    formData.delete('meeting_link');
+                }
+
                 if (previewContainer) previewContainer.classList.remove('hidden');
                 if (previewSummary) previewSummary.innerHTML =
-                    `<i class="fa-solid fa-spinner animate-spin"></i> ${isArLocale ? 'جاري الفحص...' : 'Checking dates and conflicts...'}`;
+                    `<i class="fa-solid fa-spinner animate-spin"></i> ${isArLocale ? 'جاري الفحص ومعاينة المواعيد والتعارضات...' : 'Checking dates and conflicts...'}`;
+
                 try {
                     const res = await fetch('{{ route('ajax.teacher.recurring.preview') }}', {
                         method: 'POST',
@@ -10034,7 +10373,7 @@
                         }
                     });
                     const data = await res.json();
-                    if (data.success) {
+                    if (res.ok && data.success) {
                         const total = data.total_sessions || 0;
                         const hasConflicts = data.has_conflicts || false;
                         if (previewSummary) previewSummary.innerHTML =
@@ -10066,12 +10405,16 @@
                             }
                         }
                     } else {
+                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat()[0] : (isArLocale ? 'فشل فحص المعاينة' : 'Preview failed'));
                         if (previewSummary) previewSummary.innerHTML =
-                            `<i class="fa-solid fa-triangle-exclamation text-red-500"></i> ${data.message || (isArLocale ? 'فشل المعاينة' : 'Preview failed')}`;
+                            `<i class="fa-solid fa-triangle-exclamation text-rose-500"></i> ${errorMsg}`;
+                        if (typeof showTeacherToast === 'function') {
+                            showTeacherToast(errorMsg, false);
+                        }
                     }
                 } catch (e) {
                     if (previewSummary) previewSummary.innerHTML =
-                        `<i class="fa-solid fa-triangle-exclamation text-red-500"></i> ${isArLocale ? 'خطأ في الاتصال' : 'Connection error'}`;
+                        `<i class="fa-solid fa-triangle-exclamation text-rose-500"></i> ${isArLocale ? 'خطأ في الاتصال بالخادم' : 'Connection error'}`;
                 }
             };
 

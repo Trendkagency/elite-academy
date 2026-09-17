@@ -10,6 +10,12 @@
                         <i class="fa-solid fa-bell text-teal-600 dark:text-teal-400"></i>
                         <span>{{ __('app.portal.notifications') }}</span>
                     </h3>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openStudentPreviewGuide('notifications')"
+                        class="btn-lift px-3 py-1 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                        <span>{{ $isAr ? 'معاينة وشرح' : 'Preview' }}</span>
+                    </button>
                     <span id="notifTotalAlerts" class="text-xs font-mono font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200/80 dark:border-teal-800">
                         {{ $totalAlertsCount }} Alerts
                     </span>

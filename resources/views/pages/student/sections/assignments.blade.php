@@ -26,6 +26,11 @@
 
             {{-- Metric Badges --}}
             <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="openStudentPreviewGuide('assignments')"
+                    class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-2xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                    <span>{{ $isAr ? 'معاينة وشرح الواجبات' : 'Preview & Guide' }}</span>
+                </button>
                 <span class="text-xs font-mono font-extrabold bg-teal-100 dark:bg-teal-950/80 text-teal-900 dark:text-teal-200 px-3.5 py-1.5 rounded-2xl border border-teal-200 dark:border-teal-800 shadow-2xs whitespace-nowrap">
                     <i class="fa-solid fa-layer-group text-teal-600"></i> {{ $totalAssignmentsCount }} {{ $isAr ? 'إجمالي الواجبات' : 'Total' }}
                 </span>

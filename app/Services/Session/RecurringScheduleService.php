@@ -322,7 +322,7 @@ class RecurringScheduleService
                 $start = Carbon::parse($item['date'] . ' ' . $item['start_time']);
                 $end = Carbon::parse($item['date'] . ' ' . $item['end_time']);
 
-                LiveSession::create([
+                $session = LiveSession::create([
                     'title' => $schedule->title . ' (' . ($idx + 1) . ')',
                     'student_user_id' => $studentUserId,
                     'teacher_profile_id' => $teacherProfileId,
@@ -339,6 +339,15 @@ class RecurringScheduleService
                     'lifecycle_state' => 'scheduled',
                     'is_override' => false,
                 ]);
+
+                if ($studentUserId) {
+                    \App\Models\StudentSession::updateOrCreate([
+                        'student_user_id' => $studentUserId,
+                        'live_session_id' => $session->id,
+                    ], [
+                        'session_status' => 'scheduled',
+                    ]);
+                }
             }
 
             SessionAuditLog::create([

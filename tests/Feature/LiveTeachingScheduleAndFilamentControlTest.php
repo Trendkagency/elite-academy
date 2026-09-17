@@ -89,6 +89,12 @@ class LiveTeachingScheduleAndFilamentControlTest extends TestCase
             'slug' => 'quantum-mechanics-2026',
             'is_active' => true,
         ]);
+
+        \App\Models\CourseEnrollment::create([
+            'course_id' => $this->course->id,
+            'student_user_id' => $this->studentUser->id,
+            'status' => 'active',
+        ]);
     }
 
     /**

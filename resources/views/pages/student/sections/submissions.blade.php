@@ -16,9 +16,16 @@
                 </p>
             </div>
 
-            <span class="text-xs font-mono font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 self-start sm:self-auto shadow-2xs">
-                {{ count($submissions) }} {{ $isAr ? 'تسليمات سابقة' : 'Submitted' }}
-            </span>
+            <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                <button type="button" onclick="openStudentPreviewGuide('submissions')"
+                    class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                    <span>{{ $isAr ? 'معاينة وشرح الدرجات' : 'Preview & Guide' }}</span>
+                </button>
+                <span class="text-xs font-mono font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs">
+                    {{ count($submissions) }} {{ $isAr ? 'تسليمات سابقة' : 'Submitted' }}
+                </span>
+            </div>
         </div>
 
         {{-- Course Filter Chips for Submissions --}}

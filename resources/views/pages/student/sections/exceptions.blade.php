@@ -17,6 +17,11 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5">
+                <button type="button" onclick="openStudentPreviewGuide('exceptions')"
+                    class="btn-lift px-3.5 py-2.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-2xl text-xs font-black shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                    <span>{{ $isAr ? 'معاينة وشرح الأعذار' : 'Preview & Guide' }}</span>
+                </button>
                 <button type="button" onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal').classList.remove('hidden')"
                     class="btn-lift px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-slate-950 rounded-2xl text-xs font-extrabold shadow-sm flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-file-signature"></i>

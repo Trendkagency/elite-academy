@@ -18,10 +18,17 @@
                 </div>
             </div>
 
-            <button type="button" onclick="window.closeModal ? window.closeModal('studentOwnPackageModal') : document.getElementById('studentOwnPackageModal').classList.add('hidden')"
-                class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" aria-label="Close">
-                <i class="fa-solid fa-xmark text-base"></i>
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="openStudentPreviewGuide('packages')"
+                    class="btn-lift px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
+                    <span>{{ $isAr ? 'شرح الرصيد' : 'Credits Guide' }}</span>
+                </button>
+                <button type="button" onclick="window.closeModal ? window.closeModal('studentOwnPackageModal') : document.getElementById('studentOwnPackageModal').classList.add('hidden')"
+                    class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" aria-label="Close">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
         </div>
 
         @if($package)

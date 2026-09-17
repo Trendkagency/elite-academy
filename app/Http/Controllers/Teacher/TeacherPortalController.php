@@ -352,7 +352,37 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $validated = $request->validate([
+        // Pre-sanitize student_user_id and meeting links
+        $studentInput = $request->input('student_user_id');
+        if (empty($studentInput) || $studentInput === '__group__' || $studentInput === 'null' || $studentInput === '0') {
+            $request->merge(['student_user_id' => null]);
+        } else {
+            $request->merge(['student_user_id' => (int) $studentInput]);
+        }
+
+        $linkInput = trim((string) $request->input('meeting_link'));
+        if ($linkInput === '' || $linkInput === 'https://...' || $linkInput === 'http://...') {
+            $request->merge(['meeting_link' => null]);
+        } elseif (! str_starts_with($linkInput, 'http://') && ! str_starts_with($linkInput, 'https://')) {
+            $request->merge(['meeting_link' => 'https://' . $linkInput]);
+        }
+
+        if ($request->has('day_meeting_links') && is_array($request->input('day_meeting_links'))) {
+            $cleanedDayLinks = [];
+            foreach ($request->input('day_meeting_links') as $k => $val) {
+                $v = trim((string) $val);
+                if ($v === '' || $v === 'https://...' || $v === 'http://...') {
+                    continue;
+                }
+                if (! str_starts_with($v, 'http://') && ! str_starts_with($v, 'https://')) {
+                    $v = 'https://' . $v;
+                }
+                $cleanedDayLinks[$k] = $v;
+            }
+            $request->merge(['day_meeting_links' => $cleanedDayLinks]);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'course_id' => 'required|exists:courses,id',
             'student_user_id' => 'nullable|exists:users,id',
             'start_date' => 'required|date',
@@ -366,7 +396,43 @@ class TeacherPortalController extends Controller
             'day_meeting_links' => 'nullable|array',
             'monthly_pattern' => 'nullable|array',
             'meeting_link' => 'nullable|url|max:500',
+        ], [
+            'course_id.required' => __('Please select a course first to preview the schedule.'),
+            'course_id.exists' => __('The selected course was not found or is invalid.'),
+            'start_date.required' => __('Please select a start date.'),
+            'end_date.required' => __('Please select an end date.'),
+            'end_date.after_or_equal' => __('End date cannot be earlier than start date.'),
+            'start_time.required' => __('Please specify a start time.'),
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $course = Course::findOrFail($validated['course_id']);
+        if ((int) $course->teacher_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized: You do not own this course.'], 403);
+        }
+
+        $studentUserId = ! empty($validated['student_user_id']) ? (int) $validated['student_user_id'] : null;
+        if ($studentUserId) {
+            $isEnrolled = \App\Models\CourseEnrollment::where('student_user_id', $studentUserId)
+                ->where('course_id', $course->id)
+                ->exists();
+
+            if (! $isEnrolled) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Selected student is not enrolled in this course.'),
+                ], 422);
+            }
+        }
 
         $params = array_merge($validated, [
             'teacher_profile_id' => $teacherProfile->id,
@@ -400,7 +466,37 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $validated = $request->validate([
+        // Pre-sanitize student_user_id and meeting links
+        $studentInput = $request->input('student_user_id');
+        if (empty($studentInput) || $studentInput === '__group__' || $studentInput === 'null' || $studentInput === '0') {
+            $request->merge(['student_user_id' => null]);
+        } else {
+            $request->merge(['student_user_id' => (int) $studentInput]);
+        }
+
+        $linkInput = trim((string) $request->input('meeting_link'));
+        if ($linkInput === '' || $linkInput === 'https://...' || $linkInput === 'http://...') {
+            $request->merge(['meeting_link' => null]);
+        } elseif (! str_starts_with($linkInput, 'http://') && ! str_starts_with($linkInput, 'https://')) {
+            $request->merge(['meeting_link' => 'https://' . $linkInput]);
+        }
+
+        if ($request->has('day_meeting_links') && is_array($request->input('day_meeting_links'))) {
+            $cleanedDayLinks = [];
+            foreach ($request->input('day_meeting_links') as $k => $val) {
+                $v = trim((string) $val);
+                if ($v === '' || $v === 'https://...' || $v === 'http://...') {
+                    continue;
+                }
+                if (! str_starts_with($v, 'http://') && ! str_starts_with($v, 'https://')) {
+                    $v = 'https://' . $v;
+                }
+                $cleanedDayLinks[$k] = $v;
+            }
+            $request->merge(['day_meeting_links' => $cleanedDayLinks]);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'course_id' => 'required|exists:courses,id',
             'student_user_id' => 'nullable|exists:users,id',
@@ -417,11 +513,43 @@ class TeacherPortalController extends Controller
             'meeting_link' => 'nullable|url|max:500',
             'meeting_platform' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
+        ], [
+            'title.required' => __('Please provide a schedule title.'),
+            'course_id.required' => __('Please select a course first.'),
+            'course_id.exists' => __('The selected course was not found or is invalid.'),
+            'start_date.required' => __('Please select a start date.'),
+            'end_date.required' => __('Please select an end date.'),
+            'end_date.after_or_equal' => __('End date cannot be earlier than start date.'),
+            'start_time.required' => __('Please specify a start time.'),
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         $course = Course::findOrFail($validated['course_id']);
         if ((int) $course->teacher_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized: You do not own this course.'], 403);
+        }
+
+        $studentUserId = ! empty($validated['student_user_id']) ? (int) $validated['student_user_id'] : null;
+        if ($studentUserId) {
+            $isEnrolled = \App\Models\CourseEnrollment::where('student_user_id', $studentUserId)
+                ->where('course_id', $course->id)
+                ->exists();
+
+            if (! $isEnrolled) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Selected student is not enrolled in this course.'),
+                ], 422);
+            }
         }
 
         $data = array_merge($validated, [
@@ -430,6 +558,29 @@ class TeacherPortalController extends Controller
 
         try {
             $schedule = $service->createSchedule($data, auth()->user());
+
+            // Dispatch instant real-time notification to student if 1-to-1
+            if ($studentUserId) {
+                try {
+                    $fcmService = app(\App\Services\Notification\FcmNotificationService::class);
+                    $targetStudent = User::find($studentUserId);
+                    if ($targetStudent) {
+                        $fcmService->sendNotification(
+                            $targetStudent,
+                            'session_scheduled',
+                            __('New 1-to-1 Recurring Schedule Created'),
+                            __('Teacher :teacher created a recurring schedule ":title" with :count sessions.', [
+                                'teacher' => $teacherProfile->user?->name ?: __('Instructor'),
+                                'title' => $schedule->title,
+                                'count' => $schedule->sessions()->count(),
+                            ]),
+                            route('student-portal', ['tab' => 'sessions'])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Non-blocking notification
+                }
+            }
 
             return response()->json([
                 'success' => true,
@@ -2118,14 +2269,18 @@ class TeacherPortalController extends Controller
     /**
      * AJAX Endpoint: Get Students Enrolled in a Course (for Schedules Tab)
      */
-    public function getStudentsByCourse(Request $request): JsonResponse
+    public function getStudentsByCourse(Request $request, $course_id = null): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
         if (! $teacherProfile) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $courseId = $request->integer('course_id');
+        $courseId = (int) ($course_id 
+            ?: $request->route('course_id') 
+            ?: $request->route('course') 
+            ?: $request->input('course_id'));
+
         if (! $courseId) {
             return response()->json(['success' => false, 'message' => 'course_id required'], 422);
         }
@@ -2153,6 +2308,7 @@ class TeacherPortalController extends Controller
                 ];
             })
             ->filter()
+            ->unique('id')
             ->values();
 
         return response()->json(['success' => true, 'students' => $students]);
