@@ -51,7 +51,7 @@ class StudentPackageForm
                             ->relationship('packageTemplate', 'name',
                                 modifyQueryUsing: fn ($query) => $query->where('is_active', true)->latest('created_at')
                             )
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->sessions_count} " . __('sessions') . ($record->price ? " (" . format_currency($record->price) . ")" : ''))
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->sessions_count} " . __('sessions'))
                             ->searchable()
                             ->preload()
                             ->nullable()

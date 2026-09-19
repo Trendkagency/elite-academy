@@ -31,10 +31,6 @@ class PackageTemplatesTable
                     ->badge()
                     ->color('info')
                     ->sortable(),
-                TextColumn::make('price')
-                    ->label(__('Price'))
-                    ->formatStateUsing(fn ($state) => format_currency($state))
-                    ->sortable(),
                 IconColumn::make('is_active')
                     ->label(__('Active Status'))
                     ->boolean(),

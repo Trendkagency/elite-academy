@@ -129,7 +129,7 @@ class StudentPackagesTable
                                     ->label(__('Package Template (Optional)'))
                                     ->options(fn () => \App\Models\PackageTemplate::where('is_active', true)
                                         ->get()
-                                        ->mapWithKeys(fn ($t) => [$t->id => "{$t->name} — {$t->sessions_count} sessions" . ($t->price ? " (" . format_currency($t->price) . ")" : '')])
+                                        ->mapWithKeys(fn ($t) => [$t->id => "{$t->name} — {$t->sessions_count} sessions"])
                                         ->toArray()
                                     )
                                     ->live()

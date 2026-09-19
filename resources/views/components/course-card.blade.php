@@ -5,6 +5,7 @@
     $isEnrolled = $isEnrolled ?? false;
     $hasFreeDemo = $hasFreeDemo ?? true;
     $isArabic = app()->getLocale() === 'ar';
+    $sessionsCount = $sessionsCount ?? 12;
 @endphp
 
 <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-2xs hover-lift flex flex-col justify-between group">
@@ -38,7 +39,10 @@
         </div>
     </div>
     <div class="p-6 pt-0 border-t border-slate-100 flex items-center justify-between mt-4">
-        <span class="font-mono font-bold text-lg text-slate-900">{{ $price }}</span>
+        <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-teal-600"></i>
+            <span>{{ $sessionsCount }} {{ $isArabic ? 'حصة' : 'Sessions' }}</span>
+        </span>
         <div class="flex items-center gap-2">
             @if($isEnrolled)
                 <a href="{{ route('student-portal') }}" class="text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-xl transition-colors">

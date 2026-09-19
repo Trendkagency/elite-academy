@@ -118,7 +118,7 @@
                     {{ $isAr ? 'يمكنك تصفح باقات الأكاديمية والاشتراك لبدء حضور الحصص.' : 'Subscribe to an academic plan to access live streams and classes.' }}
                 </p>
                 <a href="{{ route('courses') }}" class="btn-lift inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold font-mono">
-                    <i class="fa-solid fa-cart-shopping"></i> {{ $isAr ? 'تصفح الباقات' : 'Browse Packages' }}
+                    <i class="fa-solid fa-graduation-cap"></i> {{ $isAr ? 'تصفح الكورسات' : 'Browse Courses' }}
                 </a>
             </div>
         @endif

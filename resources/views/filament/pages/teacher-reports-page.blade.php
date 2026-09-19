@@ -800,18 +800,14 @@
                                             </span>
                                         </div>
 
-                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;" class="dark:border-slate-800">
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;" class="dark:border-slate-800">
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Sessions') }}</div>
                                                 <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;">{{ $c->sessions_count ?: $c->sessions->count() }}</div>
                                             </div>
                                             <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
                                                 <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Students') }}</div>
-                                                <div style="font-weight: 800; font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;">{{ $c->enrollments->count() }}</div>
-                                            </div>
-                                            <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
-                                                <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Price') }}</div>
-                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->price ? format_currency($c->price) : __('Standard') }}</div>
+                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->enrollments->count() }}</div>
                                             </div>
                                         </div>
                                     </div>

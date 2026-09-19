@@ -208,8 +208,9 @@
             </div>
 
             <div style="display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
-                <div style="font-size:14px; font-weight:800; color:#ffffff;">
-                    <span>{{ format_currency(450) }}</span> <span style="font-size:10px; color:#64748b; font-weight:normal;">/ {{ app()->getLocale() === 'ar' ? 'شهرياً' : 'month' }}</span>
+                <div style="font-size:12px; font-weight:700; color:#2dd4bf; display:flex; align-items:center; gap:6px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#2dd4bf;"></span>
+                    <span>12 Sessions Included</span>
                 </div>
                 <button type="button" class="pv-btn-primary" style="padding:6px 14px; font-size:11px;">
                     Enroll Now

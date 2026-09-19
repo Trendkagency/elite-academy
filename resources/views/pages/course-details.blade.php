@@ -46,8 +46,6 @@
                     'offers' => [
                         '@type' => 'Offer',
                         'category' => 'Educational Track',
-                        'priceCurrency' => app_currency(),
-                        'price' => (string) ($course?->price ?? '0'),
                         'availability' => 'https://schema.org/InStock',
                     ],
                 ],
@@ -247,9 +245,24 @@
 
                     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
                         <div class="space-y-2 border-b border-slate-100 pb-4">
-                            <span class="text-xs font-mono font-extrabold text-slate-400 uppercase">{{ app()->getLocale() === 'ar' ? 'رسوم الدورة' : 'Tuition Fee' }}</span>
-                            <p class="font-mono text-3xl font-extrabold text-slate-900">{{ format_currency($course?->price ?: 290) }} <span
-                                    class="text-xs text-slate-400 font-normal">/ {{ app()->getLocale() === 'ar' ? 'فصل دراسي' : 'term' }}</span></p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono font-extrabold text-slate-400 uppercase">{{ app()->getLocale() === 'ar' ? 'بيانات الكورس' : 'Course Overview' }}</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'التسجيل متاح' : 'Open for Enrollment' }}</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs font-semibold text-slate-700 pt-1">
+                                <span class="flex items-center gap-1.5">
+                                    <i class="fa-solid fa-layer-group text-teal-600"></i>
+                                    <span>{{ $course?->sessions_count ?? 12 }} {{ app()->getLocale() === 'ar' ? 'حصة تعليمية' : 'Sessions' }}</span>
+                                </span>
+                                <span class="text-slate-300">|</span>
+                                <span class="flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-teal-600"></i>
+                                    <span>{{ $course?->session_duration_minutes ?? 60 }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'min' }}</span>
+                                </span>
+                            </div>
                         </div>
 
                         <div id="enrollAlert" class="hidden p-3 rounded-xl text-xs font-semibold"></div>

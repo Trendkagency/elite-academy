@@ -22,12 +22,6 @@ class PackageTemplateForm
                     ->required()
                     ->numeric()
                     ->default(12),
-                TextInput::make('price')
-                    ->label(__('Price'))
-                    ->required()
-                    ->numeric()
-                    ->default(150.00)
-                    ->prefix(fn () => currency_symbol()),
                 Textarea::make('description')
                     ->label(__('Package Plan Details & Perks'))
                     ->columnSpanFull(),
