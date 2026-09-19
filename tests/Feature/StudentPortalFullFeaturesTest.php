@@ -71,7 +71,7 @@ class StudentPortalFullFeaturesTest extends TestCase
         $this->actingAs($student);
 
         // Access Student Portal
-        $response = $this->get('/student-portal');
+        $response = $this->withSession(['locale' => 'en'])->get('/student-portal');
 
         $response->assertStatus(200)
             ->assertSee('طالب متميز')

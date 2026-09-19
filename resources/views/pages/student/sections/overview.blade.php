@@ -42,7 +42,7 @@
             <div>
                 <p class="font-heading font-black text-xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-none">
                     @if($hasActivePackage)
-                        {{ $package->remaining_sessions }} <span class="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400">{{ $isAr ? 'حصة متبقية' : 'Remaining' }}</span>
+                        {{ $package->remaining_sessions }} <span class="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400">{{ $isAr ? 'حصة متبقية' : 'Sessions Remaining' }}</span><span class="sr-only">{{ $package->remaining_sessions }} {{ $isAr ? 'حصة متبقية' : 'Sessions Remaining' }}</span>
                     @else
                         <span class="text-rose-600 dark:text-rose-400 text-base sm:text-lg font-bold">{{ $isAr ? 'لا توجد باقة نشطة (0 حصة)' : 'No Active Package' }}</span>
                     @endif

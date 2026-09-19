@@ -2969,7 +2969,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="recurringSchedulePortalModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
             style="padding-bottom: env(safe-area-inset-bottom)">
             {{-- Header --}}
             <div
@@ -3111,27 +3111,34 @@
                     </div>
 
                     {{-- Date Range & Main Meeting Link --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Start Date') }}
-                                *</label>
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar text-indigo-500"></i>
+                                <span>{{ __('Start Date') }} *</span>
+                            </label>
                             <input type="date" name="start_date" id="recPortalStartDate" required
-                                class="input-mobile" value="{{ today()->format('Y-m-d') }}"
+                                class="input-mobile font-mono text-xs" value="{{ today()->format('Y-m-d') }}"
                                 min="{{ today()->format('Y-m-d') }}" onchange="autoCalcEndDate()">
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('End Date') }}
-                                *</label>
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar-check text-indigo-500"></i>
+                                <span>{{ __('End Date') }} *</span>
+                            </label>
                             <input type="date" name="end_date" id="recPortalEndDate"
-                                value="{{ today()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile">
+                                value="{{ today()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile font-mono text-xs">
                         </div>
-                        <div>
+                        <div class="sm:col-span-2 lg:col-span-1">
                             <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Meeting Link') }}</label>
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-video text-indigo-500"></i>
+                                <span>{{ __('Default Meeting Link') }}</span>
+                            </label>
                             <input type="url" name="meeting_link" id="recPortalMeetingLink"
-                                placeholder="https://..." class="input-mobile">
+                                placeholder="https://zoom.us/j/... or classroom stream link" class="input-mobile font-mono text-xs">
                         </div>
                     </div>
 
@@ -3162,7 +3169,7 @@
                         </div>
 
                         {{-- Per-Day Cards Grid --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
                             @php
                                 $weekDaysPortalList = [
                                     ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
@@ -3180,49 +3187,71 @@
                                     $isDefaultChecked = in_array($wd['val'], [0, 2]); // Sun & Tue default
                                 @endphp
                                 <div id="recPortalDayCard_{{ $wd['val'] }}"
-                                    class="rec-portal-day-card p-3 rounded-2xl border transition-all flex flex-col justify-between space-y-2.5 {{ $isDefaultChecked ? 'is-selected-day bg-indigo-50/90 dark:bg-indigo-950/50 border-indigo-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60' }}">
+                                    class="rec-portal-day-card p-3 sm:p-3.5 rounded-2xl border transition-all flex flex-col justify-between space-y-2.5 min-w-0 {{ $isDefaultChecked ? 'is-selected-day bg-indigo-50/90 dark:bg-indigo-950/50 border-indigo-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700' }}">
 
-                                    {{-- Day Header Checkbox --}}
-                                    <div class="flex items-center justify-between">
-                                        <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
-                                                class="rec-portal-day-checkbox rounded w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 cursor-pointer"
-                                                {{ $isDefaultChecked ? 'checked' : '' }}
-                                                onchange="toggleDayTimeCard(this, 'recPortalDayCard_{{ $wd['val'] }}')">
+                                    {{-- Day Header --}}
+                                    <label class="block cursor-pointer select-none pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+                                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                    class="rec-portal-day-checkbox rounded w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 cursor-pointer shrink-0"
+                                                    {{ $isDefaultChecked ? 'checked' : '' }}
+                                                    onchange="toggleDayTimeCard(this, 'recPortalDayCard_{{ $wd['val'] }}')">
+                                            </div>
                                             <span
-                                                class="text-xs font-heading font-extrabold text-slate-900 dark:text-white">{{ $wd['label'] }}</span>
-                                        </label>
-                                        <span
-                                            class="rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md {{ $isDefaultChecked ? 'bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}">
-                                            {{ $isDefaultChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'غير محدد' : 'Off') }}
-                                        </span>
+                                                class="rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap {{ $isDefaultChecked ? 'bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500' }}">
+                                                {{ $isDefaultChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'عطلة' : 'Off') }}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm font-heading font-black text-slate-900 dark:text-white truncate" title="{{ $wd['label'] }}">
+                                            {{ $wd['label'] }}
+                                        </div>
+                                    </label>
+
+                                    {{-- Off state placeholder (shown when unchecked) --}}
+                                    <div class="rec-day-off-placeholder py-5 flex flex-col items-center justify-center text-center space-y-1.5 cursor-pointer select-none {{ $isDefaultChecked ? 'hidden' : '' }}"
+                                        onclick="const cb = document.querySelector('#recPortalDayCard_{{ $wd['val'] }} input[type=checkbox]'); if(cb){ cb.checked = true; toggleDayTimeCard(cb, 'recPortalDayCard_{{ $wd['val'] }}'); }">
+                                        <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-400 text-xs">
+                                            <i class="fa-regular fa-calendar-xmark"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500">{{ $isAr ? 'يوم عطلة' : 'Day Off' }}</span>
+                                        <span class="text-[10px] font-mono text-indigo-500 dark:text-indigo-400 font-bold hover:underline">{{ $isAr ? '+ اضغط للتفعيل' : '+ Click to add' }}</span>
                                     </div>
 
                                     {{-- Per-Day Time & Duration & Link Controls --}}
                                     <div
-                                        class="rec-day-time-container space-y-2 pt-2 border-t border-slate-200/60 dark:border-slate-800 {{ $isDefaultChecked ? '' : 'hidden' }}">
+                                        class="rec-day-time-container space-y-2 pt-1 {{ $isDefaultChecked ? '' : 'hidden' }}">
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Start Time') }}</label>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-regular fa-clock text-indigo-500 text-[10px]"></i>
+                                                <span>{{ __('Start Time') }}</span>
+                                            </label>
                                             <input type="time" name="day_start_times[{{ $wd['val'] }}]"
                                                 value="10:00"
-                                                class="rec-day-time-picker w-full text-xs font-mono font-bold px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                class="rec-day-time-picker w-full text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 shadow-2xs"
                                                 {{ $isDefaultChecked ? '' : 'disabled' }}>
                                         </div>
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Duration (Min)') }}</label>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-solid fa-stopwatch text-indigo-500 text-[10px]"></i>
+                                                <span>{{ __('Duration (Min)') }}</span>
+                                            </label>
                                             <input type="number" name="day_durations[{{ $wd['val'] }}]"
                                                 value="60" min="15" max="300"
-                                                class="rec-day-duration-picker w-full text-xs font-mono font-bold px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                class="rec-day-duration-picker w-full text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 shadow-2xs"
                                                 {{ $isDefaultChecked ? '' : 'disabled' }}>
                                         </div>
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{{ __('Meeting Link') }}</label>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-solid fa-link text-indigo-500 text-[10px]"></i>
+                                                <span>{{ __('Meeting Link') }}</span>
+                                            </label>
                                             <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
                                                 placeholder="https://..."
-                                                class="rec-day-link-picker w-full text-[11px] font-mono px-2 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                                class="rec-day-link-picker w-full text-[11px] font-mono px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 shadow-2xs"
                                                 {{ $isDefaultChecked ? '' : 'disabled' }}>
                                         </div>
                                     </div>
@@ -3274,7 +3303,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════════════ --}}
     <div id="editRecurringScheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
-        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-t-[28px] sm:rounded-[28px] max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto"
             style="padding-bottom: env(safe-area-inset-bottom)">
             {{-- Header --}}
             <div
@@ -3322,15 +3351,15 @@
                             <label
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Start Time') }}
                                 *</label>
-                            <input type="time" id="editRecStartTime" name="start_time" required
-                                class="input-mobile">
+                            <input type="time" id="editRecStartTime" name="start_time" value="10:00" required
+                                class="input-mobile font-mono">
                         </div>
                         <div>
                             <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Duration (Min)') }}
+                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Duration (Min)') }}
                                 *</label>
-                            <input type="number" id="editRecDuration" name="duration_minutes" value="60"
-                                min="15" max="300" required class="input-mobile">
+                            <input type="number" id="editRecDuration" name="duration_minutes" value="60" min="15"
+                                max="300" required class="input-mobile font-mono">
                         </div>
                     </div>
 
@@ -3375,7 +3404,7 @@
                         </div>
 
                         {{-- Per-Day Cards Grid --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
                             @php
                                 $editWeekDaysList = [
                                     ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
@@ -3389,23 +3418,36 @@
                             @endphp
                             @foreach ($editWeekDaysList as $wd)
                                 <div id="editRecDayCard_{{ $wd['val'] }}"
-                                    class="edit-rec-day-card p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60">
+                                    class="edit-rec-day-card p-3 sm:p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-2.5 min-w-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700">
 
                                     {{-- Day Header --}}
-                                    <label class="flex items-center justify-between gap-1.5 cursor-pointer select-none">
-                                        <div class="flex items-center gap-2 min-w-0">
-                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
-                                                id="editRecDayCheck_{{ $wd['val'] }}"
-                                                onchange="toggleEditDayTimeCard(this, 'editRecDayCard_{{ $wd['val'] }}')"
-                                                class="w-4 h-4 rounded-md border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer edit-rec-day-checkbox">
+                                    <label class="block cursor-pointer select-none pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+                                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                    id="editRecDayCheck_{{ $wd['val'] }}"
+                                                    onchange="toggleEditDayTimeCard(this, 'editRecDayCard_{{ $wd['val'] }}')"
+                                                    class="edit-rec-day-checkbox rounded w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700 cursor-pointer shrink-0">
+                                            </div>
                                             <span
-                                                class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $wd['label'] }}</span>
+                                                class="edit-rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                                {{ $isAr ? 'عطلة' : 'Off' }}
+                                            </span>
                                         </div>
-                                        <span
-                                            class="edit-rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400">
-                                            {{ $isAr ? 'غير محدد' : 'Off' }}
-                                        </span>
+                                        <div class="text-sm font-heading font-black text-slate-900 dark:text-white truncate" title="{{ $wd['label'] }}">
+                                            {{ $wd['label'] }}
+                                        </div>
                                     </label>
+
+                                    {{-- Off state placeholder (shown when unchecked) --}}
+                                    <div class="edit-rec-day-off-placeholder py-5 flex flex-col items-center justify-center text-center space-y-1.5 cursor-pointer select-none"
+                                        onclick="const cb = document.getElementById('editRecDayCheck_{{ $wd['val'] }}'); if(cb){ cb.checked = true; toggleEditDayTimeCard(cb, 'editRecDayCard_{{ $wd['val'] }}'); }">
+                                        <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-400 text-xs">
+                                            <i class="fa-regular fa-calendar-xmark"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500">{{ $isAr ? 'يوم عطلة' : 'Day Off' }}</span>
+                                        <span class="text-[10px] font-mono text-indigo-500 dark:text-indigo-400 font-bold hover:underline">{{ $isAr ? '+ اضغط للتفعيل' : '+ Click to add' }}</span>
+                                    </div>
 
                                     {{-- Time & Duration & Link inputs --}}
                                     <div class="edit-rec-day-time-container transition-all duration-200 space-y-2 hidden">
@@ -3976,7 +4018,7 @@
     <div id="recurringScheduleModal"
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md transition-all duration-300">
         <div
-            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative max-h-[92dvh] sm:max-h-[88vh] flex flex-col overflow-hidden my-auto">
             {{-- Modal Header --}}
             <div
                 class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
@@ -3988,13 +4030,12 @@
                                 class="fa-solid fa-arrows-rotate"></i></span>
                         <span>{{ __('Create Recurring Schedule') }}</span>
                     </h3>
-                    <p class="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
-                        {{ __('Automatically generate recurring class sessions with custom per-day schedules and conflict validation.') }}
+                    <p class="text-xs text-slate-500 mt-1">
+                        {{ __('Create recurring lesson schedules for your courses. Enrolled students are added automatically.') }}
                     </p>
                 </div>
                 <button type="button" onclick="closeModal('recurringScheduleModal')"
-                    aria-label="{{ __('Close') }}"
-                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all cursor-pointer active:scale-95"><i
+                    class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i
                         class="fa-solid fa-xmark text-sm"></i></button>
             </div>
 
@@ -4059,14 +4100,14 @@
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Main Start Time') }}
                                 *</label>
                             <input type="time" id="recStartTime" name="start_time" value="10:00" required
-                                class="input-mobile">
+                                class="input-mobile font-mono">
                         </div>
                         <div>
                             <label
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Default Duration (Min)') }}
                                 *</label>
                             <input type="number" id="recDuration" name="duration_minutes" value="60"
-                                min="15" max="300" required class="input-mobile">
+                                min="15" max="300" required class="input-mobile font-mono">
                         </div>
                     </div>
 
@@ -4076,14 +4117,14 @@
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Start Date') }}
                                 *</label>
                             <input type="date" id="recStartDate" name="start_date"
-                                value="{{ now()->format('Y-m-d') }}" required class="input-mobile">
+                                value="{{ now()->format('Y-m-d') }}" required class="input-mobile font-mono">
                         </div>
                         <div>
                             <label
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}
                                 *</label>
                             <input type="date" id="recEndDate" name="end_date"
-                                value="{{ now()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile">
+                                value="{{ now()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile font-mono">
                         </div>
                     </div>
 
@@ -4100,7 +4141,7 @@
                                     <span class="text-rose-500">*</span>
                                 </label>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                    {{ $isAr ? 'اختر الأيام المحددة للتكرار، يمكنك تحديد وقت خاص ومدة خاصة بكل يوم مستقبلي بشكل مستقل.' : 'Select days to recur and customize start times & durations independently per day.' }}
+                                    {{ $isAr ? 'اختر الأيام المحددة للتكرار، ويمكنك تحديد وقت خاص ومدة ورابط اجتماع لكل يوم مستقبلي بشكل مستقل.' : 'Select recurring days and customize start times, durations & links independently per day.' }}
                                 </p>
                             </div>
 
@@ -4114,7 +4155,7 @@
                         </div>
 
                         {{-- Per-Day Cards Grid --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
                             @php
                                 $weekDaysList = [
                                     ['val' => 6, 'name' => 'saturday', 'label' => __('Saturday')],
@@ -4131,73 +4172,77 @@
                                     $isChecked = in_array($wd['val'], [6, 0]);
                                 @endphp
                                 <div id="recDayCard_{{ $wd['val'] }}"
-                                    class="rec-day-card p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-3 {{ $isChecked ? 'is-selected-day bg-teal-50/90 dark:bg-teal-950/50 border-teal-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60' }}">
+                                    class="rec-day-card p-3 sm:p-3.5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-2.5 min-w-0 {{ $isChecked ? 'is-selected-day bg-teal-50/90 dark:bg-teal-950/50 border-teal-500 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700' }}">
 
                                     {{-- Day Header --}}
-                                    <label class="flex items-center justify-between gap-1.5 cursor-pointer select-none">
-                                        <div class="flex items-center gap-2 min-w-0">
-                                            <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
-                                                id="recDayCheck_{{ $wd['val'] }}" {{ $isChecked ? 'checked' : '' }}
-                                                onchange="toggleDayTimeCard(this, 'recDayCard_{{ $wd['val'] }}')"
-                                                class="w-4 h-4 rounded-md border-slate-300 text-teal-600 focus:ring-2 focus:ring-teal-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer rec-day-checkbox">
+                                    <label class="block cursor-pointer select-none pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+                                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <input type="checkbox" name="days_of_week[]" value="{{ $wd['val'] }}"
+                                                    id="recDayCheck_{{ $wd['val'] }}" {{ $isChecked ? 'checked' : '' }}
+                                                    onchange="toggleDayTimeCard(this, 'recDayCard_{{ $wd['val'] }}')"
+                                                    class="rec-day-checkbox rounded w-4 h-4 text-teal-600 focus:ring-teal-500 border-slate-300 dark:border-slate-700 cursor-pointer shrink-0">
+                                            </div>
                                             <span
-                                                class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $wd['label'] }}</span>
+                                                class="rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap {{ $isChecked ? 'bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500' }}">
+                                                {{ $isChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'عطلة' : 'Off') }}
+                                            </span>
                                         </div>
-                                        <span
-                                            class="rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md {{ $isChecked ? 'bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}">
-                                            {{ $isChecked ? ($isAr ? 'مُفَعَّل' : 'Active') : ($isAr ? 'غير محدد' : 'Off') }}
-                                        </span>
+                                        <div class="text-sm font-heading font-black text-slate-900 dark:text-white truncate" title="{{ $wd['label'] }}">
+                                            {{ $wd['label'] }}
+                                        </div>
                                     </label>
+
+                                    {{-- Off state placeholder (shown when unchecked) --}}
+                                    <div class="rec-day-off-placeholder py-5 flex flex-col items-center justify-center text-center space-y-1.5 cursor-pointer select-none {{ $isChecked ? 'hidden' : '' }}"
+                                        onclick="const cb = document.getElementById('recDayCheck_{{ $wd['val'] }}'); if(cb){ cb.checked = true; toggleDayTimeCard(cb, 'recDayCard_{{ $wd['val'] }}'); }">
+                                        <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-400 text-xs">
+                                            <i class="fa-regular fa-calendar-xmark"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500">{{ $isAr ? 'يوم عطلة' : 'Day Off' }}</span>
+                                        <span class="text-[10px] font-mono text-teal-600 dark:text-teal-400 font-bold hover:underline">{{ $isAr ? '+ اضغط للتفعيل' : '+ Click to add' }}</span>
+                                    </div>
 
                                     {{-- Time & Duration inputs --}}
                                     <div
-                                        class="rec-day-time-container transition-all duration-200 space-y-2 {{ $isChecked ? '' : 'hidden' }}">
+                                        class="rec-day-time-container transition-all duration-200 space-y-2 pt-1 {{ $isChecked ? '' : 'hidden' }}">
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                                                <i class="fa-solid fa-clock text-teal-500 text-[9px]"></i>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-regular fa-clock text-teal-500 text-[10px]"></i>
                                                 <span>{{ __('Start Time') }}</span>
                                             </label>
-                                            <div
-                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
-                                                <input type="time" name="day_start_times[{{ $wd['val'] }}]"
-                                                    id="recDayTime_{{ $wd['val'] }}" value="10:00"
-                                                    {{ $isChecked ? '' : 'disabled' }}
-                                                    aria-label="{{ $wd['label'] }} {{ __('Start Time') }}"
-                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center rec-day-time-picker">
-                                            </div>
+                                            <input type="time" name="day_start_times[{{ $wd['val'] }}]"
+                                                id="recDayTime_{{ $wd['val'] }}" value="10:00"
+                                                {{ $isChecked ? '' : 'disabled' }}
+                                                aria-label="{{ $wd['label'] }} {{ __('Start Time') }}"
+                                                class="rec-day-time-picker w-full text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 shadow-2xs">
                                         </div>
 
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                                                <i class="fa-solid fa-stopwatch text-teal-500 text-[9px]"></i>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-solid fa-stopwatch text-teal-500 text-[10px]"></i>
                                                 <span>{{ __('Duration (Min)') }}</span>
                                             </label>
-                                            <div
-                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
-                                                <input type="number" name="day_durations[{{ $wd['val'] }}]"
-                                                    id="recDayDuration_{{ $wd['val'] }}" value="60"
-                                                    min="15" max="300" {{ $isChecked ? '' : 'disabled' }}
-                                                    aria-label="{{ $wd['label'] }} {{ __('Duration') }}"
-                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-center rec-day-duration-picker">
-                                            </div>
+                                            <input type="number" name="day_durations[{{ $wd['val'] }}]"
+                                                id="recDayDuration_{{ $wd['val'] }}" value="60"
+                                                min="15" max="300" {{ $isChecked ? '' : 'disabled' }}
+                                                aria-label="{{ $wd['label'] }} {{ __('Duration') }}"
+                                                class="rec-day-duration-picker w-full text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 shadow-2xs">
                                         </div>
 
                                         <div>
                                             <label
-                                                class="block text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                                                <i class="fa-solid fa-link text-teal-500 text-[9px]"></i>
+                                                class="flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                                                <i class="fa-solid fa-link text-teal-500 text-[10px]"></i>
                                                 <span>{{ __('Day Meeting Link') }}</span>
                                             </label>
-                                            <div
-                                                class="flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 rounded-xl shadow-2xs focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
-                                                <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
-                                                    id="recDayLink_{{ $wd['val'] }}" placeholder="https://..."
-                                                    {{ $isChecked ? '' : 'disabled' }}
-                                                    aria-label="{{ $wd['label'] }} {{ __('Day Meeting Link') }}"
-                                                    class="w-full text-xs font-mono font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none p-0 border-none text-start truncate rec-day-link-picker">
-                                            </div>
+                                            <input type="url" name="day_meeting_links[{{ $wd['val'] }}]"
+                                                id="recDayLink_{{ $wd['val'] }}" placeholder="https://..."
+                                                {{ $isChecked ? '' : 'disabled' }}
+                                                aria-label="{{ $wd['label'] }} {{ __('Day Meeting Link') }}"
+                                                class="rec-day-link-picker w-full text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 shadow-2xs">
                                         </div>
                                     </div>
                                 </div>
@@ -9391,16 +9436,25 @@
                 const card = document.getElementById(cardId);
                 if (!card) return;
                 const timeContainer = card.querySelector('.rec-day-time-container');
+                const offPlaceholder = card.querySelector('.rec-day-off-placeholder');
                 const timeInput = card.querySelector('.rec-day-time-picker');
                 const durationInput = card.querySelector('.rec-day-duration-picker');
                 const linkInput = card.querySelector('.rec-day-link-picker');
                 const badge = card.querySelector('.rec-day-status-badge');
 
+                const isIndigo = card.classList.contains('rec-portal-day-card') || cardId.includes('Portal');
+                const activeBg = isIndigo ? 'bg-indigo-50/90' : 'bg-teal-50/90';
+                const activeDarkBg = isIndigo ? 'dark:bg-indigo-950/50' : 'dark:bg-teal-950/50';
+                const activeBorder = isIndigo ? 'border-indigo-500' : 'border-teal-500';
+                const badgeActiveClasses = isIndigo
+                    ? 'bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200'
+                    : 'bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200';
+
                 if (checkboxEl.checked) {
-                    card.classList.add('is-selected-day', 'bg-teal-50/90', 'dark:bg-teal-950/50',
-                        'border-teal-500', 'shadow-xs');
+                    card.classList.add('is-selected-day', activeBg, activeDarkBg, activeBorder, 'shadow-xs');
                     card.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200',
-                        'dark:border-slate-800', 'opacity-60');
+                        'dark:border-slate-800');
+                    if (offPlaceholder) offPlaceholder.classList.add('hidden');
                     if (timeContainer) timeContainer.classList.remove('hidden');
                     if (timeInput) timeInput.disabled = false;
                     if (durationInput) durationInput.disabled = false;
@@ -9409,26 +9463,101 @@
                         badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'مُفَعَّل' :
                             'Active';
                         badge.className =
-                            'rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-teal-100 dark:bg-teal-900/80 text-teal-800 dark:text-teal-200';
+                            `rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap ${badgeActiveClasses}`;
                     }
                 } else {
-                    card.classList.remove('is-selected-day', 'bg-teal-50/90', 'dark:bg-teal-950/50',
-                        'border-teal-500', 'shadow-xs');
+                    card.classList.remove('is-selected-day', activeBg, activeDarkBg, activeBorder, 'shadow-xs');
                     card.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200',
-                        'dark:border-slate-800', 'opacity-60');
+                        'dark:border-slate-800');
+                    if (offPlaceholder) offPlaceholder.classList.remove('hidden');
                     if (timeContainer) timeContainer.classList.add('hidden');
                     if (timeInput) timeInput.disabled = true;
                     if (durationInput) durationInput.disabled = true;
                     if (linkInput) linkInput.disabled = true;
                     if (badge) {
-                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'غير محدد' :
+                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'عطلة' :
                             'Off';
                         badge.className =
-                            'rec-day-status-badge text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400';
+                            'rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-500';
                     }
                 }
             };
             window.toggleDayTimeInput = window.toggleDayTimeCard;
+
+            window.toggleEditDayTimeCard = function(checkboxEl, cardId) {
+                const card = document.getElementById(cardId);
+                if (!card) return;
+                const timeContainer = card.querySelector('.edit-rec-day-time-container');
+                const offPlaceholder = card.querySelector('.edit-rec-day-off-placeholder');
+                const timeInput = card.querySelector('.edit-rec-day-time-picker');
+                const durationInput = card.querySelector('.edit-rec-day-duration-picker');
+                const linkInput = card.querySelector('.edit-rec-day-link-picker');
+                const badge = card.querySelector('.edit-rec-day-status-badge');
+
+                if (checkboxEl.checked) {
+                    card.classList.add('is-selected-day', 'bg-indigo-50/90', 'dark:bg-indigo-950/50',
+                        'border-indigo-500', 'shadow-xs');
+                    card.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200',
+                        'dark:border-slate-800');
+                    if (offPlaceholder) offPlaceholder.classList.add('hidden');
+                    if (timeContainer) timeContainer.classList.remove('hidden');
+                    if (timeInput) timeInput.disabled = false;
+                    if (durationInput) durationInput.disabled = false;
+                    if (linkInput) linkInput.disabled = false;
+                    if (badge) {
+                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'مُفَعَّل' :
+                            'Active';
+                        badge.className =
+                            'edit-rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200';
+                    }
+                } else {
+                    card.classList.remove('is-selected-day', 'bg-indigo-50/90', 'dark:bg-indigo-950/50',
+                        'border-indigo-500', 'shadow-xs');
+                    card.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200',
+                        'dark:border-slate-800');
+                    if (offPlaceholder) offPlaceholder.classList.remove('hidden');
+                    if (timeContainer) timeContainer.classList.add('hidden');
+                    if (timeInput) timeInput.disabled = true;
+                    if (durationInput) durationInput.disabled = true;
+                    if (linkInput) linkInput.disabled = true;
+                    if (badge) {
+                        badge.textContent = (typeof isArLocale !== 'undefined' && isArLocale) ? 'عطلة' :
+                            'Off';
+                        badge.className =
+                            'edit-rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-500';
+                    }
+                }
+            };
+
+            window.applyMainTimeToAllEditDays = function() {
+                const editForm = document.getElementById('editRecurringScheduleForm');
+                if (!editForm) return;
+                const mainStartTime = document.getElementById('editRecStartTime')?.value || '10:00';
+                const mainDuration = document.getElementById('editRecDuration')?.value || '60';
+                const mainLink = document.getElementById('editRecMeetingLink')?.value || '';
+
+                editForm.querySelectorAll('.edit-rec-day-time-picker').forEach(input => {
+                    input.value = mainStartTime;
+                });
+                editForm.querySelectorAll('.edit-rec-day-duration-picker').forEach(input => {
+                    input.value = mainDuration;
+                });
+                if (mainLink) {
+                    editForm.querySelectorAll('.edit-rec-day-link-picker').forEach(input => {
+                        input.value = mainLink;
+                    });
+                }
+
+                if (window.Toast) {
+                    window.Toast.success(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days');
+                } else if (typeof showTeacherToast === 'function') {
+                    showTeacherToast(typeof isArLocale !== 'undefined' && isArLocale ?
+                        'تم تطبيق الإعدادات الرئيسية على الأيام المحددة' :
+                        'Synced main settings to selected days', true);
+                }
+            };
 
             window.applyMainTimeToAllDays = function() {
                 const mainStartTime = document.getElementById('recStartTime')?.value || '10:00';

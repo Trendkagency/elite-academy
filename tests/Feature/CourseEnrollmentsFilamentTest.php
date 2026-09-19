@@ -115,6 +115,7 @@ class CourseEnrollmentsFilamentTest extends TestCase
             'ownerRecord' => $this->course,
             'pageClass' => CourseResource\Pages\EditCourse::class,
         ])
+            ->call('loadTable')
             ->assertSuccessful()
             ->assertSee('Student One')
             ->assertSee('Cohort Alpha');
