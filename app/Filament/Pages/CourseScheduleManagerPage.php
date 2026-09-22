@@ -39,7 +39,23 @@ class CourseScheduleManagerPage extends Page
     public string $selectedStatus = 'all';
 
     #[Url(as: 'sort')]
-    public string $sortBy = 'latest_created'; // 'latest_created', 'scheduled_asc', 'scheduled_desc'
+    public string $sortBy = 'latest_created'; // 'latest_created', 'scheduled_asc', 'scheduled_desc', 'custom'
+
+    // Datatable Column Sorting & Row Selection
+    #[Url(as: 'sort_field')]
+    public string $sortField = 'scheduled_at';
+
+    #[Url(as: 'sort_dir')]
+    public string $sortDirection = 'desc';
+
+    public array $selectedSessionIds = [];
+    public bool $selectAllSessions = false;
+
+    // Recurring Schedules Sorting & Selection
+    public string $recurringSortField = 'created_at';
+    public string $recurringSortDirection = 'desc';
+    public array $selectedRecurringIds = [];
+    public bool $selectAllRecurring = false;
 
     public string $searchQuery = '';
 
@@ -185,9 +201,162 @@ class CourseScheduleManagerPage extends Page
         $this->selectedCourseId = null;
         $this->selectedStatus = 'all';
         $this->sortBy = 'latest_created';
+        $this->sortField = 'scheduled_at';
+        $this->sortDirection = 'desc';
         $this->searchQuery = '';
         $this->dateFrom = null;
         $this->dateTo = null;
+        $this->selectedSessionIds = [];
+        $this->selectAllSessions = false;
+        $this->selectedRecurringIds = [];
+        $this->selectAllRecurring = false;
+    }
+
+    public function updatedSortBy(string $value): void
+    {
+        if ($value === 'scheduled_asc') {
+            $this->sortField = 'scheduled_at';
+            $this->sortDirection = 'asc';
+        } elseif ($value === 'scheduled_desc') {
+            $this->sortField = 'scheduled_at';
+            $this->sortDirection = 'desc';
+        } elseif ($value === 'latest_created') {
+            $this->sortField = 'created_at';
+            $this->sortDirection = 'desc';
+        }
+    }
+
+    public function sortByColumn(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = in_array($field, ['scheduled_at', 'created_at', 'duration']) ? 'desc' : 'asc';
+        }
+
+        if ($this->sortField === 'scheduled_at' && $this->sortDirection === 'asc') {
+            $this->sortBy = 'scheduled_asc';
+        } elseif ($this->sortField === 'scheduled_at' && $this->sortDirection === 'desc') {
+            $this->sortBy = 'scheduled_desc';
+        } elseif ($this->sortField === 'created_at' && $this->sortDirection === 'desc') {
+            $this->sortBy = 'latest_created';
+        } else {
+            $this->sortBy = 'custom';
+        }
+    }
+
+    public function sortRecurringByColumn(string $field): void
+    {
+        if ($this->recurringSortField === $field) {
+            $this->recurringSortDirection = $this->recurringSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->recurringSortField = $field;
+            $this->recurringSortDirection = in_array($field, ['created_at', 'sessions_count']) ? 'desc' : 'asc';
+        }
+    }
+
+    public function updatedSelectAllSessions(bool $value): void
+    {
+        if ($value) {
+            $this->selectedSessionIds = $this->sessionsList->pluck('id')->map(fn ($id) => (int) $id)->all();
+        } else {
+            $this->selectedSessionIds = [];
+        }
+    }
+
+    public function selectAllVisibleSessions(): void
+    {
+        $this->selectedSessionIds = $this->sessionsList->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->selectAllSessions = true;
+    }
+
+    public function deselectAllSessions(): void
+    {
+        $this->selectedSessionIds = [];
+        $this->selectAllSessions = false;
+    }
+
+    public function deleteSelectedSessions(): void
+    {
+        if (empty($this->selectedSessionIds)) {
+            return;
+        }
+
+        $query = LiveSession::whereIn('id', $this->selectedSessionIds);
+        if ($this->isTeacherOnly && $this->teacherProfileId) {
+            $query->where('teacher_profile_id', $this->teacherProfileId);
+        }
+
+        $sessions = $query->get();
+        $count = $sessions->count();
+
+        foreach ($sessions as $session) {
+            $session->delete();
+        }
+
+        $this->selectedSessionIds = [];
+        $this->selectAllSessions = false;
+
+        Notification::make()
+            ->title(__('Selected Sessions Deleted'))
+            ->body(__('Successfully deleted :count live session(s).', ['count' => $count]))
+            ->success()
+            ->send();
+    }
+
+    public function updatedSelectAllRecurring(bool $value): void
+    {
+        if ($value) {
+            $this->selectedRecurringIds = $this->recurringSchedulesList->pluck('id')->map(fn ($id) => (int) $id)->all();
+        } else {
+            $this->selectedRecurringIds = [];
+        }
+    }
+
+    public function selectAllVisibleRecurring(): void
+    {
+        $this->selectedRecurringIds = $this->recurringSchedulesList->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->selectAllRecurring = true;
+    }
+
+    public function deselectAllRecurring(): void
+    {
+        $this->selectedRecurringIds = [];
+        $this->selectAllRecurring = false;
+    }
+
+    public function deleteSelectedRecurringRules(): void
+    {
+        if (empty($this->selectedRecurringIds)) {
+            return;
+        }
+
+        $query = RecurringSchedule::whereIn('id', $this->selectedRecurringIds);
+        if ($this->isTeacherOnly && $this->teacherProfileId) {
+            $query->where('teacher_profile_id', $this->teacherProfileId);
+        }
+
+        $rules = $query->get();
+        $count = $rules->count();
+
+        foreach ($rules as $rule) {
+            LiveSession::where('recurring_schedule_id', $rule->id)
+                ->where('scheduled_at', '>', now())
+                ->where('status', 'scheduled')
+                ->delete();
+
+            $rule->delete();
+        }
+
+        $this->selectedRecurringIds = [];
+        $this->selectAllRecurring = false;
+
+        Notification::make()
+            ->title(__('Selected Recurring Rules Deleted'))
+            ->body(__('Successfully deleted :count recurring schedule(s).', ['count' => $count]))
+            ->success()
+            ->send();
     }
 
     // Dynamic Lists for Filters & Form Selectors
@@ -309,13 +478,52 @@ class CourseScheduleManagerPage extends Page
             });
         }
 
-        if ($this->sortBy === 'scheduled_asc') {
-            $query->orderBy('scheduled_at', 'asc')->orderBy('id', 'asc');
-        } elseif ($this->sortBy === 'scheduled_desc') {
-            $query->orderBy('scheduled_at', 'desc')->orderBy('id', 'desc');
-        } else {
-            // Default: 'latest_created' (Shows newly created sessions first)
-            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+        $dir = strtolower($this->sortDirection) === 'asc' ? 'asc' : 'desc';
+
+        switch ($this->sortField) {
+            case 'scheduled_at':
+                $query->orderBy('live_sessions.scheduled_at', $dir)->orderBy('live_sessions.id', $dir);
+                break;
+            case 'created_at':
+                $query->orderBy('live_sessions.created_at', $dir)->orderBy('live_sessions.id', $dir);
+                break;
+            case 'course':
+                $query->leftJoin('courses', 'live_sessions.course_id', '=', 'courses.id')
+                    ->select('live_sessions.*')
+                    ->orderBy('courses.title', $dir)
+                    ->orderBy('live_sessions.id', $dir);
+                break;
+            case 'student':
+                $query->leftJoin('users as students', 'live_sessions.student_user_id', '=', 'students.id')
+                    ->select('live_sessions.*')
+                    ->orderBy('students.name', $dir)
+                    ->orderBy('live_sessions.id', $dir);
+                break;
+            case 'teacher':
+                $query->leftJoin('teacher_profiles as tp', 'live_sessions.teacher_profile_id', '=', 'tp.id')
+                    ->leftJoin('users as teachers', 'tp.user_id', '=', 'teachers.id')
+                    ->select('live_sessions.*')
+                    ->orderBy('teachers.name', $dir)
+                    ->orderBy('live_sessions.id', $dir);
+                break;
+            case 'duration':
+                $query->orderBy('live_sessions.duration_minutes', $dir)->orderBy('live_sessions.id', $dir);
+                break;
+            case 'status':
+                $query->orderBy('live_sessions.status', $dir)->orderBy('live_sessions.scheduled_at', 'desc');
+                break;
+            case 'attendance':
+                $query->orderBy('live_sessions.attendance_status', $dir)->orderBy('live_sessions.scheduled_at', 'desc');
+                break;
+            default:
+                if ($this->sortBy === 'scheduled_asc') {
+                    $query->orderBy('live_sessions.scheduled_at', 'asc')->orderBy('live_sessions.id', 'asc');
+                } elseif ($this->sortBy === 'scheduled_desc') {
+                    $query->orderBy('live_sessions.scheduled_at', 'desc')->orderBy('live_sessions.id', 'desc');
+                } else {
+                    $query->orderBy('live_sessions.created_at', 'desc')->orderBy('live_sessions.id', 'desc');
+                }
+                break;
         }
 
         return $query->take(200)->get();
@@ -345,7 +553,43 @@ class CourseScheduleManagerPage extends Page
             $query->where('course_id', $this->selectedCourseId);
         }
 
-        return $query->orderBy('created_at', 'desc')->get();
+        $rDir = strtolower($this->recurringSortDirection) === 'asc' ? 'asc' : 'desc';
+
+        switch ($this->recurringSortField) {
+            case 'title':
+                $query->orderBy('title', $rDir);
+                break;
+            case 'course':
+                $query->leftJoin('courses', 'recurring_schedules.course_id', '=', 'courses.id')
+                    ->select('recurring_schedules.*')
+                    ->orderBy('courses.title', $rDir);
+                break;
+            case 'teacher':
+                $query->leftJoin('teacher_profiles as r_tp', 'recurring_schedules.teacher_profile_id', '=', 'r_tp.id')
+                    ->leftJoin('users as r_teach', 'r_tp.user_id', '=', 'r_teach.id')
+                    ->select('recurring_schedules.*')
+                    ->orderBy('r_teach.name', $rDir);
+                break;
+            case 'student':
+                $query->leftJoin('users as r_stu', 'recurring_schedules.student_user_id', '=', 'r_stu.id')
+                    ->select('recurring_schedules.*')
+                    ->orderBy('r_stu.name', $rDir);
+                break;
+            case 'time':
+                $query->orderBy('start_time', $rDir);
+                break;
+            case 'status':
+                $query->orderBy('status', $rDir);
+                break;
+            case 'sessions_count':
+                $query->orderBy('live_sessions_count', $rDir);
+                break;
+            default:
+                $query->orderBy('recurring_schedules.created_at', $rDir);
+                break;
+        }
+
+        return $query->get();
     }
 
     // Metrics Summary

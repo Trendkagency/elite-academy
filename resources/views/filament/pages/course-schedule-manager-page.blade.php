@@ -478,6 +478,142 @@
             .sch-tr:hover td {
                 background: var(--sch-bg-surface-subtle);
             }
+            .sch-tr-selected td {
+                background: rgba(13, 148, 136, 0.08) !important;
+            }
+            html.dark .sch-tr-selected td, .dark .sch-tr-selected td {
+                background: rgba(20, 184, 166, 0.14) !important;
+            }
+
+            /* ── Datatable Checkboxes & Sorting ── */
+            .sch-checkbox {
+                width: 1.15rem;
+                height: 1.15rem;
+                border-radius: 0.35rem;
+                border: 1.5px solid var(--sch-border);
+                accent-color: #0D9488;
+                cursor: pointer;
+                vertical-align: middle;
+                transition: all 0.15s ease;
+            }
+            .sch-checkbox:hover {
+                border-color: var(--sch-border-focus);
+            }
+            .sch-th-sortable {
+                cursor: pointer;
+                user-select: none;
+                transition: background-color 0.15s ease, color 0.15s ease;
+            }
+            .sch-th-sortable:hover {
+                background: rgba(13, 148, 136, 0.08);
+                color: var(--sch-text-primary);
+            }
+            .sch-th-sort-inner {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+            .sch-sort-icon {
+                width: 0.95rem;
+                height: 0.95rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+            }
+            .sch-sort-icon svg {
+                width: 0.95rem !important;
+                height: 0.95rem !important;
+            }
+            .sch-sort-icon.active {
+                color: #0D9488;
+            }
+            html.dark .sch-sort-icon.active, .dark .sch-sort-icon.active {
+                color: #14B8A6;
+            }
+            .sch-sort-icon.inactive {
+                color: var(--sch-text-muted);
+                opacity: 0.4;
+            }
+            .sch-th-sortable:hover .sch-sort-icon.inactive {
+                opacity: 0.85;
+                color: #0D9488;
+            }
+
+            /* ── Bulk Actions Bar ── */
+            .sch-bulk-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: 0.75rem 1.25rem;
+                border-radius: 1rem;
+                background: linear-gradient(135deg, rgba(13, 148, 136, 0.12), rgba(5, 150, 105, 0.08));
+                border: 1.5px solid rgba(13, 148, 136, 0.35);
+                box-shadow: 0 4px 16px rgba(13, 148, 136, 0.1);
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+            }
+            html.dark .sch-bulk-bar, .dark .sch-bulk-bar {
+                background: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(16, 185, 129, 0.12));
+                border-color: rgba(20, 184, 166, 0.45);
+            }
+            .sch-bulk-info {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                font-size: 0.85rem;
+                font-weight: 800;
+                color: var(--sch-text-primary);
+            }
+            .sch-bulk-badge {
+                background: #0D9488;
+                color: #FFFFFF;
+                padding: 0.2rem 0.65rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 900;
+            }
+            .sch-bulk-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .sch-btn-bulk-delete {
+                background: linear-gradient(135deg, #E11D48, #BE123C);
+                color: #FFFFFF !important;
+                font-weight: 800;
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+                border-radius: 0.75rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                border: none;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+            }
+            .sch-btn-bulk-delete:hover {
+                background: linear-gradient(135deg, #BE123C, #9F1239);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(225, 29, 72, 0.35);
+            }
+            .sch-btn-bulk-clear {
+                background: var(--sch-bg-surface);
+                color: var(--sch-text-secondary);
+                border: 1px solid var(--sch-border);
+                font-weight: 700;
+                font-size: 0.78rem;
+                padding: 0.5rem 0.85rem;
+                border-radius: 0.75rem;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+            .sch-btn-bulk-clear:hover {
+                border-color: var(--sch-border-focus);
+                color: var(--sch-text-primary);
+            }
 
             /* ── Mobile Feed Cards ── */
             .sch-mobile-feed {
@@ -922,6 +1058,9 @@
                         <option value="latest_created">⚡ {{ app()->getLocale() === 'ar' ? 'أحدث إنشاء أولاً (الأحدث)' : 'Latest Created First' }}</option>
                         <option value="scheduled_asc">📅 {{ app()->getLocale() === 'ar' ? 'موعد الحصة: الأقرب أولاً' : 'Session Date: Nearest First' }}</option>
                         <option value="scheduled_desc">📅 {{ app()->getLocale() === 'ar' ? 'موعد الحصة: الأبعد أولاً' : 'Session Date: Furthest First' }}</option>
+                        @if ($sortBy === 'custom')
+                            <option value="custom">⚙️ {{ app()->getLocale() === 'ar' ? 'ترتيب مخصص حسب العمود' : 'Custom Column Sort' }}</option>
+                        @endif
                     </select>
                 </div>
 
@@ -1016,12 +1155,36 @@
 
         {{-- ── 4. TAB 1: SESSIONS (DESKTOP TABLE + MOBILE CARDS) ── --}}
         @if ($activeTab === 'sessions')
+            {{-- Bulk Actions Bar (Sessions) --}}
+            @if (! empty($selectedSessionIds))
+                <div class="sch-bulk-bar">
+                    <div class="sch-bulk-info">
+                        <span class="sch-bulk-badge">{{ count($selectedSessionIds) }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'حصص محددة' : 'Selected Session(s)' }}</span>
+                    </div>
+                    <div class="sch-bulk-actions">
+                        <button type="button" wire:click="deselectAllSessions" class="sch-btn-bulk-clear">
+                            {{ app()->getLocale() === 'ar' ? 'إلغاء التحديد' : 'Deselect All' }}
+                        </button>
+                        <button type="button" wire:click="deleteSelectedSessions"
+                            wire:confirm="{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من حذف الحصص المحددة (' . count($selectedSessionIds) . ')؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete ' . count($selectedSessionIds) . ' selected session(s)? This action cannot be undone.' }}"
+                            class="sch-btn-bulk-delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                            <span>{{ app()->getLocale() === 'ar' ? 'حذف المحدد (' . count($selectedSessionIds) . ')' : 'Delete Selected (' . count($selectedSessionIds) . ')' }}</span>
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             {{-- A. MOBILE APP FEED (< 768px) --}}
             <div class="sch-mobile-feed">
                 @forelse ($this->sessionsList as $session)
                     @php
                         $isCancelled = in_array($session->status, ['cancelled', 'cancelled_by_teacher']) || $session->lifecycle_state === 'cancelled';
                         $isCompleted = $session->status === 'completed' || $session->lifecycle_state === 'completed';
+                        $isSelected = in_array($session->id, $selectedSessionIds);
                         $stripBg = match (true) {
                             $isCompleted => '#10B981',
                             $isCancelled => '#E11D48',
@@ -1030,21 +1193,24 @@
                             default => '#64748B',
                         };
                     @endphp
-                    <div class="sch-mobile-card">
+                    <div class="sch-mobile-card {{ $isSelected ? 'sch-tr-selected' : '' }}">
                         <div class="sch-card-strip" style="background-color: {{ $stripBg }};"></div>
 
                         {{-- Date & Status Row --}}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; padding-top: 0.25rem;">
-                            <div>
-                                <span style="font-weight: 900; font-size: 0.8rem; color: var(--sch-text-primary); display: flex; align-items: center; gap: 0.35rem;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem; color: #0D9488;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
-                                    </svg>
-                                    <span>{{ $session->scheduled_at ? $session->scheduled_at->translatedFormat('D, d M Y - H:i') : '—' }}</span>
-                                </span>
-                                <span style="font-size: 0.7rem; font-weight: 700; color: #0D9488; display: block;">
-                                    {{ $session->scheduled_at ? $session->scheduled_at->diffForHumans() : '' }}
-                                </span>
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <input type="checkbox" value="{{ $session->id }}" wire:model.live="selectedSessionIds" class="sch-checkbox">
+                                <div>
+                                    <span style="font-weight: 900; font-size: 0.8rem; color: var(--sch-text-primary); display: flex; align-items: center; gap: 0.35rem;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem; color: #0D9488;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                                        </svg>
+                                        <span>{{ $session->scheduled_at ? $session->scheduled_at->translatedFormat('D, d M Y - H:i') : '—' }}</span>
+                                    </span>
+                                    <span style="font-size: 0.7rem; font-weight: 700; color: #0D9488; display: block;">
+                                        {{ $session->scheduled_at ? $session->scheduled_at->diffForHumans() : '' }}
+                                    </span>
+                                </div>
                             </div>
 
                             <span class="sch-badge {{ $isCompleted ? 'sch-badge-completed' : ($isCancelled ? 'sch-badge-cancelled' : 'sch-badge-scheduled') }}">
@@ -1140,19 +1306,133 @@
                     <table class="sch-table">
                         <thead>
                             <tr>
-                                <th class="sch-th">{{ __('Date & Time') }}</th>
-                                <th class="sch-th">{{ __('Course & Subject') }}</th>
-                                <th class="sch-th">{{ __('Assigned Student') }}</th>
-                                <th class="sch-th">{{ __('Teacher') }}</th>
-                                <th class="sch-th">{{ __('Duration') }}</th>
-                                <th class="sch-th">{{ __('Status') }}</th>
-                                <th class="sch-th">{{ __('Attendance') }}</th>
+                                <th class="sch-th" style="width: 44px; text-align: center;">
+                                    <input type="checkbox" wire:model.live="selectAllSessions" class="sch-checkbox" title="{{ __('Select All') }}">
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('scheduled_at')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Date & Time') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'scheduled_at' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'scheduled_at')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('course')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Course & Subject') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'course' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'course')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('student')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Assigned Student') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'student' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'student')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('teacher')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Teacher') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'teacher' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'teacher')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('duration')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Duration') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'duration' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'duration')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('status')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Status') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'status' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'status')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortByColumn('attendance')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Attendance') }}</span>
+                                        <span class="sch-sort-icon {{ $sortField === 'attendance' ? 'active' : 'inactive' }}">
+                                            @if ($sortField === 'attendance')
+                                                @if ($sortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
                                 <th class="sch-th" style="text-align: end;">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($this->sessionsList as $session)
-                                <tr class="sch-tr">
+                                @php
+                                    $isSelected = in_array($session->id, $selectedSessionIds);
+                                @endphp
+                                <tr class="sch-tr {{ $isSelected ? 'sch-tr-selected' : '' }}" wire:key="session-row-{{ $session->id }}">
+                                    <td class="sch-td" style="width: 44px; text-align: center;">
+                                        <input type="checkbox" value="{{ $session->id }}" wire:model.live="selectedSessionIds" class="sch-checkbox">
+                                    </td>
                                     <td class="sch-td" style="white-space: nowrap;">
                                         <div style="font-weight: 900; color: var(--sch-text-primary);">
                                             {{ $session->scheduled_at ? $session->scheduled_at->translatedFormat('d M Y, H:i') : '—' }}
@@ -1257,7 +1537,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--sch-text-muted);">
+                                    <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--sch-text-muted);">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 2.5rem; height: 2.5rem; margin: 0 auto 0.5rem auto; display: block;">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
                                         </svg>
@@ -1273,12 +1553,41 @@
 
         {{-- ── 5. TAB 2: RECURRING SCHEDULE RULES ── --}}
         @if ($activeTab === 'recurring')
+            {{-- Bulk Actions Bar (Recurring Rules) --}}
+            @if (! empty($selectedRecurringIds))
+                <div class="sch-bulk-bar">
+                    <div class="sch-bulk-info">
+                        <span class="sch-bulk-badge">{{ count($selectedRecurringIds) }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'قواعد مجدولة محددة' : 'Selected Recurring Rule(s)' }}</span>
+                    </div>
+                    <div class="sch-bulk-actions">
+                        <button type="button" wire:click="deselectAllRecurring" class="sch-btn-bulk-clear">
+                            {{ app()->getLocale() === 'ar' ? 'إلغاء التحديد' : 'Deselect All' }}
+                        </button>
+                        <button type="button" wire:click="deleteSelectedRecurringRules"
+                            wire:confirm="{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من حذف القواعد المحددة (' . count($selectedRecurringIds) . ') مع حصصها المستقبلية؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete ' . count($selectedRecurringIds) . ' selected recurring rule(s)? This action cannot be undone.' }}"
+                            class="sch-btn-bulk-delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.95rem; height: 0.95rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                            <span>{{ app()->getLocale() === 'ar' ? 'حذف المحدد (' . count($selectedRecurringIds) . ')' : 'Delete Selected (' . count($selectedRecurringIds) . ')' }}</span>
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             {{-- A. MOBILE APP FEED (< 768px) --}}
             <div class="sch-mobile-feed">
                 @forelse ($this->recurringSchedulesList as $rule)
-                    <div class="sch-mobile-card">
+                    @php
+                        $isRuleSelected = in_array($rule->id, $selectedRecurringIds);
+                    @endphp
+                    <div class="sch-mobile-card {{ $isRuleSelected ? 'sch-tr-selected' : '' }}">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <strong style="font-size: 0.875rem; color: var(--sch-text-primary);">{{ $rule->title }}</strong>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" value="{{ $rule->id }}" wire:model.live="selectedRecurringIds" class="sch-checkbox">
+                                <strong style="font-size: 0.875rem; color: var(--sch-text-primary);">{{ $rule->title }}</strong>
+                            </div>
                             <span class="sch-badge {{ $rule->status === 'active' ? 'sch-badge-active' : 'sch-badge-scheduled' }}">
                                 {{ $rule->status === 'active' ? __('Active') : __('Inactive') }}
                             </span>
@@ -1325,20 +1634,134 @@
                     <table class="sch-table">
                         <thead>
                             <tr>
-                                <th class="sch-th">{{ __('Schedule Rule Title') }}</th>
-                                <th class="sch-th">{{ __('Course') }}</th>
-                                <th class="sch-th">{{ __('Teacher') }}</th>
-                                <th class="sch-th">{{ __('Student') }}</th>
+                                <th class="sch-th" style="width: 44px; text-align: center;">
+                                    <input type="checkbox" wire:model.live="selectAllRecurring" class="sch-checkbox" title="{{ __('Select All') }}">
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('title')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Schedule Rule Title') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'title' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'title')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('course')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Course') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'course' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'course')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('teacher')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Teacher') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'teacher' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'teacher')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('student')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Student') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'student' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'student')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
                                 <th class="sch-th">{{ __('Pattern & Days') }}</th>
-                                <th class="sch-th">{{ __('Time Window') }}</th>
-                                <th class="sch-th">{{ __('Generated Sessions') }}</th>
-                                <th class="sch-th">{{ __('Status') }}</th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('time')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Time Window') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'time' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'time')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('sessions_count')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Generated Sessions') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'sessions_count' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'sessions_count')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="sch-th sch-th-sortable" wire:click="sortRecurringByColumn('status')">
+                                    <div class="sch-th-sort-inner">
+                                        <span>{{ __('Status') }}</span>
+                                        <span class="sch-sort-icon {{ $recurringSortField === 'status' ? 'active' : 'inactive' }}">
+                                            @if ($recurringSortField === 'status')
+                                                @if ($recurringSortDirection === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                                @endif
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
                                 <th class="sch-th" style="text-align: end;">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($this->recurringSchedulesList as $rule)
-                                <tr class="sch-tr">
+                                @php
+                                    $isRuleSelected = in_array($rule->id, $selectedRecurringIds);
+                                @endphp
+                                <tr class="sch-tr {{ $isRuleSelected ? 'sch-tr-selected' : '' }}" wire:key="rule-row-{{ $rule->id }}">
+                                    <td class="sch-td" style="width: 44px; text-align: center;">
+                                        <input type="checkbox" value="{{ $rule->id }}" wire:model.live="selectedRecurringIds" class="sch-checkbox">
+                                    </td>
                                     <td class="sch-td">
                                         <div style="font-weight: 900; color: var(--sch-text-primary);">{{ $rule->title }}</div>
                                         <span style="font-size: 0.7rem; color: var(--sch-text-muted);">{{ $rule->start_date?->format('Y-m-d') }} &rarr; {{ $rule->end_date?->format('Y-m-d') }}</span>
@@ -1379,7 +1802,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--sch-text-muted);">
+                                    <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--sch-text-muted);">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 2.5rem; height: 2.5rem; margin: 0 auto 0.5rem auto; display: block;">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                                         </svg>

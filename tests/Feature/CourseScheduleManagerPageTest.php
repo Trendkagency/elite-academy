@@ -280,4 +280,143 @@ class CourseScheduleManagerPageTest extends TestCase
         $this->assertTrue($courses->contains('id', $this->course->id));
         $this->assertFalse($courses->contains('id', $otherCourse->id));
     }
+
+    public function test_admin_can_sort_sessions_by_columns(): void
+    {
+        $this->actingAs($this->admin);
+
+        LiveSession::create([
+            'course_id' => $this->course->id,
+            'subject_id' => $this->course->subject_id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Alpha Session',
+            'scheduled_at' => now()->addDays(5),
+            'duration_minutes' => 30,
+            'status' => 'scheduled',
+        ]);
+
+        LiveSession::create([
+            'course_id' => $this->course->id,
+            'subject_id' => $this->course->subject_id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Beta Session',
+            'scheduled_at' => now()->addDays(1),
+            'duration_minutes' => 90,
+            'status' => 'completed',
+        ]);
+
+        $test = Livewire::test(CourseScheduleManagerPage::class)
+            ->call('sortByColumn', 'duration')
+            ->assertSet('sortField', 'duration')
+            ->assertSet('sortDirection', 'desc');
+
+        // Clicking same column toggles to asc
+        $test->call('sortByColumn', 'duration')
+            ->assertSet('sortField', 'duration')
+            ->assertSet('sortDirection', 'asc');
+
+        // Sorting by course
+        $test->call('sortByColumn', 'course')
+            ->assertSet('sortField', 'course')
+            ->assertSet('sortDirection', 'asc');
+
+        // Sorting by scheduled_at
+        $test->call('sortByColumn', 'scheduled_at')
+            ->assertSet('sortField', 'scheduled_at')
+            ->assertSet('sortDirection', 'desc');
+    }
+
+    public function test_admin_can_select_all_and_bulk_delete_sessions(): void
+    {
+        $this->actingAs($this->admin);
+
+        $s1 = LiveSession::create([
+            'course_id' => $this->course->id,
+            'subject_id' => $this->course->subject_id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Bulk Delete S1',
+            'scheduled_at' => now()->addDays(2),
+            'duration_minutes' => 60,
+            'status' => 'scheduled',
+        ]);
+
+        $s2 = LiveSession::create([
+            'course_id' => $this->course->id,
+            'subject_id' => $this->course->subject_id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Bulk Delete S2',
+            'scheduled_at' => now()->addDays(3),
+            'duration_minutes' => 60,
+            'status' => 'scheduled',
+        ]);
+
+        $test = Livewire::test(CourseScheduleManagerPage::class);
+
+        // Select all sessions
+        $test->set('selectAllSessions', true)
+            ->assertCount('selectedSessionIds', 2);
+
+        // Call bulk delete
+        $test->call('deleteSelectedSessions')
+            ->assertSet('selectedSessionIds', [])
+            ->assertSet('selectAllSessions', false)
+            ->assertHasNoErrors();
+
+        // Verify soft-deleted
+        $this->assertSoftDeleted('live_sessions', ['id' => $s1->id]);
+        $this->assertSoftDeleted('live_sessions', ['id' => $s2->id]);
+    }
+
+    public function test_admin_can_select_all_and_bulk_delete_recurring_rules(): void
+    {
+        $this->actingAs($this->admin);
+
+        $rule1 = RecurringSchedule::create([
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Recurring Rule 1',
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [1],
+            'start_time' => '10:00',
+            'duration_minutes' => 60,
+            'start_date' => now()->format('Y-m-d'),
+            'end_date' => now()->addWeeks(4)->format('Y-m-d'),
+            'status' => 'active',
+        ]);
+
+        $rule2 = RecurringSchedule::create([
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacher->id,
+            'student_user_id' => $this->student->id,
+            'title' => 'Recurring Rule 2',
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [2],
+            'start_time' => '12:00',
+            'duration_minutes' => 60,
+            'start_date' => now()->format('Y-m-d'),
+            'end_date' => now()->addWeeks(4)->format('Y-m-d'),
+            'status' => 'active',
+        ]);
+
+        $test = Livewire::test(CourseScheduleManagerPage::class)
+            ->set('activeTab', 'recurring');
+
+        // Select all recurring rules
+        $test->set('selectAllRecurring', true)
+            ->assertCount('selectedRecurringIds', 2);
+
+        // Call bulk delete
+        $test->call('deleteSelectedRecurringRules')
+            ->assertSet('selectedRecurringIds', [])
+            ->assertSet('selectAllRecurring', false)
+            ->assertHasNoErrors();
+
+        $this->assertSoftDeleted('recurring_schedules', ['id' => $rule1->id]);
+        $this->assertSoftDeleted('recurring_schedules', ['id' => $rule2->id]);
+    }
 }
