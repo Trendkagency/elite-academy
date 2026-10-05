@@ -22,6 +22,8 @@ class AssignmentSubmissionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string

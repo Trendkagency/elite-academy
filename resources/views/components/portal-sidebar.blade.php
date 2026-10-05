@@ -76,13 +76,8 @@
                 </a>
 
                 <a href="#assignments" onclick="switchStudentTab('assignments')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="assignments">
-                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
-                    <span class="truncate min-w-0">{{ __('Assignments & Tests') }}</span>
-                </a>
-
-                <a href="#submissions" onclick="switchStudentTab('submissions')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="submissions">
-                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-square-poll-vertical"></i></span>
-                    <span class="truncate min-w-0">{{ app()->getLocale() === 'ar' ? 'سجل التسليمات والدرجات' : 'Submissions & Grades' }}</span>
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-arrow-up"></i></span>
+                    <span class="truncate min-w-0">{{ app()->getLocale() === 'ar' ? 'الملفات والواجبات المرفوعة' : __('Files & Homework') }}</span>
                 </a>
 
                 <a href="#exceptions" onclick="switchStudentTab('exceptions')" class="student-nav-item portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="exceptions">
@@ -109,8 +104,8 @@
                 </a>
 
                 <a href="#assignments" onclick="switchTeacherTab('assignments')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="assignments">
-                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></span>
-                    <span class="truncate min-w-0">{{ __('Assignments & Quizzes') }}</span>
+                    <span class="text-base text-teal-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-folder-open"></i></span>
+                    <span class="truncate min-w-0">{{ app()->getLocale() === 'ar' ? 'الملفات والمذكرات التعليمية' : __('Educational Files') }}</span>
                 </a>
 
                 <a href="#attendance" onclick="switchTeacherTab('attendance')" class="teacher-tab-btn portal-nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group hover:bg-teal-950/60 hover:text-teal-300 text-slate-200 min-w-0" data-tab="attendance">

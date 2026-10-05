@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
 use App\Models\CourseEnrollment;
 use App\Models\ExceptionRequest;
+use App\Models\FileUpload;
 use App\Models\LiveSession;
 use App\Models\StudentPackage;
 use App\Models\StudentProfile;
@@ -67,41 +68,31 @@ class StudentPortalController extends Controller
 
         $completedAssignmentIds = $completedSubmissions->pluck('assignment_id')->filter()->toArray();
 
-        $allStudentAssignments = $user ? \App\Models\Assignment::with([
-                'questions.options',
-                'course.subject',
-                'course.teacher.user',
-                'session',
-                'liveSession.subject',
-                'liveSession.teacherProfile.user'
-            ])
-            ->where('status', 'published')
-            ->where(function ($q) {
-                $q->whereNull('start_at')->orWhere('start_at', '<=', now());
-            })
-            ->where(function ($q) use ($allStudentCourseIds, $allSessionIds) {
-                $hasCourses = ! empty($allStudentCourseIds);
-                $hasSessions = ! empty($allSessionIds);
+        // Educational Files for Student (Files from teachers for enrolled courses/sessions + files uploaded by student)
+        $studentFiles = $user ? FileUpload::query()
+            ->where(function ($q) use ($user, $allStudentCourseIds, $allSessionIds) {
+                // Uploaded by student
+                $q->where('user_id', $user->id)
+                    // Or specifically targeted to this student
+                    ->orWhere('student_user_id', $user->id);
 
-                if ($hasCourses && $hasSessions) {
-                    $q->where(function ($inner) use ($allStudentCourseIds, $allSessionIds) {
-                        $inner->whereIn('course_id', $allStudentCourseIds)
-                              ->orWhereIn('live_session_id', $allSessionIds);
-                    });
-                } elseif ($hasCourses) {
-                    $q->whereIn('course_id', $allStudentCourseIds);
-                } elseif ($hasSessions) {
-                    $q->whereIn('live_session_id', $allSessionIds);
-                } else {
-                    $q->whereRaw('1 = 0');
+                if (! empty($allStudentCourseIds)) {
+                    $q->orWhereIn('course_id', $allStudentCourseIds);
+                }
+
+                if (! empty($allSessionIds)) {
+                    $q->orWhereIn('live_session_id', $allSessionIds);
                 }
             })
+            ->with(['uploader', 'course', 'teacherProfile.user'])
             ->orderBy('created_at', 'desc')
             ->get() : collect();
 
-        $availableAssignments = $allStudentAssignments->filter(function ($a) use ($completedAssignmentIds) {
-            return ! in_array($a->id, $completedAssignmentIds, true);
-        })->values();
+        $teacherFiles = $studentFiles->filter(fn ($f) => (int) $f->user_id !== (int) $user->id)->values();
+        $myUploadedFiles = $studentFiles->filter(fn ($f) => (int) $f->user_id === (int) $user->id)->values();
+
+        $allStudentAssignments = collect();
+        $availableAssignments = collect();
 
         $filterCourses = $enrollments->map(fn($e) => $e->course)->filter();
         if ($filterCourses->isEmpty() && ! empty($allStudentCourseIds)) {
@@ -257,6 +248,9 @@ class StudentPortalController extends Controller
             'submissionsMap'         => $submissions->keyBy('assignment_id'),
             'availableAssignments'   => $availableAssignments,
             'allStudentAssignments'  => $allStudentAssignments,
+            'studentFiles'           => $studentFiles,
+            'teacherFiles'           => $teacherFiles,
+            'myUploadedFiles'        => $myUploadedFiles,
             'filterCourses'          => $filterCourses,
             'exceptions'             => $exceptions,
             'teacherNotes'           => $teacherNotes,

@@ -91,10 +91,10 @@
                             <span class="truncate">{{ __('Schedule Session') }}</span>
                         </button>
 
-                        <button type="button" onclick="openCreateAssignmentModal()"
+                        <button type="button" onclick="openTeacherFileUploadModal()"
                             class="btn-lift py-2.5 px-3 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white border border-white/15 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                            <i class="fa-solid fa-pen-to-square text-emerald-400 text-xs"></i>
-                            <span class="truncate">{{ __('Publish Assignment') }}</span>
+                            <i class="fa-solid fa-cloud-arrow-up text-emerald-400 text-xs"></i>
+                            <span class="truncate">{{ $isAr ? 'رفع ملف تعليمي' : __('Upload File') }}</span>
                         </button>
 
                         <button type="button" onclick="switchTeacherTab('schedules')"
@@ -183,41 +183,42 @@
                 </div>
             </div>
 
-            {{-- KPI 4: Pending Assignments --}}
+            {{-- KPI 4: Student Uploaded Files --}}
             <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-500/60 dark:hover:border-amber-500/60 transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] cursor-pointer group"
                 onclick="switchTeacherTab('assignments')">
                 <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Need Grading') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ $isAr ? 'واجبات الطلاب' : __('Student Files') }}</span>
                     <span
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
-                        <i class="fa-solid fa-pen-to-square"></i>
+                        <i class="fa-solid fa-file-arrow-up"></i>
                     </span>
                 </div>
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-amber-500 dark:text-amber-400 js-counter"
-                        data-target="{{ $pendingAssignmentsCount }}">0</p>
+                        data-target="{{ $studentFilesCount ?? $pendingAssignmentsCount }}">0</p>
                     <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
-                        {{ __('Submissions queue') }}</p>
+                        {{ $isAr ? 'ملفات مرفوعة من الطلاب' : __('Uploaded by students') }}</p>
                 </div>
             </div>
 
-            {{-- KPI 5: Total Submissions --}}
+            {{-- KPI 5: Total Educational Files --}}
             <div
-                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] group">
+                class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[114px] sm:min-h-[128px] cursor-pointer group"
+                onclick="switchTeacherTab('assignments')">
                 <div class="flex items-center justify-between gap-1">
                     <span
-                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ __('Submissions') }}</span>
+                        class="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{{ $isAr ? 'إجمالي الملفات' : __('Total Files') }}</span>
                     <span
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs group-hover:scale-110 transition-transform shrink-0">
-                        <i class="fa-solid fa-chart-column"></i>
+                        <i class="fa-solid fa-folder-open"></i>
                     </span>
                 </div>
                 <div>
                     <p class="font-heading font-black text-2xl sm:text-3xl text-teal-600 dark:text-teal-400 js-counter"
-                        data-target="{{ $submittedAssignmentsCount }}">0</p>
+                        data-target="{{ $uploadedFilesCount ?? $submittedAssignmentsCount }}">0</p>
                     <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
-                        {{ __('Total handled') }}</p>
+                        {{ $isAr ? 'مستندات PDF وصور' : __('PDFs & Images') }}</p>
                 </div>
             </div>
 
@@ -1021,11 +1022,12 @@
             </div>
         </div>
 
-        {{-- ════════════════════════════════════════════════════════════════════════ --}}
-        {{-- TAB 4: ASSIGNMENTS & SUBMISSIONS                                         --}}
-        {{-- ════════════════════════════════════════════════════════════════════════ --}}
-        <div id="teacher-tab-assignments"
-            class="teacher-tab-content {{ $activeTabKey === 'assignments' ? '' : 'hidden' }} space-y-8">
+        {{-- TAB 4: EDUCATIONAL FILES & MATERIALS (FILE UPLOAD SYSTEM) --}}
+        @include('pages.teacher.sections.files')
+
+        @if(false)
+        <div id="deprecated-teacher-tab-assignments"
+            class="hidden space-y-8">
             {{-- Assignments Header & Publish Action --}}
             <div
                 class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
@@ -1278,6 +1280,7 @@
                 @endif
             </div>
         </div>
+        @endif
 
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         {{-- TAB 5: ATTENDANCE TRACKER & COHORT CHECK-IN (PROFESSIONAL REDESIGN)       --}}
@@ -1830,6 +1833,41 @@
                                                 style="width: {{ $attRate }}%"></div>
                                         </div>
                                     </div>
+
+                                    {{-- ── Package Session Stats ────────────────────────────────── --}}
+                                    @if (($st->pkg_total ?? 0) > 0)
+                                        @php
+                                            $pkgUsed      = (int) ($st->pkg_used ?? 0);
+                                            $pkgRemaining = (int) ($st->pkg_remaining ?? 0);
+                                            $pkgTotal     = (int) ($st->pkg_total ?? 0);
+                                            $pkgPct       = $pkgTotal > 0 ? round(($pkgRemaining / $pkgTotal) * 100) : 0;
+                                            $pkgColorBar  = $pkgPct >= 50 ? 'bg-teal-500' : ($pkgPct >= 25 ? 'bg-amber-500' : 'bg-rose-500');
+                                        @endphp
+                                        <div class="rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 px-3 py-2 space-y-1.5">
+                                            <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                                                <span class="font-semibold tracking-wide">{{ __('Package Sessions') }}</span>
+                                                <span class="font-bold text-slate-700 dark:text-slate-200">{{ $pkgRemaining }} / {{ $pkgTotal }}</span>
+                                            </div>
+                                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
+                                                <div class="h-full rounded-full transition-all {{ $pkgColorBar }}" style="width: {{ $pkgPct }}%"></div>
+                                            </div>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <div class="flex items-center gap-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+                                                    <i class="fa-solid fa-circle-check text-[8px]"></i>
+                                                    <span>{{ $pkgRemaining }} {{ __('Remaining') }}</span>
+                                                </div>
+                                                <div class="flex items-center gap-1 text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                                                    <i class="fa-solid fa-clock-rotate-left text-[8px]"></i>
+                                                    <span>{{ $pkgUsed }} {{ __('Used') }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-700/50 px-3 py-2 flex items-center gap-2 text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                                            <i class="fa-solid fa-layer-group opacity-50 text-[9px]"></i>
+                                            {{ __('No active package for your courses') }}
+                                        </div>
+                                    @endif
 
                                     <button type="button" onclick="openStudentDetailsModal({{ $st->user_id }})"
                                         class="btn-lift w-full py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs cursor-pointer flex items-center justify-center gap-1.5">

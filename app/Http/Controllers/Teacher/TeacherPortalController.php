@@ -12,6 +12,7 @@ use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
 use App\Models\ExceptionRequest;
+use App\Models\FileUpload;
 use App\Models\LiveSession;
 use App\Models\RecurringSchedule;
 use App\Models\SessionAuditLog;
@@ -115,14 +116,27 @@ class TeacherPortalController extends Controller
             $activeTab = 'sessions';
         }
 
-        // 5. Teacher's Assignments
-        $assignments = Assignment::where('teacher_profile_id', $teacherId)
-            ->orWhereIn('course_id', $courseIds)
-            ->with(['course', 'session', 'liveSession', 'submissions'])
+        // 5. Educational File Uploads (Strictly Scoped to Teacher's Profile, Courses, and Assigned Students)
+        $uploadedFiles = FileUpload::query()
+            ->where(function ($q) use ($user, $teacherId, $courseIds) {
+                $q->where('user_id', $user->id)
+                    ->orWhere('teacher_profile_id', $teacherId);
+
+                if (! empty($courseIds)) {
+                    $q->orWhereIn('course_id', $courseIds);
+                }
+            })
+            ->with(['uploader', 'course', 'studentUser', 'liveSession'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $assignmentIds = $assignments->pluck('id')->filter()->toArray();
+        $uploadedFilesCount = $uploadedFiles->count();
+        $myFilesCount = $uploadedFiles->where('user_id', $user->id)->count();
+        $studentFilesCount = $uploadedFiles->where('user_id', '!=', $user->id)->count();
+
+        // Deprecated legacy assignments collection
+        $assignments = collect();
+        $assignmentIds = [];
 
         // 6. Assigned Students Roster (Strictly Scoped: CourseEnrollment, LiveSession, StudentSession, AssignmentSubmission)
         $allTeacherCourseIds = Course::where('teacher_id', $teacherId)->pluck('id')->filter()->toArray();
@@ -196,6 +210,16 @@ class TeacherPortalController extends Controller
                     ]);
                     $st->enrolled_courses_count = $studentEnrollments->count();
                     $st->enrolled_course_ids = $studentEnrollments->pluck('course_id')->toArray();
+
+                    // ── Package Session Stats (for this teacher's courses only) ──────────
+                    $studentPackages = \App\Models\StudentPackage::where('student_user_id', $st->user_id)
+                        ->whereIn('course_id', $allTeacherCourseIds)
+                        ->whereIn('status', ['active', 'exhausted'])
+                        ->get();
+
+                    $st->pkg_remaining = $studentPackages->sum('remaining_sessions');
+                    $st->pkg_used      = $studentPackages->sum('used_sessions');
+                    $st->pkg_total     = $studentPackages->sum('total_sessions');
 
                     return $st;
                 });
@@ -351,12 +375,16 @@ class TeacherPortalController extends Controller
             'recurringSchedules' => $recurringSchedules,
             'exceptions' => $teacherExceptions,
             'pendingExceptionsCount' => $pendingExceptionsCount,
+            'uploadedFiles' => $uploadedFiles,
+            'uploadedFilesCount' => $uploadedFilesCount,
+            'myFilesCount' => $myFilesCount,
+            'studentFilesCount' => $studentFilesCount,
             // KPIs
             'todaySessionsCount' => $todaySessionsCount,
             'upcomingSessionsCount' => $upcomingSessionsCount,
             'assignedStudentsCount' => $assignedStudentsCount,
-            'pendingAssignmentsCount' => $pendingAssignmentsCount,
-            'submittedAssignmentsCount' => $submittedAssignmentsCount,
+            'pendingAssignmentsCount' => $studentFilesCount, // Used for the files queue badge
+            'submittedAssignmentsCount' => $uploadedFilesCount,
             'attendanceRate' => $overallAttendanceRate,
         ]);
     }
@@ -2214,14 +2242,39 @@ class TeacherPortalController extends Controller
      */
     public function showStudentProfile(Request $request, int $studentUserId)
     {
+        // EnsureTeacherRole middleware already verified the teacher is authenticated and approved.
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
         if (! $teacherProfile) {
             return redirect()->route('teacher-portal')->with('error', 'Unauthorized');
         }
 
+        // Verify the student exists (404 if not)
         $studentProfile = StudentProfile::where('user_id', $studentUserId)->firstOrFail();
 
-        if (! auth()->user()->isAdmin() && ! auth()->user()->can('view', $studentProfile)) {
+        // Verify this teacher has a relationship with this student (enrolled in their course,
+        // attended their session, or has a submission). Admin bypass allowed.
+        $user = auth()->user();
+        $isAuthorized = $user->isAdmin();
+
+        if (! $isAuthorized) {
+            $isAuthorized = \App\Models\CourseEnrollment::where('student_user_id', $studentUserId)
+                ->whereIn('course_id', \App\Models\Course::where('teacher_id', $teacherProfile->id)->pluck('id'))
+                ->exists();
+        }
+
+        if (! $isAuthorized) {
+            $isAuthorized = \App\Models\LiveSession::where('teacher_profile_id', $teacherProfile->id)
+                ->where('student_user_id', $studentUserId)
+                ->exists();
+        }
+
+        if (! $isAuthorized) {
+            $isAuthorized = \App\Models\StudentSession::where('student_user_id', $studentUserId)
+                ->whereHas('liveSession', fn ($q) => $q->where('teacher_profile_id', $teacherProfile->id))
+                ->exists();
+        }
+
+        if (! $isAuthorized) {
             abort(403, __('Unauthorized: You do not have permission to view this student profile.'));
         }
 

@@ -103,14 +103,22 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::post('/ajax/sessions/{id}/meeting/leave', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'leave'])->name('ajax.meeting.leave');
             Route::post('/ajax/sessions/{id}/meeting/security-event', [\App\Http\Controllers\Meeting\MeetingAccessController::class, 'logSecurityEvent'])->middleware('throttle:ajax_interactive')->name('ajax.meeting.security-event');
 
-            // Submissions & Interactive Assignment Solver Page
+            // Submissions & Interactive Assignment Solver Page (Deprecated)
             Route::get('/student/assignments/{id}/take', [SubmissionController::class, 'take'])->name('student.assignment.take');
             Route::get('/ajax/assignments/{id}/details', [SubmissionController::class, 'show'])->name('ajax.assignment.details');
             Route::post('/ajax/assignments/save-answer', [SubmissionController::class, 'saveDraftAnswer'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.save-answer');
             Route::post('/ajax/assignments/update-step', [SubmissionController::class, 'updateStepIndex'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.update-step');
             Route::post('/ajax/assignments/submit', [SubmissionController::class, 'submit'])->middleware('throttle:strict_actions')->name('ajax.assignment.submit');
             Route::post('/ajax/assignments/{id}/security-audit', [SubmissionController::class, 'logSecurityAudit'])->middleware('throttle:ajax_interactive')->name('ajax.assignment.security-audit');
+
+            // Student Educational File Uploads (PDF & Images)
+            Route::post('/ajax/student/files/upload', [\App\Http\Controllers\FileUpload\FileUploadController::class, 'studentUpload'])->middleware('throttle:strict_actions')->name('ajax.student.files.upload');
         });
+
+        // Universal File Access, Preview & Download System (Strict ACL Authorization)
+        Route::get('/portal/files/{id}/download', [\App\Http\Controllers\FileUpload\FileUploadController::class, 'download'])->name('portal.files.download');
+        Route::get('/portal/files/{id}/preview', [\App\Http\Controllers\FileUpload\FileUploadController::class, 'preview'])->name('portal.files.preview');
+        Route::delete('/ajax/files/{id}', [\App\Http\Controllers\FileUpload\FileUploadController::class, 'destroy'])->name('ajax.files.delete');
 
         // Grading Submission (Authorized for Teachers / Admins via Policy Gate)
         Route::post('/ajax/submissions/{id}/grade', [SubmissionController::class, 'grade'])->middleware('throttle:strict_actions')->name('ajax.submission.grade');
@@ -143,6 +151,10 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::match(['post', 'delete'], '/ajax/teacher/assignments/{id}/delete', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'deleteAssignment'])->middleware('throttle:strict_actions')->name('ajax.teacher.assignments.delete');
             Route::get('/ajax/teacher/submissions/{submissionId}/review-details', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSubmissionReview'])->name('ajax.teacher.submissions.review-details');
             Route::post('/ajax/teacher/submissions/{id}/review', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'reviewSubmission'])->middleware('throttle:strict_actions')->name('ajax.teacher.submissions.review');
+
+            // Faculty Educational File Uploads (PDF & Images)
+            Route::post('/ajax/teacher/files/upload', [\App\Http\Controllers\FileUpload\FileUploadController::class, 'teacherUpload'])->middleware('throttle:strict_actions')->name('ajax.teacher.files.upload');
+
             Route::post('/ajax/teacher/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'markAttendance'])->middleware('throttle:strict_actions')->name('ajax.teacher.attendance.mark');
             Route::get('/ajax/teacher/sessions/{sessionId}/attendance-roster', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'getSessionAttendanceRoster'])->name('ajax.teacher.sessions.attendance-roster');
             Route::post('/ajax/teacher/sessions/{sessionId}/start-and-deduct', [\App\Http\Controllers\Teacher\TeacherPortalController::class, 'startSessionAndDeduct'])->middleware('throttle:strict_actions')->name('ajax.teacher.sessions.start-and-deduct');
