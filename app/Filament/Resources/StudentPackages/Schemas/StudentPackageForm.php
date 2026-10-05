@@ -4,6 +4,7 @@ namespace App\Filament\Resources\StudentPackages\Schemas;
 
 use App\Models\PackageTemplate;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
@@ -124,7 +125,37 @@ class StudentPackageForm
                             ->suffix(__('sessions')),
                     ]),
 
-                // ── SECTION 4: Status & Validity ─────────────────────────────
+                // ── SECTION 4: Subject Distribution (One-Time) ───────────────
+                Section::make(__('Session Distribution Across Subjects (One-Time)'))
+                    ->icon('heroicon-o-chart-pie')
+                    ->description(__('Sessions are distributed across the student\'s enrolled subjects once upon package creation and never re-distributed.'))
+                    ->columnSpanFull()
+                    ->schema([
+                        Placeholder::make('distribution_status')
+                            ->label(__('Distribution Allocation'))
+                            ->content(function ($record) {
+                                if (! $record || ! $record->is_distributed || empty($record->subject_distribution)) {
+                                    return __('Will be automatically distributed across the student\'s enrolled subjects once upon creation.');
+                                }
+                                $parts = [];
+                                foreach ($record->subject_distribution as $subjKey => $count) {
+                                    if (is_numeric($subjKey)) {
+                                        $subj = \App\Models\Subject::find($subjKey);
+                                        $name = $subj ? $subj->name : "Subject #{$subjKey}";
+                                    } elseif (str_starts_with($subjKey, 'course_')) {
+                                        $cid = (int) str_replace('course_', '', $subjKey);
+                                        $course = \App\Models\Course::find($cid);
+                                        $name = $course ? $course->title : "Course #{$cid}";
+                                    } else {
+                                        $name = ucfirst($subjKey);
+                                    }
+                                    $parts[] = "{$name}: {$count} " . __('sessions');
+                                }
+                                return '✅ ' . __('Distributed once upon creation:') . ' ' . implode(' • ', $parts);
+                            }),
+                    ]),
+
+                // ── SECTION 5: Status & Validity ─────────────────────────────
                 Section::make(__('Activation & Validity'))
                     ->icon('heroicon-o-cog-6-tooth')
                     ->description(__('Set the package status and optional expiry date.'))

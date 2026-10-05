@@ -297,53 +297,74 @@
 </style>
 @endpush
 
+@php
+    $isHwMode = ($isFileHomework ?? false) || count($assignment->questions) === 0;
+    $isAr = app()->getLocale() === 'ar';
+@endphp
+
 @section('content')
-<section class="quiz-page-bg py-6 sm:py-10 px-4 sm:px-6 lg:px-8 min-h-screen unselectable" id="quizSectionContainer" oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;">
+<section class="quiz-page-bg py-6 sm:py-10 px-4 sm:px-6 lg:px-8 min-h-screen {{ $isHwMode ? '' : 'unselectable' }}" id="quizSectionContainer" {!! $isHwMode ? '' : 'oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;"' !!}>
     <div class="max-w-6xl mx-auto space-y-6">
 
-        {{-- Security Violation Warning Toast/Banner (Triggered on tab-switch/blur) --}}
-        <div id="securityWarningBanner" class="hidden rounded-2xl p-4 bg-rose-500/10 border-2 border-rose-500 text-rose-700 dark:text-rose-400 flex items-center justify-between shadow-lg backdrop-blur-md">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center text-lg shadow-sm flex-shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+        @if(! $isHwMode)
+            {{-- Security Violation Warning Toast/Banner (Triggered on tab-switch/blur in timed MSQ mode) --}}
+            <div id="securityWarningBanner" class="hidden rounded-2xl p-4 bg-rose-500/10 border-2 border-rose-500 text-rose-700 dark:text-rose-400 flex items-center justify-between shadow-lg backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center text-lg shadow-sm flex-shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-extrabold text-sm">{{ $isAr ? 'تنبيه أمني: تم رصد مغادرة نافذة الاختبار!' : 'Security Warning: Window blur or tab-switch detected!' }}</h5>
+                        <p class="text-xs opacity-90" id="securityWarningText">
+                            {{ $isAr ? 'يتم مراقبة نشاطك بدقة. يرجى البقاء في هذه الصفحة حتى تسليم الاختبار.' : 'Your session is monitored. Please remain on this exam tab until submission.' }}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h5 class="font-extrabold text-sm">{{ app()->getLocale() === 'ar' ? 'تنبيه أمني: تم رصد مغادرة نافذة الاختبار!' : 'Security Warning: Window blur or tab-switch detected!' }}</h5>
-                    <p class="text-xs opacity-90" id="securityWarningText">
-                        {{ app()->getLocale() === 'ar' ? 'يتم مراقبة نشاطك بدقة. يرجى البقاء في هذه الصفحة حتى تسليم الاختبار.' : 'Your session is monitored. Please remain on this exam tab until submission.' }}
-                    </p>
+                <div class="flex items-center gap-2">
+                    <span id="strikeCountBadge" class="font-mono text-xs font-black px-3 py-1 bg-rose-500 text-white rounded-lg">
+                        Strike 1/3
+                    </span>
+                    <button type="button" onclick="document.getElementById('securityWarningBanner').classList.add('hidden')" class="w-7 h-7 rounded-lg hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer transition-colors" title="Dismiss">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="strikeCountBadge" class="font-mono text-xs font-black px-3 py-1 bg-rose-500 text-white rounded-lg">
-                    Strike 1/3
-                </span>
-                <button type="button" onclick="document.getElementById('securityWarningBanner').classList.add('hidden')" class="w-7 h-7 rounded-lg hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer transition-colors" title="Dismiss">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-        </div>
+        @endif
 
-        {{-- Top Elite Academy Brand, Security Pill & User Profile Header --}}
+        {{-- Top Elite Academy Brand, Mode Pill & User Profile Header --}}
         <div class="flex flex-wrap items-center justify-between gap-4 px-2">
             <div class="flex items-center gap-3">
                 <a href="{{ route('student-portal') }}" class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight hover:opacity-80 transition-opacity flex items-center gap-2">
                     <span class="text-teal-600 dark:text-teal-400">Elite</span> Academy<span class="text-teal-500">.</span>
                 </a>
                 
-                {{-- Proctoring Shield Indicator --}}
-                <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full security-badge text-xs font-mono font-bold shadow-xs">
-                    <i class="fa-solid fa-shield-halved text-teal-600 dark:text-teal-400"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'نظام مراقبة آمن نشط' : 'Secure Proctoring Active' }}</span>
-                </div>
+                @if($isHwMode)
+                    <div class="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-mono font-bold shadow-xs">
+                        <i class="fa-solid fa-file-signature text-indigo-600 dark:text-indigo-400"></i>
+                        <span>{{ $isAr ? 'تسليم الواجب المنزلي (ملف)' : 'Homework & Worksheet Submission' }}</span>
+                    </div>
+                @else
+                    {{-- Proctoring Shield Indicator --}}
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full security-badge text-xs font-mono font-bold shadow-xs">
+                        <i class="fa-solid fa-shield-halved text-teal-600 dark:text-teal-400"></i>
+                        <span>{{ $isAr ? 'نظام مراقبة آمن نشط' : 'Secure Proctoring Active' }}</span>
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center gap-3">
-                {{-- Fullscreen Toggle Button --}}
-                <button type="button" id="toggleFullscreenBtn" onclick="toggleExamFullscreen()" class="btn-elite-nav px-3.5 py-2 text-xs font-bold font-mono flex items-center gap-2 shadow-xs cursor-pointer" title="Toggle Fullscreen Mode">
-                    <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
-                    <span class="hidden md:inline" id="fullscreenBtnText">{{ app()->getLocale() === 'ar' ? 'ملء الشاشة' : 'Fullscreen' }}</span>
-                </button>
+                @if(! $isHwMode)
+                    {{-- Fullscreen Toggle Button --}}
+                    <button type="button" id="toggleFullscreenBtn" onclick="toggleExamFullscreen()" class="btn-elite-nav px-3.5 py-2 text-xs font-bold font-mono flex items-center gap-2 shadow-xs cursor-pointer" title="Toggle Fullscreen Mode">
+                        <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
+                        <span class="hidden md:inline" id="fullscreenBtnText">{{ $isAr ? 'ملء الشاشة' : 'Fullscreen' }}</span>
+                    </button>
+                @else
+                    <a href="{{ route('student-portal') }}" class="btn-elite-nav px-3.5 py-2 text-xs font-bold font-mono flex items-center gap-2 shadow-xs" title="Back to Portal">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>{{ $isAr ? 'العودة للبوابة' : 'Back to Portal' }}</span>
+                    </a>
+                @endif
 
                 {{-- User Profile Pill --}}
                 <div class="flex items-center gap-3 bg-white dark:bg-slate-900/90 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md backdrop-blur-md">
@@ -358,145 +379,449 @@
             </div>
         </div>
 
-        {{-- Main Quiz Card Container --}}
-        <form id="eliteQuizForm" action="{{ route('ajax.assignment.submit') }}" method="POST">
-            @csrf
-            <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
-
-            <div class="quiz-main-card p-6 sm:p-10 md:p-12 relative overflow-hidden space-y-8">
-                
-                {{-- Quiz Top Bar: Timer & Submit Button --}}
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/90 pb-6">
-                    <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl shadow-inner">
-                        <div class="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-400 text-lg shadow-xs">
-                            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+        @if($isHwMode)
+            {{-- ════════════════════════════════════════════════════════════════ --}}
+            {{-- DEDICATED FILE HOMEWORK & WORKSHEET SUBMISSION VIEW              --}}
+            {{-- ════════════════════════════════════════════════════════════════ --}}
+            <div class="space-y-6">
+                {{-- Top Homework Details & Teacher Instructions Card --}}
+                <div class="bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl backdrop-blur-md space-y-6">
+                    <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+                        <div class="space-y-2 max-w-3xl">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-lines text-indigo-600 dark:text-indigo-400"></i>
+                                    <span>{{ $isAr ? 'واجب منزلي وتكليف دراسي' : 'Homework & Assignment Worksheet' }}</span>
+                                </span>
+                                @if($assignment->course)
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                        {{ $assignment->course->title }}
+                                    </span>
+                                @endif
+                            </div>
+                            <h2 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white leading-tight">
+                                {{ $assignment->title }}
+                            </h2>
+                            @if($assignment->teacherProfile?->user?->name || $assignment->course?->teacher?->user?->name)
+                                <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-chalkboard-user text-teal-600"></i>
+                                    <span>{{ $isAr ? 'المعلم المشرف:' : 'Instructor:' }}</span>
+                                    <strong class="text-slate-700 dark:text-slate-200">{{ $assignment->teacherProfile?->user?->name ?: $assignment->course?->teacher?->user?->name }}</strong>
+                                </p>
+                            @endif
                         </div>
-                        <div>
-                            <span class="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">{{ app()->getLocale() === 'ar' ? 'الوقت المتبقي' : 'Time remaining' }}</span>
-                            @php
-                                $dispRemaining = $remainingSeconds ?? 1800;
-                                $dispHrs = floor($dispRemaining / 3600);
-                                $dispMins = floor(($dispRemaining % 3600) / 60);
-                                $dispSecs = $dispRemaining % 60;
-                            @endphp
-                            <span id="quizTimer" class="font-mono font-black text-slate-900 dark:text-teal-300 text-base sm:text-lg">
-                                {{ sprintf('%02d : %02d : %02d', $dispHrs, $dispMins, $dispSecs) }}
-                            </span>
+
+                        {{-- Key Metadata Badges --}}
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 px-4 py-2.5 rounded-2xl font-mono text-xs">
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">{{ $isAr ? 'الموعد النهائي' : 'Deadline' }}</span>
+                                <span class="font-black text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mt-0.5">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span>{{ $assignment->effective_due_at ? $assignment->effective_due_at->format('Y-m-d H:i') : ($isAr ? 'قبل الحصة القادمة' : 'Pre-Session') }}</span>
+                                </span>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 px-4 py-2.5 rounded-2xl font-mono text-xs">
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">{{ $isAr ? 'درجة النجاح' : 'Pass Mark' }}</span>
+                                <span class="font-black text-teal-600 dark:text-teal-400 flex items-center gap-1.5 mt-0.5">
+                                    <i class="fa-solid fa-award"></i>
+                                    <span>{{ number_format($assignment->passing_score ?? 70, 0) }}%</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" id="submitQuizBtn" class="btn-elite-primary px-7 py-3 font-extrabold text-sm cursor-pointer flex items-center gap-2">
-                        <span>{{ app()->getLocale() === 'ar' ? 'تسليم الاختبار' : 'Submit Quiz' }}</span>
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
+                    {{-- Teacher Instructions & Description --}}
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-teal-600"></i>
+                            <span>{{ $isAr ? 'تعليمات وإرشادات المعلم لحل الواجب:' : 'Teacher Instructions & Requirements:' }}</span>
+                        </h4>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-line">
+                            {{ $assignment->description ?: ($isAr ? 'يرجى تحميل ورقة الواجب أدناه، وحل التمارين المطلوبة بخط واضح أو بصيغة PDF / صور، ثم إعادة رفع الملف في المكان المخصص بالأسفل لتسليمه للمعلم.' : 'Please download the worksheet below, solve the required exercises clearly, and upload your solution file (PDF or images) below to submit it to your teacher.') }}
+                        </div>
+                    </div>
 
-                {{-- Main Quiz Body (Questions + Circular Gauge) --}}
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[320px]">
-                    
-                    {{-- Left 8 Columns: Question & Options Grid --}}
-                    <div class="lg:col-span-8 space-y-6">
-                        @forelse($assignment->questions as $index => $q)
-                            <div id="questionStep{{ $index }}" class="question-step space-y-6 {{ $index === 0 ? '' : 'hidden' }}" data-step="{{ $index }}">
-                                
-                                {{-- Question Number Tag --}}
-                                <div class="space-y-2">
-                                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 font-mono text-xs font-bold shadow-xs">
-                                        <i class="fa-solid fa-circle-question text-[11px]"></i>
-                                        {{ app()->getLocale() === 'ar' ? 'السؤال' : 'Question' }} {{ $index + 1 }} {{ app()->getLocale() === 'ar' ? 'من' : 'of' }} {{ count($assignment->questions) }}
-                                    </span>
-                                    <h3 class="font-heading font-black text-xl sm:text-2xl text-slate-900 dark:text-white leading-snug math-render">
-                                        {{ $q->question_text }}
-                                    </h3>
+                    {{-- Teacher Worksheet Download Card --}}
+                    @if($homeworkFile || $assignment->attachment_file_path)
+                        @php
+                            $hwFileRecord = $homeworkFile ?: (object)[
+                                'original_name' => $assignment->attachment_file_name ?: 'Homework-Worksheet.pdf',
+                                'file_path' => $assignment->attachment_file_path,
+                                'file_type' => str_ends_with(strtolower($assignment->attachment_file_path ?? ''), '.pdf') ? 'pdf' : 'image',
+                                'formatted_size' => '—',
+                                'id' => null,
+                            ];
+                        @endphp
+                        <div class="space-y-3 pt-2">
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-file-arrow-down text-indigo-600 dark:text-indigo-400"></i>
+                                <span>{{ $isAr ? 'ملف ورقة أسئلة الواجب المرفق من المعلم:' : 'Attached Homework Worksheet File:' }}</span>
+                            </h4>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-800/50">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                                        @if(isset($hwFileRecord->file_type) && $hwFileRecord->file_type === 'pdf')
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        @else
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        @endif
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <h5 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white break-words">
+                                            {{ $hwFileRecord->original_name ?? 'Homework-Worksheet' }}
+                                        </h5>
+                                        <p class="text-xs font-mono text-slate-500 dark:text-slate-400">
+                                            {{ isset($hwFileRecord->formatted_size) ? $hwFileRecord->formatted_size : '' }}
+                                            @if($assignment->created_at)
+                                                • {{ $assignment->created_at->format('Y-m-d') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    @if($q->image_path)
-                                        <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-3 max-w-lg my-3 shadow-xs">
-                                            <img src="{{ asset('storage/' . $q->image_path) }}" class="max-h-56 rounded-xl object-contain pointer-events-none" alt="Question Image">
-                                        </div>
+                                <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                                    @if(!empty($hwFileRecord->id))
+                                        <a href="{{ route('portal.files.download', $hwFileRecord->id) }}"
+                                            class="flex-1 sm:flex-initial btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold font-mono shadow-md inline-flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>{{ $isAr ? 'تحميل ورقة الأسئلة' : 'Download Worksheet' }}</span>
+                                        </a>
+                                        <a href="{{ route('portal.files.preview', $hwFileRecord->id) }}" target="_blank"
+                                            class="btn-lift px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold font-mono inline-flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-eye"></i>
+                                            <span>{{ $isAr ? 'معاينة' : 'Preview' }}</span>
+                                        </a>
+                                    @elseif(!empty($assignment->attachment_file_path))
+                                        <a href="{{ asset('storage/' . $assignment->attachment_file_path) }}" download
+                                            class="flex-1 sm:flex-initial btn-lift px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold font-mono shadow-md inline-flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>{{ $isAr ? 'تحميل ورقة الأسئلة' : 'Download Worksheet' }}</span>
+                                        </a>
                                     @endif
                                 </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
 
-                                {{-- Answer Option Cards (2x2 Grid on Desktop) --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                                    @foreach($q->options as $optIndex => $opt)
-                                        @php
-                                            $inputType = $q->is_multiple_choice ? 'checkbox' : 'radio';
-                                            $letter = chr(65 + $optIndex); // A, B, C, D
-                                            $savedOptIds = $savedAnswers[(string) $q->id] ?? $savedAnswers[(int) $q->id] ?? [];
-                                            if (is_string($savedOptIds)) {
-                                                $savedOptIds = json_decode($savedOptIds, true) ?: [$savedOptIds];
-                                            }
-                                            $savedOptIdsInt = array_map('intval', (array) $savedOptIds);
-                                            $isChecked = in_array((int) $opt->id, $savedOptIdsInt, true);
-                                        @endphp
-                                        <label class="option-label option-card-elite flex items-center justify-between cursor-pointer {{ $isChecked ? 'selected' : '' }}">
-                                            <div class="flex items-center gap-3.5 w-full">
-                                                <input type="{{ $inputType }}" name="answers[{{ $q->id }}][]" value="{{ $opt->id }}" {{ $isChecked ? 'checked' : '' }} class="option-input accent-teal-600 w-4 h-4 cursor-pointer">
-                                                
-                                                <span class="option-letter-badge">
-                                                    {{ $letter }}
-                                                </span>
+                {{-- Previous Submissions History Card (If Student Already Submitted) --}}
+                @if(($studentSubmittedFiles && $studentSubmittedFiles->count() > 0) || ($previousSubmission && in_array($previousSubmission->status, ['submitted', 'completed', 'reviewed'])))
+                    <div class="bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl backdrop-blur-md space-y-5">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/20">
+                                    <i class="fa-solid fa-check-double"></i>
+                                </span>
+                                <span>{{ $isAr ? 'سجل تسليماتك السابقة لهذا الواجب' : 'Your Submitted Solutions for this Homework' }}</span>
+                            </h3>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                {{ $previousSubmission?->status_label ?? ($isAr ? 'تم التسليم بنجاح' : 'Submitted Successfully') }}
+                            </span>
+                        </div>
 
-                                                <span class="math-render leading-relaxed text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 flex-1">{{ $opt->option_text }}</span>
-                                            </div>
-
-                                            @if($opt->image_path)
-                                                <img src="{{ asset('storage/' . $opt->image_path) }}" class="h-8 rounded border border-slate-200 dark:border-slate-700 pointer-events-none ms-2" alt="Option Image">
-                                            @endif
-                                        </label>
-                                    @endforeach
+                        @if($previousSubmission && ($previousSubmission->percentage !== null || $previousSubmission->grade !== null))
+                            <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-4">
+                                <div class="space-y-1">
+                                    <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 block">
+                                        {{ $isAr ? 'الدرجة والتقييم النهائي:' : 'Evaluation & Score:' }}
+                                    </span>
+                                    @if($previousSubmission->feedback)
+                                        <p class="text-xs text-slate-600 dark:text-slate-300">
+                                            <strong>{{ $isAr ? 'ملاحظات المعلم:' : 'Teacher Feedback:' }}</strong> {{ $previousSubmission->feedback }}
+                                        </p>
+                                    @endif
                                 </div>
+                                <div class="text-end">
+                                    <span class="font-heading font-black text-2xl text-emerald-600 dark:text-emerald-400 font-mono">
+                                        {{ number_format($previousSubmission->percentage ?? $previousSubmission->grade, 0) }}%
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
 
-                            </div>
-                        @empty
-                            <div class="py-12 text-center text-slate-500 dark:text-slate-400 font-mono text-xs">
-                                {{ app()->getLocale() === 'ar' ? 'لا توجد أسئلة مضافة لهذا الاختبار بعد.' : 'No questions configured for this assignment yet.' }}
-                            </div>
-                        @endforelse
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                            @forelse($studentSubmittedFiles as $sf)
+                                <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-lg">
+                                            <i class="fa-solid {{ $sf->file_type === 'pdf' ? 'fa-file-pdf text-rose-500' : 'fa-file-image text-teal-500' }}"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">{{ $sf->original_name ?: $sf->title }}</h5>
+                                            <p class="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                                                {{ $sf->formatted_size }} • {{ $sf->created_at->format('Y-m-d H:i') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('portal.files.download', $sf->id) }}"
+                                            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold font-mono inline-flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>{{ $isAr ? 'تحميل نسختك' : 'Download Copy' }}</span>
+                                        </a>
+                                        <a href="{{ route('portal.files.preview', $sf->id) }}" target="_blank"
+                                            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold font-mono inline-flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
+                                            <i class="fa-solid fa-eye"></i>
+                                            <span>{{ $isAr ? 'معاينة' : 'Preview' }}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-500 py-2">{{ $isAr ? 'تم تسجيل تسليم الواجب بنجاح.' : 'Assignment submitted successfully.' }}</p>
+                            @endforelse
+                        </div>
                     </div>
+                @endif
 
-                    {{-- Right 4 Columns: Circular Gauge Progress Ring --}}
-                    <div class="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-50/70 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-3xl backdrop-blur-sm shadow-xl">
-                        <div class="relative w-44 h-44 flex items-center justify-center">
-                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width="10" fill="transparent" class="text-slate-200 dark:text-slate-800" />
-                                <circle id="gaugeRingFill" cx="60" cy="60" r="48" stroke="#14B8A6" stroke-width="10" fill="transparent"
-                                        stroke-dasharray="301.59" stroke-dashoffset="271.43" stroke-linecap="round" class="transition-all duration-500 ease-out"
-                                        style="filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.4));" />
-                            </svg>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                <span id="gaugeText" class="font-heading font-black text-3xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">1/{{ count($assignment->questions) }}</span>
-                                <span class="text-[11px] font-mono font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest mt-1">{{ app()->getLocale() === 'ar' ? 'تقدم الإجابات' : 'Progress' }}</span>
-                            </div>
+                {{-- Solution File Upload & Submission Form Card --}}
+                <div class="bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl backdrop-blur-md space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div>
+                            <h3 class="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-teal-600 dark:text-teal-400"></i>
+                                <span>
+                                    @if($studentSubmittedFiles && $studentSubmittedFiles->count() > 0)
+                                        {{ $isAr ? 'إعادة رفع أو تحديث حل الواجب' : 'Re-upload / Update Homework Solution' }}
+                                    @else
+                                        {{ $isAr ? 'رفع وتسليم حل الواجب' : 'Upload & Submit Homework Solution' }}
+                                    @endif
+                                </span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                {{ $isAr ? 'الصيغ المقبولة: PDF أو صور عالية الوضوح (PNG, JPG, WEBP) بحد أقصى 25 ميجابايت.' : 'Accepted formats: PDF or high-resolution images (PNG, JPG, WEBP) up to 25MB.' }}
+                            </p>
                         </div>
                     </div>
 
-                </div>
+                    <form id="homeworkUploadForm" onsubmit="handleHomeworkFormSubmit(event)" class="space-y-6">
+                        @csrf
+                        <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
+                        <input type="hidden" name="course_id" value="{{ $assignment->course_id }}">
+                        <input type="hidden" name="teacher_profile_id" value="{{ $assignment->teacher_profile_id }}">
+                        <input type="hidden" name="title" value="حل واجب: {{ $assignment->title }}">
 
-                {{-- Bottom Navigation Toolbar --}}
-                <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-200 dark:border-slate-800/90">
-                    <button type="button" id="prevBtn" disabled class="btn-elite-nav px-6 py-3 text-xs font-bold font-mono disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-left text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'السابق' : 'Prev' }}</span>
-                    </button>
+                        {{-- Drag and Drop File Input Area --}}
+                        <div id="dropzoneArea" 
+                             class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-400 rounded-3xl p-8 sm:p-12 text-center transition-all cursor-pointer bg-slate-50/50 dark:bg-slate-950/40"
+                             onclick="document.getElementById('homeworkFileInput').click()">
+                            
+                            <input type="file" id="homeworkFileInput" name="file" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp" class="hidden" onchange="handleFileSelected(this)">
+                            
+                            <div id="dropzonePrompt" class="space-y-3">
+                                <div class="w-16 h-16 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center text-3xl mx-auto border border-teal-500/20">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-200">
+                                        {{ $isAr ? 'اضغط لاختيار ملف الحل أو اسحبه وأفلته هنا' : 'Click to select solution file, or drag and drop here' }}
+                                    </p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                        PDF, PNG, JPG, JPEG, WEBP (Max 25MB)
+                                    </p>
+                                </div>
+                            </div>
 
-                    {{-- Question Numbers Grid Map (1, 2, 3, 4...) --}}
-                    <div class="flex flex-wrap items-center justify-center gap-2 overflow-x-auto py-1" id="dotsContainer">
-                        @foreach($assignment->questions as $i => $q)
-                            <button type="button" data-step-index="{{ $i }}" class="dot-item {{ $i === 0 ? 'active-step' : '' }}">
-                                {{ $i + 1 }}
+                            {{-- Selected File Display Preview --}}
+                            <div id="filePreviewContainer" class="hidden flex items-center justify-center gap-4 bg-teal-50/80 dark:bg-teal-950/30 p-4 rounded-2xl border border-teal-200 dark:border-teal-800 max-w-md mx-auto">
+                                <div class="w-12 h-12 rounded-xl bg-teal-600 text-white flex items-center justify-center text-xl shrink-0">
+                                    <i id="previewIcon" class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="text-start space-y-0.5 overflow-hidden">
+                                    <h5 id="previewFileName" class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">file.pdf</h5>
+                                    <span id="previewFileSize" class="text-xs font-mono text-teal-700 dark:text-teal-300 font-semibold block">0 KB</span>
+                                </div>
+                                <button type="button" onclick="event.stopPropagation(); removeSelectedFile();" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center transition-colors ms-auto cursor-pointer" title="Remove">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Student Optional Notes Textarea --}}
+                        <div class="space-y-2">
+                            <label for="homeworkNotes" class="block text-xs font-bold font-mono text-slate-700 dark:text-slate-300">
+                                {{ $isAr ? 'ملاحظات إضافية للمعلم (اختياري):' : 'Additional Notes / Comments for Teacher (Optional):' }}
+                            </label>
+                            <textarea id="homeworkNotes" name="description" rows="3" 
+                                placeholder="{{ $isAr ? 'اكتب أي ملاحظة أو استفسار بخصوص طريقة حلك أو المسائل التي واجهتك...' : 'Type any comments, explanations, or questions regarding your solution...' }}"
+                                class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"></textarea>
+                        </div>
+
+                        {{-- Upload Progress Bar --}}
+                        <div id="uploadProgressContainer" class="hidden space-y-2">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold">
+                                <span class="text-teal-600 dark:text-teal-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                    <span>{{ $isAr ? 'جاري رفع الملف وتسجيل التسليم...' : 'Uploading file and registering submission...' }}</span>
+                                </span>
+                                <span id="uploadProgressPct" class="text-slate-600 dark:text-slate-300">0%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div id="uploadProgressBar" class="h-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-200" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        {{-- Action Submit Button --}}
+                        <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <a href="{{ route('student-portal') }}" class="btn-lift px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold font-mono inline-flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span>{{ $isAr ? 'العودة لبوابة الطالب' : 'Back to Portal' }}</span>
+                            </a>
+
+                            <button type="submit" id="submitHomeworkBtn" class="btn-lift px-8 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-teal-500/25 flex items-center gap-2.5 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>{{ $isAr ? 'تسليم الواجب للمعلم الآن' : 'Submit Homework to Teacher' }}</span>
                             </button>
-                        @endforeach
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @else
+            {{-- ════════════════════════════════════════════════════════════════ --}}
+            {{-- INTERACTIVE MSQ QUIZ PLAYER CONTAINER                           --}}
+            {{-- ════════════════════════════════════════════════════════════════ --}}
+            <form id="eliteQuizForm" action="{{ route('ajax.assignment.submit') }}" method="POST">
+                @csrf
+                <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
+
+                <div class="quiz-main-card p-6 sm:p-10 md:p-12 relative overflow-hidden space-y-8">
+                    
+                    {{-- Quiz Top Bar: Timer & Submit Button --}}
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/90 pb-6">
+                        <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl shadow-inner">
+                            <div class="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-400 text-lg shadow-xs">
+                                <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">{{ $isAr ? 'الوقت المتبقي' : 'Time remaining' }}</span>
+                                @php
+                                    $dispRemaining = $remainingSeconds ?? 1800;
+                                    $dispHrs = floor($dispRemaining / 3600);
+                                    $dispMins = floor(($dispRemaining % 3600) / 60);
+                                    $dispSecs = $dispRemaining % 60;
+                                @endphp
+                                <span id="quizTimer" class="font-mono font-black text-slate-900 dark:text-teal-300 text-base sm:text-lg">
+                                    {{ sprintf('%02d : %02d : %02d', $dispHrs, $dispMins, $dispSecs) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitQuizBtn" class="btn-elite-primary px-7 py-3 font-extrabold text-sm cursor-pointer flex items-center gap-2">
+                            <span>{{ $isAr ? 'تسليم الاختبار' : 'Submit Quiz' }}</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
                     </div>
 
-                    <button type="button" id="nextBtn" class="btn-elite-nav px-8 py-3 text-xs font-bold font-mono cursor-pointer flex items-center gap-2">
-                        <span>{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </div>
+                    {{-- Main Quiz Body (Questions + Circular Gauge) --}}
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[320px]">
+                        
+                        {{-- Left 8 Columns: Question & Options Grid --}}
+                        <div class="lg:col-span-8 space-y-6">
+                            @forelse($assignment->questions as $index => $q)
+                                <div id="questionStep{{ $index }}" class="question-step space-y-6 {{ $index === 0 ? '' : 'hidden' }}" data-step="{{ $index }}">
+                                    
+                                    {{-- Question Number Tag --}}
+                                    <div class="space-y-2">
+                                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 font-mono text-xs font-bold shadow-xs">
+                                            <i class="fa-solid fa-circle-question text-[11px]"></i>
+                                            {{ $isAr ? 'السؤال' : 'Question' }} {{ $index + 1 }} {{ $isAr ? 'من' : 'of' }} {{ count($assignment->questions) }}
+                                        </span>
+                                        <h3 class="font-heading font-black text-xl sm:text-2xl text-slate-900 dark:text-white leading-snug math-render">
+                                            {{ $q->question_text }}
+                                        </h3>
 
-            </div>
-        </form>
+                                        @if($q->image_path)
+                                            <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-3 max-w-lg my-3 shadow-xs">
+                                                <img src="{{ asset('storage/' . $q->image_path) }}" class="max-h-56 rounded-xl object-contain pointer-events-none" alt="Question Image">
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Answer Option Cards (2x2 Grid on Desktop) --}}
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                                        @foreach($q->options as $optIndex => $opt)
+                                            @php
+                                                $inputType = $q->is_multiple_choice ? 'checkbox' : 'radio';
+                                                $letter = chr(65 + $optIndex); // A, B, C, D
+                                                $savedOptIds = $savedAnswers[(string) $q->id] ?? $savedAnswers[(int) $q->id] ?? [];
+                                                if (is_string($savedOptIds)) {
+                                                    $savedOptIds = json_decode($savedOptIds, true) ?: [$savedOptIds];
+                                                }
+                                                $savedOptIdsInt = array_map('intval', (array) $savedOptIds);
+                                                $isChecked = in_array((int) $opt->id, $savedOptIdsInt, true);
+                                            @endphp
+                                            <label class="option-label option-card-elite flex items-center justify-between cursor-pointer {{ $isChecked ? 'selected' : '' }}">
+                                                <div class="flex items-center gap-3.5 w-full">
+                                                    <input type="{{ $inputType }}" name="answers[{{ $q->id }}][]" value="{{ $opt->id }}" {{ $isChecked ? 'checked' : '' }} class="option-input accent-teal-600 w-4 h-4 cursor-pointer">
+                                                    
+                                                    <span class="option-letter-badge">
+                                                        {{ $letter }}
+                                                    </span>
+
+                                                    <span class="math-render leading-relaxed text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 flex-1">{{ $opt->option_text }}</span>
+                                                </div>
+
+                                                @if($opt->image_path)
+                                                    <img src="{{ asset('storage/' . $opt->image_path) }}" class="h-8 rounded border border-slate-200 dark:border-slate-700 pointer-events-none ms-2" alt="Option Image">
+                                                @endif
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                </div>
+                            @empty
+                                <div class="py-12 text-center text-slate-500 dark:text-slate-400 font-mono text-xs">
+                                    {{ $isAr ? 'لا توجد أسئلة مضافة لهذا الاختبار بعد.' : 'No questions configured for this assignment yet.' }}
+                                </div>
+                            @endforelse
+                        </div>
+
+                        {{-- Right 4 Columns: Circular Gauge Progress Ring --}}
+                        <div class="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-50/70 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-3xl backdrop-blur-sm shadow-xl">
+                            <div class="relative w-44 h-44 flex items-center justify-center">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width="10" fill="transparent" class="text-slate-200 dark:text-slate-800" />
+                                    <circle id="gaugeRingFill" cx="60" cy="60" r="48" stroke="#14B8A6" stroke-width="10" fill="transparent"
+                                            stroke-dasharray="301.59" stroke-dashoffset="271.43" stroke-linecap="round" class="transition-all duration-500 ease-out"
+                                            style="filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.4));" />
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                    <span id="gaugeText" class="font-heading font-black text-3xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">1/{{ count($assignment->questions) }}</span>
+                                    <span class="text-[11px] font-mono font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest mt-1">{{ $isAr ? 'تقدم الإجابات' : 'Progress' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {{-- Bottom Navigation Toolbar --}}
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-200 dark:border-slate-800/90">
+                        <button type="button" id="prevBtn" disabled class="btn-elite-nav px-6 py-3 text-xs font-bold font-mono disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
+                            <span>{{ $isAr ? 'السابق' : 'Prev' }}</span>
+                        </button>
+
+                        {{-- Question Numbers Grid Map (1, 2, 3, 4...) --}}
+                        <div class="flex flex-wrap items-center justify-center gap-2 overflow-x-auto py-1" id="dotsContainer">
+                            @foreach($assignment->questions as $i => $q)
+                                <button type="button" data-step-index="{{ $i }}" class="dot-item {{ $i === 0 ? 'active-step' : '' }}">
+                                    {{ $i + 1 }}
+                                </button>
+                            @endforeach
+                        </div>
+
+                        <button type="button" id="nextBtn" class="btn-elite-nav px-8 py-3 text-xs font-bold font-mono cursor-pointer flex items-center gap-2">
+                            <span>{{ $isAr ? 'التالي' : 'Next' }}</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        @endif
+
+    </div>
+</section>
 
     </div>
 </section>
@@ -545,6 +870,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
 <script>
+window.isFileHomework = {{ $isHwMode ? 'true' : 'false' }};
 window.currentStep = {{ $currentStepIndex ?? 0 }};
 window.totalSteps = {{ count($assignment->questions) }};
 window.durationMinutes = {{ $assignment->duration_minutes ?? 30 }};
@@ -554,6 +880,177 @@ window.timerSeconds = window.serverRemainingSeconds;
 window.assignmentId = {{ $assignment->id }};
 window.savedAnswers = @json($savedAnswers ?? []);
 window.isSubmittedSuccessfully = false;
+
+// =========================================================================
+// File Homework Workspace Handlers
+// =========================================================================
+window.handleFileSelected = function(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    
+    // Max 25 MB validation
+    if (file.size > 25 * 1024 * 1024) {
+        if (window.Toast) {
+            window.Toast.error("{{ $isAr ? 'حجم الملف يتجاوز الحد الأقصى المسموح به (25 ميجابايت).' : 'File size exceeds maximum allowed size (25MB).' }}");
+        } else {
+            alert("{{ $isAr ? 'حجم الملف يتجاوز الحد الأقصى (25 ميجابايت).' : 'File size exceeds 25MB.' }}");
+        }
+        input.value = '';
+        return;
+    }
+
+    const previewContainer = document.getElementById('filePreviewContainer');
+    const promptArea = document.getElementById('dropzonePrompt');
+    const nameEl = document.getElementById('previewFileName');
+    const sizeEl = document.getElementById('previewFileSize');
+    const iconEl = document.getElementById('previewIcon');
+
+    if (nameEl) nameEl.textContent = file.name;
+    if (sizeEl) {
+        const sizeFormatted = file.size > 1024 * 1024 
+            ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+            : (file.size / 1024).toFixed(1) + ' KB';
+        sizeEl.textContent = sizeFormatted;
+    }
+    if (iconEl) {
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+            iconEl.className = 'fa-solid fa-file-pdf';
+        } else {
+            iconEl.className = 'fa-solid fa-file-image';
+        }
+    }
+
+    if (promptArea) promptArea.classList.add('hidden');
+    if (previewContainer) previewContainer.classList.remove('hidden');
+};
+
+window.removeSelectedFile = function() {
+    const input = document.getElementById('homeworkFileInput');
+    if (input) input.value = '';
+    const previewContainer = document.getElementById('filePreviewContainer');
+    const promptArea = document.getElementById('dropzonePrompt');
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (promptArea) promptArea.classList.remove('hidden');
+};
+
+window.handleHomeworkFormSubmit = function(e) {
+    e.preventDefault();
+    const form = document.getElementById('homeworkUploadForm');
+    const fileInput = document.getElementById('homeworkFileInput');
+    const submitBtn = document.getElementById('submitHomeworkBtn');
+    const progressContainer = document.getElementById('uploadProgressContainer');
+    const progressBar = document.getElementById('uploadProgressBar');
+    const progressPct = document.getElementById('uploadProgressPct');
+
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        if (window.Toast) {
+            window.Toast.warning("{{ $isAr ? 'يرجى اختيار ملف الحل (PDF أو صورة) أولاً قبل الضغط على تسليم الواجب.' : 'Please select your homework solution file (PDF or image) before submitting.' }}");
+        } else {
+            alert("{{ $isAr ? 'يرجى اختيار ملف الحل أولاً.' : 'Please select your homework solution file first.' }}");
+        }
+        return;
+    }
+
+    const formData = new FormData(form);
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>{{ $isAr ? "جاري الرفع والتسليم..." : "Uploading & Submitting..." }}</span>';
+    }
+    if (progressContainer) progressContainer.classList.remove('hidden');
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', "{{ route('ajax.student.files.upload') }}", true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Accept', 'application/json');
+
+    xhr.upload.onprogress = function(evt) {
+        if (evt.lengthComputable) {
+            const percent = Math.round((evt.loaded / evt.total) * 100);
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressPct) progressPct.textContent = percent + '%';
+        }
+    };
+
+    xhr.onload = function() {
+        let resp = {};
+        try {
+            resp = JSON.parse(xhr.responseText);
+        } catch (err) {}
+
+        if (xhr.status >= 200 && xhr.status < 300 && resp.success) {
+            window.isSubmittedSuccessfully = true;
+            if (window.Toast) {
+                window.Toast.success(resp.message || "{{ $isAr ? 'تم تسليم الواجب بنجاح للمعلم!' : 'Homework solution submitted successfully!' }}");
+            }
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> <span>{{ $isAr ? "تم التسليم بنجاح!" : "Submitted Successfully!" }}</span>';
+                submitBtn.classList.remove('from-teal-600', 'to-emerald-600');
+                submitBtn.classList.add('bg-emerald-600');
+            }
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        } else {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>{{ $isAr ? "إعادة محاولة التسليم" : "Retry Submission" }}</span>';
+            }
+            const errMsg = resp.message || "{{ $isAr ? 'حدث خطأ أثناء رفع الواجب. يرجى المحاولة مجدداً.' : 'An error occurred while uploading. Please try again.' }}";
+            if (window.Toast) {
+                window.Toast.error(errMsg);
+            } else {
+                alert(errMsg);
+            }
+        }
+    };
+
+    xhr.onerror = function() {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>{{ $isAr ? "إعادة محاولة التسليم" : "Retry Submission" }}</span>';
+        }
+        if (window.Toast) {
+            window.Toast.error("{{ $isAr ? 'تعذر الاتصال بالخادم أثناء رفع الملف.' : 'Network connection error during upload.' }}");
+        }
+    };
+
+    xhr.send(formData);
+};
+
+// Drag and drop events for Homework Uploader
+document.addEventListener('DOMContentLoaded', function() {
+    const dropzone = document.getElementById('dropzoneArea');
+    if (dropzone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.add('border-teal-500', 'bg-teal-50/20', 'dark:bg-teal-950/20');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('border-teal-500', 'bg-teal-50/20', 'dark:bg-teal-950/20');
+            }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                const fileInput = document.getElementById('homeworkFileInput');
+                if (fileInput) {
+                    fileInput.files = files;
+                    window.handleFileSelected(fileInput);
+                }
+            }
+        }, false);
+    }
+});
 
 // =========================================================================
 // KaTeX Math Renderer
@@ -873,247 +1370,252 @@ window.closeResultModal = function() {
 };
 
 // =========================================================================
-// Security, Anti-Cheat & Proctoring Engine
+// Security, Anti-Cheat & Proctoring Engine (Only for Timed MSQ Exams)
 // =========================================================================
-window.tabSwitchViolations = 0;
-window.maxAllowedViolations = 3;
-window.lastViolationTime = 0;
+if (!window.isFileHomework) {
+    window.tabSwitchViolations = 0;
+    window.maxAllowedViolations = 3;
+    window.lastViolationTime = 0;
 
-function triggerSecurityViolation(reason) {
-    if (window.isSubmittedSuccessfully) return;
-    
-    // Debounce guard: prevent simultaneous blur and visibilitychange double triggers within 3 seconds
-    const now = Date.now();
-    if (now - window.lastViolationTime < 3000) {
-        return;
+    function triggerSecurityViolation(reason) {
+        if (window.isSubmittedSuccessfully) return;
+        
+        // Debounce guard: prevent simultaneous blur and visibilitychange double triggers within 3 seconds
+        const now = Date.now();
+        if (now - window.lastViolationTime < 3000) {
+            return;
+        }
+        window.lastViolationTime = now;
+
+        if (window.tabSwitchViolations < window.maxAllowedViolations) {
+            window.tabSwitchViolations++;
+        }
+
+        const banner = document.getElementById('securityWarningBanner');
+        const badge = document.getElementById('strikeCountBadge');
+
+        if (banner && badge) {
+            banner.classList.remove('hidden');
+            badge.textContent = `Strike ${window.tabSwitchViolations}/${window.maxAllowedViolations}`;
+        }
+
+        if (window.Toast) {
+            window.Toast.warning(
+                `{{ $isAr ? 'تنبيه أمني: تم رصد مغادرة نافذة الاختبار! مخالفة (' : 'Security Warning: Tab switch/blur detected! Strike (' }}${window.tabSwitchViolations}/${window.maxAllowedViolations})`,
+                "{{ $isAr ? 'مراقبة الاختبار' : 'Proctoring Warning' }}"
+            );
+        }
     }
-    window.lastViolationTime = now;
 
-    if (window.tabSwitchViolations < window.maxAllowedViolations) {
-        window.tabSwitchViolations++;
-    }
+    // Fullscreen Proctoring Toggle
+    window.toggleExamFullscreen = function() {
+        const elem = document.documentElement;
+        const icon = document.getElementById('fullscreenIcon');
+        const text = document.getElementById('fullscreenBtnText');
 
-    const banner = document.getElementById('securityWarningBanner');
-    const badge = document.getElementById('strikeCountBadge');
+        if (!document.fullscreenElement) {
+            elem.requestFullscreen().then(() => {
+                if (icon) icon.className = 'fa-solid fa-compress';
+                if (text) text.textContent = "{{ $isAr ? 'إنهاء التكبير' : 'Exit Fullscreen' }}";
+            }).catch(() => {});
+        } else {
+            document.exitFullscreen().then(() => {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (text) text.textContent = "{{ $isAr ? 'ملء الشاشة' : 'Fullscreen' }}";
+            }).catch(() => {});
+        }
+    };
 
-    if (banner && badge) {
-        banner.classList.remove('hidden');
-        badge.textContent = `Strike ${window.tabSwitchViolations}/${window.maxAllowedViolations}`;
-    }
+    // Anti-Cheat Event Listeners (Debounced unified proctoring)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            triggerSecurityViolation('Tab Switch');
+        }
+    });
 
-    if (window.Toast) {
-        window.Toast.warning(
-            `{{ app()->getLocale() === 'ar' ? 'تنبيه أمني: تم رصد مغادرة نافذة الاختبار! مخالفة (' : 'Security Warning: Tab switch/blur detected! Strike (' }}${window.tabSwitchViolations}/${window.maxAllowedViolations})`,
-            "{{ app()->getLocale() === 'ar' ? 'مراقبة الاختبار' : 'Proctoring Warning' }}"
-        );
-    }
+    window.addEventListener('blur', function() {
+        triggerSecurityViolation('Window Blur');
+    });
+
+    // Disable developer hotkeys, copy/cut, view-source, inspect
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key))) {
+            e.preventDefault();
+            return false;
+        }
+        if (e.ctrlKey && ['u', 'U', 's', 'S', 'p', 'P'].includes(e.key)) {
+            e.preventDefault();
+            return false;
+        }
+        if (e.ctrlKey && ['c', 'C', 'x', 'X', 'a', 'A'].includes(e.key)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Guard against accidental page close before submit
+    window.addEventListener('beforeunload', function(e) {
+        if (!window.isSubmittedSuccessfully) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 }
-
-// Fullscreen Proctoring Toggle
-window.toggleExamFullscreen = function() {
-    const elem = document.documentElement;
-    const icon = document.getElementById('fullscreenIcon');
-    const text = document.getElementById('fullscreenBtnText');
-
-    if (!document.fullscreenElement) {
-        elem.requestFullscreen().then(() => {
-            if (icon) icon.className = 'fa-solid fa-compress';
-            if (text) text.textContent = "{{ app()->getLocale() === 'ar' ? 'إنهاء التكبير' : 'Exit Fullscreen' }}";
-        }).catch(() => {});
-    } else {
-        document.exitFullscreen().then(() => {
-            if (icon) icon.className = 'fa-solid fa-expand';
-            if (text) text.textContent = "{{ app()->getLocale() === 'ar' ? 'ملء الشاشة' : 'Fullscreen' }}";
-        }).catch(() => {});
-    }
-};
-
-// Anti-Cheat Event Listeners (Debounced unified proctoring)
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        triggerSecurityViolation('Tab Switch');
-    }
-});
-
-window.addEventListener('blur', function() {
-    triggerSecurityViolation('Window Blur');
-});
-
-// Disable developer hotkeys, copy/cut, view-source, inspect
-window.addEventListener('keydown', function(e) {
-    // F12 or Ctrl+Shift+I or Ctrl+Shift+J or Ctrl+Shift+C (Devtools)
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key))) {
-        e.preventDefault();
-        return false;
-    }
-    // Ctrl+U (View Source) or Ctrl+S (Save) or Ctrl+P (Print)
-    if (e.ctrlKey && ['u', 'U', 's', 'S', 'p', 'P'].includes(e.key)) {
-        e.preventDefault();
-        return false;
-    }
-    // Ctrl+C, Ctrl+X, Ctrl+A inside the exam area
-    if (e.ctrlKey && ['c', 'C', 'x', 'X', 'a', 'A'].includes(e.key)) {
-        e.preventDefault();
-        return false;
-    }
-});
-
-// Guard against accidental page close before submit
-window.addEventListener('beforeunload', function(e) {
-    if (!window.isSubmittedSuccessfully) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
-});
 
 // =========================================================================
 // Initialization on DOM Load
 // =========================================================================
 document.addEventListener('DOMContentLoaded', function () {
-    const nextBtn = document.getElementById('nextBtn');
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.navigateStep(1);
-        });
+    if (window.triggerKaTeXRender) {
+        window.triggerKaTeXRender();
     }
 
-    const prevBtn = document.getElementById('prevBtn');
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.navigateStep(-1);
+    if (!window.isFileHomework) {
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.navigateStep(1);
+            });
+        }
+
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.navigateStep(-1);
+            });
+        }
+
+        document.querySelectorAll('.option-input').forEach(input => {
+            input.addEventListener('change', function() {
+                window.syncOptionUI(this);
+            });
         });
-    }
 
-    document.querySelectorAll('.option-input').forEach(input => {
-        input.addEventListener('change', function() {
-            window.syncOptionUI(this);
+        document.querySelectorAll('.dot-item').forEach(dot => {
+            dot.addEventListener('click', function(e) {
+                e.preventDefault();
+                const stepIdx = parseInt(this.getAttribute('data-step-index') || '0', 10);
+                window.jumpToStep(stepIdx);
+            });
         });
-    });
 
-    document.querySelectorAll('.dot-item').forEach(dot => {
-        dot.addEventListener('click', function(e) {
-            e.preventDefault();
-            const stepIdx = parseInt(this.getAttribute('data-step-index') || '0', 10);
-            window.jumpToStep(stepIdx);
-        });
-    });
+        function updateQuizTimerDisplay() {
+            const remainingMs = Math.max(0, window.examDeadline - Date.now());
+            const totalSecs = Math.floor(remainingMs / 1000);
+            window.timerSeconds = totalSecs;
 
-    function updateQuizTimerDisplay() {
-        const remainingMs = Math.max(0, window.examDeadline - Date.now());
-        const totalSecs = Math.floor(remainingMs / 1000);
-        window.timerSeconds = totalSecs;
+            const hrs = Math.floor(totalSecs / 3600);
+            const mins = Math.floor((totalSecs % 3600) / 60);
+            const secs = Math.floor(totalSecs % 60);
+            const timerEl = document.getElementById('quizTimer');
+            if (timerEl) {
+                timerEl.textContent = `${String(hrs).padStart(2, '0')} : ${String(mins).padStart(2, '0')} : ${String(secs).padStart(2, '0')}`;
+                
+                if (totalSecs <= 180 && totalSecs > 0) {
+                    timerEl.classList.add('text-rose-600', 'animate-pulse');
+                    timerEl.classList.remove('text-slate-900');
+                }
+            }
 
-        const hrs = Math.floor(totalSecs / 3600);
-        const mins = Math.floor((totalSecs % 3600) / 60);
-        const secs = Math.floor(totalSecs % 60);
-        const timerEl = document.getElementById('quizTimer');
-        if (timerEl) {
-            timerEl.textContent = `${String(hrs).padStart(2, '0')} : ${String(mins).padStart(2, '0')} : ${String(secs).padStart(2, '0')}`;
-            
-            if (totalSecs <= 180 && totalSecs > 0) {
-                timerEl.classList.add('text-rose-600', 'animate-pulse');
-                timerEl.classList.remove('text-slate-900');
+            if (totalSecs <= 0) {
+                if (window.quizTimerInterval) {
+                    clearInterval(window.quizTimerInterval);
+                    window.quizTimerInterval = null;
+                }
+                handleQuizTimeExpired();
             }
         }
 
-        if (totalSecs <= 0) {
-            if (window.quizTimerInterval) {
-                clearInterval(window.quizTimerInterval);
-                window.quizTimerInterval = null;
+        function handleQuizTimeExpired() {
+            if (window.isTimeExpiredHandled) return;
+            window.isTimeExpiredHandled = true;
+
+            if (window.Toast) {
+                window.Toast.error(
+                    "{{ $isAr ? 'انتهى الوقت المحدد للواجب! يتم الآن إرسال إجاباتك وتقييمها تلقائياً...' : 'Time is up! Submitting and evaluating your answers automatically...' }}",
+                    "{{ $isAr ? 'انتهى الوقت' : 'Time Expired' }}"
+                );
             }
-            handleQuizTimeExpired();
-        }
-    }
 
-    function handleQuizTimeExpired() {
-        if (window.isTimeExpiredHandled) return;
-        window.isTimeExpiredHandled = true;
-
-        if (window.Toast) {
-            window.Toast.error(
-                "{{ app()->getLocale() === 'ar' ? 'انتهى الوقت المحدد للواجب! يتم الآن إرسال إجاباتك وتقييمها تلقائياً...' : 'Time is up! Submitting and evaluating your answers automatically...' }}",
-                "{{ app()->getLocale() === 'ar' ? 'انتهى الوقت' : 'Time Expired' }}"
-            );
+            const quizForm = document.getElementById('eliteQuizForm');
+            if (quizForm) {
+                const submitBtn = document.getElementById('submitQuizBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Auto-submitting...';
+                }
+                if (typeof quizForm.requestSubmit === 'function') {
+                    quizForm.requestSubmit();
+                } else {
+                    quizForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            }
         }
+
+        updateQuizTimerDisplay();
+        window.quizTimerInterval = setInterval(updateQuizTimerDisplay, 1000);
+
+        window.restoreSavedAnswers();
+        window.flushOfflineDrafts();
 
         const quizForm = document.getElementById('eliteQuizForm');
         if (quizForm) {
-            const submitBtn = document.getElementById('submitQuizBtn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Auto-submitting...';
-            }
-            if (typeof quizForm.requestSubmit === 'function') {
-                quizForm.requestSubmit();
-            } else {
-                quizForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-            }
-        }
-    }
+            quizForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submitQuizBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Evaluating...';
+                }
 
-    updateQuizTimerDisplay();
-    window.quizTimerInterval = setInterval(updateQuizTimerDisplay, 1000);
+                try {
+                    const formData = new FormData(quizForm);
+                    const res = await fetch("{{ route('ajax.assignment.submit') }}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
 
-    window.restoreSavedAnswers();
-    window.flushOfflineDrafts();
+                    if (!res.ok || !data.success) {
+                        if (window.Toast) window.Toast.error(data.message || 'Evaluation failed.');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Submit Quiz';
+                        }
+                        return;
+                    }
 
-    const quizForm = document.getElementById('eliteQuizForm');
-    if (quizForm) {
-        quizForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitQuizBtn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Evaluating...';
-            }
+                    window.isSubmittedSuccessfully = true;
 
-            try {
-                const formData = new FormData(quizForm);
-                const res = await fetch("{{ route('ajax.assignment.submit') }}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await res.json();
+                    if (window.Toast) {
+                        if (data.is_passed) {
+                            window.Toast.success(`Score: ${data.percentage}% (PASSED)`, 'Assignment Complete!');
+                        } else {
+                            window.Toast.error(`Score: ${data.percentage}% (FAILED)`, 'Assignment Result');
+                        }
+                    }
 
-                if (!res.ok || !data.success) {
-                    if (window.Toast) window.Toast.error(data.message || 'Evaluation failed.');
+                    window.showResultModal(data);
+
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Results Evaluated <i class="fa-solid fa-check ms-1"></i>';
+                    }
+                } catch (err) {
+                    if (window.Toast) window.Toast.error('Network error during evaluation submission.');
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Submit Quiz';
                     }
-                    return;
                 }
+            });
+        }
 
-                window.isSubmittedSuccessfully = true;
-
-                if (window.Toast) {
-                    if (data.is_passed) {
-                        window.Toast.success(`Score: ${data.percentage}% (PASSED)`, 'Assignment Complete!');
-                    } else {
-                        window.Toast.error(`Score: ${data.percentage}% (FAILED)`, 'Assignment Result');
-                    }
-                }
-
-                window.showResultModal(data);
-
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Results Evaluated <i class="fa-solid fa-check ms-1"></i>';
-                }
-            } catch (err) {
-                if (window.Toast) window.Toast.error('Network error during evaluation submission.');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Quiz';
-                }
-            }
-        });
+        window.updateStepUI();
     }
-
-    window.updateStepUI();
 });
 </script>
 @endpush

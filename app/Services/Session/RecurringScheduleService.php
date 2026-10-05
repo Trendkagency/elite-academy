@@ -666,4 +666,94 @@ class RecurringScheduleService
             $schedule->delete();
         });
     }
+
+    /**
+     * Extend recurring schedule cycle to a new end date and generate new session instances.
+     */
+    public function extendScheduleCycle(RecurringSchedule $schedule, Carbon|string $newEndDate, User $user, ?string $reason = 'Extended recurring schedule cycle'): int
+    {
+        $newEnd = Carbon::parse($newEndDate)->endOfDay();
+        $oldEnd = Carbon::parse($schedule->end_date)->startOfDay();
+
+        if ($newEnd->lte($oldEnd)) {
+            throw ValidationException::withMessages([
+                'new_end_date' => __('The new end date must be after the current end date (:date).', ['date' => $schedule->end_date ? $schedule->end_date->format('Y-m-d') : 'today']),
+            ]);
+        }
+
+        return DB::transaction(function () use ($schedule, $oldEnd, $newEnd, $user, $reason) {
+            $oldValues = $schedule->toArray();
+
+            // Preview dates for the newly extended window
+            $extensionParams = [
+                'start_date' => $oldEnd->copy()->addDay()->format('Y-m-d'),
+                'end_date' => $newEnd->format('Y-m-d'),
+                'start_time' => $schedule->start_time ?: '10:00',
+                'duration_minutes' => $schedule->duration_minutes ?: 60,
+                'recurrence_type' => $schedule->recurrence_type ?? 'weekly',
+                'days_of_week' => $schedule->days_of_week ?? [],
+                'day_start_times' => $schedule->day_start_times ?? [],
+                'day_durations' => $schedule->day_durations ?? [],
+                'day_meeting_links' => $schedule->day_meeting_links ?? [],
+                'meeting_link' => $schedule->meeting_link,
+                'teacher_profile_id' => $schedule->teacher_profile_id,
+                'student_user_id' => $schedule->student_user_id,
+            ];
+
+            $newDates = $this->previewDates($extensionParams);
+            $existingCount = $schedule->sessions()->count();
+            $generatedCount = 0;
+
+            foreach ($newDates as $idx => $item) {
+                $start = Carbon::parse($item['date'] . ' ' . $item['start_time']);
+                $end = Carbon::parse($item['date'] . ' ' . $item['end_time']);
+
+                $session = LiveSession::create([
+                    'title' => $schedule->title . ' (' . ($existingCount + $idx + 1) . ')',
+                    'student_user_id' => $schedule->student_user_id,
+                    'teacher_profile_id' => $schedule->teacher_profile_id,
+                    'subject_id' => $schedule->course?->subject_id,
+                    'course_id' => $schedule->course_id,
+                    'recurring_schedule_id' => $schedule->id,
+                    'scheduled_at' => $start,
+                    'start_at' => $start,
+                    'end_at' => $end,
+                    'duration_minutes' => $start->diffInMinutes($end),
+                    'meeting_link' => !empty($item['meeting_link']) ? $item['meeting_link'] : $schedule->meeting_link,
+                    'meeting_platform' => $schedule->meeting_platform ?: 'agora',
+                    'status' => 'scheduled',
+                    'lifecycle_state' => 'scheduled',
+                    'is_override' => false,
+                ]);
+
+                if ($schedule->student_user_id) {
+                    \App\Models\StudentSession::updateOrCreate([
+                        'student_user_id' => $schedule->student_user_id,
+                        'live_session_id' => $session->id,
+                    ], [
+                        'session_status' => 'scheduled',
+                    ]);
+                }
+
+                $generatedCount++;
+            }
+
+            $schedule->update([
+                'end_date' => $newEnd->format('Y-m-d'),
+                'status' => 'active',
+            ]);
+
+            SessionAuditLog::create([
+                'user_id' => $user->id,
+                'recurring_schedule_id' => $schedule->id,
+                'action' => 'extended',
+                'old_values' => $oldValues,
+                'new_values' => $schedule->fresh()->toArray(),
+                'reason' => $reason . " — Added {$generatedCount} sessions until " . $newEnd->format('Y-m-d'),
+                'ip_address' => request()->ip(),
+            ]);
+
+            return $generatedCount;
+        });
+    }
 }

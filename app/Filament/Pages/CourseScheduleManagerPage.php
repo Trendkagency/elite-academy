@@ -96,6 +96,9 @@ class CourseScheduleManagerPage extends Page
     public string $recMeetingPlatform = 'agora';
     public array $recPreviewList = [];
     public ?string $recConflictWarning = null;
+    public array $recDayStartTimes = [];
+    public array $recDayDurations = [];
+    public array $recDayMeetingLinks = [];
 
     // Inline Modals State
     public bool $showRescheduleModal = false;
@@ -889,7 +892,7 @@ class CourseScheduleManagerPage extends Page
         $this->recCourseId = $this->selectedCourseId;
         $this->recTitle = '';
         $this->recType = 'weekly';
-        $this->recDays = [6, 1];
+        $this->recDays = [6, 0];
         $this->recStartTime = '10:00';
         $this->recDuration = 60;
         $this->recStartDate = now()->format('Y-m-d');
@@ -898,6 +901,35 @@ class CourseScheduleManagerPage extends Page
         $this->recMeetingPlatform = 'agora';
         $this->recPreviewList = [];
         $this->recConflictWarning = null;
+
+        // Initialize default per-day slots for each weekday
+        $this->recDayStartTimes = [
+            6 => '10:00',
+            0 => '10:00',
+            1 => '10:00',
+            2 => '10:00',
+            3 => '10:00',
+            4 => '10:00',
+            5 => '10:00',
+        ];
+        $this->recDayDurations = [
+            6 => 60,
+            0 => 60,
+            1 => 60,
+            2 => 60,
+            3 => 60,
+            4 => 60,
+            5 => 60,
+        ];
+        $this->recDayMeetingLinks = [
+            6 => '',
+            0 => '',
+            1 => '',
+            2 => '',
+            3 => '',
+            4 => '',
+            5 => '',
+        ];
 
         if ($this->recCourseId) {
             $this->updatedRecCourseId($this->recCourseId);
@@ -912,6 +944,44 @@ class CourseScheduleManagerPage extends Page
     public function closeRecurringModal(): void
     {
         $this->showRecurringModal = false;
+    }
+
+    public function syncMainSettingsToDays(): void
+    {
+        foreach ($this->recDays as $day) {
+            $this->recDayStartTimes[$day] = $this->recStartTime ?: '10:00';
+            $this->recDayDurations[$day] = (int) ($this->recDuration ?: 60);
+            if (! empty($this->recMeetingLink)) {
+                $this->recDayMeetingLinks[$day] = trim($this->recMeetingLink);
+            }
+        }
+
+        $isAr = app()->getLocale() === 'ar';
+        Notification::make()
+            ->title($isAr ? 'تمت مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Main settings synced to selected days')
+            ->body($isAr ? 'تم تطبيق وقت البدء والمدة ورابط الاجتماع على جميع الأيام المختارة بنجاح.' : 'Start time, duration, and meeting link applied across all active days.')
+            ->success()
+            ->send();
+    }
+
+    public function toggleRecDay(int $day): void
+    {
+        $day = (int) $day;
+        if (in_array($day, $this->recDays)) {
+            $this->recDays = array_values(array_diff($this->recDays, [$day]));
+        } else {
+            $this->recDays[] = $day;
+            sort($this->recDays);
+            if (empty($this->recDayStartTimes[$day])) {
+                $this->recDayStartTimes[$day] = $this->recStartTime ?: '10:00';
+            }
+            if (empty($this->recDayDurations[$day])) {
+                $this->recDayDurations[$day] = (int) ($this->recDuration ?: 60);
+            }
+            if (! empty($this->recMeetingLink) && empty($this->recDayMeetingLinks[$day])) {
+                $this->recDayMeetingLinks[$day] = trim($this->recMeetingLink);
+            }
+        }
     }
 
     public function previewRecurringSchedule(RecurringScheduleService $service): void
@@ -934,6 +1004,17 @@ class CourseScheduleManagerPage extends Page
         $course = Course::findOrFail($this->recCourseId);
         $teacherId = $this->recTeacherId ?? $course->teacher_id;
 
+        $activeDayTimes = [];
+        $activeDayDurations = [];
+        $activeDayLinks = [];
+        foreach ($this->recDays as $d) {
+            $activeDayTimes[$d] = $this->recDayStartTimes[$d] ?? $this->recStartTime;
+            $activeDayDurations[$d] = $this->recDayDurations[$d] ?? $this->recDuration;
+            if (! empty($this->recDayMeetingLinks[$d])) {
+                $activeDayLinks[$d] = $this->recDayMeetingLinks[$d];
+            }
+        }
+
         $previewData = $service->previewDates([
             'course_id' => $course->id,
             'teacher_profile_id' => $teacherId,
@@ -944,6 +1025,10 @@ class CourseScheduleManagerPage extends Page
             'duration_minutes' => $this->recDuration,
             'recurrence_type' => $this->recType,
             'days_of_week' => $this->recDays,
+            'day_start_times' => $activeDayTimes,
+            'day_durations' => $activeDayDurations,
+            'day_meeting_links' => $activeDayLinks,
+            'meeting_link' => $this->recMeetingLink ? trim($this->recMeetingLink) : null,
         ]);
 
         $hasConflict = false;
@@ -997,6 +1082,17 @@ class CourseScheduleManagerPage extends Page
             $teacherId = $this->recTeacherId ?? $course->teacher_id;
             $studentIds = ! empty($this->recStudentIds) ? $this->recStudentIds : [null];
 
+            $activeDayTimes = [];
+            $activeDayDurations = [];
+            $activeDayLinks = [];
+            foreach ($this->recDays as $d) {
+                $activeDayTimes[$d] = $this->recDayStartTimes[$d] ?? $this->recStartTime;
+                $activeDayDurations[$d] = $this->recDayDurations[$d] ?? $this->recDuration;
+                if (! empty($this->recDayMeetingLinks[$d])) {
+                    $activeDayLinks[$d] = $this->recDayMeetingLinks[$d];
+                }
+            }
+
             $totalGenerated = 0;
 
             foreach ($studentIds as $stuId) {
@@ -1008,6 +1104,9 @@ class CourseScheduleManagerPage extends Page
                     'title' => trim($this->recTitle) . $studentTitle,
                     'recurrence_type' => $this->recType,
                     'days_of_week' => $this->recDays,
+                    'day_start_times' => $activeDayTimes,
+                    'day_durations' => $activeDayDurations,
+                    'day_meeting_links' => $activeDayLinks,
                     'start_time' => $this->recStartTime,
                     'duration_minutes' => $this->recDuration,
                     'start_date' => $this->recStartDate,

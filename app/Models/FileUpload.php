@@ -23,6 +23,9 @@ class FileUpload extends Model
         'file_size',
         'mime_type',
         'file_type',
+        'category',
+        'due_at',
+        'assignment_id',
         'student_user_id',
         'teacher_profile_id',
         'course_id',
@@ -33,6 +36,7 @@ class FileUpload extends Model
     protected $casts = [
         'file_size' => 'integer',
         'downloads_count' => 'integer',
+        'due_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -42,6 +46,7 @@ class FileUpload extends Model
         'formatted_size',
         'is_pdf',
         'is_image',
+        'is_homework',
     ];
 
     public function uploader(): BelongsTo
@@ -67,6 +72,26 @@ class FileUpload extends Model
     public function liveSession(): BelongsTo
     {
         return $this->belongsTo(LiveSession::class, 'live_session_id');
+    }
+
+    public function assignment(): BelongsTo
+    {
+        return $this->belongsTo(Assignment::class, 'assignment_id');
+    }
+
+    public function getIsHomeworkAttribute(): bool
+    {
+        return $this->category === 'homework' || $this->assignment_id !== null;
+    }
+
+    public function getIsSubmissionAttribute(): bool
+    {
+        return $this->category === 'submission';
+    }
+
+    public function getIsMaterialAttribute(): bool
+    {
+        return empty($this->category) || $this->category === 'material';
     }
 
     public function getFormattedSizeAttribute(): string

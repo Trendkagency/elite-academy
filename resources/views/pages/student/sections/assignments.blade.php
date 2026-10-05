@@ -157,6 +157,8 @@
                                 $qCount = $assign->questions ? $assign->questions->count() : 0;
                                 $scorePct = $sub ? ($sub->percentage !== null ? $sub->percentage : $sub->grade) : null;
                                 $isPassed = $sub ? $sub->isPassed() : false;
+                                $isFileHomework = $assign->is_file_homework;
+                                $hwFile = $assign->homework_file;
                             @endphp
                             <tr class="available-assign-row hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors {{ $isInProgress ? 'bg-amber-500/[0.04] dark:bg-amber-400/[0.05] border-s-4 border-s-amber-500' : ($isCompleted ? 'bg-slate-500/[0.02] dark:bg-slate-400/[0.02]' : '') }}"
                                 data-course-id="{{ $assignCourseId }}"
@@ -174,6 +176,11 @@
                                                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25 shrink-0 mt-0.5 flex items-center gap-1">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping inline-block"></span>
                                                     {{ $isAr ? 'قيد الحل' : 'In Progress' }}
+                                                </span>
+                                            @elseif($isFileHomework)
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 shrink-0 mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-solid fa-file-arrow-up"></i>
+                                                    <span>{{ $isAr ? 'واجب منزلي (ملف)' : 'Homework File' }}</span>
                                                 </span>
                                             @else
                                                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 shrink-0 mt-0.5">
@@ -258,17 +265,32 @@
                                                 <span>{{ $isAr ? 'عرض النتيجة' : 'View Grade' }}</span>
                                             </button>
                                         @else
+                                            @if($isFileHomework && $hwFile)
+                                                <a href="{{ route('portal.files.download', $hwFile->id) }}"
+                                                    class="btn-lift px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-700"
+                                                    title="{{ $isAr ? 'تحميل ورقة الواجب' : 'Download Worksheet' }}">
+                                                    <i class="fa-solid fa-download"></i>
+                                                </a>
+                                            @endif
                                             <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                                class="btn-lift px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs inline-flex items-center gap-1.5 {{ $isInProgress ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-teal-600 hover:bg-teal-500 text-white' }}">
-                                                <span><i class="fa-solid fa-bolt"></i></span>
-                                                <span>{{ $isInProgress ? ($isAr ? 'استكمال' : 'Resume') : ($isAr ? 'بدء الحل' : 'Take Test') }}</span>
+                                                class="btn-lift px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs inline-flex items-center gap-1.5 {{ $isInProgress ? 'bg-amber-600 hover:bg-amber-500 text-white' : ($isFileHomework ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-teal-600 hover:bg-teal-500 text-white') }}">
+                                                <span><i class="fa-solid {{ $isFileHomework ? 'fa-file-signature' : 'fa-bolt' }}"></i></span>
+                                                <span>
+                                                    @if($isFileHomework)
+                                                        {{ $isInProgress ? ($isAr ? 'استكمال التسليم' : 'Resume') : ($isAr ? 'حل وتسليم الواجب' : 'Submit Homework') }}
+                                                    @else
+                                                        {{ $isInProgress ? ($isAr ? 'استكمال' : 'Resume') : ($isAr ? 'بدء الحل' : 'Take Test') }}
+                                                    @endif
+                                                </span>
                                             </a>
                                         @endif
-                                        <button type="button" onclick="openMsqAssignmentModal({{ $assign->id }})"
-                                            class="btn-lift px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-700 cursor-pointer"
-                                            title="{{ $isAr ? 'معاينة سريعة' : 'Quick Preview' }}">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </button>
+                                        @if(!$isFileHomework)
+                                            <button type="button" onclick="openMsqAssignmentModal({{ $assign->id }})"
+                                                class="btn-lift px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-700 cursor-pointer"
+                                                title="{{ $isAr ? 'معاينة سريعة' : 'Quick Preview' }}">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

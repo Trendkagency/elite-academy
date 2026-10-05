@@ -205,7 +205,7 @@ Route::middleware(SetLocale::class)->group(function () {
 
         $configObject = "{\n  " . implode(",\n  ", $configPairs) . "\n}";
 
-        $defaultIcon = asset('images/icon-192.png');
+        $defaultIcon = '/images/icon-192.png';
 
         $swContent = <<<JS
 // Firebase Messaging Service Worker for Elite Academy LMS
@@ -216,29 +216,72 @@ firebase.initializeApp({$configObject});
 
 const messaging = firebase.messaging();
 
+function sanitizeText(str) {
+  if (!str) return '';
+  return str
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim();
+}
+
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'Elite Academy Notification');
+  const data = payload.data || {};
+  const notification = payload.notification || {};
+
+  const rawTitle = notification.title || data.title || 'أكاديمية النخبة | Elite Academy';
+  const rawBody = notification.body || data.body || '';
+  const title = sanitizeText(rawTitle);
+  const body = sanitizeText(rawBody);
+
+  const origin = self.location.origin;
+  const iconUrl = (notification.image) || (data.icon) || (origin + '{$defaultIcon}');
+  const badgeUrl = origin + '{$defaultIcon}';
+  const clickUrl = data.url || data.action_url || (notification.click_action || origin);
+  const isAr = /[\u0600-\u06FF]/.test(title + ' ' + body);
+
   const notificationOptions = {
-    body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : ''),
-    icon: (payload.notification && payload.notification.image) || (payload.data && payload.data.icon) || '{$defaultIcon}',
-    badge: '{$defaultIcon}',
-    vibrate: [100, 50, 100],
-    data: payload.data || { url: '/student-portal' }
+    body: body,
+    icon: iconUrl,
+    badge: badgeUrl,
+    dir: isAr ? 'rtl' : 'ltr',
+    lang: isAr ? 'ar' : 'en',
+    tag: data.tag || data.id || ('elite-bg-' + Date.now()),
+    renotify: true,
+    vibrate: [200, 100, 200],
+    data: {
+      url: clickUrl,
+      id: data.id || null
+    }
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(title, notificationOptions);
 });
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/student-portal';
+  const rawUrl = (event.notification.data && (event.notification.data.url || event.notification.data.action_url))
+    ? (event.notification.data.url || event.notification.data.action_url)
+    : '/';
+  const targetUrl = new URL(rawUrl, self.location.origin).href;
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
       for (let i = 0; i < clientList.length; i++) {
         let client = clientList[i];
-        if (client.url.includes(targetUrl) && 'focus' in client) {
-          return client.focus();
+        if ('focus' in client) {
+          if (client.url === targetUrl || client.url.startsWith(targetUrl)) {
+            return client.focus();
+          }
+          if ('navigate' in client) {
+            client.focus();
+            return client.navigate(targetUrl);
+          }
         }
       }
       if (clients.openWindow) {

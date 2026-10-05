@@ -2026,13 +2026,17 @@
                                 </div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem;">
                                 <div class="sch-form-group">
                                     <label class="sch-label">{{ __('Start Time') }} *</label>
                                     <input type="time" wire:model="recStartTime" required class="sch-input">
                                     @error('recStartTime')
                                         <span style="color: #E11D48; font-size: 0.725rem; font-weight: 700;">{{ $message }}</span>
                                     @enderror
+                                </div>
+                                <div class="sch-form-group">
+                                    <label class="sch-label">{{ __('Duration (Min)') }} *</label>
+                                    <input type="number" wire:model="recDuration" min="15" max="300" required class="sch-input">
                                 </div>
                                 <div class="sch-form-group">
                                     <label class="sch-label">{{ __('Start Date') }} *</label>
@@ -2056,6 +2060,95 @@
                             <div class="sch-form-group">
                                 <label class="sch-label">{{ __('Meeting Link') }} ({{ __('Optional') }})</label>
                                 <input type="url" wire:model="recMeetingLink" placeholder="https://..." class="sch-input">
+                            </div>
+
+                            {{-- ════════════════════════════════════════════════════════════════════════════ --}}
+                            {{-- SELECT TEACHING DAYS & CUSTOM SESSION TIMES                                   --}}
+                            {{-- ════════════════════════════════════════════════════════════════════════════ --}}
+                            @php
+                                $isArLocale = app()->getLocale() === 'ar';
+                                $weekDaysList = [
+                                    ['val' => 6, 'name' => 'saturday', 'label' => $isArLocale ? 'السبت' : 'Saturday'],
+                                    ['val' => 0, 'name' => 'sunday', 'label' => $isArLocale ? 'الأحد' : 'Sunday'],
+                                    ['val' => 1, 'name' => 'monday', 'label' => $isArLocale ? 'الإثنين' : 'Monday'],
+                                    ['val' => 2, 'name' => 'tuesday', 'label' => $isArLocale ? 'الثلاثاء' : 'Tuesday'],
+                                    ['val' => 3, 'name' => 'wednesday', 'label' => $isArLocale ? 'الأربعاء' : 'Wednesday'],
+                                    ['val' => 4, 'name' => 'thursday', 'label' => $isArLocale ? 'الخميس' : 'Thursday'],
+                                    ['val' => 5, 'name' => 'friday', 'label' => $isArLocale ? 'الجمعة' : 'Friday'],
+                                ];
+                            @endphp
+                            <div style="background: var(--sch-bg-surface); border: 1.5px solid var(--sch-border); border-radius: 1rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1.5px solid var(--sch-border); flex-wrap: wrap;">
+                                    <div>
+                                        <label style="font-weight: 900; font-size: 0.85rem; color: var(--sch-text-primary); display: flex; align-items: center; gap: 0.4rem; margin: 0;">
+                                            <i class="fa-solid fa-calendar-week" style="color: #6366F1;"></i>
+                                            <span>{{ $isArLocale ? 'اختر أيام التدريس وأوقات الحصص المخصصة' : __('Select Teaching Days & Custom Session Times') }}</span>
+                                            <span style="color: #E11D48;">*</span>
+                                        </label>
+                                        <p style="font-size: 0.725rem; color: var(--sch-text-muted); margin: 0.2rem 0 0 0; line-height: 1.4;">
+                                            {{ $isArLocale ? 'اختر الأيام المحددة للتكرار، ويمكنك تحديد وقت خاص ومدة ورابط اجتماع لكل يوم مستقبلي بشكل مستقل.' : __('Select days to recur and customize start times, durations & links independently per day.') }}
+                                        </p>
+                                    </div>
+
+                                    <button type="button" wire:click="syncMainSettingsToDays"
+                                        style="padding: 0.45rem 0.85rem; background: rgba(99, 102, 241, 0.12); color: #6366F1; font-size: 0.75rem; font-weight: 800; border-radius: 0.75rem; border: 1.5px solid rgba(99, 102, 241, 0.3); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.2s;"
+                                        title="{{ $isArLocale ? 'مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Sync Main Settings to All Days' }}">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                        <span>{{ $isArLocale ? 'مزامنة الإعدادات الرئيسية مع الأيام المحددة' : __('Sync Main Settings to All Days') }}</span>
+                                    </button>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem;">
+                                    @foreach ($weekDaysList as $wd)
+                                        @php
+                                            $isActiveDay = in_array($wd['val'], $recDays);
+                                        @endphp
+                                        <div style="border-radius: 0.85rem; border: 1.5px solid {{ $isActiveDay ? '#6366F1' : 'var(--sch-border)' }}; background: {{ $isActiveDay ? 'rgba(99, 102, 241, 0.05)' : 'var(--sch-bg-surface)' }}; padding: 0.65rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; transition: all 0.2s;">
+                                            {{-- Day Header --}}
+                                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.35rem; padding-bottom: 0.35rem; border-bottom: 1px solid {{ $isActiveDay ? 'rgba(99, 102, 241, 0.2)' : 'var(--sch-border)' }};">
+                                                <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer; margin: 0;">
+                                                    <input type="checkbox" value="{{ $wd['val'] }}" wire:click="toggleRecDay({{ $wd['val'] }})" {{ $isActiveDay ? 'checked' : '' }} style="cursor: pointer; width: 0.95rem; height: 0.95rem; accent-color: #6366F1;">
+                                                    <span style="font-weight: 900; font-size: 0.775rem; color: var(--sch-text-primary);">{{ $wd['label'] }}</span>
+                                                </label>
+                                                <span style="font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.35rem; border-radius: 0.5rem; background: {{ $isActiveDay ? '#6366F1' : 'var(--sch-border)' }}; color: {{ $isActiveDay ? '#fff' : 'var(--sch-text-muted)' }};">
+                                                    {{ $isActiveDay ? ($isArLocale ? 'مُفَعَّل' : 'Active') : ($isArLocale ? 'عطلة' : 'Off') }}
+                                                </span>
+                                            </div>
+
+                                            @if ($isActiveDay)
+                                                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                                    <div>
+                                                        <label style="font-size: 0.65rem; font-weight: 700; color: var(--sch-text-muted); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.15rem;">
+                                                            <i class="fa-regular fa-clock" style="color: #6366F1;"></i>
+                                                            <span>{{ __('Start Time') }}</span>
+                                                        </label>
+                                                        <input type="time" wire:model="recDayStartTimes.{{ $wd['val'] }}" class="sch-input" style="padding: 0.3rem 0.45rem; font-size: 0.75rem; font-weight: 700;">
+                                                    </div>
+                                                    <div>
+                                                        <label style="font-size: 0.65rem; font-weight: 700; color: var(--sch-text-muted); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.15rem;">
+                                                            <i class="fa-solid fa-stopwatch" style="color: #6366F1;"></i>
+                                                            <span>{{ __('Duration (Min)') }}</span>
+                                                        </label>
+                                                        <input type="number" wire:model="recDayDurations.{{ $wd['val'] }}" min="15" max="300" class="sch-input" style="padding: 0.3rem 0.45rem; font-size: 0.75rem; font-weight: 700;">
+                                                    </div>
+                                                    <div>
+                                                        <label style="font-size: 0.65rem; font-weight: 700; color: var(--sch-text-muted); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.15rem;">
+                                                            <i class="fa-solid fa-link" style="color: #6366F1;"></i>
+                                                            <span>{{ __('Link') }}</span>
+                                                        </label>
+                                                        <input type="url" wire:model="recDayMeetingLinks.{{ $wd['val'] }}" placeholder="https://..." class="sch-input" style="padding: 0.3rem 0.45rem; font-size: 0.7rem;">
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div wire:click="toggleRecDay({{ $wd['val'] }})" style="padding: 1.25rem 0.5rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; border-radius: 0.6rem; background: var(--sch-bg-secondary);">
+                                                    <i class="fa-regular fa-calendar-xmark" style="color: var(--sch-text-muted); font-size: 0.9rem;"></i>
+                                                    <span style="font-size: 0.68rem; color: var(--sch-text-muted); font-weight: 700;">{{ $isArLocale ? 'يوم عطلة' : 'Day Off' }}</span>
+                                                    <span style="font-size: 0.65rem; color: #6366F1; font-weight: 800;">{{ $isArLocale ? '+ اضغط للتفعيل' : '+ Click to add' }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
 
                             {{-- Conflict Preview Button --}}

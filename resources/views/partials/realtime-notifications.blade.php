@@ -315,48 +315,79 @@
                 document.addEventListener(evt, unlockAudio, { once: false, passive: true, capture: true });
             });
 
-            window.playNotificationChime = function () {
+            window.playNotificationChime = function (isUrgent = false) {
                 try {
-                    if (navigator.userActivation && !navigator.userActivation.hasBeenActive && !audioUnlocked) {
-                        return;
-                    }
                     const ctx = getAudioContext();
                     if (!ctx) return;
 
                     if (ctx.state === 'suspended') {
                         ctx.resume().catch(() => {});
                     }
-                    if (ctx.state !== 'running') return;
 
                     const now = ctx.currentTime;
 
-                    // Primary Tone: D5 (587.33 Hz)
-                    const osc1 = ctx.createOscillator();
-                    const gain1 = ctx.createGain();
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(587.33, now);
-                    gain1.gain.setValueAtTime(0, now);
-                    gain1.gain.linearRampToValueAtTime(0.2, now + 0.04);
-                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                    osc1.connect(gain1);
-                    gain1.connect(ctx.destination);
-                    osc1.start(now);
-                    osc1.stop(now + 0.35);
+                    // Dynamics compressor to maximize loud volume without clipping/distortion
+                    const compressor = ctx.createDynamicsCompressor();
+                    compressor.threshold.setValueAtTime(-12, now);
+                    compressor.knee.setValueAtTime(4, now);
+                    compressor.ratio.setValueAtTime(8, now);
+                    compressor.attack.setValueAtTime(0.002, now);
+                    compressor.release.setValueAtTime(0.2, now);
+                    compressor.connect(ctx.destination);
 
-                    // Harmonious Second Tone: A5 (880 Hz)
-                    const osc2 = ctx.createOscillator();
-                    const gain2 = ctx.createGain();
-                    osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(880, now + 0.12);
-                    gain2.gain.setValueAtTime(0, now + 0.12);
-                    gain2.gain.linearRampToValueAtTime(0.25, now + 0.16);
-                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-                    osc2.connect(gain2);
-                    gain2.connect(ctx.destination);
-                    osc2.start(now + 0.12);
-                    osc2.stop(now + 0.55);
+                    // Master Volume Node (High Loud Gain: 0.85)
+                    const masterGain = ctx.createGain();
+                    masterGain.gain.setValueAtTime(isUrgent ? 0.95 : 0.85, now);
+                    masterGain.connect(compressor);
+
+                    function playChimeNote(freq, startTime, duration, noteGainVal) {
+                        // Fundamental Sine Tone (Deep Body)
+                        const osc = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        g.gain.setValueAtTime(0, startTime);
+                        g.gain.linearRampToValueAtTime(noteGainVal, startTime + 0.02);
+                        g.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+                        osc.connect(g);
+                        g.connect(masterGain);
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+
+                        // Overtone Triangle Wave (Crisp Presence & Loudness)
+                        const overtone = ctx.createOscillator();
+                        const og = ctx.createGain();
+                        overtone.type = 'triangle';
+                        overtone.frequency.setValueAtTime(freq * 2, startTime);
+                        og.gain.setValueAtTime(0, startTime);
+                        og.gain.linearRampToValueAtTime(noteGainVal * 0.45, startTime + 0.015);
+                        og.gain.exponentialRampToValueAtTime(0.0005, startTime + duration * 0.7);
+                        overtone.connect(og);
+                        og.connect(masterGain);
+                        overtone.start(startTime);
+                        overtone.stop(startTime + duration * 0.7);
+                    }
+
+                    // Loud Resonant Chime Sequence (C5 -> E5 -> G5 -> C6)
+                    playChimeNote(523.25, now, 0.45, 0.75);         // C5
+                    playChimeNote(659.25, now + 0.09, 0.48, 0.80);  // E5
+                    playChimeNote(783.99, now + 0.18, 0.52, 0.85);  // G5
+                    playChimeNote(1046.50, now + 0.27, 0.75, 0.90); // C6 (High bright chime ring)
+
+                    // If Urgent (Session approaching / Live now), play a 2nd rapid fanfare chime!
+                    if (isUrgent) {
+                        const secondPass = now + 0.45;
+                        playChimeNote(659.25, secondPass, 0.35, 0.85);
+                        playChimeNote(880.00, secondPass + 0.08, 0.40, 0.90);
+                        playChimeNote(1174.66, secondPass + 0.16, 0.80, 0.95);
+
+                        // Phone vibration alert if supported
+                        if ('vibrate' in navigator) {
+                            try { navigator.vibrate([300, 100, 300, 100, 500]); } catch (_) {}
+                        }
+                    }
                 } catch (err) {
-                    console.debug('[Audio] Chime playback note:', err);
+                    console.debug('[Audio] Loud chime note:', err);
                 }
             };
         })();
@@ -400,13 +431,103 @@
                 }
             };
 
+            // Centralized System Desktop Notification Dispatcher (Windows / Browser Native)
+            function stripHtmlAndEntities(str) {
+                if (!str) return '';
+                const tmp = document.createElement('div');
+                tmp.innerHTML = str;
+                return (tmp.textContent || tmp.innerText || '').trim();
+            }
+
+            function displaySystemDesktopNotification(n) {
+                if (!('Notification' in window) || Notification.permission !== 'granted') {
+                    return;
+                }
+
+                const rawTitle = n.title || 'أكاديمية النخبة | Elite Academy';
+                const rawBody = n.body || '';
+                const cleanTitle = stripHtmlAndEntities(rawTitle) || 'أكاديمية النخبة | Elite Academy';
+                const cleanBody = stripHtmlAndEntities(rawBody);
+
+                // Detect Arabic for direction & language
+                const isArabic = /[\u0600-\u06FF]/.test(cleanTitle + ' ' + cleanBody);
+
+                // Absolute origin-relative icon to prevent mixed content & ERR_CONNECTION_REFUSED
+                const safeOrigin = window.location.origin;
+                const iconUrl = n.icon && n.icon.startsWith('http') ? n.icon : (safeOrigin + '/images/icon-192.png');
+                const badgeUrl = safeOrigin + '/images/icon-192.png';
+
+                // Target URL for click
+                let clickTarget = n.action_url || (n.data && (n.data.url || n.data.action_url)) || null;
+                if (clickTarget && !clickTarget.startsWith('http')) {
+                    clickTarget = safeOrigin + (clickTarget.startsWith('/') ? clickTarget : '/' + clickTarget);
+                }
+                const finalTargetUrl = clickTarget || window.location.href;
+                const isSessionAlert = (n.type && (n.type.includes('SESSION') || n.type.includes('LIVE'))) ||
+                    /حصة|جلسة|session|live|بدأت|تذكير/i.test(cleanTitle + ' ' + cleanBody);
+
+                const options = {
+                    body: cleanBody,
+                    icon: iconUrl,
+                    badge: badgeUrl,
+                    dir: isArabic ? 'rtl' : 'ltr',
+                    lang: isArabic ? 'ar' : 'en',
+                    tag: notifTag,
+                    renotify: true,
+                    requireInteraction: isSessionAlert,
+                    vibrate: isSessionAlert ? [300, 100, 300, 100, 500] : [200, 100, 200],
+                    data: {
+                        url: finalTargetUrl,
+                        id: n.id || null
+                    }
+                };
+
+                // Use Service Worker showNotification if available (works outside tab, handles OS clicks cleanly)
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then((reg) => {
+                        reg.showNotification(cleanTitle, options);
+                    }).catch(() => {
+                        fallbackDesktopNotification(cleanTitle, options, finalTargetUrl);
+                    });
+                } else {
+                    fallbackDesktopNotification(cleanTitle, options, finalTargetUrl);
+                }
+            }
+
+            function fallbackDesktopNotification(title, options, targetUrl) {
+                try {
+                    const notif = new Notification(title, options);
+                    notif.onclick = function (e) {
+                        e.preventDefault();
+                        window.focus();
+                        if (targetUrl) {
+                            window.location.href = targetUrl;
+                        }
+                        try { notif.close(); } catch (_) {}
+                    };
+                } catch (e) {
+                    console.debug('[Desktop Notification] Display note:', e);
+                }
+            }
+
+            let consecutivePollFailures = 0;
+
             // Global Real-Time Poller
             window.pollNotifications = async function (forceImmediate = false) {
                 if (isPollingActive && !forceImmediate) return;
+                
+                // If offline or multiple consecutive network failures, back off polling to avoid console spam
+                if (!forceImmediate && consecutivePollFailures >= 3) {
+                    if (consecutivePollFailures % 6 !== 0) {
+                        consecutivePollFailures++;
+                        return;
+                    }
+                }
+
                 isPollingActive = true;
 
                 try {
-                    const checkUrl = '{{ route('ajax.notifications.check') }}?since_id=' + latestNotificationId;
+                    const checkUrl = '/ajax/notifications/check?since_id=' + latestNotificationId;
                     const res = await fetch(checkUrl, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -415,11 +536,13 @@
                     });
 
                     if (!res.ok) {
+                        consecutivePollFailures++;
                         isPollingActive = false;
                         return;
                     }
 
                     const data = await res.json();
+                    consecutivePollFailures = 0; // Reset on successful response
                     if (data && data.success) {
                         const previousLatest = latestNotificationId;
                         latestNotificationId = Math.max(latestNotificationId, data.latest_id || 0);
@@ -438,7 +561,11 @@
                             const newNotifs = data.new_notifications.filter(n => !displayedToastIds.has(n.id));
 
                             if (newNotifs.length > 0) {
-                                window.playNotificationChime();
+                                const hasUrgentSession = newNotifs.some(n => 
+                                    (n.type && (n.type.includes('SESSION') || n.type.includes('LIVE'))) ||
+                                    /حصة|جلسة|session|live|بدأت|تذكير/i.test((n.title || '') + ' ' + (n.body || ''))
+                                );
+                                window.playNotificationChime(hasUrgentSession);
 
                                 // If only 1 or 2 new items, display distinct toasts cleanly
                                 if (newNotifs.length <= 2) {
@@ -450,15 +577,13 @@
                                             }
                                         }, idx * 300);
 
-                                        // Native desktop push if permitted
-                                        if ('Notification' in window && Notification.permission === 'granted') {
-                                            try {
-                                                new Notification(n.title, {
-                                                    body: n.body,
-                                                    icon: '{{ asset('images/icon-192.png') }}'
-                                                });
-                                            } catch (e) {}
-                                        }
+                                        // Native desktop push formatted correctly outside the system
+                                        displaySystemDesktopNotification({
+                                            id: n.id,
+                                            title: n.title,
+                                            body: n.body,
+                                            action_url: n.action_url
+                                        });
 
                                         window.dispatchEvent(new CustomEvent('new-notification-received', {
                                             detail: n
@@ -481,6 +606,7 @@
                         }
                     }
                 } catch (e) {
+                    consecutivePollFailures++;
                     console.debug('[Notifications] Poll check note:', e);
                 } finally {
                     isPollingActive = false;
@@ -499,7 +625,7 @@
                 }
 
                 try {
-                    const res = await fetch('{{ route('ajax.notifications.test-push') }}', {
+                    const res = await fetch('/ajax/notifications/test-push', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -537,7 +663,7 @@
             // Global Mark as Read Helpers
             window.markNotificationAsRead = async function (id) {
                 try {
-                    const res = await fetch(`{{ url('/ajax/notifications') }}/${id}/read`, {
+                    const res = await fetch('/ajax/notifications/' + id + '/read', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -555,7 +681,7 @@
 
             window.markAllNotificationsAsRead = async function () {
                 try {
-                    const res = await fetch('{{ route('ajax.notifications.read-all') }}', {
+                    const res = await fetch('/ajax/notifications/read-all', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -605,32 +731,25 @@
 
                     const icon = (payload.notification && payload.notification.image) ||
                         (payload.data && payload.data.icon) ||
-                        '{{ asset('images/icon-192.png') }}';
+                        (window.location.origin + '/images/icon-192.png');
 
-                    window.playNotificationChime();
+                    const isUrgent = (payload.data && ((payload.data.type || '').includes('SESSION') || (payload.data.type || '').includes('LIVE'))) ||
+                        /حصة|جلسة|session|live|بدأت|تذكير/i.test(title + ' ' + body);
+
+                    window.playNotificationChime(isUrgent);
 
                     if (window.Toast) {
                         window.Toast.info(body, title);
                     }
 
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        try {
-                            if ('serviceWorker' in navigator) {
-                                navigator.serviceWorker.ready.then((reg) => {
-                                    reg.showNotification(title, {
-                                        body: body,
-                                        icon: icon,
-                                        badge: icon,
-                                        data: payload.data || { url: '/student-portal' }
-                                    });
-                                }).catch(() => {
-                                    new Notification(title, { body: body, icon: icon });
-                                });
-                            } else {
-                                new Notification(title, { body: body, icon: icon });
-                            }
-                        } catch (e) { }
-                    }
+                    // Native desktop push formatted correctly outside the system
+                    displaySystemDesktopNotification({
+                        id: (payload.data && payload.data.id) || null,
+                        title: title,
+                        body: body,
+                        icon: icon,
+                        action_url: (payload.data && (payload.data.url || payload.data.action_url)) || null
+                    });
 
                     window.dispatchEvent(new CustomEvent('fcm-realtime-message', {
                         detail: {
@@ -652,7 +771,7 @@
                 const tokenInputs = document.querySelectorAll('#userFcmTokenInput');
                 tokenInputs.forEach(input => { input.value = token; });
 
-                fetch('{{ route('ajax.notifications.token') }}', {
+                fetch('/ajax/notifications/fcm-token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -724,7 +843,7 @@
                             })();
                             const swUrl = (() => {
                                 const match = window.location.pathname.match(/^(\/[^\/]+\/public)/);
-                                return match ? (window.location.origin + match[1] + '/firebase-messaging-sw.js') : '{{ url('/firebase-messaging-sw.js') }}';
+                                return match ? (window.location.origin + match[1] + '/firebase-messaging-sw.js') : (window.location.origin + '/firebase-messaging-sw.js');
                             })();
                             let reg;
                             try {

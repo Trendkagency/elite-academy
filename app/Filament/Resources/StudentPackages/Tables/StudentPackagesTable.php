@@ -62,6 +62,13 @@ class StudentPackagesTable
                     ->formatStateUsing(fn ($state, $record) => "{$record->total_sessions} / {$record->used_sessions}")
                     ->sortable(),
 
+                TextColumn::make('is_distributed')
+                    ->label(__('Distribution'))
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? __('Distributed Once') : __('Pending'))
+                    ->color(fn ($state) => $state ? 'success' : 'gray')
+                    ->toggleable(),
+
                 TextColumn::make('status')
                     ->label(__('Status'))
                     ->badge()

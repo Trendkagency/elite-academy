@@ -57,6 +57,27 @@ class FileUploadsTable
                     ->placeholder(__('All / General'))
                     ->searchable(),
 
+                TextColumn::make('category')
+                    ->label(__('Purpose'))
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match($state) {
+                        'homework' => __('Homework'),
+                        'submission' => __('Submission'),
+                        default => __('Material'),
+                    })
+                    ->color(fn ($state) => match($state) {
+                        'homework' => 'warning',
+                        'submission' => 'info',
+                        default => 'success',
+                    })
+                    ->sortable(),
+
+                TextColumn::make('due_at')
+                    ->label(__('Due Date'))
+                    ->dateTime('Y-m-d H:i')
+                    ->placeholder('—')
+                    ->sortable(),
+
                 TextColumn::make('downloads_count')
                     ->label(__('Downloads'))
                     ->numeric()
@@ -68,6 +89,13 @@ class FileUploadsTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('category')
+                    ->label(__('Purpose / Category'))
+                    ->options([
+                        'material' => __('Study Material'),
+                        'homework' => __('Homework Assignment'),
+                        'submission' => __('Student Submission'),
+                    ]),
                 SelectFilter::make('file_type')
                     ->label(__('File Type'))
                     ->options([

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\CourseEnrollment;
 use App\Models\ExceptionRequest;
@@ -91,8 +92,25 @@ class StudentPortalController extends Controller
         $teacherFiles = $studentFiles->filter(fn ($f) => (int) $f->user_id !== (int) $user->id)->values();
         $myUploadedFiles = $studentFiles->filter(fn ($f) => (int) $f->user_id === (int) $user->id)->values();
 
-        $allStudentAssignments = collect();
-        $availableAssignments = collect();
+        $allStudentAssignments = $user ? Assignment::query()
+            ->where('status', 'published')
+            ->where(function ($q) use ($allStudentCourseIds, $allSessionIds) {
+                if (! empty($allStudentCourseIds)) {
+                    $q->whereIn('course_id', $allStudentCourseIds);
+                }
+                if (! empty($allSessionIds)) {
+                    $q->orWhereIn('live_session_id', $allSessionIds);
+                }
+            })
+            ->with(['course.subject', 'course.teacher.user', 'liveSession.teacherProfile.user', 'submissions' => function ($sq) use ($user) {
+                $sq->where('student_user_id', $user->id);
+            }, 'questions'])
+            ->orderBy('due_at', 'asc')
+            ->get() : collect();
+
+        $availableAssignments = $allStudentAssignments->filter(function ($a) use ($completedAssignmentIds) {
+            return ! in_array($a->id, $completedAssignmentIds);
+        })->values();
 
         $filterCourses = $enrollments->map(fn($e) => $e->course)->filter();
         if ($filterCourses->isEmpty() && ! empty($allStudentCourseIds)) {
@@ -841,8 +859,34 @@ class StudentPortalController extends Controller
                     $remainingSessions = max(0, $totalSessions - $usedSessions);
                 }
             } else {
-                // Multi-subject portal: each subject displays its OWN realistic numbers
-                if ($curriculumTotal > 0) {
+                // Multi-subject portal: use one-time stored package distribution (never re-distributed)
+                $allocatedFromPackage = null;
+                if ($package) {
+                    if (! $package->is_distributed || empty($package->subject_distribution)) {
+                        $package->distributeSessionsOnce();
+                        $package->refresh();
+                    }
+
+                    $dist = $package->subject_distribution ?? [];
+                    $sKey = (string) $subjId;
+
+                    if (isset($dist[$sKey])) {
+                        $allocatedFromPackage = (int) $dist[$sKey];
+                    } elseif (isset($dist['course_' . $subjId])) {
+                        $allocatedFromPackage = (int) $dist['course_' . $subjId];
+                    } elseif ($subjCourses->isNotEmpty()) {
+                        foreach ($subjCourses as $sc) {
+                            if (isset($dist['course_' . $sc->id])) {
+                                $allocatedFromPackage = (int) $dist['course_' . $sc->id];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if ($allocatedFromPackage !== null && $allocatedFromPackage > 0) {
+                    $totalSessions = max($allocatedFromPackage, $curriculumTotal, $attendedCount + $upcomingCount);
+                } elseif ($curriculumTotal > 0) {
                     $totalSessions = max($curriculumTotal, $attendedCount + $upcomingCount);
                 } elseif ($package && $package->total_sessions > 0) {
                     $fairShare = (int) max(4, (int) round($package->total_sessions / max(1, $subjectsMap->count())));

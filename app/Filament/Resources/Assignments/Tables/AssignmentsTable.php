@@ -21,12 +21,14 @@ class AssignmentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('session.course.title')
+                TextColumn::make('course.title')
                     ->label(__('Course'))
+                    ->placeholder(fn ($record) => $record->session?->course?->title ?? '—')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('session.title')
-                    ->label(__('Session'))
+                TextColumn::make('liveSession.title')
+                    ->label(__('Live Session'))
+                    ->placeholder(fn ($record) => $record->session?->title ?? '—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
@@ -47,21 +49,24 @@ class AssignmentsTable
                     ->badge(),
                 TextColumn::make('due_at')
                     ->label(__('Due Date'))
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('Created At'))
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('updated_at')
-                    ->label(__('Updated At'))
-                    ->dateTime()
+                    ->dateTime('Y-m-d H:i')
                     ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('worksheet')
+                    ->label(__('Worksheet'))
+                    ->icon(\Filament\Support\Icons\Heroicon::OutlinedArrowDownTray)
+                    ->color('info')
+                    ->visible(fn ($record) => ! empty($record->attachment_file_path))
+                    ->url(fn ($record) => \Illuminate\Support\Facades\Storage::disk('public')->url($record->attachment_file_path))
+                    ->openUrlInNewTab(),
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),

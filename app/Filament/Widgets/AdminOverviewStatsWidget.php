@@ -136,8 +136,23 @@ class AdminOverviewStatsWidget extends BaseWidget
             )
             ->description(__('Pending package subscriptions'))
             ->icon('heroicon-o-credit-card')
-            ->color('danger')
+            ->color('warning')
             ->url(route('filament.admin.resources.student-packages.index', ['activeTab' => 'pending'])),
+
+            'collections_due' => Stat::make(
+                __('Collections & Renewals Due'),
+                StudentPackage::whereIn('status', ['active', 'exhausted'])
+                    ->where(function ($q) {
+                        $q->where('remaining_sessions', '<=', 3)
+                          ->orWhere(function ($eq) {
+                              $eq->whereNotNull('expires_at')->where('expires_at', '<=', now()->addDays(7));
+                          });
+                    })->count()
+            )
+            ->description(__('Low-balance packages & expiring cycles'))
+            ->icon('heroicon-o-banknotes')
+            ->color('danger')
+            ->url(route('filament.admin.pages.student-collections')),
         ];
 
         return match ($this->filter) {
@@ -156,8 +171,9 @@ class AdminOverviewStatsWidget extends BaseWidget
             ],
             'financials' => [
                 $allStats['active_packages'],
-                $allStats['exception_requests'],
+                $allStats['collections_due'],
                 $allStats['pending_payments'],
+                $allStats['exception_requests'],
             ],
             default => array_values($allStats),
         };

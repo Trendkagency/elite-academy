@@ -3,21 +3,22 @@
 namespace App\Console\Commands;
 
 use App\Services\Notification\FcmNotificationService;
+use App\Services\Session\SessionReminderService;
 use Illuminate\Console\Command;
 
 class SendUpcomingSessionReminders extends Command
 {
     protected $signature = 'notifications:upcoming-sessions';
 
-    protected $description = 'Scan upcoming live sessions starting within 45 minutes and send FCM & system notifications to students';
+    protected $description = 'Scan upcoming live sessions and dispatch real-time escalating multi-tier notifications to students, teachers, and admins';
 
-    public function handle(FcmNotificationService $notificationService): int
+    public function handle(SessionReminderService $reminderService, FcmNotificationService $notificationService): int
     {
-        $this->info('Scanning upcoming live sessions starting soon...');
+        $this->info('Scanning upcoming live sessions and dispatching escalating reminders...');
 
-        $remindersSent = $notificationService->sendUpcomingSessionReminders();
+        $dispatched = $reminderService->processDueReminders();
 
-        $this->info("Completed! Dispatched {$remindersSent} upcoming session notification(s).");
+        $this->info("Completed! Dispatched {$dispatched} multi-tier session notification event(s).");
 
         return Command::SUCCESS;
     }

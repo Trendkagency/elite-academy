@@ -38,6 +38,24 @@ class AssignmentForm
                             ->rows(3)
                             ->columnSpanFull(),
 
+                        FileUpload::make('attachment_file_path')
+                            ->label(__('Attached Homework Worksheet / Document (PDF / Image)'))
+                            ->disk('public')
+                            ->directory('educational_files')
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'image/jpeg',
+                                'image/png',
+                                'image/webp',
+                                'image/gif',
+                            ])
+                            ->maxSize(25600)
+                            ->preserveFilenames()
+                            ->storeFileNamesIn('attachment_file_name')
+                            ->nullable()
+                            ->columnSpanFull()
+                            ->helperText(__('Upload a worksheet or problem sheet for students to download and solve.')),
+
                         Grid::make(2)->components([
                             Select::make('course_id')
                                 ->relationship(

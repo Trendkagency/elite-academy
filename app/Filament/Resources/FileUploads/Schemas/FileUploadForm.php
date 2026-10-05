@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\FileUploads\Schemas;
 
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -24,6 +25,25 @@ class FileUploadForm
                             ->required()
                             ->maxLength(200)
                             ->columnSpan(2),
+
+                        Select::make('category')
+                            ->label(__('File Purpose / Category (نوع الملف / الغرض)'))
+                            ->options([
+                                'material' => __('Study Material / مذكرة دراسية'),
+                                'homework' => __('Homework Assignment / واجب منزلي وتكليف'),
+                                'submission' => __('Student Submission / تسليم وحل طالب'),
+                            ])
+                            ->default('material')
+                            ->required()
+                            ->live()
+                            ->columnSpan(1),
+
+                        DateTimePicker::make('due_at')
+                            ->label(__('Submission Deadline / آخر موعد للتسليم'))
+                            ->required(fn ($get) => $get('category') === 'homework')
+                            ->visible(fn ($get) => $get('category') === 'homework')
+                            ->helperText(__('When saved as homework, students will see this deadline in their assignments hub.'))
+                            ->columnSpan(1),
 
                         Textarea::make('description')
                             ->label(__('Description / Instructions'))
@@ -61,18 +81,34 @@ class FileUploadForm
 
                         Select::make('teacher_profile_id')
                             ->label(__('Teacher'))
-                            ->relationship('teacherProfile', modifyQueryUsing: fn ($q) => $q->with('user'))
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->name ?: 'Teacher #' . $record->id)
+                            ->relationship(
+                                name: 'teacherProfile',
+                                titleAttribute: 'id',
+                                modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with('user')->latest('created_at')
+                            )
+                            ->getOptionLabelFromRecordUsing(fn ($record) => ($record->user?->name ?: 'Teacher #' . $record->id) . ($record->specialization ? ' — ' . $record->specialization : ''))
                             ->searchable()
                             ->preload()
                             ->nullable(),
 
                         Select::make('student_user_id')
                             ->label(__('Specific Student (Optional)'))
-                            ->relationship('studentUser', 'name', modifyQueryUsing: fn ($q) => $q->where('role', 'student'))
+                            ->relationship(
+                                name: 'studentUser',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereHas('studentProfile')->latest('created_at')
+                            )
                             ->searchable()
                             ->preload()
                             ->nullable(),
+
+                        Select::make('assignment_id')
+                            ->label(__('Linked Assignment / الواجب المرتبط (Optional)'))
+                            ->relationship('assignment', 'title')
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->visible(fn ($get) => $get('category') === 'homework'),
                     ]),
             ]);
     }

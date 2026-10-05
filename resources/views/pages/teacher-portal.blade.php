@@ -4744,6 +4744,20 @@
                             class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all custom-scrollbar"></textarea>
                     </div>
 
+                    {{-- Row 3.5: Optional Attached Homework Worksheet / File --}}
+                    <div>
+                        <label
+                            class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-paperclip text-teal-600 dark:text-teal-400 text-xs"></i>
+                            <span>{{ __('Attach Homework Worksheet / PDF / Diagram (Optional)') }}</span>
+                        </label>
+                        <input type="file" name="attachment_file" accept=".pdf,image/*,.png,.jpg,.jpeg,.webp"
+                            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-teal-500 file:me-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                        <p class="text-[11px] text-slate-400 font-mono mt-1">
+                            {{ __('Attach a worksheet or problem sheet for students to download and solve.') }}
+                        </p>
+                    </div>
+
                     {{-- Row 4: Due Date, Duration, and Passing Score (Optimized Proportions) --}}
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
                         <div class="sm:col-span-6">
@@ -9298,6 +9312,14 @@
         };
         window.openStudentDetailsModal = openStudentDetailsModal;
         window.switchTeacherTab = switchTeacherTab;
+        window.openTeacherFileUploadModal = function() {
+            if (typeof window.openModal === 'function') {
+                window.openModal('teacherFileUploadModal');
+            } else {
+                const el = document.getElementById('teacherFileUploadModal');
+                if (el) el.classList.remove('hidden');
+            }
+        };
 
 
         // ── Grade Modal Implementation ───────────────────────────────────────────────

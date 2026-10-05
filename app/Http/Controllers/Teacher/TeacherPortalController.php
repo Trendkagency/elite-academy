@@ -119,24 +119,30 @@ class TeacherPortalController extends Controller
         // 5. Educational File Uploads (Strictly Scoped to Teacher's Profile, Courses, and Assigned Students)
         $uploadedFiles = FileUpload::query()
             ->where(function ($q) use ($user, $teacherId, $courseIds) {
-                $q->where('user_id', $user->id)
-                    ->orWhere('teacher_profile_id', $teacherId);
-
+                $q->where('user_id', $user->id);
+                if ($teacherId) {
+                    $q->orWhere('teacher_profile_id', $teacherId);
+                }
                 if (! empty($courseIds)) {
                     $q->orWhereIn('course_id', $courseIds);
                 }
             })
-            ->with(['uploader', 'course', 'studentUser', 'liveSession'])
+            ->with(['uploader', 'course', 'studentUser', 'liveSession', 'assignment'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         $uploadedFilesCount = $uploadedFiles->count();
-        $myFilesCount = $uploadedFiles->where('user_id', $user->id)->count();
-        $studentFilesCount = $uploadedFiles->where('user_id', '!=', $user->id)->count();
+        $materialsCount = $uploadedFiles->filter(fn ($f) => $f->is_material && (int) $f->user_id === (int) $user->id)->count();
+        $homeworkFilesCount = $uploadedFiles->filter(fn ($f) => $f->is_homework || $f->category === 'homework')->count();
+        $studentFilesCount = $uploadedFiles->filter(fn ($f) => (int) $f->user_id !== (int) $user->id || $f->category === 'submission')->count();
+        $myFilesCount = $materialsCount;
 
-        // Deprecated legacy assignments collection
-        $assignments = collect();
-        $assignmentIds = [];
+        // 6. Active Teacher Assignments
+        $assignments = $teacherId ? Assignment::where('teacher_profile_id', $teacherId)
+            ->with(['course', 'liveSession', 'questions', 'submissions.studentUser'])
+            ->orderBy('created_at', 'desc')
+            ->get() : collect();
+        $assignmentIds = $assignments->pluck('id')->filter()->toArray();
 
         // 6. Assigned Students Roster (Strictly Scoped: CourseEnrollment, LiveSession, StudentSession, AssignmentSubmission)
         $allTeacherCourseIds = Course::where('teacher_id', $teacherId)->pluck('id')->filter()->toArray();
@@ -378,6 +384,8 @@ class TeacherPortalController extends Controller
             'uploadedFiles' => $uploadedFiles,
             'uploadedFilesCount' => $uploadedFilesCount,
             'myFilesCount' => $myFilesCount,
+            'materialsCount' => $materialsCount,
+            'homeworkFilesCount' => $homeworkFilesCount,
             'studentFilesCount' => $studentFilesCount,
             // KPIs
             'todaySessionsCount' => $todaySessionsCount,
@@ -1237,6 +1245,7 @@ class TeacherPortalController extends Controller
             'due_at' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:5|max:300',
             'passing_score' => 'nullable|numeric|min:0|max:100',
+            'attachment_file' => 'nullable|file|mimes:pdf,jpeg,png,jpg,webp,gif|max:25600',
             'questions' => 'nullable|array',
             'questions.*.question_text' => 'required_with:questions|string|max:1000',
             'questions.*.points' => 'nullable|numeric|min:0.1',
@@ -1253,12 +1262,22 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized course ownership'], 403);
         }
 
+        $attachmentFilePath = null;
+        $attachmentFileName = null;
+        if ($request->hasFile('attachment_file')) {
+            $attFile = $request->file('attachment_file');
+            $attachmentFilePath = $attFile->store('educational_files', 'public');
+            $attachmentFileName = $attFile->getClientOriginalName();
+        }
+
         $assignment = Assignment::create([
             'teacher_profile_id' => $teacherProfile->id,
             'course_id' => $course->id,
             'live_session_id' => $validated['live_session_id'] ?? null,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'attachment_file_path' => $attachmentFilePath,
+            'attachment_file_name' => $attachmentFileName,
             'duration_minutes' => (int) ($validated['duration_minutes'] ?? 30),
             'due_at' => Carbon::parse($validated['due_at']),
             'status' => 'published',

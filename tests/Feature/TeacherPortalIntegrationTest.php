@@ -368,5 +368,39 @@ class TeacherPortalIntegrationTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_teacher_portal_renders_with_assignment_submissions(): void
+    {
+        $studentUser = User::create([
+            'name' => 'Submitting Student',
+            'email' => 'submitting.student@elite.edu',
+            'password' => bcrypt('password'),
+            'status' => AccountStatus::APPROVED,
+        ]);
+        \App\Models\StudentProfile::create(['user_id' => $studentUser->id]);
+
+        $assignment = Assignment::create([
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'course_id' => $this->course->id,
+            'title' => 'Portal Test Homework',
+            'due_at' => now()->addDays(5),
+            'status' => 'published',
+        ]);
+
+        \App\Models\AssignmentSubmission::create([
+            'assignment_id' => $assignment->id,
+            'student_user_id' => $studentUser->id,
+            'status' => \App\Enums\SubmissionStatus::SUBMITTED,
+            'score' => 90,
+            'total_points' => 100,
+        ]);
+
+        $response = $this->actingAs($this->teacherUser)
+            ->get('/teacher-portal');
+
+        $response->assertStatus(200)
+            ->assertSee('Portal Test Homework');
+    }
 }
+
 

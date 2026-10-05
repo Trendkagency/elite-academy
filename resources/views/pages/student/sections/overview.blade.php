@@ -1008,6 +1008,8 @@
                             @php
                                 $isInProgress = isset($inProgressSubmissions[$assign->id]);
                                 $courseTitle = $assign->course?->title ?: ($assign->liveSession?->course?->title ?: ($isAr ? 'كورس التخصص' : 'Course Module'));
+                                $isFileHomework = $assign->is_file_homework;
+                                $homeworkFile = $assign->homework_file;
                             @endphp
                             <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                 <td class="col-title py-3.5 px-4 font-bold text-slate-900 dark:text-white leading-relaxed min-w-[260px] max-w-[380px]">
@@ -1015,7 +1017,22 @@
                                         @if($isInProgress)
                                             <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0 mt-1.5"></span>
                                         @endif
-                                        <span class="break-words font-semibold text-slate-900 dark:text-slate-100">{{ $assign->title }}</span>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                @if($isFileHomework)
+                                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 inline-flex items-center gap-1">
+                                                        <i class="fa-solid fa-file-arrow-up"></i>
+                                                        <span>{{ $isAr ? 'واجب منزلي (ملف)' : 'Homework File' }}</span>
+                                                    </span>
+                                                @else
+                                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 inline-flex items-center gap-1">
+                                                        <i class="fa-solid fa-list-check"></i>
+                                                        <span>MSQ</span>
+                                                    </span>
+                                                @endif
+                                                <span class="break-words font-semibold text-slate-900 dark:text-slate-100">{{ $assign->title }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="col-course py-3.5 px-3 text-slate-600 dark:text-slate-300 leading-normal min-w-[200px] max-w-[300px]">
@@ -1030,11 +1047,26 @@
                                     </span>
                                 </td>
                                 <td class="col-action py-3.5 px-4 text-end whitespace-nowrap min-w-[140px]">
-                                    <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
-                                        class="btn-lift px-4 py-2 rounded-xl text-xs font-bold {{ $isInProgress ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-teal-600 hover:bg-teal-500 text-white' }} shadow-xs inline-flex items-center gap-1.5">
-                                        <span><i class="fa-solid fa-bolt text-[11px]"></i></span>
-                                        <span>{{ $isInProgress ? ($isAr ? 'استكمال الحل' : 'Resume') : ($isAr ? 'بدء الحل الآن' : 'Start Test') }}</span>
-                                    </a>
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        @if($isFileHomework && $homeworkFile)
+                                            <a href="{{ route('portal.files.download', $homeworkFile->id) }}"
+                                                class="p-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 border border-slate-200 dark:border-slate-700 transition-colors"
+                                                title="{{ $isAr ? 'تحميل ملف ورقة الواجب' : 'Download Worksheet File' }}">
+                                                <i class="fa-solid fa-file-arrow-down"></i>
+                                            </a>
+                                        @endif
+                                        <a href="{{ route('student.assignment.take', ['id' => $assign->id]) }}"
+                                            class="btn-lift px-3.5 py-2 rounded-xl text-xs font-bold {{ $isInProgress ? 'bg-amber-600 hover:bg-amber-500 text-white' : ($isFileHomework ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-teal-600 hover:bg-teal-500 text-white') }} shadow-xs inline-flex items-center gap-1.5">
+                                            <span><i class="fa-solid {{ $isFileHomework ? 'fa-file-signature' : 'fa-bolt' }} text-[11px]"></i></span>
+                                            <span>
+                                                @if($isFileHomework)
+                                                    {{ $isInProgress ? ($isAr ? 'استكمال رفع الحل' : 'Resume Submission') : ($isAr ? 'تسليم الواجب' : 'Submit Homework') }}
+                                                @else
+                                                    {{ $isInProgress ? ($isAr ? 'استكمال الاختبار' : 'Resume') : ($isAr ? 'بدء الاختبار' : 'Start Test') }}
+                                                @endif
+                                            </span>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

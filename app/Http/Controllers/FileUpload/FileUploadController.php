@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\FileUpload;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\FileUpload;
 use App\Models\LiveSession;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -84,6 +86,8 @@ class FileUploadController extends Controller
             ],
             'title' => 'required|string|max:200',
             'description' => 'nullable|string|max:1000',
+            'category' => 'nullable|string|in:material,homework',
+            'due_at' => 'nullable|date',
             'course_id' => 'nullable|integer|exists:courses,id',
             'student_user_id' => 'nullable|integer|exists:users,id',
             'live_session_id' => 'nullable|integer|exists:live_sessions,id',
@@ -92,9 +96,35 @@ class FileUploadController extends Controller
         $uploadedFile = $request->file('file');
         $extension = strtolower($uploadedFile->getClientOriginalExtension());
         $fileType = $extension === 'pdf' ? 'pdf' : 'image';
+        $category = $validated['category'] ?? 'material';
+        $dueAt = ! empty($validated['due_at']) ? Carbon::parse($validated['due_at']) : null;
 
         // Store file with secure hashed name in dedicated educational_files directory
         $storedPath = $uploadedFile->store('educational_files', 'public');
+
+        $assignment = null;
+        if ($category === 'homework') {
+            $courseId = $validated['course_id'] ?? null;
+            if (! $courseId && $teacherProfile) {
+                $courseId = Course::where('teacher_id', $teacherProfile->id)->value('id');
+            }
+
+            if ($courseId) {
+                $assignment = Assignment::create([
+                    'teacher_profile_id' => $teacherProfile?->id,
+                    'course_id' => $courseId,
+                    'live_session_id' => $validated['live_session_id'] ?? null,
+                    'title' => trim($validated['title']),
+                    'description' => $validated['description'] ?? null,
+                    'attachment_file_path' => $storedPath,
+                    'attachment_file_name' => $uploadedFile->getClientOriginalName(),
+                    'duration_minutes' => 45,
+                    'due_at' => $dueAt ?? now()->addDays(3),
+                    'status' => 'published',
+                    'passing_score' => 70.0,
+                ]);
+            }
+        }
 
         $record = FileUpload::create([
             'user_id' => $user->id,
@@ -105,21 +135,29 @@ class FileUploadController extends Controller
             'file_size' => $uploadedFile->getSize(),
             'mime_type' => $uploadedFile->getMimeType() ?: ($fileType === 'pdf' ? 'application/pdf' : 'image/' . $extension),
             'file_type' => $fileType,
+            'category' => $category,
+            'due_at' => $dueAt ?? $assignment?->due_at,
+            'assignment_id' => $assignment?->id,
             'student_user_id' => $validated['student_user_id'] ?? null,
             'teacher_profile_id' => $teacherProfile?->id,
-            'course_id' => $validated['course_id'] ?? null,
+            'course_id' => $validated['course_id'] ?? $assignment?->course_id,
             'live_session_id' => $validated['live_session_id'] ?? null,
             'downloads_count' => 0,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => __('File uploaded successfully.'),
+            'message' => $category === 'homework' 
+                ? __('Homework assignment published and file uploaded successfully.') 
+                : __('File uploaded successfully.'),
             'file' => [
                 'id' => $record->id,
                 'title' => $record->title,
                 'original_name' => $record->original_name,
                 'file_type' => $record->file_type,
+                'category' => $record->category,
+                'due_at' => $record->due_at?->format('Y-m-d H:i'),
+                'assignment_id' => $record->assignment_id,
                 'formatted_size' => $record->formatted_size,
                 'created_at' => $record->created_at->format('Y-m-d H:i'),
                 'download_url' => route('portal.files.download', $record->id),
@@ -150,6 +188,7 @@ class FileUploadController extends Controller
             'course_id' => 'nullable|integer|exists:courses,id',
             'teacher_profile_id' => 'nullable|integer|exists:teacher_profiles,id',
             'live_session_id' => 'nullable|integer|exists:live_sessions,id',
+            'assignment_id' => 'nullable|integer|exists:assignments,id',
         ]);
 
         $uploadedFile = $request->file('file');
@@ -175,6 +214,8 @@ class FileUploadController extends Controller
             'file_size' => $uploadedFile->getSize(),
             'mime_type' => $uploadedFile->getMimeType() ?: ($fileType === 'pdf' ? 'application/pdf' : 'image/' . $extension),
             'file_type' => $fileType,
+            'category' => 'submission',
+            'assignment_id' => $validated['assignment_id'] ?? null,
             'student_user_id' => $user->id,
             'teacher_profile_id' => $teacherProfileId,
             'course_id' => $validated['course_id'] ?? null,
@@ -182,14 +223,42 @@ class FileUploadController extends Controller
             'downloads_count' => 0,
         ]);
 
+        $submission = null;
+        if (! empty($validated['assignment_id'])) {
+            $assignment = Assignment::find($validated['assignment_id']);
+            if ($assignment) {
+                $enrollment = \App\Models\CourseEnrollment::where('student_user_id', $user->id)
+                    ->where('course_id', $assignment->course_id)
+                    ->first();
+
+                $submission = \App\Models\AssignmentSubmission::updateOrCreate(
+                    [
+                        'assignment_id' => $assignment->id,
+                        'student_user_id' => $user->id,
+                    ],
+                    [
+                        'course_enrollment_id' => $enrollment?->id ?? 1,
+                        'status' => \App\Enums\SubmissionStatus::SUBMITTED,
+                        'submitted_at' => now(),
+                        'started_at' => now(),
+                        'attempt_number' => 1,
+                        'teacher_notes' => $validated['description'] ?? null,
+                    ]
+                );
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => __('File uploaded successfully.'),
+            'message' => __('Homework submission file uploaded successfully.'),
+            'submission_id' => $submission?->id,
+            'is_submitted' => true,
             'file' => [
                 'id' => $record->id,
                 'title' => $record->title,
                 'original_name' => $record->original_name,
                 'file_type' => $record->file_type,
+                'category' => $record->category,
                 'formatted_size' => $record->formatted_size,
                 'created_at' => $record->created_at->format('Y-m-d H:i'),
                 'download_url' => route('portal.files.download', $record->id),

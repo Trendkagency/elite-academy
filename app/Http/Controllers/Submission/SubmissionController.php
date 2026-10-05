@@ -51,7 +51,7 @@ class SubmissionController extends Controller
 
             $isCompleted = $previousSubmission && in_array($previousSubmission->status, [SubmissionStatus::COMPLETED, SubmissionStatus::SUBMITTED, SubmissionStatus::REVIEWED]);
 
-            if ($isCompleted) {
+            if ($isCompleted && ! $assignment->is_file_homework) {
                 return redirect()->route('student-portal')->with('info', 'You have already completed this assignment.');
             }
 
@@ -120,14 +120,24 @@ class SubmissionController extends Controller
             }
         }
 
+        $homeworkFile = $assignment->homework_file;
+        $studentSubmittedFiles = \App\Models\FileUpload::where('assignment_id', $assignment->id)
+            ->where('student_user_id', $user->id)
+            ->where('category', 'submission')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('pages.student-assignment-take', [
-            'pageTitle' => $assignment->title . ' — Interactive MSQ Examination',
+            'pageTitle' => $assignment->title . ($assignment->is_file_homework ? ' — Homework & Worksheet' : ' — Interactive Examination'),
             'activeNav' => 'portal',
             'assignment' => $assignment,
             'previousSubmission' => $previousSubmission,
             'savedAnswers' => $savedAnswers,
             'remainingSeconds' => $remainingSeconds,
             'currentStepIndex' => $currentStepIndex,
+            'homeworkFile' => $homeworkFile,
+            'studentSubmittedFiles' => $studentSubmittedFiles,
+            'isFileHomework' => $assignment->is_file_homework,
         ]);
     }
 
@@ -288,6 +298,24 @@ class SubmissionController extends Controller
             ];
         });
 
+        $homeworkFile = $assignment->homework_file;
+
+        $studentSubmittedFiles = \App\Models\FileUpload::where('assignment_id', $assignment->id)
+            ->where('student_user_id', $user->id)
+            ->where('category', 'submission')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn ($f) => [
+                'id' => $f->id,
+                'title' => $f->title,
+                'original_name' => $f->original_name,
+                'file_type' => $f->file_type,
+                'formatted_size' => $f->formatted_size,
+                'created_at' => $f->created_at->format('Y-m-d H:i'),
+                'download_url' => route('portal.files.download', $f->id),
+                'preview_url' => route('portal.files.preview', $f->id),
+            ]);
+
         return response()->json([
             'success' => true,
             'assignment' => [
@@ -296,11 +324,19 @@ class SubmissionController extends Controller
                 'description' => $assignment->description,
                 'duration_minutes' => $assignment->duration_minutes ?? 30,
                 'due_at' => $assignment->due_at?->toIso8601String(),
+                'due_at_formatted' => $assignment->due_at ? $assignment->due_at->format('Y-m-d H:i') : null,
                 'passing_score' => $assignment->passing_score ?? $assignment->passing_grade ?? 70,
                 'is_expired' => $assignment->isExpired(),
+                'is_file_homework' => $assignment->is_file_homework,
+                'attachment_file_name' => $assignment->attachment_file_name ?: ($homeworkFile?->original_name),
+                'attachment_download_url' => $homeworkFile ? route('portal.files.download', $homeworkFile->id) : null,
+                'attachment_preview_url' => $homeworkFile ? route('portal.files.preview', $homeworkFile->id) : null,
+                'course_title' => $assignment->course?->title ?: ($assignment->liveSession?->course?->title ?: 'Course Module'),
+                'teacher_name' => $assignment->teacherProfile?->user?->name ?: ($assignment->course?->teacher?->user?->name ?: 'Instructor'),
                 'questions' => $questions,
             ],
             'saved_answers' => $savedAnswers,
+            'submitted_files' => $studentSubmittedFiles,
             'previous_submission' => $latestSubmission ? [
                 'id' => $latestSubmission->id,
                 'status' => $latestSubmission->status->value ?? (string)$latestSubmission->status,
@@ -308,6 +344,8 @@ class SubmissionController extends Controller
                 'percentage' => $latestSubmission->percentage,
                 'passing_score' => $latestSubmission->passing_score,
                 'is_passed' => $latestSubmission->isPassed(),
+                'teacher_notes' => $latestSubmission->teacher_notes,
+                'evaluation_notes' => $latestSubmission->evaluation_notes,
                 'submitted_at' => $latestSubmission->submitted_at?->diffForHumans(),
             ] : null,
         ]);

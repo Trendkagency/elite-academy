@@ -90,6 +90,11 @@ class AssignmentSubmission extends Model
         return $this->belongsTo(User::class, 'student_user_id');
     }
 
+    public function student(): BelongsTo
+    {
+        return $this->studentUser();
+    }
+
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(CourseEnrollment::class, 'course_enrollment_id');

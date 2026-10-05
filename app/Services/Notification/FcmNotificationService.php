@@ -67,6 +67,16 @@ class FcmNotificationService
         return $notification;
     }
 
+    /**
+     * Send notification to a specific user with flexible data payload.
+     */
+    public function sendToUser(User $user, string $title, string $body, array $data = []): UserNotification
+    {
+        $type = $data['type'] ?? 'SESSION_REMINDER';
+        $url  = $data['url'] ?? $data['action_url'] ?? null;
+        return $this->sendNotification($user, $type, $title, $body, $url);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Admin Notification Methods
     // ─────────────────────────────────────────────────────────────────────────
@@ -884,7 +894,13 @@ class FcmNotificationService
         $defaults   = config('fcm.defaults');
         $android    = config('fcm.android');
         $batchSize  = config('fcm.batch_size', 500);
-        $clickUrl   = $actionUrl ?: $defaults['click_action'];
+        $baseUrl    = request()?->root() ?: (config('app.url') ?: 'https://elite-academy.test');
+        $rawIcon    = $defaults['icon'] ?? '/images/icon-192.png';
+        $absoluteIcon = str_starts_with($rawIcon, 'http') ? $rawIcon : rtrim($baseUrl, '/') . '/' . ltrim($rawIcon, '/');
+        $clickUrl   = $actionUrl ?: rtrim($baseUrl, '/');
+
+        $cleanTitle = trim(strip_tags(html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        $cleanBody  = trim(strip_tags(html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
         $endpoint   = config('fcm.legacy.endpoint', 'https://fcm.googleapis.com/fcm/send');
 
         foreach (array_chunk($tokens, $batchSize) as $chunk) {
@@ -895,17 +911,17 @@ class FcmNotificationService
                 ])->post($endpoint, [
                     'registration_ids' => $chunk,
                     'notification' => [
-                        'title'        => $title,
-                        'body'         => $body,
-                        'icon'         => $defaults['icon'],
+                        'title'        => $cleanTitle,
+                        'body'         => $cleanBody,
+                        'icon'         => $absoluteIcon,
                         'color'        => $defaults['color'],
                         'sound'        => $defaults['sound'],
                         'click_action' => $clickUrl,
                         'badge'        => $defaults['badge'],
                     ],
                     'data' => [
-                        'title' => $title,
-                        'body'  => $body,
+                        'title' => $cleanTitle,
+                        'body'  => $cleanBody,
                         'url'   => $clickUrl,
                     ],
                     'android' => [
@@ -938,7 +954,7 @@ class FcmNotificationService
             } catch (\Throwable $e) {
                 if (config('fcm.logging.on_error')) {
                     Log::channel(config('fcm.logging.channel'))->error('FCM Legacy dispatch error: ' . $e->getMessage(), [
-                        'title'  => $title,
+                        'title'  => $cleanTitle,
                         'tokens' => count($chunk),
                     ]);
                 }
@@ -973,7 +989,15 @@ class FcmNotificationService
         $defaults  = config('fcm.defaults');
         $android   = config('fcm.android');
         $endpoint  = sprintf(config('fcm.v1.endpoint'), $projectId);
-        $clickUrl  = $actionUrl ?: $defaults['click_action'];
+        $baseUrl   = request()?->root() ?: (config('app.url') ?: 'https://elite-academy.test');
+        $rawIcon   = $defaults['icon'] ?? '/images/icon-192.png';
+        $absoluteIcon  = str_starts_with($rawIcon, 'http') ? $rawIcon : rtrim($baseUrl, '/') . '/' . ltrim($rawIcon, '/');
+        $absoluteBadge = rtrim($baseUrl, '/') . '/images/icon-192.png';
+        $clickUrl  = $actionUrl ?: rtrim($baseUrl, '/');
+
+        $cleanTitle = trim(strip_tags(html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        $cleanBody  = trim(strip_tags(html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        $isArabic   = (bool) preg_match('/[\x{0600}-\x{06FF}]/u', $cleanTitle . ' ' . $cleanBody);
 
         foreach ($tokens as $token) {
             try {
@@ -982,17 +1006,17 @@ class FcmNotificationService
                         'message' => [
                             'token'        => $token,
                             'notification' => [
-                                'title' => $title,
-                                'body'  => $body,
-                                'image' => $defaults['icon'],
+                                'title' => $cleanTitle,
+                                'body'  => $cleanBody,
+                                'image' => $absoluteIcon,
                             ],
                             'android' => [
                                 'priority' => strtoupper($android['priority']),
                                 'ttl'      => $android['ttl'] . 's',
                                 'notification' => [
-                                    'channel_id' => $android['channel_id'],
-                                    'sound'      => $defaults['sound'],
-                                    'color'      => $defaults['color'],
+                                    'channel_id'   => $android['channel_id'],
+                                    'sound'        => $defaults['sound'],
+                                    'color'        => $defaults['color'],
                                     'click_action' => $clickUrl,
                                 ],
                             ],
@@ -1005,18 +1029,28 @@ class FcmNotificationService
                                 ],
                             ],
                             'webpush' => [
+                                'headers' => [
+                                    'Urgency' => 'high',
+                                ],
                                 'notification' => [
-                                    'title' => $title,
-                                    'body'  => $body,
-                                    'icon'  => $defaults['icon'],
+                                    'title' => $cleanTitle,
+                                    'body'  => $cleanBody,
+                                    'icon'  => $absoluteIcon,
+                                    'badge' => $absoluteBadge,
+                                    'dir'   => $isArabic ? 'rtl' : 'ltr',
+                                    'lang'  => $isArabic ? 'ar' : 'en',
                                 ],
                                 'fcm_options' => [
                                     'link' => $clickUrl,
                                 ],
                             ],
                             'data' => [
-                                'url'  => $clickUrl,
-                                'type' => 'push',
+                                'title'      => $cleanTitle,
+                                'body'       => $cleanBody,
+                                'url'        => $clickUrl,
+                                'action_url' => $clickUrl,
+                                'icon'       => $absoluteIcon,
+                                'type'       => 'push',
                             ],
                         ],
                     ]);
