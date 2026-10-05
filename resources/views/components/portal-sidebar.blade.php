@@ -95,12 +95,6 @@
                     <span class="truncate min-w-0">{{ __('app.portal.notifications') }} & {{ app()->getLocale() === 'ar' ? 'الملاحظات' : 'Notes' }}</span>
                 </a>
 
-                {{-- Interactive Student Guide & Demo Trigger in Sidebar --}}
-                <button type="button" onclick="window.openStudentPreviewGuide ? window.openStudentPreviewGuide('overview') : (window.openModal ? window.openModal('studentPreviewGuideModal') : null)"
-                    class="w-full text-{{ $isAr ? 'right' : 'left' }} flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all group bg-gradient-to-r from-amber-500/15 via-teal-500/10 to-transparent hover:from-amber-500/25 hover:to-teal-500/20 text-amber-300 border border-amber-500/30 shadow-sm cursor-pointer mt-2">
-                    <span class="text-base text-amber-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-wand-magic-sparkles animate-pulse"></i></span>
-                    <span class="truncate min-w-0 font-extrabold">{{ $isAr ? 'دليل الطالب والمعاينة الحية' : 'Student Guide & Demo' }}</span>
-                </button>
 
             @elseif($role === 'teacher')
                 <!-- Teacher Navigation -->

@@ -34,6 +34,8 @@ class StudentPortalController extends Controller
         $allStudentCourseIds = $sessionData['allStudentCourseIds'];
         $allSessionIds = $sessionData['allSessionIds'];
         $upcomingSessions = $sessionData['upcomingSessions'];
+        $todaySessions = $sessionData['todaySessions'];
+        $allSessionsForCalendar = $sessionData['allSessionsForCalendar'];
         $startingSoonSessions = $sessionData['startingSoonSessions'];
         $upcomingScheduledSessions = $sessionData['upcomingScheduledSessions'];
         $endedSessionsHistory = $sessionData['endedSessionsHistory'];
@@ -230,14 +232,19 @@ class StudentPortalController extends Controller
         $totalAlertsCount  = $userNotifications instanceof \Illuminate\Pagination\LengthAwarePaginator
             ? $userNotifications->total() : count($userNotifications);
 
+        $subjectCards = $this->prepareStudentSubjectsData($user, $studentProfile, $upcomingSessions, $enrollments, $package);
+
         return view('pages.student-portal', [
             'pageTitle'              => 'Student Portal — Learner Dashboard',
             'activeNav'              => 'portal',
             'studentProfile'         => $studentProfile,
             'studentSubjects'        => $studentProfile?->subjects ?: collect(),
+            'subjectCards'           => $subjectCards,
             'package'                => $package,
             'hasActivePackage'       => $hasActivePackage,
             'upcomingSessions'          => $upcomingSessions,
+            'todaySessions'             => $todaySessions,
+            'allSessionsForCalendar'    => $allSessionsForCalendar,
             'startingSoonSessions'      => $startingSoonSessions,
             'upcomingScheduledSessions' => $upcomingScheduledSessions,
             'endedSessionsHistory'      => $endedSessionsHistory,
@@ -425,6 +432,49 @@ class StudentPortalController extends Controller
         $packageFlag = $hasActivePackage ? '1' : '0';
         $sessionsHash = md5(implode('|', $fingerprintItems) . "|p:{$packageFlag}|s:" . $startingSoonSessions->count() . "|u:" . $upcomingScheduledSessions->count() . "|h:" . $endedSessionsHistory->count());
 
+        // Filter Today's sessions: currently LIVE, or starting today
+        $todaySessions = $upcomingSessions->filter(function ($s) use ($user, $now) {
+            $state = $s->evaluateState($user, $now);
+            if ($state === \App\Enums\LiveSessionState::LIVE) {
+                return true;
+            }
+            return $s->effective_start_at && $s->effective_start_at->isToday();
+        })->sortBy(function ($s) use ($user, $now) {
+            $isLive = ($s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE);
+            $ts = $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+            return $isLive ? 0 : $ts;
+        })->values();
+
+        // Format all sessions for interactive calendar and easy session management
+        $allSessionsForCalendar = $upcomingSessions->map(function ($s) use ($user, $now) {
+            $evalState = $s->evaluateState($user, $now);
+            $startAt = $s->effective_start_at;
+            $endAt = $s->effective_end_at;
+            $isLive = ($evalState === \App\Enums\LiveSessionState::LIVE);
+            $canJoin = $evalState->canJoin();
+            $isToday = $startAt ? $startAt->isToday() : false;
+            $isPast = ($endAt && $endAt->isPast()) || ($s->status === 'completed');
+
+            return [
+                'id' => $s->id,
+                'title' => $s->studentFacingTitle($s->title ?: 'Live Session'),
+                'subject' => $s->subject?->name ?: 'Subject',
+                'course' => $s->course?->title ?: '',
+                'teacher' => $s->teacherProfile?->user?->name ?: 'Teacher',
+                'date' => $startAt ? $startAt->format('Y-m-d') : '',
+                'time' => $startAt ? $startAt->format('h:i A') : '',
+                'iso_date' => $startAt ? $startAt->toIso8601String() : '',
+                'duration' => $s->duration_minutes ?: 60,
+                'status' => $isLive ? 'live' : ($isPast ? 'completed' : 'scheduled'),
+                'status_label' => $evalState->label(),
+                'can_join' => $canJoin,
+                'is_live' => $isLive,
+                'is_today' => $isToday,
+                'is_past' => $isPast,
+                'join_url' => route('student.meeting.show', ['id' => $s->id]),
+            ];
+        })->values();
+
         return [
             'package' => $package,
             'hasActivePackage' => $hasActivePackage,
@@ -432,6 +482,8 @@ class StudentPortalController extends Controller
             'allStudentCourseIds' => $allStudentCourseIds,
             'allSessionIds' => $allSessionIds,
             'upcomingSessions' => $upcomingSessions,
+            'todaySessions' => $todaySessions,
+            'allSessionsForCalendar' => $allSessionsForCalendar,
             'startingSoonSessions' => $startingSoonSessions,
             'upcomingScheduledSessions' => $upcomingScheduledSessions,
             'endedSessionsHistory' => $endedSessionsHistory,
@@ -504,4 +556,355 @@ class StudentPortalController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Compute comprehensive subject-level progress and remaining sessions for the student.
+     *
+     * @param \App\Models\User|null $user
+     * @param \App\Models\StudentProfile|null $studentProfile
+     * @param \Illuminate\Support\Collection $upcomingSessions
+     * @param \Illuminate\Support\Collection $enrollments
+     * @param \App\Models\StudentPackage|null $package
+     * @return \Illuminate\Support\Collection
+     */
+    private function prepareStudentSubjectsData($user, $studentProfile, $upcomingSessions, $enrollments, $package): \Illuminate\Support\Collection
+    {
+        if (! $user) {
+            return collect();
+        }
+
+        // 1. Gather all unique Subject models related to this student
+        $subjectsMap = collect();
+
+        // From student profile subjects
+        if ($studentProfile && $studentProfile->subjects) {
+            foreach ($studentProfile->subjects as $subj) {
+                if ($subj && ! $subjectsMap->has($subj->id)) {
+                    $subjectsMap->put($subj->id, $subj);
+                }
+            }
+        }
+
+        // From enrolled courses
+        foreach ($enrollments as $enr) {
+            $subj = $enr->course?->subject;
+            if ($subj && ! $subjectsMap->has($subj->id)) {
+                $subjectsMap->put($subj->id, $subj);
+            }
+        }
+
+        // From assigned live sessions
+        foreach ($upcomingSessions as $sess) {
+            $subj = $sess->subject;
+            if ($subj && ! $subjectsMap->has($subj->id)) {
+                $subjectsMap->put($subj->id, $subj);
+            }
+        }
+
+        // Fallback: if student has enrolled courses that have no explicit subject relation, create a virtual subject entry per course
+        if ($subjectsMap->isEmpty() && $enrollments->isNotEmpty()) {
+            foreach ($enrollments as $enr) {
+                if ($enr->course) {
+                    $virtualSubj = (object) [
+                        'id' => 'course_' . $enr->course->id,
+                        'name' => $enr->course->title,
+                        'category' => (object) ['name' => __('app.academic_curriculum')],
+                        'description' => $enr->course->description,
+                        'is_virtual' => true,
+                        'course' => $enr->course,
+                    ];
+                    $subjectsMap->put('course_' . $enr->course->id, $virtualSubj);
+                }
+            }
+        }
+
+        // Color palettes for sleek dark/light aesthetics
+        $palettes = [
+            [
+                'name' => 'teal',
+                'badge' => 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800',
+                'pill' => 'bg-teal-600 text-white',
+                'progress' => 'from-teal-500 to-emerald-400',
+                'icon_bg' => 'bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-500/20',
+                'border' => 'border-teal-500/30 dark:border-teal-500/20',
+                'accent' => 'text-teal-600 dark:text-teal-400',
+                'light_bg' => 'bg-teal-50/50 dark:bg-teal-950/20',
+            ],
+            [
+                'name' => 'indigo',
+                'badge' => 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
+                'pill' => 'bg-indigo-600 text-white',
+                'progress' => 'from-indigo-500 to-blue-400',
+                'icon_bg' => 'bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+                'border' => 'border-indigo-500/30 dark:border-indigo-500/20',
+                'accent' => 'text-indigo-600 dark:text-indigo-400',
+                'light_bg' => 'bg-indigo-50/50 dark:bg-indigo-950/20',
+            ],
+            [
+                'name' => 'amber',
+                'badge' => 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+                'pill' => 'bg-amber-600 text-white',
+                'progress' => 'from-amber-500 to-orange-400',
+                'icon_bg' => 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20',
+                'border' => 'border-amber-500/30 dark:border-amber-500/20',
+                'accent' => 'text-amber-600 dark:text-amber-400',
+                'light_bg' => 'bg-amber-50/50 dark:bg-amber-950/20',
+            ],
+            [
+                'name' => 'rose',
+                'badge' => 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+                'pill' => 'bg-rose-600 text-white',
+                'progress' => 'from-rose-500 to-pink-400',
+                'icon_bg' => 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/20',
+                'border' => 'border-rose-500/30 dark:border-rose-500/20',
+                'accent' => 'text-rose-600 dark:text-rose-400',
+                'light_bg' => 'bg-rose-50/50 dark:bg-rose-950/20',
+            ],
+            [
+                'name' => 'purple',
+                'badge' => 'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+                'pill' => 'bg-purple-600 text-white',
+                'progress' => 'from-purple-500 to-indigo-400',
+                'icon_bg' => 'bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20',
+                'border' => 'border-purple-500/30 dark:border-purple-500/20',
+                'accent' => 'text-purple-600 dark:text-purple-400',
+                'light_bg' => 'bg-purple-50/50 dark:bg-purple-950/20',
+            ],
+        ];
+
+        // Preload package deductions by subject to accurately count deducted sessions per subject
+        $packageDeductionsBySubject = [];
+        if ($package) {
+            $deductTransactions = \App\Models\PackageTransaction::where('student_package_id', $package->id)
+                ->where('type', 'session_deduct')
+                ->get();
+
+            foreach ($deductTransactions as $tr) {
+                if ($tr->live_session_id) {
+                    $ls = $upcomingSessions->firstWhere('id', $tr->live_session_id);
+                    if ($ls) {
+                        $sId = $ls->subject_id ?: ($ls->course?->subject_id);
+                        if ($sId) {
+                            $packageDeductionsBySubject[$sId] = ($packageDeductionsBySubject[$sId] ?? 0) + 1;
+                        }
+                    }
+                } else {
+                    foreach ($subjectsMap as $sId => $sObj) {
+                        if (!empty($sObj->name) && str_contains($tr->reason ?? '', $sObj->name)) {
+                            $packageDeductionsBySubject[$sId] = ($packageDeductionsBySubject[$sId] ?? 0) + 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        $subjectCards = collect();
+        $paletteIndex = 0;
+
+        foreach ($subjectsMap as $subjId => $subj) {
+            $palette = $palettes[$paletteIndex % count($palettes)];
+            $paletteIndex++;
+
+            // Sessions for this subject
+            $subjLiveSessions = $upcomingSessions->filter(function ($s) use ($subjId, $subj) {
+                return (string) $s->subject_id === (string) $subjId
+                    || (string) ($s->course?->subject_id ?? '') === (string) $subjId
+                    || (!empty($subj->name) && (
+                        ($s->subject && $s->subject->name === $subj->name) ||
+                        (str_contains(mb_strtolower($s->title ?? ''), mb_strtolower($subj->name)))
+                    ));
+            });
+
+            // Enrolled courses for this subject
+            $subjCourses = $enrollments->map(fn($e) => $e->course)->filter(function ($c) use ($subjId, $subj) {
+                return $c && (
+                    (string) $c->subject_id === (string) $subjId
+                    || (!empty($subj->name) && $c->subject?->name === $subj->name)
+                );
+            })->unique('id');
+
+            // Find teachers
+            $teachers = collect();
+            foreach ($subjLiveSessions as $ls) {
+                $tName = $ls->teacherProfile?->user?->name;
+                if ($tName) {
+                    $teachers->put($tName, [
+                        'name' => $tName,
+                        'avatar' => mb_substr($tName, 0, 1),
+                        'role' => __('app.course_instructor'),
+                    ]);
+                }
+            }
+            foreach ($subjCourses as $sc) {
+                $tName = $sc->teacher?->user?->name;
+                if ($tName && ! $teachers->has($tName)) {
+                    $teachers->put($tName, [
+                        'name' => $tName,
+                        'avatar' => mb_substr($tName, 0, 1),
+                        'role' => __('app.course_instructor'),
+                    ]);
+                }
+            }
+
+            // Fallback teacher lookup from database if no session/course teacher attached yet
+            if ($teachers->isEmpty()) {
+                $foundTeacher = \App\Models\TeacherProfile::whereHas('subjects', function ($q) use ($subjId, $subj) {
+                    $q->where('subjects.id', $subjId);
+                    if (!empty($subj->name)) {
+                        $q->orWhere('subjects.name', $subj->name);
+                    }
+                })->with('user')->first();
+
+                if ($foundTeacher && $foundTeacher->user) {
+                    $tName = $foundTeacher->user->name;
+                    $teachers->put($tName, [
+                        'name' => $tName,
+                        'avatar' => mb_substr($tName, 0, 1),
+                        'role' => __('app.course_instructor'),
+                    ]);
+                }
+            }
+
+            $primaryTeacher = $teachers->first() ?: [
+                'name' => __('Academic Teacher'),
+                'avatar' => 'T',
+                'role' => __('Elite Faculty'),
+            ];
+
+            // Attended / completed sessions for this subject
+            $attendedLiveCount = $subjLiveSessions->filter(function ($s) {
+                return in_array($s->status, ['completed', 'attended'], true)
+                    || ($s->effective_end_at && $s->effective_end_at->isPast());
+            })->count();
+
+            $completedLessonProgress = $enrollments->filter(function ($e) use ($subjId, $subj) {
+                $c = $e->course;
+                return $c && (
+                    (string) $c->subject_id === (string) $subjId
+                    || (!empty($subj->name) && $c->subject?->name === $subj->name)
+                );
+            })->sum(function ($e) {
+                return $e->progress ? $e->progress->count() : 0;
+            });
+
+            $subjectDeductions = $packageDeductionsBySubject[$subjId] ?? 0;
+            $attendedCount = max($attendedLiveCount, $completedLessonProgress, $subjectDeductions);
+
+            // Upcoming live sessions for this subject
+            $upcomingCount = $subjLiveSessions->filter(function ($s) {
+                return ! in_array($s->status, ['completed', 'cancelled', 'cancelled_by_teacher'], true)
+                    && (! $s->effective_end_at || $s->effective_end_at->isFuture());
+            })->count();
+
+            // Next scheduled live session
+            $nextSession = $subjLiveSessions->filter(function ($s) use ($user) {
+                $state = $s->evaluateState($user);
+                return $state !== \App\Enums\LiveSessionState::ENDED
+                    && ! in_array($s->status, ['completed', 'cancelled', 'cancelled_by_teacher'], true)
+                    && (! $s->effective_end_at || $s->effective_end_at->isFuture());
+            })->sortBy(function ($s) {
+                return $s->effective_start_at ? $s->effective_start_at->timestamp : PHP_INT_MAX;
+            })->first();
+
+            // If no 1-on-1 session is scheduled, search for upcoming group/course session for this subject
+            if (! $nextSession) {
+                $nextSession = \App\Models\LiveSession::where(function ($q) use ($subjId, $subj, $subjCourses) {
+                        $q->where('subject_id', $subjId);
+                        if (! empty($subj->name)) {
+                            $q->orWhereHas('subject', fn($sq) => $sq->where('name', $subj->name));
+                        }
+                        if ($subjCourses->isNotEmpty()) {
+                            $q->orWhereIn('course_id', $subjCourses->pluck('id'));
+                        }
+                    })
+                    ->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])
+                    ->where(function ($q) {
+                        $q->whereNull('end_at')->orWhere('end_at', '>', now());
+                    })
+                    ->where(function ($q) use ($user) {
+                        $q->whereNull('student_user_id')
+                          ->orWhere('student_user_id', $user->id);
+                    })
+                    ->orderBy('scheduled_at', 'asc')
+                    ->first();
+            }
+
+            // Accurate per-subject curriculum and sessions calculation
+            $courseRecordedSessions = $subjCourses->sum(fn($c) => $c->sessions ? $c->sessions->count() : 0);
+            $totalCourseLiveSessions = $subjCourses->sum(fn($c) => $c->liveSessions ? $c->liveSessions->count() : 0);
+            $curriculumTotal = $courseRecordedSessions + $totalCourseLiveSessions;
+
+            if ($subjectsMap->count() === 1) {
+                // If student has only 1 enrolled subject, package wallet directly funds this subject
+                if ($package && $package->total_sessions > 0) {
+                    $totalSessions = max($curriculumTotal, (int) $package->total_sessions);
+                    $usedSessions = (int) $package->used_sessions;
+                    $remainingSessions = (int) $package->remaining_sessions;
+                } else {
+                    $totalSessions = max(1, $curriculumTotal, $attendedCount + $upcomingCount);
+                    $usedSessions = $attendedCount;
+                    $remainingSessions = max(0, $totalSessions - $usedSessions);
+                }
+            } else {
+                // Multi-subject portal: each subject displays its OWN realistic numbers
+                if ($curriculumTotal > 0) {
+                    $totalSessions = max($curriculumTotal, $attendedCount + $upcomingCount);
+                } elseif ($package && $package->total_sessions > 0) {
+                    $fairShare = (int) max(4, (int) round($package->total_sessions / max(1, $subjectsMap->count())));
+                    $totalSessions = max($fairShare, $attendedCount + $upcomingCount);
+                } else {
+                    $totalSessions = max(4, $attendedCount + $upcomingCount);
+                }
+
+                $usedSessions = $attendedCount;
+                $remainingSessions = max(0, $totalSessions - $usedSessions);
+            }
+
+            $progressPct = $totalSessions > 0
+                ? min(100, round(($usedSessions / max(1, $totalSessions)) * 100))
+                : 0;
+
+            // Pick icon
+            $nameLower = mb_strtolower($subj->name ?? '');
+            $icon = 'fa-solid fa-book';
+            if (str_contains($nameLower, 'رياض') || str_contains($nameLower, 'جبر') || str_contains($nameLower, 'هندس') || str_contains($nameLower, 'math')) {
+                $icon = 'fa-solid fa-square-root-variable';
+            } elseif (str_contains($nameLower, 'فيز') || str_contains($nameLower, 'physic')) {
+                $icon = 'fa-solid fa-atom';
+            } elseif (str_contains($nameLower, 'كيم') || str_contains($nameLower, 'chem')) {
+                $icon = 'fa-solid fa-flask';
+            } elseif (str_contains($nameLower, 'أحي') || str_contains($nameLower, 'bio')) {
+                $icon = 'fa-solid fa-dna';
+            } elseif (str_contains($nameLower, 'عرب') || str_contains($nameLower, 'arab')) {
+                $icon = 'fa-solid fa-book-quran';
+            } elseif (str_contains($nameLower, 'إنجل') || str_contains($nameLower, 'انج') || str_contains($nameLower, 'eng')) {
+                $icon = 'fa-solid fa-language';
+            } elseif (str_contains($nameLower, 'حاس') || str_contains($nameLower, 'برمج') || str_contains($nameLower, 'cs')) {
+                $icon = 'fa-solid fa-laptop-code';
+            }
+
+            $subjectCards->push([
+                'id' => $subj->id,
+                'name' => $subj->name,
+                'category_name' => $subj->category?->name ?: __('Academic Subject'),
+                'icon' => $icon,
+                'palette' => $palette,
+                'teacher' => $primaryTeacher,
+                'all_teachers' => $teachers->values(),
+                'total_sessions' => $totalSessions,
+                'used_sessions' => $usedSessions,
+                'remaining_sessions' => $remainingSessions,
+                'upcoming_count' => $upcomingCount,
+                'attended_count' => $attendedCount,
+                'progress_pct' => $progressPct,
+                'next_session' => $nextSession,
+                'courses_count' => $subjCourses->count(),
+                'courses' => $subjCourses->values(),
+            ]);
+        }
+
+        return $subjectCards;
+    }
 }
+

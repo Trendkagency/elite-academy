@@ -55,12 +55,6 @@
             {{-- Large Desktop Full Action Pills (2xl screens only to prevent congestion) --}}
             <div class="hidden 2xl:flex items-center gap-2">
                 <button type="button" 
-                        onclick="window.openStudentPreviewGuide ? window.openStudentPreviewGuide('overview') : (window.openModal ? window.openModal('studentPreviewGuideModal') : null)" 
-                        class="btn-lift px-3.5 py-2 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 text-xs font-black rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-[11px] animate-pulse"></i>
-                    <span>{{ $isAr ? 'دليل الطالب' : 'Student Guide' }}</span>
-                </button>
-                <button type="button" 
                         onclick="window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal')?.classList.remove('hidden')" 
                         class="btn-lift px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 text-xs font-black rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">
                     <i class="fa-solid fa-file-signature text-[11px]"></i>
@@ -96,17 +90,6 @@
                      style="display: none;"
                      class="absolute {{ $isAr ? 'left-0' : 'right-0' }} mt-2 w-56 sm:w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xl p-1.5 z-50 space-y-1">
                     
-                    <button type="button"
-                            @click="open = false; window.openStudentPreviewGuide ? window.openStudentPreviewGuide('overview') : (window.openModal ? window.openModal('studentPreviewGuideModal') : null)"
-                            class="w-full text-{{ $isAr ? 'right' : 'left' }} flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800">
-                        <span class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs shrink-0">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </span>
-                        <div class="leading-tight">
-                            <p class="font-bold">{{ $isAr ? 'دليل الطالب والشرح التفاعلي' : 'Student Guide & Live Demo' }}</p>
-                            <span class="text-[10px] font-mono text-slate-400">{{ $isAr ? 'معاينة حية لجميع الأقسام' : 'Interactive full preview' }}</span>
-                        </div>
-                    </button>
 
                     <button type="button"
                             @click="open = false; window.openModal ? window.openModal('excuseModal') : document.getElementById('excuseModal')?.classList.remove('hidden')"
@@ -136,13 +119,6 @@
 
         @elseif($role === 'teacher')
             <div class="flex items-center gap-1.5 sm:gap-2">
-                <button type="button" 
-                        onclick="window.openTeacherPreviewModal ? window.openTeacherPreviewModal() : (window.openModal ? window.openModal('teacherPreviewGuideModal') : null)" 
-                        class="btn-lift h-9 sm:h-10 px-2.5 sm:px-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all"
-                        title="{{ $isAr ? 'دليل استخدام المنصة' : 'Platform Guide & Preview' }}">
-                    <i class="fa-solid fa-wand-magic-sparkles text-xs animate-pulse"></i>
-                    <span class="hidden sm:inline">{{ $isAr ? 'دليل المنصة' : 'Platform Guide' }}</span>
-                </button>
                 <button type="button" 
                         onclick="window.openCreateSessionModal ? window.openCreateSessionModal() : (window.openModal ? window.openModal('createSessionModal') : null)" 
                         class="btn-lift h-9 sm:h-10 px-2.5 sm:px-3.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5 transition-all">

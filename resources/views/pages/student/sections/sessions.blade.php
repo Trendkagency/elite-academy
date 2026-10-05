@@ -18,15 +18,17 @@
 
             <div class="flex flex-wrap items-center gap-2.5">
                 <div class="relative min-w-[220px] flex-1 sm:flex-initial">
+                    <span class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
                     <input type="text" id="sessionTableSearch" placeholder="{{ $isAr ? 'بحث في اسم الحصة أو المادة...' : 'Search session or subject...' }}"
-                        class="input-mobile text-xs py-2 px-3 pl-8 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-full"
+                        class="w-full ps-9 pe-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all"
                         onkeyup="filterSessionsTable()">
-                    <i class="fa-solid fa-magnifying-glass absolute {{ $isAr ? 'right-3' : 'left-3' }} top-3 text-slate-400 text-xs"></i>
                 </div>
-                <button type="button" onclick="openStudentPreviewGuide('sessions')"
-                    class="btn-lift px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 rounded-xl text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-xs animate-pulse"></i>
-                    <span>{{ $isAr ? 'معاينة وشرح الحصص' : 'Preview & Guide' }}</span>
+                <button type="button" onclick="switchStudentTab('overview'); setTimeout(() => document.getElementById('studentCalendarSection')?.scrollIntoView({behavior: 'smooth'}), 120);"
+                    class="btn-lift px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-calendar-days text-teal-600 dark:text-teal-400"></i>
+                    <span>{{ $isAr ? 'تقويم الحصص' : 'Calendar View' }}</span>
                 </button>
                 <span class="text-xs font-mono font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 px-3 py-1.5 rounded-xl border border-teal-200/80 dark:border-teal-800 shadow-2xs whitespace-nowrap">
                     <i class="fa-solid fa-shield-halved"></i> 30-Min Join Rule Active

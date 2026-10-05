@@ -82,16 +82,6 @@
                         <span class="text-[10px] font-mono text-slate-400">{{ $todayDateStr }}</span>
                     </div>
 
-                    {{-- Primary Featured Button: Preview & Guide --}}
-                    <button type="button" onclick="openTeacherPreviewModal()"
-                        class="btn-lift w-full py-3 px-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 flex items-center justify-between transition-all cursor-pointer group">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-wand-magic-sparkles text-amber-950 text-sm animate-pulse"></i>
-                            <span>{{ $isAr ? 'دليل استخدام المنصة والتوضيح' : 'Platform Guide & Preview' }}</span>
-                        </span>
-                        <i
-                            class="fa-solid fa-arrow-left rtl:rotate-180 text-xs group-hover:-translate-x-1 transition-transform"></i>
-                    </button>
 
                     {{-- 2x2 Action Tiles Grid --}}
                     <div class="grid grid-cols-2 gap-2">
@@ -308,19 +298,42 @@
                                             </p>
                                         </div>
 
-                                        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                                            @if ($session->meeting_link)
-                                                <a href="{{ $session->meeting_link }}" target="_blank"
-                                                    class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5">
+                                        @php
+                                            $isSessionStarted = in_array($session->status, ['live', 'completed']);
+                                        @endphp
+                                        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0" id="teacherSessionActions_{{ $session->id }}">
+                                            @if ($isSessionStarted)
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="1"
+                                                    data-session-id="{{ $session->id }}"
+                                                    data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                                    onclick="openTeacherSessionLiveDetailsModal({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}', '{{ addslashes($session->course?->title ?: ($session->subject?->name ?: __('General Cohort'))) }}', '{{ $session->meeting_link }}', this)"
+                                                    class="btn-lift px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
+                                                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                                    <span><i class="fa-solid fa-chart-pie"></i></span>
+                                                    <span>{{ __('تقرير الحصة والرابط') }}</span>
+                                                </button>
+                                            @elseif ($session->meeting_link)
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="0"
+                                                    data-session-id="{{ $session->id }}"
+                                                    data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                                    onclick="promptTeacherSessionAttendance({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}', '{{ addslashes($session->course?->title ?: ($session->subject?->name ?: __('General Cohort'))) }}', '{{ $session->meeting_link }}', this)"
+                                                    class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
                                                     <span><i class="fa-solid fa-video"></i></span>
-                                                    {{ __('Join / Broadcast') }}
-                                                </a>
+                                                    <span>{{ __('Join / Broadcast') }}</span>
+                                                </button>
                                             @else
-                                                <button type="button" data-session-id="{{ $session->id }}"
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="0"
+                                                    data-session-id="{{ $session->id }}"
                                                     data-meeting-link="{{ $session->meeting_link ?? '' }}"
                                                     onclick="openMeetingLinkModal({{ $session->id }}, this)"
                                                     class="btn-lift px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer">
-                                                    <i class="fa-solid fa-link"></i> {{ __('Add Link') }}
+                                                    <i class="fa-solid fa-link"></i> <span>{{ __('Add Link') }}</span>
                                                 </button>
                                             @endif
                                             <button type="button" data-session-id="{{ $session->id }}"
@@ -5322,8 +5335,222 @@
         </div>
     </div>
 
-    {{-- Interactive Teacher Preview & Platform Guide Modal --}}
-    @include('components.teacher-preview-guide-modal')
+    {{-- ════════════════════════════════════════════════════════════════════════════ --}}
+    {{-- MODAL 7: SESSION ATTENDANCE DEDUCTION CONFIRMATION (ALLOW / DENY)           --}}
+    {{-- ════════════════════════════════════════════════════════════════════════════ --}}
+    <div id="teacherDeductConfirmModal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300"
+        style="z-index: 100000;">
+        <div
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 max-h-[92vh]">
+
+            {{-- Dynamic Header (Switches styling between Warning and Live Report) --}}
+            <div id="deductModalHeader"
+                class="p-5 sm:p-6 bg-gradient-to-r from-amber-600 via-amber-700 to-rose-700 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden transition-all duration-300">
+                <div class="absolute -right-8 -bottom-8 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex items-center gap-3.5 min-w-0 z-10">
+                    <div id="deductModalHeaderIconWrap"
+                        class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-xl transition-all">
+                        <i id="deductModalHeaderIcon" class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+                    </div>
+                    <div class="min-w-0 space-y-0.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 id="deductModalHeaderTitle" class="font-heading font-black text-base sm:text-lg text-white tracking-tight leading-snug">
+                                {{ __('تنبيه خصم الحصة من الطلاب') }}
+                            </h3>
+                            <span id="deductModalHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30">
+                                {{ __('System Alert') }}
+                            </span>
+                        </div>
+                        <p id="deductModalHeaderSubtitle" class="text-xs text-amber-100 font-mono">
+                            {{ __('تأكيد بدء الحصة واحتساب حضور الطلاب') }}
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('teacherDeductConfirmModal')" aria-label="{{ __('Close') }}"
+                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-5 sm:p-6 space-y-4 overflow-y-auto max-h-[72vh] custom-scrollbar flex-1">
+                {{-- SECTION 1: Unstarted Warning Panel (Hidden once session is started) --}}
+                <div id="deductWarningNotice" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-500/40 dark:border-amber-700/60 space-y-2 text-start">
+                    <div class="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-sm">
+                        <i class="fa-solid fa-circle-exclamation text-amber-600 dark:text-amber-400 text-base"></i>
+                        <span>{{ __('تحذير هام: سوف يتم خصم الحصة من الطلاب!') }}</span>
+                    </div>
+                    <p class="text-xs font-mono text-amber-800 dark:text-amber-300 leading-relaxed">
+                        {{ __('عند حضورك وبدء هذه الحصة، سيتم خصم (1) حصة من باقات جميع الطلاب المسجلين لحضور هذه الحصة وفق منطق النظام الذكي.') }}
+                    </p>
+                    <div class="pt-2 border-t border-amber-200/80 dark:border-amber-800/80 text-[11px] font-mono text-amber-700 dark:text-amber-300/90 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-emerald-600"></i>
+                            <span>{{ __('الطلاب المستثنون بعذر مقبول (Approved Excuse): لن يتم الخصم منهم إطلاقاً.') }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield text-teal-600"></i>
+                            <span>{{ __('حماية الرصيد: لن يتم تكرار الخصم إذا تم الخصم مسبقاً.') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- SECTION 2: Target Session Info Card --}}
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                            {{ __('بيانات الحصة المستهدفة') }}
+                        </span>
+                        <span id="deductConfirmCohortBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                            --
+                        </span>
+                    </div>
+                    <h4 id="deductConfirmSessionTitle" class="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                        --
+                    </h4>
+                    <div class="flex items-center gap-3 text-xs font-mono text-slate-500 dark:text-slate-400">
+                        <span><i class="fa-solid fa-users text-teal-600"></i> <strong id="deductConfirmStudentsCount">--</strong></span>
+                    </div>
+                </div>
+
+                {{-- SECTION 3: Live Meeting URL Form (Dark & Light Mode Ready) --}}
+                <div id="sessionMeetingUrlPanel" class="p-4 sm:p-4.5 rounded-2xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 space-y-3 shadow-2xs">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm shrink-0">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h5 class="text-xs sm:text-sm font-heading font-black text-slate-900 dark:text-white truncate">
+                                    {{ __('رابط غرفة البث المباشر (Zoom / Meet / Teams)') }}
+                                </h5>
+                                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
+                                    {{ __('يمكنك تحديث الرابط في أي وقت عند انتهاء صلاحيته (Expired Link) دون إعادة تحميل') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <a id="sessionModalJoinMeetingBtn" href="#" target="_blank"
+                            class="btn-lift px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs shadow-xs flex items-center gap-1.5 shrink-0 transition-transform active:scale-95">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            <span>{{ __('دخول البث الآن') }}</span>
+                        </a>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch gap-2 pt-1">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 start-0 ps-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-link text-xs"></i>
+                            </div>
+                            <input type="url" id="sessionModalMeetingUrlInput"
+                                placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                                class="w-full ps-9 pe-3.5 py-2.5 rounded-xl text-xs font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all outline-hidden">
+                        </div>
+                        <button type="button" id="sessionModalUpdateUrlBtn" onclick="updateTeacherSessionMeetingUrl()"
+                            class="btn-lift px-4 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold font-mono rounded-xl shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer transition-all">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span id="sessionModalUpdateUrlBtnText">{{ __('تحديث الرابط') }}</span>
+                        </button>
+                    </div>
+                    <div id="sessionModalUrlStatus" class="hidden text-[11px] font-mono font-bold"></div>
+                </div>
+
+                {{-- SECTION 4: Live Session Operations & Attendance Report Panel --}}
+                <div id="sessionReportPanel" class="hidden space-y-3.5">
+                    {{-- KPI Counters --}}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
+                        <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">{{ __('إجمالي الطلاب') }}</div>
+                            <div id="repStatTotal" class="text-base sm:text-lg font-heading font-black text-slate-900 dark:text-white mt-0.5">0</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                            <div class="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold uppercase">{{ __('حضروا وخُصم') }}</div>
+                            <div id="repStatDeducted" class="text-base sm:text-lg font-heading font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800">
+                            <div class="text-[10px] text-sky-700 dark:text-sky-300 font-bold uppercase">{{ __('مستثنى بعذر') }}</div>
+                            <div id="repStatExcused" class="text-base sm:text-lg font-heading font-black text-sky-600 dark:text-sky-400 mt-0.5">0</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+                            <div class="text-[10px] text-amber-700 dark:text-amber-300 font-bold uppercase">{{ __('غائب / أخرى') }}</div>
+                            <div id="repStatAbsent" class="text-base sm:text-lg font-heading font-black text-amber-600 dark:text-amber-400 mt-0.5">0</div>
+                        </div>
+                    </div>
+
+                    {{-- Filter Tabs for Detailed Roster --}}
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                        <span class="text-xs font-heading font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-users-viewfinder text-teal-600"></i>
+                            <span>{{ __('كشف تفاصيل حضور الطلاب') }}</span>
+                        </span>
+                        <div class="flex items-center gap-1 text-[11px] font-mono">
+                            <button type="button" onclick="filterReportTab('all')" id="repTabBtn_all"
+                                class="px-2.5 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn">
+                                {{ __('الكل') }}
+                            </button>
+                            <button type="button" onclick="filterReportTab('deducted')" id="repTabBtn_deducted"
+                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                {{ __('حضروا وخُصم') }}
+                            </button>
+                            <button type="button" onclick="filterReportTab('excused')" id="repTabBtn_excused"
+                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                {{ __('مستثنون بعذر') }}
+                            </button>
+                            <button type="button" onclick="filterReportTab('absent')" id="repTabBtn_absent"
+                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                {{ __('غائبون') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Scrollable Students List --}}
+                    <div id="sessionReportStudentsList" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar p-1">
+                        {{-- Populated dynamically via JS --}}
+                    </div>
+                </div>
+
+                {{-- Status / Error Result Box --}}
+                <div id="deductProcessingResult" class="hidden p-4 rounded-2xl border transition-all text-xs font-mono space-y-2"></div>
+            </div>
+
+            {{-- Footer: Allow / Deny (when unstarted) OR Started State & Close (when started) --}}
+            <div id="deductModalFooter"
+                class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                
+                {{-- In Unstarted State --}}
+                <div id="footerUnstartedActions" class="flex items-center justify-between w-full gap-3">
+                    <button type="button" onclick="denyTeacherSessionDeduction()" id="denyDeductionBtn"
+                        class="btn-lift px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-xmark text-rose-500"></i>
+                        <span>{{ __('Deny (إلغاء ورفض الخصم)') }}</span>
+                    </button>
+
+                    <button type="button" onclick="allowTeacherSessionDeduction()" id="allowDeductionBtn"
+                        class="btn-lift px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-teal-600/25 cursor-pointer flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i>
+                        <span id="allowDeductionBtnText">{{ __('Allow (سماح ومتابعة الخصم)') }}</span>
+                    </button>
+                </div>
+
+                {{-- In Started / Report State --}}
+                <div id="footerStartedActions" class="hidden flex items-center justify-between w-full gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 font-bold text-xs border border-emerald-300 dark:border-emerald-800 shadow-2xs">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>{{ __('تم بدء الحصة والخصم بنجاح') }}</span>
+                        </span>
+                    </div>
+
+                    <button type="button" onclick="closeModal('teacherDeductConfirmModal')"
+                        class="btn-lift px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-mono transition-all cursor-pointer">
+                        {{ __('إغلاق النافذة') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('styles')
@@ -5434,6 +5661,738 @@
             background-color: #1E293B !important;
         }
     </style>
+@endpush
+
+@push('scripts')
+    {{-- â•â• Teacher Session Live Cycle (isolated script: start/deduct, meeting URL updater, attendance report) â•â• --}}
+    <script>
+    (function () {
+        const isArLocale = @json(app()->getLocale() === 'ar');
+        const csrfToken = '{{ csrf_token() }}';
+        const appBaseUrl = (() => {
+            const tpIdx = window.location.pathname.indexOf('/teacher-portal');
+            if (tpIdx !== -1) return window.location.origin + window.location.pathname.substring(0, tpIdx);
+            const match = window.location.pathname.match(/^(.*?\/public)/);
+            if (match) return window.location.origin + match[1];
+            return window.location.origin;
+        })();
+        const openSessionModal = (id) => {
+            if (typeof window.openModal === 'function') return window.openModal(id);
+            const el = document.getElementById(id);
+            if (el) { el.classList.remove('hidden'); el.style.setProperty('display', 'flex', 'important'); }
+        };
+        const closeSessionModal = (id) => {
+            if (typeof window.closeModal === 'function') return window.closeModal(id);
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('hidden'); el.style.setProperty('display', 'none', 'important'); }
+        };
+
+        // ── Helper Escape Functions ────────────────────────────────────────────────
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeJs(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '\\r');
+        }
+
+        // ── Teacher Session Start, Live Meeting Link & Smart Attendance Report Cycle ──
+        let currentPromptSession = null;
+        let currentReportStudents = [];
+        let currentReportFilter = 'all';
+
+        function promptTeacherSessionAttendance(sessionId, title, cohort, meetingLink, btnEl) {
+            if (!sessionId) return;
+
+            currentPromptSession = {
+                sessionId: sessionId,
+                title: title || (isArLocale ? 'حصة مباشرة' : 'Live Session'),
+                cohort: cohort || (isArLocale ? 'عام' : 'General'),
+                meetingLink: meetingLink || '',
+                triggerBtn: btnEl || null
+            };
+
+            // Reset Modal Header to Warning Mode
+            const header = document.getElementById('deductModalHeader');
+            if (header) {
+                header.className = 'p-5 sm:p-6 bg-gradient-to-r from-amber-600 via-amber-700 to-rose-700 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden transition-all duration-300';
+            }
+            const headerIconWrap = document.getElementById('deductModalHeaderIconWrap');
+            if (headerIconWrap) {
+                headerIconWrap.className = 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-xl transition-all';
+                headerIconWrap.innerHTML = '<i id="deductModalHeaderIcon" class="fa-solid fa-triangle-exclamation animate-bounce"></i>';
+            }
+            const headerTitle = document.getElementById('deductModalHeaderTitle');
+            if (headerTitle) {
+                headerTitle.textContent = isArLocale ? 'تنبيه خصم الحصة من الطلاب' : 'Session Deduction Notice';
+            }
+            const headerBadge = document.getElementById('deductModalHeaderBadge');
+            if (headerBadge) {
+                headerBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30';
+                headerBadge.textContent = isArLocale ? 'تنبيه النظام' : 'System Alert';
+            }
+            const headerSubtitle = document.getElementById('deductModalHeaderSubtitle');
+            if (headerSubtitle) {
+                headerSubtitle.className = 'text-xs text-amber-100 font-mono';
+                headerSubtitle.textContent = isArLocale ? 'تأكيد بدء الحصة واحتساب حضور الطلاب' : 'Confirm session start and student deductions';
+            }
+
+            // Populate Session Details Card
+            const titleEl = document.getElementById('deductConfirmSessionTitle');
+            if (titleEl) titleEl.textContent = currentPromptSession.title;
+            const cohortBadge = document.getElementById('deductConfirmCohortBadge');
+            if (cohortBadge) cohortBadge.textContent = currentPromptSession.cohort;
+            const countEl = document.getElementById('deductConfirmStudentsCount');
+            if (countEl) countEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-teal-600"></i> ${isArLocale ? 'جاري جرد الطلاب...' : 'Loading roster...'}`;
+
+            // Reset Warning vs Report Views
+            const warningNotice = document.getElementById('deductWarningNotice');
+            if (warningNotice) warningNotice.classList.remove('hidden');
+
+            const reportPanel = document.getElementById('sessionReportPanel');
+            if (reportPanel) reportPanel.classList.add('hidden');
+
+            const resultBox = document.getElementById('deductProcessingResult');
+            if (resultBox) {
+                resultBox.classList.add('hidden');
+                resultBox.innerHTML = '';
+            }
+
+            // Populate Meeting URL form in modal
+            const urlInput = document.getElementById('sessionModalMeetingUrlInput');
+            if (urlInput) urlInput.value = currentPromptSession.meetingLink;
+            const joinBtn = document.getElementById('sessionModalJoinMeetingBtn');
+            if (joinBtn) {
+                joinBtn.href = currentPromptSession.meetingLink || '#';
+                if (!currentPromptSession.meetingLink) {
+                    joinBtn.classList.add('opacity-50', 'pointer-events-none');
+                } else {
+                    joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+            }
+            const urlStatus = document.getElementById('sessionModalUrlStatus');
+            if (urlStatus) {
+                urlStatus.classList.add('hidden');
+                urlStatus.innerHTML = '';
+            }
+
+            // Footers
+            const unstartedFooter = document.getElementById('footerUnstartedActions');
+            if (unstartedFooter) unstartedFooter.classList.remove('hidden');
+            const startedFooter = document.getElementById('footerStartedActions');
+            if (startedFooter) startedFooter.classList.add('hidden');
+
+            const allowBtn = document.getElementById('allowDeductionBtn');
+            if (allowBtn) allowBtn.disabled = false;
+            const allowBtnText = document.getElementById('allowDeductionBtnText');
+            if (allowBtnText) {
+                allowBtnText.innerHTML = isArLocale ? 'Allow (سماح ومتابعة الخصم)' : 'Allow & Deduct Session';
+            }
+            const denyBtn = document.getElementById('denyDeductionBtn');
+            if (denyBtn) denyBtn.disabled = false;
+
+            openSessionModal('teacherDeductConfirmModal');
+
+            // Asynchronously fetch roster for accurate preview counts
+            fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/attendance-roster`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.students && countEl) {
+                    const total = data.students.length;
+                    const excused = data.students.filter(s => s.is_excused_by_exception).length;
+                    if (excused > 0) {
+                        countEl.innerHTML = `${total} ${isArLocale ? 'طلاب مسجلين' : 'students'} <span class="text-emerald-600 dark:text-emerald-400 font-bold">(${excused} ${isArLocale ? 'مستثنى بعذر مقبول' : 'excused'})</span>`;
+                    } else {
+                        countEl.innerHTML = `${total} ${isArLocale ? 'طلاب مسجلين للحضور' : 'students enrolled'}`;
+                    }
+                    if (data.session && data.session.meeting_link && !currentPromptSession.meetingLink) {
+                        currentPromptSession.meetingLink = data.session.meeting_link;
+                        if (urlInput) urlInput.value = data.session.meeting_link;
+                        if (joinBtn) {
+                            joinBtn.href = data.session.meeting_link;
+                            joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                        }
+                    }
+                }
+            })
+            .catch(() => {
+                if (countEl) countEl.textContent = isArLocale ? 'كافة الطلاب المسجلين' : 'All enrolled students';
+            });
+        }
+
+        function denyTeacherSessionDeduction() {
+            closeSessionModal('teacherDeductConfirmModal');
+            if (window.Toast) {
+                window.Toast.info(
+                    isArLocale ? 'تم إلغاء العملية، لم يتم خصم أي رصيد من الطلاب.' : 'Action cancelled. No session credits were deducted.',
+                    isArLocale ? 'إلغاء الخصم (Deny)' : 'Cancelled',
+                    3000
+                );
+            }
+            currentPromptSession = null;
+        }
+
+        async function allowTeacherSessionDeduction() {
+            if (!currentPromptSession || !currentPromptSession.sessionId) {
+                closeSessionModal('teacherDeductConfirmModal');
+                return;
+            }
+
+            const sessionId = currentPromptSession.sessionId;
+            const allowBtn = document.getElementById('allowDeductionBtn');
+            const allowBtnText = document.getElementById('allowDeductionBtnText');
+            const denyBtn = document.getElementById('denyDeductionBtn');
+            const resultBox = document.getElementById('deductProcessingResult');
+
+            if (allowBtn) allowBtn.disabled = true;
+            if (denyBtn) denyBtn.disabled = true;
+            if (allowBtnText) {
+                allowBtnText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isArLocale ? 'جاري بدء الحصة وتطبيق الخصم...' : 'Starting session & deducting...'}`;
+            }
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/start-and-deduct`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || (isArLocale ? 'تعذر إتمام عملية الخصم' : 'Failed to process deduction'));
+                }
+
+                // Update meeting link from backend if provided
+                if (data.meeting_link) {
+                    currentPromptSession.meetingLink = data.meeting_link;
+                }
+
+                // ── Transform Modal into Live Report Mode (DO NOT CLOSE MODAL) ────────
+                const header = document.getElementById('deductModalHeader');
+                if (header) {
+                    header.className = 'p-5 sm:p-6 bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-700 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden transition-all duration-300';
+                }
+                const headerIconWrap = document.getElementById('deductModalHeaderIconWrap');
+                if (headerIconWrap) {
+                    headerIconWrap.className = 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-xl transition-all';
+                    headerIconWrap.innerHTML = '<i id="deductModalHeaderIcon" class="fa-solid fa-circle-check text-white"></i>';
+                }
+                const headerTitle = document.getElementById('deductModalHeaderTitle');
+                if (headerTitle) {
+                    headerTitle.textContent = isArLocale ? 'تقرير تشغيل الحصة ورصد الحضور' : 'Live Session Roster & Deduction Report';
+                }
+                const headerBadge = document.getElementById('deductModalHeaderBadge');
+                if (headerBadge) {
+                    headerBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30';
+                    headerBadge.textContent = isArLocale ? 'حصة جارية (Live Session)' : 'Live & Deducted';
+                }
+                const headerSubtitle = document.getElementById('deductModalHeaderSubtitle');
+                if (headerSubtitle) {
+                    headerSubtitle.className = 'text-xs text-teal-100 font-mono';
+                    headerSubtitle.textContent = isArLocale ? 'تم بدء الحصة وخصم الرصيد تلقائياً وفق منطق النظام الذكي' : 'Session is live and credits deducted according to smart system rules';
+                }
+
+                // Hide warning notice, show live report panel
+                const warningNotice = document.getElementById('deductWarningNotice');
+                if (warningNotice) warningNotice.classList.add('hidden');
+
+                const reportPanel = document.getElementById('sessionReportPanel');
+                if (reportPanel) reportPanel.classList.remove('hidden');
+
+                // Switch footers
+                const unstartedFooter = document.getElementById('footerUnstartedActions');
+                if (unstartedFooter) unstartedFooter.classList.add('hidden');
+                const startedFooter = document.getElementById('footerStartedActions');
+                if (startedFooter) startedFooter.classList.remove('hidden');
+
+                // Update Meeting URL input and direct join button
+                const urlInput = document.getElementById('sessionModalMeetingUrlInput');
+                if (urlInput && currentPromptSession.meetingLink) {
+                    urlInput.value = currentPromptSession.meetingLink;
+                }
+                const joinBtn = document.getElementById('sessionModalJoinMeetingBtn');
+                if (joinBtn && currentPromptSession.meetingLink) {
+                    joinBtn.href = currentPromptSession.meetingLink;
+                    joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+
+                // Update KPI Counters
+                const totalCount = data.total_students ?? (data.students ? data.students.length : 0);
+                const deductedCount = data.deducted_count ?? 0;
+                const excusedCount = data.excused_count ?? 0;
+                const absentCount = (data.no_package_count ?? 0) + (data.failed_count ?? 0) + (data.absent_count ?? 0);
+
+                const statTotal = document.getElementById('repStatTotal');
+                if (statTotal) statTotal.textContent = totalCount;
+                const statDeducted = document.getElementById('repStatDeducted');
+                if (statDeducted) statDeducted.textContent = deductedCount;
+                const statExcused = document.getElementById('repStatExcused');
+                if (statExcused) statExcused.textContent = excusedCount;
+                const statAbsent = document.getElementById('repStatAbsent');
+                if (statAbsent) statAbsent.textContent = absentCount;
+
+                // Render student roster
+                currentReportStudents = data.students || [];
+                filterReportTab('all');
+
+                // ── Transform Trigger Button(s) on Page (Disable re-start, show report view) ──
+                const pageButtons = document.querySelectorAll(`[id="teacherBroadcastBtn_${sessionId}"]`);
+                pageButtons.forEach(btn => {
+                    btn.setAttribute('data-started', '1');
+                    btn.setAttribute('data-meeting-link', currentPromptSession.meetingLink || '');
+                    btn.className = 'btn-lift px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer';
+                    btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-ping"></span><span><i class="fa-solid fa-chart-pie"></i></span><span>${isArLocale ? 'تقرير الحصة والرابط' : 'Session Report & Link'}</span>`;
+                    btn.onclick = function() {
+                        openTeacherSessionLiveDetailsModal(sessionId, currentPromptSession.title, currentPromptSession.cohort, currentPromptSession.meetingLink, this);
+                    };
+                });
+
+                if (window.Toast) {
+                    window.Toast.success(
+                        data.message || (isArLocale ? 'تم بدء الحصة وخصم الرصيد بنجاح!' : 'Session started and deductions completed!'),
+                        isArLocale ? 'بدء الحصة' : 'Success',
+                        4000
+                    );
+                }
+
+            } catch (err) {
+                if (allowBtn) allowBtn.disabled = false;
+                if (denyBtn) denyBtn.disabled = false;
+                if (allowBtnText) {
+                    allowBtnText.innerHTML = isArLocale ? 'Allow (إعادة المحاولة)' : 'Retry Allow';
+                }
+
+                if (resultBox) {
+                    resultBox.classList.remove('hidden');
+                    resultBox.className = 'p-3.5 rounded-2xl border bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-xs font-mono text-rose-800 dark:text-rose-300 flex items-center gap-2';
+                    resultBox.innerHTML = `
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base shrink-0"></i>
+                        <span>${escapeHtml(err.message || (isArLocale ? 'حدث خطأ أثناء تنفيذ الخصم.' : 'Error executing deduction.'))}</span>
+                    `;
+                }
+
+                if (window.Toast) {
+                    window.Toast.danger(
+                        err.message || (isArLocale ? 'حدث خطأ أثناء تنفيذ الخصم.' : 'Failed to deduct sessions.'),
+                        isArLocale ? 'خطأ' : 'Error',
+                        4000
+                    );
+                }
+            }
+        }
+
+        // ── Real-time Meeting URL Updater (Dark & Light Mode Professional Input Form) ──
+        async function updateTeacherSessionMeetingUrl() {
+            if (!currentPromptSession || !currentPromptSession.sessionId) {
+                if (window.Toast) window.Toast.warning(isArLocale ? 'لا توجد حصة محددة حالياً' : 'No active session selected');
+                return;
+            }
+
+            const sessionId = currentPromptSession.sessionId;
+            const inputEl = document.getElementById('sessionModalMeetingUrlInput');
+            const btnEl = document.getElementById('sessionModalUpdateUrlBtn');
+            const btnText = document.getElementById('sessionModalUpdateUrlBtnText');
+            const statusEl = document.getElementById('sessionModalUrlStatus');
+            const joinBtn = document.getElementById('sessionModalJoinMeetingBtn');
+
+            let newUrl = inputEl ? inputEl.value.trim() : '';
+
+            if (!newUrl) {
+                if (statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> ${isArLocale ? 'يرجى كتابة رابط البث (Zoom / Google Meet)' : 'Please enter a valid meeting URL'}</span>`;
+                }
+                if (inputEl) inputEl.focus();
+                return;
+            }
+
+            // Auto-prefix https:// if omitted
+            if (!/^https?:\/\//i.test(newUrl)) {
+                newUrl = 'https://' + newUrl;
+                if (inputEl) inputEl.value = newUrl;
+            }
+
+            if (btnEl) btnEl.disabled = true;
+            if (btnText) btnText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+            if (statusEl) {
+                statusEl.classList.remove('hidden');
+                statusEl.innerHTML = `<span class="text-teal-600 dark:text-teal-400 font-mono text-[11px]"><i class="fa-solid fa-circle-notch fa-spin"></i> ${isArLocale ? 'جاري تحديث الرابط في السيرفر وتعميمه للطلاب...' : 'Updating link and syncing with students...'}</span>`;
+            }
+
+            try {
+                const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/link`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ meeting_link: newUrl })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || (isArLocale ? 'تعذر حفظ الرابط الجديد' : 'Failed to update link'));
+                }
+
+                currentPromptSession.meetingLink = data.meeting_link || newUrl;
+
+                if (joinBtn) {
+                    joinBtn.href = currentPromptSession.meetingLink;
+                    joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+
+                // Update attributes on page buttons
+                const pageButtons = document.querySelectorAll(`[id="teacherBroadcastBtn_${sessionId}"]`);
+                pageButtons.forEach(btn => {
+                    btn.setAttribute('data-meeting-link', currentPromptSession.meetingLink);
+                });
+
+                if (statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> ${isArLocale ? 'تم تحديث رابط الحصة بنجاح وحفظه للطلاب!' : 'Meeting link updated successfully and live for students!'}</span>`;
+                    setTimeout(() => {
+                        if (statusEl) statusEl.classList.add('hidden');
+                    }, 4000);
+                }
+
+                if (window.Toast) {
+                    window.Toast.success(
+                        isArLocale ? 'تم تحديث رابط الحصة بنجاح' : 'Meeting URL updated successfully',
+                        isArLocale ? 'تحديث الرابط' : 'URL Updated',
+                        3000
+                    );
+                }
+            } catch (err) {
+                if (statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}</span>`;
+                }
+                if (window.Toast) {
+                    window.Toast.danger(err.message, isArLocale ? 'خطأ' : 'Error', 4000);
+                }
+            } finally {
+                if (btnEl) btnEl.disabled = false;
+                if (btnText) btnText.innerHTML = isArLocale ? 'تحديث الرابط' : 'Update URL';
+            }
+        }
+
+        // ── Open Session Details & Attendance Report Modal (For Started Sessions) ───
+        function openTeacherSessionLiveDetailsModal(sessionId, title, cohort, meetingLink, btnEl) {
+            if (!sessionId) return;
+
+            currentPromptSession = {
+                sessionId: sessionId,
+                title: title || (isArLocale ? 'حصة مباشرة' : 'Live Session'),
+                cohort: cohort || (isArLocale ? 'عام' : 'General'),
+                meetingLink: meetingLink || '',
+                triggerBtn: btnEl || null
+            };
+
+            // Setup Modal in Live Report Mode
+            const header = document.getElementById('deductModalHeader');
+            if (header) {
+                header.className = 'p-5 sm:p-6 bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-700 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden transition-all duration-300';
+            }
+            const headerIconWrap = document.getElementById('deductModalHeaderIconWrap');
+            if (headerIconWrap) {
+                headerIconWrap.className = 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-xl transition-all';
+                headerIconWrap.innerHTML = '<i id="deductModalHeaderIcon" class="fa-solid fa-chart-pie text-white"></i>';
+            }
+            const headerTitle = document.getElementById('deductModalHeaderTitle');
+            if (headerTitle) {
+                headerTitle.textContent = isArLocale ? 'تقرير تشغيل الحصة ورصد الحضور' : 'Live Session Roster & Deduction Report';
+            }
+            const headerBadge = document.getElementById('deductModalHeaderBadge');
+            if (headerBadge) {
+                headerBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30';
+                headerBadge.textContent = isArLocale ? 'حصة جارية (Live Session)' : 'Live & Deducted';
+            }
+            const headerSubtitle = document.getElementById('deductModalHeaderSubtitle');
+            if (headerSubtitle) {
+                headerSubtitle.className = 'text-xs text-teal-100 font-mono';
+                headerSubtitle.textContent = isArLocale ? 'متابعة تفاصيل الحضور وتحديث رابط البث المباشر' : 'Monitor live attendance and update meeting broadcast link';
+            }
+
+            // Populate Session Details Card
+            const titleEl = document.getElementById('deductConfirmSessionTitle');
+            if (titleEl) titleEl.textContent = currentPromptSession.title;
+            const cohortBadge = document.getElementById('deductConfirmCohortBadge');
+            if (cohortBadge) cohortBadge.textContent = currentPromptSession.cohort;
+
+            // Hide warning notice, show live report panel
+            const warningNotice = document.getElementById('deductWarningNotice');
+            if (warningNotice) warningNotice.classList.add('hidden');
+
+            const reportPanel = document.getElementById('sessionReportPanel');
+            if (reportPanel) reportPanel.classList.remove('hidden');
+
+            // Switch footers
+            const unstartedFooter = document.getElementById('footerUnstartedActions');
+            if (unstartedFooter) unstartedFooter.classList.add('hidden');
+            const startedFooter = document.getElementById('footerStartedActions');
+            if (startedFooter) startedFooter.classList.remove('hidden');
+
+            // Meeting Link Panel
+            const urlInput = document.getElementById('sessionModalMeetingUrlInput');
+            if (urlInput) urlInput.value = currentPromptSession.meetingLink;
+            const joinBtn = document.getElementById('sessionModalJoinMeetingBtn');
+            if (joinBtn) {
+                joinBtn.href = currentPromptSession.meetingLink || '#';
+                if (!currentPromptSession.meetingLink) {
+                    joinBtn.classList.add('opacity-50', 'pointer-events-none');
+                } else {
+                    joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+            }
+            const urlStatus = document.getElementById('sessionModalUrlStatus');
+            if (urlStatus) {
+                urlStatus.classList.add('hidden');
+                urlStatus.innerHTML = '';
+            }
+
+            // Show loading inside student list
+            const listContainer = document.getElementById('sessionReportStudentsList');
+            if (listContainer) {
+                listContainer.innerHTML = `
+                    <div class="py-10 text-center space-y-2 text-slate-400 font-mono text-xs">
+                        <i class="fa-solid fa-circle-notch fa-spin text-teal-600 text-xl"></i>
+                        <p>${isArLocale ? 'جاري تحميل تفاصيل كشف الحضور والاستثناءات...' : 'Loading attendance roster & exceptions...'}</p>
+                    </div>
+                `;
+            }
+
+            openSessionModal('teacherDeductConfirmModal');
+
+            // Fetch live attendance roster
+            fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/attendance-roster`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.session && data.session.meeting_link) {
+                        currentPromptSession.meetingLink = data.session.meeting_link;
+                        if (urlInput) urlInput.value = data.session.meeting_link;
+                        if (joinBtn) {
+                            joinBtn.href = data.session.meeting_link;
+                            joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                        }
+                    }
+
+                    const students = data.students || [];
+                    currentReportStudents = students;
+
+                    // Calculate KPI breakdown
+                    const totalCount = students.length;
+                    const excusedCount = students.filter(s => s.is_excused_by_exception || s.status === 'excused_skipped' || s.status === 'excused').length;
+                    const deductedCount = students.filter(s => !s.is_excused_by_exception && (s.status === 'present' || s.status === 'deducted' || s.status === 'already_deducted')).length;
+                    const absentCount = students.filter(s => !s.is_excused_by_exception && (s.status === 'absent' || s.status === 'no_package')).length;
+
+                    const statTotal = document.getElementById('repStatTotal');
+                    if (statTotal) statTotal.textContent = totalCount;
+                    const statDeducted = document.getElementById('repStatDeducted');
+                    if (statDeducted) statDeducted.textContent = deductedCount;
+                    const statExcused = document.getElementById('repStatExcused');
+                    if (statExcused) statExcused.textContent = excusedCount;
+                    const statAbsent = document.getElementById('repStatAbsent');
+                    if (statAbsent) statAbsent.textContent = absentCount;
+
+                    filterReportTab('all');
+                } else {
+                    throw new Error(data.message || 'Failed to fetch roster');
+                }
+            })
+            .catch(err => {
+                if (listContainer) {
+                    listContainer.innerHTML = `
+                        <div class="py-8 text-center text-rose-600 dark:text-rose-400 font-mono text-xs space-y-1">
+                            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                            <p>${escapeHtml(err.message || (isArLocale ? 'تعذر تحميل بيانات حضور الحصة.' : 'Failed to load session roster.'))}</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // ── Filter Tabs & Rendering for Attendance Report ───────────────────────────
+        function filterReportTab(tab) {
+            currentReportFilter = tab || 'all';
+
+            const tabs = ['all', 'deducted', 'excused', 'absent'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`repTabBtn_${t}`);
+                if (btn) {
+                    if (t === currentReportFilter) {
+                        btn.className = 'px-2.5 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn';
+                    }
+                }
+            });
+
+            renderReportStudents(currentReportStudents, currentReportFilter);
+        }
+
+        function renderReportStudents(students, filterTab = 'all') {
+            const container = document.getElementById('sessionReportStudentsList');
+            if (!container) return;
+
+            if (!students || students.length === 0) {
+                container.innerHTML = `
+                    <div class="py-10 text-center text-slate-400 font-mono text-xs">
+                        <i class="fa-solid fa-users-slash text-2xl text-slate-300 dark:text-slate-600 mb-2"></i>
+                        <p>${isArLocale ? 'لا يوجد طلاب مسجلون في هذه الحصة.' : 'No students found for this session.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const normalized = students.map(st => {
+                const isExcused = Boolean(st.is_excused_by_exception || st.is_excused || st.status === 'excused_skipped' || st.status === 'excused');
+                const isDeducted = Boolean(st.status === 'deducted' || st.status === 'already_deducted' || st.status === 'present');
+                let cat = 'absent';
+                if (isExcused) {
+                    cat = 'excused';
+                } else if (isDeducted) {
+                    cat = 'deducted';
+                }
+
+                return {
+                    id: st.id || st.student_user_id,
+                    name: st.name || st.student_name || (isArLocale ? 'طالب' : 'Student'),
+                    code: st.student_code || (st.id ? 'STU-' + String(st.id).padStart(5, '0') : ''),
+                    grade: st.grade || '',
+                    school: st.school || '',
+                    status: st.status || '',
+                    category: cat,
+                    reason: st.reason || st.exception_reason || '',
+                    remaining_sessions: st.remaining_sessions !== undefined ? st.remaining_sessions : null
+                };
+            });
+
+            const filtered = normalized.filter(st => {
+                if (filterTab === 'all') return true;
+                return st.category === filterTab;
+            });
+
+            if (filtered.length === 0) {
+                const emptyMessages = {
+                    deducted: isArLocale ? 'لا يوجد طلاب تم خصم حصص منهم في هذا التصنيف.' : 'No deducted students found.',
+                    excused: isArLocale ? 'لا يوجد طلاب مستثنون بأعذار مقبولة في هذه الحصة.' : 'No excused students found.',
+                    absent: isArLocale ? 'لا يوجد طلاب غائبون.' : 'No absent students found.',
+                    all: isArLocale ? 'لا توجد سجلات لعرضها.' : 'No records to display.'
+                };
+                container.innerHTML = `
+                    <div class="py-8 text-center text-slate-400 font-mono text-xs">
+                        <i class="fa-solid fa-folder-open text-xl text-slate-300 dark:text-slate-600 mb-1.5"></i>
+                        <p>${emptyMessages[filterTab] || emptyMessages.all}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = filtered.map(st => {
+                let badgeHtml = '';
+                let extraNoticeHtml = '';
+
+                if (st.category === 'excused') {
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
+                            <i class="fa-solid fa-shield text-[10px]"></i>
+                            <span>${isArLocale ? 'مستثنى بعذر مقبول • الرصيد محفوظ (لم يُخصم)' : 'Excused by Exception (Preserved)'}</span>
+                        </span>
+                    `;
+                    if (st.reason) {
+                        extraNoticeHtml = `
+                            <div class="mt-1 text-[11px] font-mono text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-200 dark:border-sky-800/60 inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-comment-dots text-sky-500"></i>
+                                <span>${isArLocale ? 'سبب الاستثناء:' : 'Reason:'} ${escapeHtml(st.reason)}</span>
+                            </div>
+                        `;
+                    }
+                } else if (st.category === 'deducted') {
+                    const remText = st.remaining_sessions !== null ? ` • ${isArLocale ? 'المتبقي بالباقة: ' + st.remaining_sessions : st.remaining_sessions + ' left'}` : '';
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                            <span>${isArLocale ? 'تم خصم حصة (حاضر)' : 'Deducted (Present)'}${remText}</span>
+                        </span>
+                    `;
+                } else {
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                            <i class="fa-solid fa-user-xmark text-[10px]"></i>
+                            <span>${isArLocale ? 'غائب / بدون رصيد' : 'Absent / No Package'}</span>
+                        </span>
+                    `;
+                }
+
+                return `
+                    <div class="p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors hover:border-teal-500/40">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                ${escapeHtml(st.name.charAt(0).toUpperCase())}
+                            </div>
+                            <div class="min-w-0 space-y-0.5">
+                                <div class="flex items-center gap-2">
+                                    <h5 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">${escapeHtml(st.name)}</h5>
+                                    ${st.code ? `<span class="text-[10px] font-mono text-slate-400">#${escapeHtml(st.code)}</span>` : ''}
+                                </div>
+                                <div class="text-[11px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                                    ${st.grade ? `<span>${escapeHtml(st.grade)}</span>` : ''}
+                                    ${st.school ? `<span>• ${escapeHtml(st.school)}</span>` : ''}
+                                </div>
+                                ${extraNoticeHtml}
+                            </div>
+                        </div>
+                        <div class="shrink-0 flex items-center">
+                            ${badgeHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        window.promptTeacherSessionAttendance = promptTeacherSessionAttendance;
+        window.denyTeacherSessionDeduction = denyTeacherSessionDeduction;
+        window.allowTeacherSessionDeduction = allowTeacherSessionDeduction;
+        window.updateTeacherSessionMeetingUrl = updateTeacherSessionMeetingUrl;
+        window.openTeacherSessionLiveDetailsModal = openTeacherSessionLiveDetailsModal;
+        window.filterReportTab = filterReportTab;
+        window.renderReportStudents = renderReportStudents;
+    })();
+    </script>
 @endpush
 
 @push('scripts')
@@ -8108,6 +9067,19 @@
                     const isExcused = curStatus === 'excused';
                     const isAbsent = curStatus === 'absent';
 
+                    let excuseBadge = '';
+                    if (st.is_excused_by_exception) {
+                        excuseBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-2xs"><i class="fa-solid fa-circle-check text-emerald-600"></i> ${isArLocale ? 'عذر مقبول (لن يُخصم رصيد)' : 'Approved Excuse (No Deduction)'}</span>`;
+                    } else if (st.is_rejected_exception) {
+                        excuseBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800 shadow-2xs"><i class="fa-solid fa-circle-xmark text-rose-600"></i> ${isArLocale ? 'عذر مرفوض (سيتم الخصم)' : 'Rejected Excuse (Deductible)'}</span>`;
+                    } else if (st.has_exception) {
+                        excuseBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border border-sky-300 dark:border-sky-800 shadow-2xs"><i class="fa-solid fa-clock text-sky-600"></i> ${isArLocale ? 'عذر قيد المراجعة' : 'Excuse Pending'}</span>`;
+                    }
+
+                    const pkgBadge = st.has_active_package 
+                        ? `<span class="text-[10px] font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-200 dark:border-teal-800">${st.remaining_sessions} ${isArLocale ? 'حصة متبقية' : 'credits'}</span>`
+                        : `<span class="text-[10px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">${isArLocale ? 'بدون باقة نشطة' : 'No Active Package'}</span>`;
+
                     html += `
                 <div class="att-student-item p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/90 hover:bg-slate-50/80 dark:hover:bg-slate-700/60 transition-all border border-slate-200/80 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs"
                      data-student-name="${escapeHtml(st.name || '')}"
@@ -8118,8 +9090,12 @@
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white font-heading font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
                             ${(st.name || 'S').substring(0, 1).toUpperCase()}
                         </div>
-                        <div class="min-w-0 space-y-0.5">
-                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">${escapeHtml(st.name)}</p>
+                        <div class="min-w-0 space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">${escapeHtml(st.name)}</p>
+                                ${excuseBadge}
+                                ${pkgBadge}
+                            </div>
                             <p class="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1.5 flex-wrap">
                                 <span>${escapeHtml(st.school || 'Elite Academy')}</span>
                                 ${st.grade ? `<span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span><span>${escapeHtml(st.grade)}</span>` : ''}
@@ -8284,6 +9260,7 @@
         };
         window.openStudentDetailsModal = openStudentDetailsModal;
         window.switchTeacherTab = switchTeacherTab;
+
 
         // ── Grade Modal Implementation ───────────────────────────────────────────────
         async function openGradeModal(submissionId, studentName, assignmentTitle, currentScore, evaluationNotes) {

@@ -390,7 +390,7 @@ class DatabaseSeeder extends Seeder
             [
                 'title' => 'الجلسة الأولى: التيار الكهربي وقانون أوم وتطبيقات المقاومات',
                 'student_user_id' => $ahmed->id,
-                'teacher_profile_id' => $teacherDrAhmed ? $teacherDrAhmed->id : 1,
+                'teacher_profile_id' => $teacherKareem ? $teacherKareem->id : 5,
                 'subject_id' => $subPhysics->id,
                 'course_id' => $cPhysics->id,
                 'scheduled_at' => now()->subMinutes(15),

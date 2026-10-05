@@ -1,4 +1,4 @@
-﻿        {{-- TAB 1: OVERVIEW & TODAY'S SESSIONS                                       --}}
+        {{-- TAB 1: OVERVIEW & TODAY'S SESSIONS                                       --}}
         {{-- ════════════════════════════════════════════════════════════════════════ --}}
         <div id="teacher-tab-overview"
             class="teacher-tab-content {{ $activeTabKey === 'overview' ? '' : 'hidden' }} space-y-8">
@@ -47,19 +47,42 @@
                                             </p>
                                         </div>
 
-                                        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                                            @if ($session->meeting_link)
-                                                <a href="{{ $session->meeting_link }}" target="_blank"
-                                                    class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5">
+                                        @php
+                                            $isSessionStarted = in_array($session->status, ['live', 'completed']);
+                                        @endphp
+                                        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0" id="teacherSessionActions_{{ $session->id }}">
+                                            @if ($isSessionStarted)
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="1"
+                                                    data-session-id="{{ $session->id }}"
+                                                    data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                                    onclick="openTeacherSessionLiveDetailsModal({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}', '{{ addslashes($session->course?->title ?: ($session->subject?->name ?: __('General Cohort'))) }}', '{{ $session->meeting_link }}', this)"
+                                                    class="btn-lift px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
+                                                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                                    <span><i class="fa-solid fa-chart-pie"></i></span>
+                                                    <span>{{ __('تقرير الحصة والرابط') }}</span>
+                                                </button>
+                                            @elseif ($session->meeting_link)
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="0"
+                                                    data-session-id="{{ $session->id }}"
+                                                    data-meeting-link="{{ $session->meeting_link ?? '' }}"
+                                                    onclick="promptTeacherSessionAttendance({{ $session->id }}, '{{ addslashes($session->title ?: __('Live Session')) }}', '{{ addslashes($session->course?->title ?: ($session->subject?->name ?: __('General Cohort'))) }}', '{{ $session->meeting_link }}', this)"
+                                                    class="btn-lift px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer">
                                                     <span><i class="fa-solid fa-video"></i></span>
-                                                    {{ __('Join / Broadcast') }}
-                                                </a>
+                                                    <span>{{ __('Join / Broadcast') }}</span>
+                                                </button>
                                             @else
-                                                <button type="button" data-session-id="{{ $session->id }}"
+                                                <button type="button"
+                                                    id="teacherBroadcastBtn_{{ $session->id }}"
+                                                    data-started="0"
+                                                    data-session-id="{{ $session->id }}"
                                                     data-meeting-link="{{ $session->meeting_link ?? '' }}"
                                                     onclick="openMeetingLinkModal({{ $session->id }}, this)"
                                                     class="btn-lift px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer">
-                                                    <i class="fa-solid fa-link"></i> {{ __('Add Link') }}
+                                                    <i class="fa-solid fa-link"></i> <span>{{ __('Add Link') }}</span>
                                                 </button>
                                             @endif
                                             <button type="button" data-session-id="{{ $session->id }}"

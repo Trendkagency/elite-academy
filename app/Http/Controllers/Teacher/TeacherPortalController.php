@@ -24,6 +24,7 @@ use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\Exception\ExceptionRequestService;
 use App\Services\Session\RecurringScheduleService;
+use App\Services\Session\SessionAttendanceDeductionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,18 +59,34 @@ class TeacherPortalController extends Controller
 
         $courseIds = $courses->pluck('id')->filter()->toArray();
 
-        // 2. Today's Sessions (Strictly Teacher-Owned)
-        $todaySessions = LiveSession::where('teacher_profile_id', $teacherId)
+        // 2. Today's Sessions (Strictly Teacher-Owned or Course-Owned)
+        $todaySessions = LiveSession::where(function ($q) use ($teacherId, $courseIds) {
+                $q->where('teacher_profile_id', $teacherId);
+                if (! empty($courseIds)) {
+                    $q->orWhereIn('course_id', $courseIds);
+                }
+            })
             ->where(function ($q) {
                 $q->whereDate('scheduled_at', Carbon::today())
-                  ->orWhereDate('start_at', Carbon::today());
+                  ->orWhereDate('start_at', Carbon::today())
+                  ->orWhere(function ($liveNow) {
+                      $liveNow->where('start_at', '<=', now())
+                              ->where(function ($endQ) {
+                                  $endQ->whereNull('end_at')->orWhere('end_at', '>=', now());
+                              });
+                  });
             })
             ->with(['studentUser', 'subject', 'course'])
             ->orderBy('scheduled_at', 'asc')
             ->get();
 
-        // 3. Upcoming Sessions (Strictly Teacher-Owned)
-        $upcomingSessions = LiveSession::where('teacher_profile_id', $teacherId)
+        // 3. Upcoming Sessions (Strictly Teacher-Owned or Course-Owned)
+        $upcomingSessions = LiveSession::where(function ($q) use ($teacherId, $courseIds) {
+                $q->where('teacher_profile_id', $teacherId);
+                if (! empty($courseIds)) {
+                    $q->orWhereIn('course_id', $courseIds);
+                }
+            })
             ->where(function ($q) {
                 $q->where('scheduled_at', '>=', now())
                   ->orWhere('start_at', '>=', now());
@@ -80,7 +97,12 @@ class TeacherPortalController extends Controller
             ->get();
 
         // 4. All Sessions for management tab (Real-Time Client-Side Pagination)
-        $allSessions = LiveSession::where('teacher_profile_id', $teacherId)
+        $allSessions = LiveSession::where(function ($q) use ($teacherId, $courseIds) {
+                $q->where('teacher_profile_id', $teacherId);
+                if (! empty($courseIds)) {
+                    $q->orWhereIn('course_id', $courseIds);
+                }
+            })
             ->with(['studentUser', 'subject', 'course', 'assignments'])
             ->orderBy('scheduled_at', 'desc')
             ->take(250)
@@ -941,9 +963,16 @@ class TeacherPortalController extends Controller
     public function updateMeetingLink(Request $request, int $id): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $session = LiveSession::findOrFail($id);
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
 
-        if ((int) $session->teacher_profile_id !== (int) $teacherProfile->id && ! auth()->user()->isAdmin()) {
+        $session = LiveSession::with('course')->findOrFail($id);
+
+        $isTeacherSession = (int) $session->teacher_profile_id === (int) $teacherProfile->id;
+        $isTeacherCourse = $session->course && (int) $session->course->teacher_id === (int) $teacherProfile->id;
+
+        if (! $isTeacherSession && ! $isTeacherCourse && ! auth()->user()->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -951,15 +980,18 @@ class TeacherPortalController extends Controller
             'meeting_link' => 'required|url|max:500',
         ]);
 
+        $newStatus = in_array($session->status, ['live', 'completed']) ? $session->status : 'link_visible';
+
         $session->update([
             'meeting_link' => $validated['meeting_link'],
-            'status' => 'link_visible',
+            'status' => $newStatus,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => __('Meeting link updated and made visible to students!'),
+            'message' => __('Meeting link updated successfully!'),
             'meeting_link' => $session->meeting_link,
+            'status' => $session->status,
         ]);
     }
 
@@ -1098,7 +1130,14 @@ class TeacherPortalController extends Controller
             $end = now()->endOfMonth()->addDays(7);
         }
 
-        $sessions = LiveSession::where('teacher_profile_id', $teacherProfile->id)
+        $teacherCourseIds = Course::where('teacher_id', $teacherProfile->id)->pluck('id')->filter()->toArray();
+
+        $sessions = LiveSession::where(function ($q) use ($teacherProfile, $teacherCourseIds) {
+                $q->where('teacher_profile_id', $teacherProfile->id);
+                if (! empty($teacherCourseIds)) {
+                    $q->orWhereIn('course_id', $teacherCourseIds);
+                }
+            })
             ->where(function ($query) use ($start, $end) {
                 $query->whereBetween('scheduled_at', [$start, $end])
                     ->orWhereBetween('start_at', [$start, $end]);
@@ -1584,9 +1623,9 @@ class TeacherPortalController extends Controller
     }
 
     /**
-     * AJAX Endpoint: Mark Session Attendance
+     * AJAX Endpoint: Mark Session Attendance with Intelligent Package Deduction & Excuse Validation
      */
-    public function markAttendance(Request $request, int $sessionId): JsonResponse
+    public function markAttendance(Request $request, int $sessionId, SessionAttendanceDeductionService $deductionService): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
         $session = LiveSession::with('course')->findOrFail($sessionId);
@@ -1614,6 +1653,15 @@ class TeacherPortalController extends Controller
         foreach ($attendanceList as $record) {
             $studentUserId = (int) $record['student_user_id'];
             $status = $record['status'];
+
+            // Check if student has an approved exception request for this session
+            $exception = $deductionService->getStudentExceptionForSession($studentUserId, $session);
+            $hasApprovedException = ($exception && $exception->status === 'approved');
+
+            // If an approved exception exists, student is excused regardless
+            if ($hasApprovedException) {
+                $status = 'excused';
+            }
 
             // Persist per-student session attendance state
             StudentSession::updateOrCreate(
@@ -1645,22 +1693,32 @@ class TeacherPortalController extends Controller
                 // Keep resilient
             }
 
-            if ($status === 'present') {
-                $hasPresent = true;
-                $presentCount++;
-            } elseif ($status === 'late') {
-                $hasPresent = true;
-                $lateCount++;
-            } elseif ($status === 'absent') {
-                $absentCount++;
-                $studentUser = User::find($studentUserId);
-                if ($studentUser) {
-                    try {
-                        app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherStudentAbsent($session, $studentUser);
-                    } catch (\Throwable $e) {}
-                }
-            } elseif ($status === 'excused') {
+            // Package deduction logic based on status and excuses:
+            if ($status === 'excused') {
+                // If excused: refund if previously deducted and DO NOT deduct
+                $deductionService->refundIfPreviouslyDeducted($session, $studentUserId, auth()->user(), 'Marked as Excused in Attendance Sheet');
                 $excusedCount++;
+            } else {
+                // If not free demo, deduct package balance
+                if (! app(\App\Services\Session\LiveSessionService::class)->isSessionFreeDemo($session)) {
+                    $deductionService->processStudentDeduction($session, $studentUserId, auth()->user());
+                }
+
+                if ($status === 'present') {
+                    $hasPresent = true;
+                    $presentCount++;
+                } elseif ($status === 'late') {
+                    $hasPresent = true;
+                    $lateCount++;
+                } elseif ($status === 'absent') {
+                    $absentCount++;
+                    $studentUser = User::find($studentUserId);
+                    if ($studentUser) {
+                        try {
+                            app(\App\Services\Notification\FcmNotificationService::class)->notifyTeacherStudentAbsent($session, $studentUser);
+                        } catch (\Throwable $e) {}
+                    }
+                }
             }
 
             if ((int) $session->student_user_id === $studentUserId) {
@@ -1787,14 +1845,37 @@ class TeacherPortalController extends Controller
             ->pluck('attendance_status', 'student_user_id')
             ->toArray();
 
+        // Fetch exceptions for all session students
+        $exceptions = ExceptionRequest::whereIn('student_user_id', $studentUserIds)
+            ->where(function ($query) use ($session) {
+                $query->where('live_session_id', $session->id);
+                if ($session->course_id) {
+                    $query->orWhere(function ($q) use ($session) {
+                        $q->where('scope', 'course')->where('course_id', $session->course_id);
+                    });
+                }
+            })
+            ->latest('id')
+            ->get()
+            ->keyBy('student_user_id');
+
         $students = StudentProfile::whereIn('user_id', $studentUserIds)
             ->with(['user', 'gradeLevel'])
             ->latest('created_at')
             ->get()
-            ->map(function ($st) use ($existingRecords, $session) {
-                $defaultStatus = $session->status === 'completed' ? 'present' : 'present';
-                $status = $existingRecords[$st->user_id] ?? ($session->student_user_id === $st->user_id ? ($session->attendance_status ?: 'present') : $defaultStatus);
-                
+            ->map(function ($st) use ($existingRecords, $session, $exceptions) {
+                $exc = $exceptions->get($st->user_id);
+                $hasApprovedException = ($exc && $exc->status === 'approved');
+                $hasRejectedException = ($exc && $exc->status === 'rejected');
+
+                $defaultStatus = $hasApprovedException ? 'excused' : 'present';
+                $status = $existingRecords[$st->user_id] ?? ($hasApprovedException ? 'excused' : ($session->student_user_id === $st->user_id ? ($session->attendance_status ?: 'present') : $defaultStatus));
+
+                $package = \App\Models\StudentPackage::where('student_user_id', $st->user_id)
+                    ->where('status', 'active')
+                    ->where('remaining_sessions', '>', 0)
+                    ->first();
+
                 return [
                     'id' => $st->user_id,
                     'student_code' => 'STU-' . str_pad((string) $st->user_id, 5, '0', STR_PAD_LEFT),
@@ -1803,6 +1884,14 @@ class TeacherPortalController extends Controller
                     'school' => $st->school_name ?: 'Elite Academy',
                     'grade' => $st->gradeLevel?->name ?: '',
                     'status' => in_array($status, ['present', 'late', 'excused', 'absent'], true) ? $status : 'present',
+                    'has_exception' => (bool) $exc,
+                    'exception_id' => $exc?->id,
+                    'exception_status' => $exc?->status,
+                    'exception_reason' => $exc?->reason,
+                    'is_excused_by_exception' => $hasApprovedException,
+                    'is_rejected_exception' => $hasRejectedException,
+                    'remaining_sessions' => $package?->remaining_sessions ?? 0,
+                    'has_active_package' => (bool) $package,
                 ];
             });
 
@@ -1816,9 +1905,45 @@ class TeacherPortalController extends Controller
                 'date' => $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : '',
                 'duration' => $session->duration_minutes ?: 60,
                 'status' => $session->status,
+                'meeting_link' => $session->meeting_link ?: '',
             ],
             'students' => $students,
         ]);
+    }
+
+    /**
+     * AJAX Endpoint: Teacher Starts Session & Triggers Smart Attendance Deduction
+     */
+    public function startSessionAndDeduct(Request $request, int $sessionId, SessionAttendanceDeductionService $deductionService): JsonResponse
+    {
+        $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
+        if (! $teacherProfile) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $session = LiveSession::with('course')->findOrFail($sessionId);
+        $isTeacherSession = (int) $session->teacher_profile_id === (int) $teacherProfile->id;
+        $isTeacherCourse = $session->course && (int) $session->course->teacher_id === (int) $teacherProfile->id;
+
+        if (! $isTeacherSession && ! $isTeacherCourse && ! auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => __('Unauthorized: You do not own this teaching session.')], 403);
+        }
+
+        if ($session->status !== 'completed') {
+            $session->update([
+                'status' => 'live',
+                'start_at' => $session->start_at ?: now(),
+            ]);
+        }
+
+        $report = $deductionService->processTeacherSessionStart($session, auth()->user());
+
+        return response()->json(array_merge([
+            'success' => true,
+            'message' => __('Session started and learner package deductions processed successfully!'),
+            'session_status' => $session->fresh()->status,
+            'meeting_link' => $session->fresh()->meeting_link ?: '',
+        ], $report));
     }
 
     /**

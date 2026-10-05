@@ -78,21 +78,7 @@ class SessionController extends Controller
         $accessResult = $liveSessionService->getStreamAccess($liveSession, $user);
 
         if ($accessResult['can_access'] && ! $liveSessionService->isSessionFreeDemo($liveSession, $user)) {
-            $package = \App\Models\StudentPackage::where('student_user_id', $user->id)
-                ->where('status', 'active')
-                ->where('remaining_sessions', '>', 0)
-                ->first();
-
-            if ($package) {
-                $alreadyDeducted = \App\Models\PackageTransaction::where('student_package_id', $package->id)
-                    ->where('live_session_id', $liveSession->id)
-                    ->where('type', 'session_deduct')
-                    ->exists();
-
-                if (! $alreadyDeducted) {
-                    $package->deductSession($liveSession->id, "Attendance for Live Session #{$liveSession->id}");
-                }
-            }
+            app(\App\Services\Session\SessionAttendanceDeductionService::class)->processStudentDeduction($liveSession, $user->id, $user);
         }
 
         $statusCode = $accessResult['status_code'] ?? ($accessResult['can_access'] ? 200 : 422);

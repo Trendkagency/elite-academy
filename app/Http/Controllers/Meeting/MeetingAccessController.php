@@ -23,7 +23,8 @@ class MeetingAccessController extends Controller
         protected MeetingAccessService $accessService,
         protected MeetingAttendanceService $attendanceService,
         protected MeetingSecurityService $securityService,
-        protected LiveSessionService $liveSessionService
+        protected LiveSessionService $liveSessionService,
+        protected \App\Services\Session\SessionAttendanceDeductionService $deductionService
     ) {}
 
     /**
@@ -83,22 +84,14 @@ class MeetingAccessController extends Controller
             ], 403);
         }
 
-        // Deduct session package credit if applicable and not free demo
+        // Process session package deductions with excuse/exception validation
         if (! $this->liveSessionService->isSessionFreeDemo($session, $user)) {
-            $package = \App\Models\StudentPackage::where('student_user_id', $user->id)
-                ->where('status', 'active')
-                ->where('remaining_sessions', '>', 0)
-                ->first();
-
-            if ($package) {
-                $alreadyDeducted = \App\Models\PackageTransaction::where('student_package_id', $package->id)
-                    ->where('live_session_id', $session->id)
-                    ->where('type', 'session_deduct')
-                    ->exists();
-
-                if (! $alreadyDeducted) {
-                    $package->deductSession($session->id, "Attendance for Live Session #{$session->id}");
-                }
+            if ($user->isTeacher()) {
+                // When Teacher starts/attends: process all session students, check excuses, and deduct packages
+                $this->deductionService->processTeacherSessionStart($session, $user);
+            } else {
+                // When Student joins: process student deduction (verifying approved excuses)
+                $this->deductionService->processStudentDeduction($session, $user->id, $user);
             }
         }
 

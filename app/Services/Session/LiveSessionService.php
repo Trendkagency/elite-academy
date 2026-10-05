@@ -40,6 +40,11 @@ class LiveSessionService
             return LiveSessionState::ENDED;
         }
 
+        // Teacher and Admin bypass: Educators and staff have direct access to conduct their sessions
+        if ($student->isTeacher() || $student->isAdmin()) {
+            return LiveSessionState::LIVE;
+        }
+
         // Active package requirement check: If session is NOT a free trial demo, student MUST have an active package
         if (! $this->isSessionFreeDemo($session, $student)) {
             $hasActivePackage = \App\Models\StudentPackage::where('student_user_id', $student->id)
@@ -123,6 +128,15 @@ class LiveSessionService
      */
     public function canAccessStream(User $student, LiveSession $session): array
     {
+        // Teacher and Admin bypass
+        if ($student->isTeacher() || $student->isAdmin()) {
+            return [
+                'allowed' => true,
+                'reason_code' => 'TEACHER_ACCESS',
+                'message' => app()->getLocale() === 'ar' ? 'مرحباً بك! تم تفعيل دخول المحاضر للجلسة المباشرة.' : 'Welcome! Teacher stream access granted.',
+            ];
+        }
+
         $now = now();
 
         $isFreeDemo = $this->isSessionFreeDemo($session, $student);
