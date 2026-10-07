@@ -66,9 +66,72 @@ class FileUploadResourceTest extends TestCase
         $editResponse = $this->get("/admin/file-uploads/{$fileUpload->id}/edit");
         $editResponse->assertStatus(200);
         $editResponse->assertSee('Prof Ahmed');
+        $editResponse->assertSee('Math 101');
 
         // Test Create page as well
         $createResponse = $this->get('/admin/file-uploads/create');
         $createResponse->assertStatus(200);
+        $createResponse->assertSee(__('File Purpose / Category (نوع الملف / الغرض)'));
+    }
+
+    public function test_select_search_works_for_course_teacher_and_student(): void
+    {
+        $category = Category::create(['name' => 'General Cat', 'slug' => 'gen-cat-2']);
+        $subject = Subject::create(['name' => 'الفيزياء الحديثة', 'slug' => 'physics-mod', 'category_id' => $category->id]);
+
+        $teacherUser = User::create([
+            'name' => 'د. أحمد محمود',
+            'email' => 'dr.ahmed@elite.edu',
+            'password' => bcrypt('password'),
+            'status' => AccountStatus::APPROVED,
+        ]);
+        $teacher = TeacherProfile::create([
+            'user_id' => $teacherUser->id,
+            'slug' => 'dr-ahmed',
+            'specialization' => 'Quantum Physics',
+        ]);
+
+        $student = User::create([
+            'name' => 'أحمد خالد',
+            'email' => 'ahmed.khalid@elite.edu',
+            'password' => bcrypt('password'),
+            'status' => AccountStatus::APPROVED,
+        ]);
+        StudentProfile::create(['user_id' => $student->id]);
+
+        $course = Course::create([
+            'title' => 'كورس أساسيات البرمجة',
+            'slug' => 'prog-basics',
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+        ]);
+
+        $this->actingAs($this->adminUser);
+
+        $test = \Livewire\Livewire::test(\App\Filament\Resources\FileUploads\Pages\CreateFileUpload::class);
+        $schema = $test->instance()->getSchema('form');
+
+        // Course search with without-hamza variant
+        $courseComp = $schema->getComponent('course_id');
+        $courseResults = $courseComp->getSearchResults('اساسيات');
+        $this->assertArrayHasKey($course->id, $courseResults);
+
+        // Course search by teacher name
+        $courseByTeacher = $courseComp->getSearchResults('احمد');
+        $this->assertArrayHasKey($course->id, $courseByTeacher);
+
+        // Teacher search with without-hamza variant
+        $teacherComp = $schema->getComponent('teacher_profile_id');
+        $teacherResults = $teacherComp->getSearchResults('احمد');
+        $this->assertArrayHasKey($teacher->id, $teacherResults);
+
+        // Teacher search by specialization
+        $teacherBySpec = $teacherComp->getSearchResults('Quantum');
+        $this->assertArrayHasKey($teacher->id, $teacherBySpec);
+
+        // Student search with without-hamza variant
+        $studentComp = $schema->getComponent('student_user_id');
+        $studentResults = $studentComp->getSearchResults('احمد');
+        $this->assertArrayHasKey($student->id, $studentResults);
     }
 }

@@ -61,13 +61,13 @@ class ParentProfileForm
                                     ->email()
                                     ->placeholder('parent@elite-academy.com')
                                     ->required()
-                                    ->unique(\App\Models\User::class, 'email')
+                                    ->unique(\App\Models\User::class, 'email', ignoreRecord: false)
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('phone')
                                     ->label(__('Phone Number'))
                                     ->tel()
                                     ->placeholder('+201000000000')
-                                    ->unique(\App\Models\User::class, 'phone')
+                                    ->unique(\App\Models\User::class, 'phone', ignoreRecord: false)
                                     ->maxLength(30),
                                 \Filament\Forms\Components\TextInput::make('password')
                                     ->label(__('Account Password'))

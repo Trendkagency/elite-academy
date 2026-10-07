@@ -147,6 +147,37 @@ class LiveSession extends Model
                     ]
                 );
             }
+
+            // Two-way sync: If associated with course and course_session_id is unset, sync CourseSession
+            if ($session->course_id && ! $session->course_session_id) {
+                try {
+                    $courseSession = CourseSession::create([
+                        'course_id' => $session->course_id,
+                        'title' => $session->title,
+                        'scheduled_at' => $session->scheduled_at ?: $session->start_at,
+                        'start_at' => $session->start_at ?: $session->scheduled_at,
+                        'end_at' => $session->end_at,
+                        'duration_minutes' => $session->duration_minutes ?: 60,
+                        'is_free_demo' => (bool) $session->is_free_demo,
+                        'video_url' => $session->meeting_link,
+                    ]);
+                    $session->updateQuietly(['course_session_id' => $courseSession->id]);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('[LiveSession] CourseSession auto-sync skipped: ' . $e->getMessage());
+                }
+            }
+        });
+
+        static::deleted(function (LiveSession $session) {
+            if ($session->course_session_id) {
+                CourseSession::where('id', $session->course_session_id)->delete();
+            }
+        });
+
+        static::restored(function (LiveSession $session) {
+            if ($session->course_session_id) {
+                CourseSession::withTrashed()->where('id', $session->course_session_id)->restore();
+            }
         });
 
         static::updated(function (LiveSession $session) {

@@ -68,13 +68,13 @@ class TeacherProfileForm
                                     ->email()
                                     ->placeholder('teacher@elite-academy.com')
                                     ->required()
-                                    ->unique(User::class, 'email')
+                                    ->unique(User::class, 'email', ignoreRecord: false)
                                     ->maxLength(255),
                                 TextInput::make('phone')
                                     ->label(__('Phone Number'))
                                     ->tel()
                                     ->placeholder('+201000000000')
-                                    ->unique(User::class, 'phone')
+                                    ->unique(User::class, 'phone', ignoreRecord: false)
                                     ->maxLength(30),
                                 TextInput::make('password')
                                     ->label(__('Account Password'))

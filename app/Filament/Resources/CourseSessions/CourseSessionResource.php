@@ -20,9 +20,12 @@ class CourseSessionResource extends Resource
 {
     protected static ?string $model = CourseSession::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedVideoCamera;
-
     protected static ?int $navigationSort = 3;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function getNavigationGroup(): ?string
     {

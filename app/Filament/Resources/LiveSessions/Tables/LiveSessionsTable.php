@@ -8,6 +8,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -16,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class LiveSessionsTable
@@ -142,6 +147,14 @@ class LiveSessionsTable
                 SelectFilter::make('course_id')
                     ->label(app()->getLocale() === 'ar' ? 'الكورس' : 'Course')
                     ->relationship('course', 'title'),
+
+                SelectFilter::make('teacher_profile_id')
+                    ->label(app()->getLocale() === 'ar' ? 'المعلم' : 'Teacher')
+                    ->relationship('teacherProfile.user', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 Action::make('updateLink')
@@ -218,10 +231,14 @@ class LiveSessionsTable
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

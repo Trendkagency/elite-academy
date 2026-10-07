@@ -97,3 +97,44 @@ if (! function_exists('format_currency')) {
     }
 }
 
+if (! function_exists('arabic_search_variations')) {
+    /**
+     * Generate variations of Arabic search terms to handle hamzas, ta marbuta, and alef maqsura.
+     *
+     * @return array<string>
+     */
+    function arabic_search_variations(?string $term): array
+    {
+        $term = trim($term ?? '');
+        if ($term === '') {
+            return [];
+        }
+
+        $variations = [$term];
+
+        // Normalized root replacing all alef forms with simple alef, ta marbuta with ha, alef maqsura with ya
+        $norm = preg_replace('/[أإآٱ]/u', 'ا', $term);
+        $norm = preg_replace('/[ة]/u', 'ه', $norm);
+        $norm = preg_replace('/[ى]/u', 'ي', $norm);
+        $norm = preg_replace('/[\x{064B}-\x{065F}\x{0670}]/u', '', $norm); // Strip diacritics / tashkeel
+
+        $variations[] = $norm;
+
+        // Generate alef variants
+        $variations[] = preg_replace('/^ا/u', 'أ', $norm);
+        $variations[] = preg_replace('/^ا/u', 'إ', $norm);
+        $variations[] = preg_replace('/^ا/u', 'آ', $norm);
+
+        // Generate ending variants
+        $variations[] = preg_replace('/ه$/u', 'ة', $norm);
+        $variations[] = preg_replace('/ي$/u', 'ى', $norm);
+
+        // Combined start & end variants
+        $withHamza = preg_replace('/^ا/u', 'أ', $norm);
+        $variations[] = preg_replace('/ه$/u', 'ة', $withHamza);
+        $variations[] = preg_replace('/ي$/u', 'ى', $withHamza);
+
+        return array_values(array_unique(array_filter($variations, fn ($v) => filled($v))));
+    }
+}
+

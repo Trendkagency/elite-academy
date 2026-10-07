@@ -81,7 +81,7 @@ class AdminOverviewStatsWidget extends BaseWidget
             ->description(__('Sessions scheduled for today'))
             ->icon('heroicon-o-calendar-days')
             ->color('primary')
-            ->url(route('filament.admin.resources.course-sessions.index', ['activeTab' => 'all'])),
+            ->url(route('filament.admin.resources.live-sessions.index', ['activeTab' => 'today'])),
 
             'upcoming_sessions' => Stat::make(
                 __('Upcoming Live Sessions'),
@@ -92,25 +92,25 @@ class AdminOverviewStatsWidget extends BaseWidget
             ->description(__('Future live sessions'))
             ->icon('heroicon-o-arrow-trending-up')
             ->color('info')
-            ->url(route('filament.admin.resources.course-sessions.index', ['activeTab' => 'all'])),
+            ->url(route('filament.admin.resources.live-sessions.index', ['activeTab' => 'upcoming'])),
 
             'completed_sessions' => Stat::make(
                 __('Free Demo Sessions'),
-                \App\Models\CourseSession::where('is_free_demo', true)->count()
+                LiveSession::where('is_free_demo', true)->count()
             )
             ->description(__('Sample trial demo sessions'))
             ->icon('heroicon-o-check-badge')
             ->color('success')
-            ->url(route('filament.admin.resources.course-sessions.index', ['activeTab' => 'free_demo'])),
+            ->url(route('filament.admin.resources.live-sessions.index', ['activeTab' => 'free_demo'])),
 
             'cancelled_sessions' => Stat::make(
                 __('Regular Sessions'),
-                \App\Models\CourseSession::where('is_free_demo', false)->count()
+                LiveSession::where('is_free_demo', false)->count()
             )
             ->description(__('Curriculum core sessions'))
             ->icon('heroicon-o-book-open')
             ->color('warning')
-            ->url(route('filament.admin.resources.course-sessions.index', ['activeTab' => 'regular'])),
+            ->url(route('filament.admin.resources.live-sessions.index', ['activeTab' => 'all'])),
 
             'active_packages' => Stat::make(
                 __('Active Packages'),

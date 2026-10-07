@@ -20,7 +20,7 @@ class LiveSessionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedVideoCamera;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): ?string
     {
@@ -29,17 +29,17 @@ class LiveSessionResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'حصص البث المباشر والروابط' : 'Live Teaching & Meeting Links';
+        return app()->getLocale() === 'ar' ? 'الحصص والبث المباشر' : 'Live Sessions & Classes';
     }
 
     public static function getModelLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'حصة بث مباشر' : 'Live Session';
+        return app()->getLocale() === 'ar' ? 'حصة دراسية وبث مباشر' : 'Live Session';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'حصص البث المباشر والروابط' : 'Live Teaching & Meeting Links';
+        return app()->getLocale() === 'ar' ? 'الحصص والبث المباشر' : 'Live Sessions & Classes';
     }
 
     public static function form(Schema $schema): Schema
@@ -59,5 +59,13 @@ class LiveSessionResource extends Resource
             'create' => CreateLiveSession::route('/create'),
             'edit' => EditLiveSession::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                \Illuminate\Database\Eloquent\SoftDeletingScope::class,
+            ]);
     }
 }

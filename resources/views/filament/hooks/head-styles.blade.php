@@ -489,12 +489,14 @@
         border: 1.5px solid #E2E8F0 !important;
         background: #FFFFFF !important;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03) !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     .fi-section-header {
         border-bottom: 1px solid #F1F5F9 !important;
         padding: 1.25rem 1.5rem !important;
+        border-top-left-radius: inherit !important;
+        border-top-right-radius: inherit !important;
     }
 
     .fi-section-header-heading {
@@ -505,7 +507,7 @@
     }
 
     /* --- Inputs, Selects & Form Controls --- */
-    input.fi-input, select.fi-select-input, textarea.fi-input {
+    input.fi-input, select.fi-select-input, textarea.fi-input, .fi-select-input-btn {
         border-radius: 0.875rem !important;
         border: 1.5px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
@@ -516,9 +518,9 @@
         padding: 0.65rem 0.875rem !important;
     }
 
-    input.fi-input:focus, select.fi-select-input:focus, textarea.fi-input:focus {
+    input.fi-input:focus, select.fi-select-input:focus, textarea.fi-input:focus, .fi-select-input-btn:focus, .fi-select-input-btn[aria-expanded="true"] {
         border-color: #0D9488 !important;
-        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
         outline: none !important;
     }
 
@@ -837,7 +839,8 @@
 
     html.dark input.fi-input, 
     html.dark select.fi-select-input, 
-    html.dark textarea.fi-input {
+    html.dark textarea.fi-input,
+    html.dark .fi-select-input-btn {
         background-color: #1E293B !important;
         border-color: rgba(71, 85, 105, 0.9) !important;
         color: #F8FAFC !important;
@@ -845,9 +848,11 @@
 
     html.dark input.fi-input:focus, 
     html.dark select.fi-select-input:focus, 
-    html.dark textarea.fi-input:focus {
+    html.dark textarea.fi-input:focus,
+    html.dark .fi-select-input-btn:focus,
+    html.dark .fi-select-input-btn[aria-expanded="true"] {
         border-color: #14B8A6 !important;
-        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2) !important;
+        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.22) !important;
     }
 
     html.dark .fi-fo-field-wrp-label label {
@@ -855,13 +860,14 @@
     }
 
     html.dark .fi-modal-window {
-        background: #0F172A !important;
-        border-color: rgba(51, 65, 85, 0.8) !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+        background: #0B132B !important;
+        border-color: rgba(51, 65, 85, 0.7) !important;
+        box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(20, 184, 166, 0.15) !important;
     }
 
     html.dark .fi-modal-header {
         border-bottom-color: rgba(30, 41, 59, 0.8) !important;
+        background: rgba(11, 19, 43, 0.98) !important;
     }
 
     html.dark .fi-modal-heading {
@@ -869,13 +875,13 @@
     }
 
     /* -------------------------------------------------------------
-       RESPONSIVE & SCROLLABLE FILAMENT MODALS (UNIVERSAL FIX)
+       RESPONSIVE & LUXURY FILAMENT MODALS (UNIVERSAL FIX)
        ------------------------------------------------------------- */
     .fi-modal-window-ctn {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 1rem !important;
+        padding: 1.25rem 1rem !important;
         min-height: 100% !important;
         overflow-y: auto !important;
     }
@@ -883,11 +889,50 @@
     .fi-modal-window {
         display: flex !important;
         flex-direction: column !important;
-        max-height: min(calc(100vh - 2.5rem), calc(100dvh - 2.5rem)) !important;
+        max-height: min(calc(100vh - 3rem), calc(100dvh - 3rem)) !important;
         overflow: hidden !important;
-        border-radius: 1.25rem !important;
+        border-radius: 1.5rem !important;
         margin: auto !important;
         position: relative !important;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35) !important;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+    }
+
+    /* Top Accent Line on Modals */
+    .fi-modal-window::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #0D9488 0%, #10B981 50%, #14B8A6 100%);
+        z-index: 50;
+    }
+
+    /* Modal Width Classes Enhancement */
+    .fi-modal-window.fi-width-2xl,
+    .fi-modal-window.max-w-2xl {
+        width: 100% !important;
+        max-width: 48rem !important;
+    }
+
+    .fi-modal-window.fi-width-xl,
+    .fi-modal-window.max-w-xl {
+        width: 100% !important;
+        max-width: 40rem !important;
+    }
+
+    .fi-modal-window.fi-width-lg,
+    .fi-modal-window.max-w-lg {
+        width: 100% !important;
+        max-width: 34rem !important;
+    }
+
+    .fi-modal-window.fi-width-md,
+    .fi-modal-window.max-w-md {
+        width: 100% !important;
+        max-width: 29rem !important;
     }
 
     .fi-modal-header {
@@ -895,26 +940,60 @@
         position: sticky !important;
         top: 0 !important;
         z-index: 30 !important;
-        padding: 1.25rem 1.5rem !important;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+        padding: 1.35rem 1.75rem !important;
+        border-bottom: 1.5px solid rgba(226, 232, 240, 0.9) !important;
         background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(12px) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
     }
 
-    html.dark .fi-modal-header {
-        border-bottom: 1px solid rgba(51, 65, 85, 0.7) !important;
-        background: rgba(15, 23, 42, 0.98) !important;
+    .fi-modal-heading {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 900 !important;
+        font-size: 1.285rem !important;
+        color: #0F172A !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1.4 !important;
+    }
+
+    .fi-modal-description {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #64748B !important;
+        margin-top: 0.35rem !important;
+        line-height: 1.55 !important;
+    }
+
+    html.dark .fi-modal-description {
+        color: #94A3B8 !important;
+    }
+
+    .fi-modal-close-btn {
+        border-radius: 9999px !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .fi-modal-close-btn:hover {
+        transform: rotate(90deg) scale(1.1) !important;
+        background-color: rgba(239, 68, 68, 0.12) !important;
+        color: #EF4444 !important;
     }
 
     .fi-modal-content {
         flex: 1 1 auto !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
-        max-height: min(calc(100vh - 12rem), calc(100dvh - 12rem)) !important;
-        padding: 1.5rem !important;
+        max-height: min(calc(100vh - 13.5rem), calc(100dvh - 13.5rem)) !important;
+        padding: 1.75rem !important;
         scrollbar-width: thin !important;
         scrollbar-color: rgba(13, 148, 136, 0.4) transparent !important;
         -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Suppress modal content scrollbar when dropdown is actively expanded */
+    .fi-modal-content:has(.fi-select-input-btn[aria-expanded="true"]) {
+        overflow-y: hidden !important;
     }
 
     .fi-modal-content::-webkit-scrollbar {
@@ -939,40 +1018,71 @@
         position: sticky !important;
         bottom: 0 !important;
         z-index: 30 !important;
-        padding: 1rem 1.5rem !important;
-        border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+        padding: 1.15rem 1.75rem !important;
+        border-top: 1.5px solid rgba(226, 232, 240, 0.9) !important;
         background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(12px) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
     }
 
     html.dark .fi-modal-footer {
-        border-top: 1px solid rgba(51, 65, 85, 0.7) !important;
-        background: rgba(15, 23, 42, 0.98) !important;
+        border-top: 1.5px solid rgba(30, 41, 59, 0.8) !important;
+        background: rgba(11, 19, 43, 0.98) !important;
     }
 
-    /* Small screens / Mobile responsiveness */
+    .fi-modal-footer-actions {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 0.75rem !important;
+        flex-wrap: wrap !important;
+    }
+
+    [dir="rtl"] .fi-modal-footer-actions {
+        justify-content: flex-start !important;
+    }
+
+    /* Mobile Responsiveness for Modals */
     @media (max-width: 640px) {
         .fi-modal-window-ctn {
-            padding: 0.5rem !important;
+            padding: 0.35rem !important;
         }
 
         .fi-modal-window {
-            max-height: calc(100dvh - 1rem) !important;
-            width: 96vw !important;
-            border-radius: 1rem !important;
+            max-height: calc(100dvh - 0.75rem) !important;
+            width: calc(100vw - 0.75rem) !important;
+            max-width: calc(100vw - 0.75rem) !important;
+            border-radius: 1.15rem !important;
+            margin: 0.35rem auto !important;
         }
 
         .fi-modal-header {
-            padding: 1rem !important;
+            padding: 1rem 1.15rem !important;
+        }
+
+        .fi-modal-heading {
+            font-size: 1.1rem !important;
         }
 
         .fi-modal-content {
-            padding: 1rem !important;
-            max-height: calc(100dvh - 9.5rem) !important;
+            padding: 1.15rem 1rem !important;
+            max-height: calc(100dvh - 9rem) !important;
         }
 
         .fi-modal-footer {
-            padding: 0.75rem 1rem !important;
+            padding: 0.85rem 1rem !important;
+        }
+
+        .fi-modal-footer-actions {
+            width: 100% !important;
+            flex-direction: column-reverse !important;
+            gap: 0.5rem !important;
+        }
+
+        .fi-modal-footer-actions > button,
+        .fi-modal-footer-actions > .fi-btn {
+            width: 100% !important;
+            justify-content: center !important;
         }
     }
 
@@ -1220,4 +1330,494 @@
         min-width: 0 !important;
         font-weight: 700 !important;
     }
+
+    /* -------------------------------------------------------------
+       FILAMENT LUXURY SELECT & SEARCHABLE DROPDOWNS (DUAL MODE)
+       ------------------------------------------------------------- */
+    /* Form Sections and wrappers must allow dropdowns to pop cleanly without clipping */
+    .fi-section,
+    .fi-section-content-ctn,
+    .fi-section-content,
+    .fi-fo-field-wrp,
+    .fi-fo-select-wrp,
+    .fi-fo-select {
+        overflow: visible !important;
+    }
+
+    /* ELIMINATE DOUBLE BORDERS: Remove outer wrapper border/ring so the select trigger is the only styled container */
+    .fi-fo-select > .fi-input-wrp,
+    .fi-fo-select-wrp > .fi-input-wrp {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        ring: none !important;
+        --tw-ring-color: transparent !important;
+        --tw-ring-shadow: none !important;
+        --tw-shadow: none !important;
+    }
+
+    /* CRITICAL STACKING CONTEXT ELEVATION: When any select is open, elevate its parent section and field */
+    .fi-section:has(.fi-select-input-btn[aria-expanded="true"]),
+    .fi-section:has(.fi-dropdown-panel:not([style*="display: none"])),
+    .fi-section.fi-select-open-elevated {
+        position: relative !important;
+        z-index: 9999 !important;
+    }
+
+    .fi-fo-field-wrp:has(.fi-select-input-btn[aria-expanded="true"]),
+    .fi-fo-field-wrp:has(.fi-dropdown-panel:not([style*="display: none"])),
+    .fi-fo-field-wrp.fi-select-open-elevated {
+        position: relative !important;
+        z-index: 10000 !important;
+    }
+
+    .fi-fo-select-wrp:has(.fi-select-input-btn[aria-expanded="true"]),
+    .fi-fo-select:has(.fi-select-input-btn[aria-expanded="true"]) {
+        position: relative !important;
+        z-index: 10001 !important;
+    }
+
+    .fi-select-input-ctn:has(.fi-select-input-btn[aria-expanded="true"]) {
+        position: relative !important;
+        z-index: 10002 !important;
+    }
+
+    /* Ensure form actions (bottom submit buttons) stay under any open dropdown */
+    .fi-form-actions,
+    .fi-sc-actions,
+    .fi-ac {
+        position: relative !important;
+        z-index: 10 !important;
+    }
+
+    /* Select Trigger Button Customization - Sleek Single Unified Border */
+    .fi-select-input-btn {
+        min-height: 2.85rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        font-family: 'Cairo', sans-serif !important;
+        cursor: pointer !important;
+        border-radius: 0.75rem !important;
+        padding: 0.55rem 0.95rem !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html:not(.dark) .fi-select-input-btn {
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #CBD5E1 !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+        color: #0F172A !important;
+    }
+
+    html:not(.dark) .fi-select-input-btn:hover {
+        border-color: #0D9488 !important;
+        box-shadow: 0 3px 10px rgba(13, 148, 136, 0.1) !important;
+    }
+
+    html:not(.dark) .fi-select-input-btn:focus,
+    html:not(.dark) .fi-select-input-btn[aria-expanded="true"] {
+        border-color: #0D9488 !important;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
+        outline: none !important;
+    }
+
+    html.dark .fi-select-input-btn {
+        background-color: #0F172A !important;
+        border: 1.5px solid #334155 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+        color: #F8FAFC !important;
+    }
+
+    html.dark .fi-select-input-btn:hover {
+        border-color: #14B8A6 !important;
+        box-shadow: 0 4px 14px rgba(20, 184, 166, 0.15) !important;
+    }
+
+    html.dark .fi-select-input-btn:focus,
+    html.dark .fi-select-input-btn[aria-expanded="true"] {
+        border-color: #2DD4BF !important;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.25) !important;
+        outline: none !important;
+    }
+
+    .fi-select-input-value-ctn {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.875rem !important;
+        line-height: 1.45 !important;
+    }
+
+    html:not(.dark) .fi-select-input-value-ctn {
+        color: #0F172A !important;
+    }
+
+    html.dark .fi-select-input-value-ctn {
+        color: #F1F5F9 !important;
+    }
+
+    .fi-select-input-placeholder {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 0.85rem !important;
+    }
+
+    html:not(.dark) .fi-select-input-placeholder {
+        color: #94A3B8 !important;
+    }
+
+    html.dark .fi-select-input-placeholder {
+        color: #64748B !important;
+    }
+
+    /* Floating Dropdown Panel in Select - 100% Solid Opaque Elevated Card */
+    .fi-select-input-ctn .fi-dropdown-panel {
+        z-index: 999999 !important;
+        border-radius: 1rem !important;
+        padding: 0.45rem !important;
+        max-height: min(24rem, 55vh) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(13, 148, 136, 0.5) transparent !important;
+        transition: opacity 0.18s ease, transform 0.18s ease !important;
+        box-sizing: border-box !important;
+    }
+
+    html:not(.dark) .fi-select-input-ctn .fi-dropdown-panel {
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #E2E8F0 !important;
+        box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(13, 148, 136, 0.15) !important;
+    }
+
+    html.dark .fi-select-input-ctn .fi-dropdown-panel {
+        background-color: #0F172A !important;
+        border: 1.5px solid #334155 !important;
+        box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(20, 184, 166, 0.3) !important;
+    }
+
+    /* Search Input Container in Dropdown - Clean & Integrated (NO Double Borders) */
+    .fi-select-input-search-ctn {
+        padding: 0.5rem 0.4rem 0.65rem 0.4rem !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 50 !important;
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+    }
+
+    html:not(.dark) .fi-select-input-search-ctn {
+        background-color: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+    }
+
+    html.dark .fi-select-input-search-ctn {
+        background-color: #0F172A !important;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.8) !important;
+    }
+
+    .fi-select-input-search-ctn input.fi-input {
+        border-radius: 0.65rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        padding: 0.5rem 0.875rem !important;
+        height: 2.5rem !important;
+        width: 100% !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html:not(.dark) .fi-select-input-search-ctn input.fi-input {
+        background-color: #F8FAFC !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #0F172A !important;
+    }
+
+    html:not(.dark) .fi-select-input-search-ctn input.fi-input::placeholder {
+        color: #94A3B8 !important;
+    }
+
+    html:not(.dark) .fi-select-input-search-ctn input.fi-input:focus {
+        background-color: #FFFFFF !important;
+        border-color: #0D9488 !important;
+        box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15) !important;
+        outline: none !important;
+    }
+
+    html.dark .fi-select-input-search-ctn input.fi-input {
+        background-color: #1E293B !important;
+        border: 1px solid #475569 !important;
+        color: #F8FAFC !important;
+    }
+
+    html.dark .fi-select-input-search-ctn input.fi-input::placeholder {
+        color: #94A3B8 !important;
+    }
+
+    html.dark .fi-select-input-search-ctn input.fi-input:focus {
+        background-color: #0F172A !important;
+        border-color: #2DD4BF !important;
+        box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2) !important;
+        outline: none !important;
+    }
+
+    /* Options List & Card Items */
+    .fi-select-input-options-ctn,
+    .fi-dropdown-list {
+        padding: 0.35rem 0.15rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+    }
+
+    .fi-select-input-option {
+        border-radius: 0.65rem !important;
+        padding: 0.65rem 0.875rem !important;
+        margin: 0 !important;
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        line-height: 1.5 !important;
+        cursor: pointer !important;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border: 1px solid transparent !important;
+    }
+
+    html:not(.dark) .fi-select-input-option {
+        color: #1E293B !important;
+        background: transparent !important;
+    }
+
+    html:not(.dark) .fi-select-input-option:hover {
+        background-color: rgba(13, 148, 136, 0.08) !important;
+        color: #0F766E !important;
+        transform: translateX(-2px);
+    }
+
+    html[dir="rtl"]:not(.dark) .fi-select-input-option:hover {
+        transform: translateX(2px) !important;
+    }
+
+    html:not(.dark) .fi-select-input-option.fi-selected {
+        background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        box-shadow: 0 3px 10px rgba(13, 148, 136, 0.25) !important;
+    }
+
+    html.dark .fi-select-input-option {
+        color: #E2E8F0 !important;
+        background: transparent !important;
+    }
+
+    html.dark .fi-select-input-option:hover {
+        background-color: rgba(20, 184, 166, 0.14) !important;
+        color: #5EEAD4 !important;
+        transform: translateX(-2px);
+    }
+
+    html[dir="rtl"].dark .fi-select-input-option:hover {
+        transform: translateX(2px) !important;
+    }
+
+    html.dark .fi-select-input-option.fi-selected {
+        background: linear-gradient(135deg, #0F766E 0%, #115E59 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35) !important;
+    }
+
+    /* Loading / Empty Message State */
+    .fi-select-input-message {
+        padding: 1.25rem 1rem !important;
+        text-align: center !important;
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    html:not(.dark) .fi-select-input-message {
+        color: #64748B !important;
+    }
+
+    html.dark .fi-select-input-message {
+        color: #94A3B8 !important;
+    }
+
+    /* Option scrollbars */
+    .fi-select-input-ctn .fi-dropdown-panel::-webkit-scrollbar {
+        width: 5px !important;
+        height: 5px !important;
+    }
+
+    .fi-select-input-ctn .fi-dropdown-panel::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+
+    .fi-select-input-ctn .fi-dropdown-panel::-webkit-scrollbar-thumb {
+        background-color: rgba(13, 148, 136, 0.45) !important;
+        border-radius: 9999px !important;
+    }
+
+    .fi-select-input-ctn .fi-dropdown-panel::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(13, 148, 136, 0.75) !important;
+    }
+
+    /* -------------------------------------------------------------
+       CREATIVE FILE UPLOAD & FORM PAGE ENHANCEMENTS
+       ------------------------------------------------------------- */
+    .elite-creative-hero-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.25rem;
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html:not(.dark) .elite-creative-hero-card {
+        background: linear-gradient(135deg, #F0FDFA 0%, #FFFFFF 60%, #E6FFFA 100%);
+        border: 1.5px solid rgba(13, 148, 136, 0.2);
+        box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.08);
+    }
+
+    html.dark .elite-creative-hero-card {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(13, 148, 136, 0.12) 100%);
+        border: 1.5px solid rgba(20, 184, 166, 0.25);
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* FileUpload Component Dropzone Enhancement */
+    .fi-fo-file-upload .filepond--panel-root {
+        border-radius: 1rem !important;
+        transition: all 0.25s ease !important;
+    }
+
+    html:not(.dark) .fi-fo-file-upload .filepond--panel-root {
+        background-color: #F8FAFC !important;
+        border: 2px dashed #CBD5E1 !important;
+    }
+
+    html:not(.dark) .fi-fo-file-upload:hover .filepond--panel-root {
+        border-color: #0D9488 !important;
+        background-color: #F0FDFA !important;
+    }
+
+    html.dark .fi-fo-file-upload .filepond--panel-root {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 2px dashed rgba(51, 65, 85, 0.9) !important;
+    }
+
+    html.dark .fi-fo-file-upload:hover .filepond--panel-root {
+        border-color: #14B8A6 !important;
+        background-color: rgba(13, 148, 136, 0.08) !important;
+    }
 </style>
+
+<script>
+    (function () {
+        // Automatically inject .fi-fixed-positioning-context into modal windows
+        // so Floating UI in select.js uses strategy: 'fixed' without triggering modal scrollbars
+        function setupModalFixedContext() {
+            const modals = document.querySelectorAll('.fi-modal-window, .fi-modal-content, .fi-modal');
+            modals.forEach(function (el) {
+                if (!el.classList.contains('fi-fixed-positioning-context')) {
+                    el.classList.add('fi-fixed-positioning-context');
+                }
+            });
+        }
+
+        setupModalFixedContext();
+
+        // Stacking context elevation manager: Ensures open select dropdowns are NEVER overlapped by bottom action buttons
+        function syncSelectStackingContext() {
+            const openButtons = document.querySelectorAll('.fi-select-input-btn[aria-expanded="true"]');
+            
+            // First remove elevated class from all previously elevated sections/fields
+            document.querySelectorAll('.fi-select-open-elevated').forEach(function (el) {
+                el.classList.remove('fi-select-open-elevated');
+            });
+
+            // Elevate ancestor containers for all currently open selects
+            openButtons.forEach(function (btn) {
+                const section = btn.closest('.fi-section');
+                if (section) section.classList.add('fi-select-open-elevated');
+
+                const fieldWrp = btn.closest('.fi-fo-field-wrp');
+                if (fieldWrp) fieldWrp.classList.add('fi-select-open-elevated');
+            });
+        }
+
+        // Observe DOM mutations to monitor aria-expanded toggles and modal openings
+        const observer = new MutationObserver(function (mutations) {
+            setupModalFixedContext();
+            syncSelectStackingContext();
+        });
+
+        if (document.body) {
+            observer.observe(document.body, { 
+                childList: true, 
+                subtree: true, 
+                attributes: true, 
+                attributeFilter: ['aria-expanded', 'style', 'class'] 
+            });
+        }
+
+        // Also sync on click and focus events
+        document.addEventListener('click', function () {
+            setTimeout(syncSelectStackingContext, 20);
+        });
+
+        // Universal Arabic Normalization for instant client-side select search filtering
+        function normalizeAr(str) {
+            if (!str) return '';
+            return String(str)
+                .toLowerCase()
+                .replace(/[أإآٱ]/g, 'ا')
+                .replace(/[ة]/g, 'ه')
+                .replace(/[ى]/g, 'ي')
+                .replace(/[\u064B-\u065F\u0670]/g, '')
+                .replace(/[,\-–—]/g, ' ')
+                .trim();
+        }
+
+        // Attach instant typing filter on all search inputs in Filament Select dropdowns
+        document.addEventListener('input', function (e) {
+            if (!e.target || !e.target.matches('.fi-select-input-search-ctn input.fi-input')) {
+                return;
+            }
+
+            const input = e.target;
+            const query = normalizeAr(input.value);
+            const dropdown = input.closest('.fi-dropdown-panel');
+            if (!dropdown) return;
+
+            const options = dropdown.querySelectorAll('.fi-select-input-option');
+            if (!options.length) return;
+
+            let matchCount = 0;
+            options.forEach(function (opt) {
+                if (!query) {
+                    opt.style.display = '';
+                    matchCount++;
+                    return;
+                }
+
+                const optText = normalizeAr(opt.textContent);
+                if (optText.includes(query)) {
+                    opt.style.display = '';
+                    matchCount++;
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+        }, true);
+    })();
+</script>
