@@ -1112,15 +1112,54 @@ class FcmNotificationService
 
     /**
      * Log a fallback message when FCM credentials are not configured.
+    /**
+     * Notify enrolled/assigned students when session duration is extended or meeting URL is updated.
      */
-    protected function logFallback(string $mode, string $title, string $body, int $tokenCount): void
+    public function notifySessionExtendedOrUpdated(LiveSession $session, int $extendedMinutes = 0, ?string $newUrl = null, array $studentIds = []): int
     {
-        if (config('fcm.logging.enabled')) {
-            Log::channel(config('fcm.logging.channel'))->info("FCM [{$mode}] not configured — notification logged only", [
-                'title'  => $title,
-                'body'   => $body,
-                'tokens' => $tokenCount,
-            ]);
+        if (empty($studentIds)) {
+            $deductionService = app(\App\Services\Session\SessionAttendanceDeductionService::class);
+            $studentIds = $deductionService->getStudentIdsForSession($session)->toArray();
         }
+
+        if (empty($studentIds)) {
+            return 0;
+        }
+
+        $sessionTitle = $session->title ?: __('Live Session');
+        $newDuration = $session->duration_minutes ?: 60;
+        $isAr = app()->getLocale() === 'ar';
+
+        if ($extendedMinutes > 0) {
+            $title = $isAr
+                ? "تنبيه الحصة: تم زيادة وقت الحصة (+{$extendedMinutes} دقيقة)"
+                : "Live Session Extended (+{$extendedMinutes} mins)";
+            $body = $isAr
+                ? "قام المعلم بزيادة مدة حصة ({$sessionTitle}) لتصبح {$newDuration} دقيقة." . ($newUrl ? ' ورابط البث متاح الآن.' : '')
+                : "Instructor extended session ({$sessionTitle}) by {$extendedMinutes}m. New duration: {$newDuration}m.";
+            $type = 'session_time_extended';
+        } else {
+            $title = $isAr
+                ? "تحديث رابط البث المباشر"
+                : "Meeting Broadcast URL Updated";
+            $body = $isAr
+                ? "تم تحديث رابط البث المباشر لحصة ({$sessionTitle}). يمكنك الانضمام الآن."
+                : "Live meeting broadcast link for ({$sessionTitle}) was updated.";
+            $type = 'session_link_updated';
+        }
+
+        $notifiedCount = 0;
+        $students = User::whereIn('id', $studentIds)->get();
+
+        foreach ($students as $student) {
+            try {
+                $this->sendNotification($student, $type, $title, $body, route('student-portal'));
+                $notifiedCount++;
+            } catch (\Throwable $e) {
+                Log::error("[FCM] Failed to notify student #{$student->id} for session extension: " . $e->getMessage());
+            }
+        }
+
+        return $notifiedCount;
     }
 }

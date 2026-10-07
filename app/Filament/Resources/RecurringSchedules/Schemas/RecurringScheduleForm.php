@@ -8,16 +8,15 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class RecurringScheduleForm
 {
@@ -26,15 +25,23 @@ class RecurringScheduleForm
         $isAr = app()->getLocale() === 'ar';
 
         return $schema
+            ->columns(12)
             ->components([
-                Section::make($isAr ? 'البيانات الأساسية للجدول الأسبوعي' : 'Basic Cohort Schedule Information')
+                // ── 1. BASIC COHORT INFORMATION ──────────────────────────────
+                Section::make(new HtmlString('<i class="fa-solid fa-graduation-cap text-teal-500 me-2"></i>' . ($isAr ? 'البيانات الأساسية للجدول الأسبوعي' : 'Basic Cohort Schedule Information')))
+                    ->description($isAr ? 'تحديد مسمى الجدول، المعلم المسؤول، الكورس وحالة الجدول' : 'Cohort title, assigned teacher, course and active status')
+                    ->columnSpan([
+                        'default' => 12,
+                        'xl' => 6,
+                    ])
                     ->columns(2)
                     ->components([
                         TextInput::make('title')
                             ->label($isAr ? 'عنوان الجدول الأسبوعي' : 'Cohort Schedule Title')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('Weekly Cohort Schedule'),
+                            ->placeholder('Weekly Cohort Schedule')
+                            ->columnSpanFull(),
 
                         Select::make('teacher_profile_id')
                             ->label($isAr ? 'المعلم المسؤول' : 'Assigned Teacher')
@@ -42,17 +49,20 @@ class RecurringScheduleForm
                                 $tp->id => ($tp->user?->name ?: 'Teacher #' . $tp->id) . ' (' . ($tp->title ?: 'Faculty') . ')',
                             ]))
                             ->searchable()
-                            ->required(),
+                            ->preload()
+                            ->required()
+                            ->columnSpan(1),
 
                         Select::make('course_id')
                             ->label($isAr ? 'الكورس المرتبط' : 'Associated Course')
                             ->relationship('course', 'title')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->columnSpan(1),
 
                         Select::make('student_user_id')
-                            ->label(__('1-on-1 Student (Optional)'))
+                            ->label($isAr ? 'طالب فردي حصة خاصة (اختياري)' : '1-on-1 Student (Optional)')
                             ->options(function () {
                                 $query = User::query();
                                 if (method_exists(User::class, 'scopeRoleStudent')) {
@@ -64,7 +74,8 @@ class RecurringScheduleForm
                             })
                             ->searchable()
                             ->nullable()
-                            ->helperText(__('Leave empty for course-wide public cohort')),
+                            ->helperText($isAr ? 'اتركه فارغاً ليتاح لجميع طلاب المجموعة العامة بالمقرر' : 'Leave empty for course-wide public cohort')
+                            ->columnSpan(1),
 
                         Select::make('recurrence_type')
                             ->label($isAr ? 'نمط التكرار' : 'Recurrence Pattern')
@@ -75,7 +86,8 @@ class RecurringScheduleForm
                                 'monthly' => $isAr ? 'شهري' : 'Monthly',
                             ])
                             ->default('weekly')
-                            ->required(),
+                            ->required()
+                            ->columnSpan(1),
 
                         Select::make('status')
                             ->label($isAr ? 'حالة الجدول' : 'Schedule Status')
@@ -86,32 +98,45 @@ class RecurringScheduleForm
                                 'cancelled' => $isAr ? 'ملغي' : 'Cancelled',
                             ])
                             ->default('active')
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
                     ]),
 
-                Section::make($isAr ? 'الإعدادات العامة والافتراضية للجلسات' : 'Default Session Settings & Timing')
+                // ── 2. DEFAULT SESSION SETTINGS & TIMING ─────────────────────
+                Section::make(new HtmlString('<i class="fa-solid fa-clock text-amber-500 me-2"></i>' . ($isAr ? 'الإعدادات العامة والافتراضية للجلسات' : 'Default Session Settings & Timing')))
+                    ->description($isAr ? 'التوقيت الافتراضي للبدء، مدة الحصة، وتواريخ سريان الدورة' : 'Default start times, session duration, and calendar validity')
+                    ->columnSpan([
+                        'default' => 12,
+                        'xl' => 6,
+                    ])
                     ->columns(2)
                     ->components([
                         TimePicker::make('start_time')
                             ->label($isAr ? 'وقت البدء الافتراضي' : 'Default Start Time')
                             ->required()
-                            ->default('10:00'),
+                            ->seconds(false)
+                            ->default('10:00')
+                            ->columnSpan(1),
 
                         TextInput::make('duration_minutes')
                             ->label($isAr ? 'مدة الحصة (بالدقائق)' : 'Duration (Minutes)')
                             ->numeric()
                             ->default(60)
-                            ->required(),
+                            ->suffix($isAr ? 'دقيقة' : 'min')
+                            ->required()
+                            ->columnSpan(1),
 
                         DatePicker::make('start_date')
                             ->label($isAr ? 'تاريخ بداية الجدول' : 'Start Date')
                             ->required()
-                            ->default(now()->toDateString()),
+                            ->default(now()->toDateString())
+                            ->columnSpan(1),
 
                         DatePicker::make('end_date')
                             ->label($isAr ? 'تاريخ نهاية الجدول' : 'End Date')
                             ->required()
-                            ->default(now()->addMonths(3)->toDateString()),
+                            ->default(now()->addMonths(3)->toDateString())
+                            ->columnSpan(1),
 
                         Select::make('meeting_platform')
                             ->label($isAr ? 'منصة البث الافتراضية' : 'Default Meeting Platform')
@@ -123,13 +148,15 @@ class RecurringScheduleForm
                                 'other' => $isAr ? 'رابط مخصص آخر' : 'Other / Custom Stream Link',
                             ])
                             ->default('agora')
-                            ->required(),
+                            ->required()
+                            ->columnSpan(1),
 
                         TextInput::make('meeting_link')
                             ->label($isAr ? 'رابط البث الافتراضي' : 'Default Meeting Link')
                             ->url()
                             ->placeholder('https://zoom.us/j/... or stream link')
-                            ->maxLength(500),
+                            ->maxLength(500)
+                            ->columnSpan(1),
 
                         Textarea::make('notes')
                             ->label($isAr ? 'ملاحظات إضافية' : 'Admin / Teacher Notes')
@@ -138,12 +165,14 @@ class RecurringScheduleForm
                             ->nullable(),
                     ]),
 
-                Section::make($isAr ? 'تخصيص الأيام والمواعيد المستقلة' : 'Per-Day Custom Schedules & Links')
-                    ->description($isAr ? 'اختر الأيام المحددة للتكرار، ويمكنك تحديد وقت خاص ومدة ورابط اجتماع لكل يوم مستقبلي بشكل مستقل.' : 'Select days to recur and customize start times, durations & links independently per day.')
+                // ── 3. PER-DAY CUSTOM SCHEDULES & LINKS (FULL WIDTH) ─────────
+                Section::make(new HtmlString('<i class="fa-solid fa-calendar-days text-emerald-500 me-2"></i>' . ($isAr ? 'تخصيص الأيام والمواعيد المستقلة' : 'Per-Day Custom Schedules & Links')))
+                    ->description($isAr ? 'اختر الأيام المحددة للتكرار الأسبوعي، مع إمكانية تخصيص موعد ورابط اجتماع مستقل لكل يوم بشكل منفصل' : 'Select active recurring days and customize timings and meeting links per day independently')
+                    ->columnSpanFull()
                     ->columns(1)
                     ->components([
                         CheckboxList::make('days_of_week')
-                            ->label($isAr ? 'الأيام المحددة للتكرار' : 'Selected Days of Week')
+                            ->label($isAr ? 'الأيام المحددة للتكرار الأسبوعي' : 'Weekly Recurring Days')
                             ->options([
                                 6 => $isAr ? 'السبت' : 'Saturday',
                                 0 => $isAr ? 'الأحد' : 'Sunday',
@@ -161,9 +190,10 @@ class RecurringScheduleForm
                             ->default([6, 0])
                             ->columnSpanFull()
                             ->live()
+                            ->extraAttributes(['class' => 'ec-recurring-days-picker'])
                             ->hintAction(
                                 Action::make('syncMainSettings')
-                                    ->label($isAr ? 'مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Sync Main Settings to All Days')
+                                    ->label($isAr ? 'مزامنة الإعدادات الرئيسية مع كافة الأيام المحددة' : 'Sync Main Settings to All Days')
                                     ->icon('heroicon-o-arrow-path')
                                     ->color('primary')
                                     ->action(function ($get, $set) use ($isAr) {
@@ -185,8 +215,8 @@ class RecurringScheduleForm
                                         $set('day_durations', $dayDurations);
                                         $set('day_meeting_links', $dayLinks);
                                         Notification::make()
-                                            ->title($isAr ? 'تمت مزامنة الإعدادات الرئيسية مع الأيام المحددة' : 'Main settings synced to selected days')
-                                            ->body($isAr ? 'تم نسخ وقت البدء والمدة ورابط الاجتماع إلى جميع الأيام المختارة بنجاح.' : 'Start time, duration, and meeting link applied across all active days.')
+                                            ->title($isAr ? 'تمت مزامنة الإعدادات بنجاح' : 'Main settings synced')
+                                            ->body($isAr ? 'تم تطبيق وقت البدء والمدة ورابط البث على جميع الأيام المحددة.' : 'Start time, duration, and link applied to all selected days.')
                                             ->success()
                                             ->send();
                                     })
@@ -194,32 +224,39 @@ class RecurringScheduleForm
 
                         Grid::make([
                             'default' => 1,
-                            'lg' => 2,
+                            'md' => 2,
+                            'xl' => 3,
                         ])
                             ->columnSpanFull()
                             ->schema(
                                 collect([
-                                    6 => ['label' => $isAr ? 'السبت' : 'Saturday'],
-                                    0 => ['label' => $isAr ? 'الأحد' : 'Sunday'],
-                                    1 => ['label' => $isAr ? 'الإثنين' : 'Monday'],
-                                    2 => ['label' => $isAr ? 'الثلاثاء' : 'Tuesday'],
-                                    3 => ['label' => $isAr ? 'الأربعاء' : 'Wednesday'],
-                                    4 => ['label' => $isAr ? 'الخميس' : 'Thursday'],
-                                    5 => ['label' => $isAr ? 'الجمعة' : 'Friday'],
+                                    6 => ['label' => $isAr ? 'يوم السبت' : 'Saturday'],
+                                    0 => ['label' => $isAr ? 'يوم الأحد' : 'Sunday'],
+                                    1 => ['label' => $isAr ? 'يوم الإثنين' : 'Monday'],
+                                    2 => ['label' => $isAr ? 'يوم الثلاثاء' : 'Tuesday'],
+                                    3 => ['label' => $isAr ? 'يوم الأربعاء' : 'Wednesday'],
+                                    4 => ['label' => $isAr ? 'يوم الخميس' : 'Thursday'],
+                                    5 => ['label' => $isAr ? 'يوم الجمعة' : 'Friday'],
                                 ])->map(function ($info, $dayNum) use ($isAr) {
-                                    return Fieldset::make($info['label'])
+                                    return Section::make(new HtmlString('<i class="fa-solid fa-calendar-check text-teal-400 me-1.5"></i>' . $info['label']))
+                                        ->compact()
+                                        ->extraAttributes(['class' => 'ec-day-schedule-card'])
                                         ->visible(fn ($get) => in_array($dayNum, $get('days_of_week') ?? []))
                                         ->columns(2)
                                         ->schema([
                                             TimePicker::make("day_start_times.{$dayNum}")
                                                 ->label($isAr ? 'وقت البدء' : 'Start Time')
                                                 ->default('10:00')
+                                                ->seconds(false)
                                                 ->columnSpan(1),
+
                                             TextInput::make("day_durations.{$dayNum}")
                                                 ->label($isAr ? 'المدة (بالدقائق)' : 'Duration (min)')
                                                 ->numeric()
                                                 ->default(60)
+                                                ->suffix($isAr ? 'دقيقة' : 'min')
                                                 ->columnSpan(1),
+
                                             TextInput::make("day_meeting_links.{$dayNum}")
                                                 ->label($isAr ? 'رابط الاجتماع المخصص (اختياري)' : 'Custom Meeting Link (Optional)')
                                                 ->placeholder('https://zoom.us/j/... or stream link')

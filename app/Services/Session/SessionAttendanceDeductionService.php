@@ -335,14 +335,33 @@ class SessionAttendanceDeductionService
      */
     public function getStudentExceptionForSession(int $studentUserId, LiveSession $session): ?ExceptionRequest
     {
+        // 1. Prioritize approved exception
+        $approved = ExceptionRequest::where('student_user_id', $studentUserId)
+            ->where('status', 'approved')
+            ->where(function ($query) use ($session) {
+                $query->where('live_session_id', $session->id);
+                if ($session->course_id) {
+                    $query->orWhere('course_id', $session->course_id);
+                }
+                $query->orWhere('is_global', true);
+                $query->orWhere('scope', 'global');
+            })
+            ->latest('id')
+            ->first();
+
+        if ($approved) {
+            return $approved;
+        }
+
+        // 2. Otherwise return latest exception
         return ExceptionRequest::where('student_user_id', $studentUserId)
             ->where(function ($query) use ($session) {
                 $query->where('live_session_id', $session->id);
                 if ($session->course_id) {
-                    $query->orWhere(function ($q) use ($session) {
-                        $q->where('scope', 'course')->where('course_id', $session->course_id);
-                    });
+                    $query->orWhere('course_id', $session->course_id);
                 }
+                $query->orWhere('is_global', true);
+                $query->orWhere('scope', 'global');
             })
             ->latest('id')
             ->first();

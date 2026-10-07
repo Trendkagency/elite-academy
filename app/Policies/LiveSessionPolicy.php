@@ -49,6 +49,22 @@ class LiveSessionPolicy
      */
     protected function studentMayAccess(User $user, LiveSession $session): bool
     {
+        // If student has an approved excuse for this session, course, or global, access is prohibited
+        $hasApprovedExcuse = \App\Models\ExceptionRequest::where('student_user_id', $user->id)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($session) {
+                $q->where('live_session_id', $session->id);
+                if ($session->course_id) {
+                    $q->orWhere('course_id', $session->course_id);
+                }
+                $q->orWhere('is_global', true)->orWhere('scope', 'global');
+            })
+            ->exists();
+
+        if ($hasApprovedExcuse) {
+            return false;
+        }
+
         if ($session->student_user_id) {
             return (int) $session->student_user_id === (int) $user->id;
         }

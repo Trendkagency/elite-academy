@@ -137,28 +137,32 @@
         {{-- Optional: Live Classroom Broadcast Banner if any session is Live Right Now --}}
         @php
             $liveNowSessions = $todaySessions->filter(fn($s) => $s->evaluateState($userAuth) === \App\Enums\LiveSessionState::LIVE);
+            $currentLiveSession = $liveNowSessions->first();
         @endphp
-        @if($liveNowSessions->isNotEmpty())
-            <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-teal-500/10 border border-rose-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm animate-pulse">
-                <div class="flex items-center gap-3">
-                    <span class="w-3 h-3 rounded-full bg-rose-600 animate-ping shrink-0"></span>
-                    <div>
+        <div id="studentLiveClassroomBanner" class="{{ $currentLiveSession ? '' : 'hidden ' }}p-4 rounded-2xl bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-teal-500/10 border border-rose-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm animate-pulse mb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-rose-600 animate-ping shrink-0"></span>
+                <div>
+                    <div class="flex items-center gap-2">
                         <span class="text-xs font-mono font-black text-rose-700 dark:text-rose-300 uppercase tracking-wider block">
                             {{ $isAr ? 'بث مباشر منعقد الآن' : 'Live Classroom Active Now' }}
                         </span>
-                        <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white">
-                            {{ $liveNowSessions->first()->studentFacingTitle($isAr ? 'حصة تفاعلية' : 'Live Class') }}
-                            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 font-normal">({{ $liveNowSessions->first()->teacherProfile?->user?->name ?: 'Teacher' }})</span>
-                        </h4>
+                        <span id="studentLiveBannerDuration" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800">
+                            {{ $currentLiveSession ? ($currentLiveSession->duration_minutes . ' ' . ($isAr ? 'دقيقة' : 'min')) : '' }}
+                        </span>
                     </div>
+                    <h4 id="studentLiveBannerTitle" class="font-heading font-black text-sm text-slate-900 dark:text-white">
+                        <span id="studentLiveBannerTitleText">{{ $currentLiveSession ? $currentLiveSession->studentFacingTitle($isAr ? 'حصة تفاعلية' : 'Live Class') : '' }}</span>
+                        <span id="studentLiveBannerTeacher" class="text-xs font-mono text-slate-500 dark:text-slate-400 font-normal">({{ $currentLiveSession?->teacherProfile?->user?->name ?: 'Teacher' }})</span>
+                    </h4>
                 </div>
-                <a href="{{ route('student.meeting.show', ['id' => $liveNowSessions->first()->id]) }}"
-                    class="btn-lift px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-2 shrink-0">
-                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                    <span>{{ $isAr ? 'دخول البث المباشر الآن' : 'Join Live Stream' }} &rarr;</span>
-                </a>
             </div>
-        @endif
+            <a id="studentLiveClassroomJoinBtn" href="{{ $currentLiveSession ? route('student.meeting.show', ['id' => $currentLiveSession->id]) : '#' }}"
+                class="btn-lift px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-2 shrink-0">
+                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                <span>{{ $isAr ? 'دخول البث المباشر الآن' : 'Join Live Stream' }} &rarr;</span>
+            </a>
+        </div>
 
         {{-- WEEKLY VIEW: 7-DAY INTERACTIVE STRIP (Visible by default in Weekly mode) --}}
         <div id="calWeekStripWrapper" class="space-y-4">
@@ -1093,7 +1097,7 @@
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
 <script>
 (function() {
-    const rawSessions = @json($allSessionsForCalendar ?? []);
+    let rawSessions = @json($allSessionsForCalendar ?? []);
     const isAr = {{ $isAr ? 'true' : 'false' }};
     const studentPackageData = {
         total: {{ (int) ($pkgTotal ?? 0) }},
@@ -1813,10 +1817,17 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1.5 border-t border-slate-100 dark:border-slate-800/80">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span><i class="fa-solid fa-chalkboard-user text-teal-600 dark:text-teal-400"></i> ${item.teacher}</span>
                     <span>•</span>
-                    <span><i class="fa-solid fa-stopwatch text-slate-400"></i> ${item.duration} ${isAr ? 'د' : 'min'}</span>
+                    <span class="inline-flex items-center gap-1 font-bold ${isLive ? 'text-rose-600 dark:text-rose-400' : ''}"><i class="fa-solid fa-stopwatch text-slate-400"></i> ${item.duration} ${isAr ? 'د' : 'min'}</span>
+                    ${studentPackageData.hasPackage ? `
+                        <span>•</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800" title="${isAr ? 'حصة محسوبة ضمن باقة الطالب' : 'Covered in student package'}">
+                            <i class="fa-solid fa-circle-check text-teal-500"></i>
+                            ${isLive ? (isAr ? 'محسومة من الباقة' : 'Package Deducted') : (isAr ? 'ضمن رصيد الباقة' : 'In Package')}
+                        </span>
+                    ` : ''}
                 </div>
                 <div>
                     <i class="fa-regular fa-clock text-amber-500"></i> <strong>${item.date}</strong> ${item.time}
@@ -1828,6 +1839,63 @@
 
     // Global hook to refresh calendar on tab navigation
     window.refreshStudentCalendar = function() {
+        if (calViewMode === 'weekly') {
+            renderWeeklyDaysStrip();
+            renderWeeklySummary();
+        } else {
+            renderCalendar();
+        }
+        renderSessionList();
+    };
+
+    // Real-time dynamic updates for calendar, live banner, and package balance
+    window.updateStudentCalendarData = function(newSessions, newPackage, liveSession) {
+        if (Array.isArray(newSessions)) {
+            rawSessions = newSessions;
+        }
+
+        if (newPackage) {
+            studentPackageData.hasPackage = !!newPackage.has_package;
+            studentPackageData.total = parseInt(newPackage.total) || 0;
+            studentPackageData.used = parseInt(newPackage.used) || 0;
+            studentPackageData.remaining = parseInt(newPackage.remaining) || 0;
+            studentPackageData.currentNum = studentPackageData.total > 0 
+                ? Math.min(studentPackageData.total, Math.max(1, studentPackageData.used + (studentPackageData.remaining > 0 ? 1 : 0))) 
+                : 0;
+        }
+
+        // Update Live Classroom Banner elements
+        const banner = document.getElementById('studentLiveClassroomBanner');
+        if (banner) {
+            if (liveSession && (liveSession.is_live || liveSession.can_join !== false)) {
+                banner.classList.remove('hidden');
+                const durEl = document.getElementById('studentLiveBannerDuration');
+                if (durEl) durEl.textContent = `${liveSession.duration || 60} ${isAr ? 'دقيقة' : 'min'}`;
+                const titleTextEl = document.getElementById('studentLiveBannerTitleText');
+                if (titleTextEl) titleTextEl.textContent = liveSession.title || (isAr ? 'حصة تفاعلية' : 'Live Class');
+                const teacherEl = document.getElementById('studentLiveBannerTeacher');
+                if (teacherEl) teacherEl.textContent = `(${liveSession.teacher || 'Teacher'})`;
+                const joinBtn = document.getElementById('studentLiveClassroomJoinBtn');
+                if (joinBtn && liveSession.join_url) joinBtn.href = liveSession.join_url;
+            } else if (!liveSession) {
+                const activeLive = rawSessions.find(s => s.is_live);
+                if (activeLive) {
+                    banner.classList.remove('hidden');
+                    const durEl = document.getElementById('studentLiveBannerDuration');
+                    if (durEl) durEl.textContent = `${activeLive.duration || 60} ${isAr ? 'دقيقة' : 'min'}`;
+                    const titleTextEl = document.getElementById('studentLiveBannerTitleText');
+                    if (titleTextEl) titleTextEl.textContent = activeLive.title || (isAr ? 'حصة تفاعلية' : 'Live Class');
+                    const teacherEl = document.getElementById('studentLiveBannerTeacher');
+                    if (teacherEl) teacherEl.textContent = `(${activeLive.teacher || 'Teacher'})`;
+                    const joinBtn = document.getElementById('studentLiveClassroomJoinBtn');
+                    if (joinBtn && activeLive.join_url) joinBtn.href = activeLive.join_url;
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+
+        // Re-render UI components
         if (calViewMode === 'weekly') {
             renderWeeklyDaysStrip();
             renderWeeklySummary();

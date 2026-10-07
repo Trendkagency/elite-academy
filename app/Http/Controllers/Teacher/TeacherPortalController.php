@@ -1013,21 +1013,63 @@ class TeacherPortalController extends Controller
         }
 
         $validated = $request->validate([
-            'meeting_link' => 'required|url|max:500',
+            'meeting_link' => 'nullable|url|max:500',
+            'extend_minutes' => 'nullable|integer|min:0|max:240',
+            'duration_minutes' => 'nullable|integer|min:15|max:360',
         ]);
 
-        $newStatus = in_array($session->status, ['live', 'completed']) ? $session->status : 'link_visible';
+        $updateData = [];
 
-        $session->update([
-            'meeting_link' => $validated['meeting_link'],
-            'status' => $newStatus,
-        ]);
+        // 1. Update meeting URL if provided
+        if (! empty($validated['meeting_link'])) {
+            $updateData['meeting_link'] = $validated['meeting_link'];
+            $newStatus = in_array($session->status, ['live', 'in_progress', 'completed']) ? $session->status : 'link_visible';
+            $updateData['status'] = $newStatus;
+        }
+
+        // 2. Extend / increase session duration time if requested
+        $currentDuration = (int) ($session->duration_minutes ?: 60);
+        $extendMinutes = isset($validated['extend_minutes']) ? (int) $validated['extend_minutes'] : 0;
+        
+        if (isset($validated['duration_minutes']) && (int) $validated['duration_minutes'] > 0) {
+            $newDuration = (int) $validated['duration_minutes'];
+        } elseif ($extendMinutes > 0) {
+            $newDuration = $currentDuration + $extendMinutes;
+        } else {
+            $newDuration = $currentDuration;
+        }
+
+        if ($newDuration !== $currentDuration) {
+            $updateData['duration_minutes'] = $newDuration;
+            $effectiveStart = $session->start_at ?: $session->scheduled_at ?: now();
+            $updateData['end_at'] = $effectiveStart->copy()->addMinutes($newDuration);
+        }
+
+        if (! empty($updateData)) {
+            $session->update($updateData);
+
+            // Notify students when session time is extended or meeting link is updated
+            $extendedDiff = $newDuration > $currentDuration ? ($newDuration - $currentDuration) : 0;
+            if ($extendedDiff > 0 || ! empty($validated['meeting_link'])) {
+                app(\App\Services\Notification\FcmNotificationService::class)->notifySessionExtendedOrUpdated(
+                    $session->fresh(),
+                    $extendedDiff,
+                    $validated['meeting_link'] ?? null
+                );
+            }
+        }
+
+        $refreshed = $session->fresh();
 
         return response()->json([
             'success' => true,
-            'message' => __('Meeting link updated successfully!'),
-            'meeting_link' => $session->meeting_link,
-            'status' => $session->status,
+            'message' => __('تم تحديث بيانات الحصة ورابط البث وتمديد الوقت بنجاح!'),
+            'meeting_link' => $refreshed->meeting_link,
+            'status' => $refreshed->status,
+            'duration_minutes' => $refreshed->duration_minutes,
+            'start_at' => $refreshed->start_at ? $refreshed->start_at->format('H:i') : null,
+            'end_at' => $refreshed->end_at ? $refreshed->end_at->format('H:i') : null,
+            'time_formatted' => ($refreshed->start_at ? $refreshed->start_at->format('h:i A') : '') . ($refreshed->end_at ? ' - ' . $refreshed->end_at->format('h:i A') : ''),
         ]);
     }
 
@@ -1952,6 +1994,8 @@ class TeacherPortalController extends Controller
                 'date' => $session->effective_start_at ? $session->effective_start_at->format('Y-m-d h:i A') : '',
                 'duration' => $session->duration_minutes ?: 60,
                 'status' => $session->status,
+                'start_at' => $session->start_at ? $session->start_at->format('h:i A') : '',
+                'end_at' => $session->end_at ? $session->end_at->format('h:i A') : '',
                 'meeting_link' => $session->meeting_link ?: '',
             ],
             'students' => $students,
@@ -1976,20 +2020,50 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => __('Unauthorized: You do not own this teaching session.')], 403);
         }
 
+        $updateFields = [];
         if ($session->status !== 'completed') {
-            $session->update([
-                'status' => 'live',
-                'start_at' => $session->start_at ?: now(),
-            ]);
+            $updateFields['status'] = 'live';
+            $updateFields['lifecycle_state'] = 'live';
+            $updateFields['start_at'] = $session->start_at ?: now();
+        }
+
+        if ($request->filled('meeting_link')) {
+            $updateFields['meeting_link'] = $request->input('meeting_link');
+        }
+
+        if ($request->filled('extend_minutes') && (int) $request->input('extend_minutes') > 0) {
+            $currentDuration = (int) ($session->duration_minutes ?: 60);
+            $newDuration = $currentDuration + (int) $request->input('extend_minutes');
+            $updateFields['duration_minutes'] = $newDuration;
+            $effectiveStart = ($updateFields['start_at'] ?? $session->start_at) ?: ($session->scheduled_at ?: now());
+            $updateFields['end_at'] = $effectiveStart->copy()->addMinutes($newDuration);
+        }
+
+        if (! empty($updateFields)) {
+            $session->update($updateFields);
+
+            // Notify students when session time is extended or meeting link is updated
+            $extendedMinutes = (int) ($request->input('extend_minutes') ?? 0);
+            if ($extendedMinutes > 0 || $request->filled('meeting_link')) {
+                app(\App\Services\Notification\FcmNotificationService::class)->notifySessionExtendedOrUpdated(
+                    $session->fresh(),
+                    $extendedMinutes,
+                    $request->input('meeting_link')
+                );
+            }
         }
 
         $report = $deductionService->processTeacherSessionStart($session, auth()->user());
 
+        $refreshed = $session->fresh();
         return response()->json(array_merge([
             'success' => true,
             'message' => __('Session started and learner package deductions processed successfully!'),
-            'session_status' => $session->fresh()->status,
-            'meeting_link' => $session->fresh()->meeting_link ?: '',
+            'session_status' => $refreshed->status,
+            'meeting_link' => $refreshed->meeting_link ?: '',
+            'duration_minutes' => $refreshed->duration_minutes,
+            'start_at' => $refreshed->start_at ? $refreshed->start_at->format('h:i A') : '',
+            'end_at' => $refreshed->end_at ? $refreshed->end_at->format('h:i A') : '',
         ], $report));
     }
 
@@ -2309,7 +2383,7 @@ class TeacherPortalController extends Controller
     public function getSubmissionReview(Request $request, int $submissionId): JsonResponse
     {
         $teacherProfile = $this->getAuthorizedTeacherProfile(auth()->user());
-        $submission = AssignmentSubmission::with(['assignment.questions.options', 'assignment.course', 'assignment.liveSession', 'studentUser', 'answers'])->findOrFail($submissionId);
+        $submission = AssignmentSubmission::with(['assignment.course', 'assignment.liveSession', 'studentUser'])->findOrFail($submissionId);
 
         $assignment = $submission->assignment;
         $isTeacherOwner = $assignment && (
@@ -2322,31 +2396,44 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $answersMap = $submission->answers->keyBy('question_id');
+        // Retrieve student's submitted files (PDF or images)
+        $files = \App\Models\FileUpload::where('assignment_id', $submission->assignment_id)
+            ->where('student_user_id', $submission->student_user_id)
+            ->where('category', 'submission')
+            ->latest()
+            ->get();
 
-        $questionsData = $submission->assignment->questions->map(function ($q) use ($answersMap) {
-            $ans = $answersMap->get($q->id);
-            $selectedOptionIds = $ans ? (array) ($ans->selected_option_ids ?: []) : [];
+        // Fallback: check recent submission uploads by course enrollment
+        if ($files->isEmpty() && $assignment) {
+            $files = \App\Models\FileUpload::where('student_user_id', $submission->student_user_id)
+                ->where('course_id', $assignment->course_id)
+                ->where('category', 'submission')
+                ->latest()
+                ->take(3)
+                ->get();
+        }
 
-            $options = $q->options->map(function ($opt) use ($selectedOptionIds) {
-                return [
-                    'id' => $opt->id,
-                    'option_text' => $opt->option_text,
-                    'is_correct' => (bool) $opt->is_correct,
-                    'is_selected' => in_array($opt->id, $selectedOptionIds),
-                    'explanation' => $opt->explanation,
-                ];
-            });
-
+        $filesData = $files->map(function ($f) {
             return [
-                'id' => $q->id,
-                'question_text' => $q->question_text,
-                'points' => (float) $q->points,
-                'is_correct' => $ans ? (bool) $ans->is_correct : false,
-                'points_earned' => $ans ? (float) $ans->points_earned : 0.0,
-                'options' => $options,
+                'id' => $f->id,
+                'title' => $f->title,
+                'original_name' => $f->original_name,
+                'file_type' => $f->file_type,
+                'formatted_size' => $f->formatted_size,
+                'created_at' => $f->created_at ? $f->created_at->format('Y-m-d H:i') : '',
+                'preview_url' => route('portal.files.preview', $f->id),
+                'download_url' => route('portal.files.download', $f->id),
             ];
         });
+
+        // Assignment original worksheet file (if teacher provided one)
+        $worksheetFile = null;
+        if ($assignment && $assignment->attachment_file_path) {
+            $worksheetFile = [
+                'name' => $assignment->attachment_file_name ?: 'Homework-Worksheet.pdf',
+                'url' => \Illuminate\Support\Facades\Storage::url($assignment->attachment_file_path),
+            ];
+        }
 
         return response()->json([
             'success' => true,
@@ -2357,9 +2444,11 @@ class TeacherPortalController extends Controller
                 'score' => $submission->score,
                 'status' => is_object($submission->status) ? $submission->status->value : (string) $submission->status,
                 'submitted_at' => $submission->submitted_at ? $submission->submitted_at->format('Y-m-d H:i') : '',
+                'student_notes' => $submission->teacher_notes,
                 'evaluation_notes' => $submission->evaluation_notes,
             ],
-            'questions' => $questionsData,
+            'files' => $filesData,
+            'worksheet' => $worksheetFile,
         ]);
     }
 

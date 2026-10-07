@@ -18,3 +18,8 @@ Schedule::command('notifications:deadline-reminders')
     ->withoutOverlapping()
     ->runInBackground();
 
+Schedule::command('collections:send-reminders')
+    ->dailyAt('09:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+

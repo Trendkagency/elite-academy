@@ -605,6 +605,11 @@
                     initSessionCountdowns();
                 }
 
+                // 3b. Update Overview Calendar, Live Banner & Package Balance in Real-Time
+                if (typeof window.updateStudentCalendarData === 'function') {
+                    window.updateStudentCalendarData(data.calendar_sessions, data.package, data.live_session);
+                }
+
                 // 4. Re-bind Elite Table Engine for updated session tables
                 if (typeof initEliteTables === 'function') {
                     if (window.eliteTableInstances) {
@@ -636,12 +641,21 @@
                     }, 1200);
                 }
 
-                // 7. If this wasn't initial load and a session is live, alert student
-                if (prevHash && data.counts && data.counts.live > 0 && window.Toast) {
-                    window.Toast.info(
-                        isArLocale ? 'هناك حصة تفاعلية نشطة الآن! يمكنك الانضمام مباشرة.' : 'A live stream is active now! You can join directly.',
-                        isArLocale ? 'بث مباشر' : 'Live Session'
-                    );
+                // 7. If this wasn't initial load and changes occurred, alert student in real-time
+                if (prevHash && window.Toast) {
+                    if (data.live_session) {
+                        window.Toast.info(
+                            isArLocale 
+                                ? `تم تحديث بيانات الحصة (${data.live_session.title || 'حصة تفاعلية'}) بالوقت والرابط الجديد تلقائياً.` 
+                                : `Live session (${data.live_session.title || 'Live class'}) time and link updated automatically.`,
+                            isArLocale ? 'تحديث فوري للحصة' : 'Session Updated'
+                        );
+                    } else if (data.counts && data.counts.live > 0) {
+                        window.Toast.info(
+                            isArLocale ? 'هناك حصة تفاعلية نشطة الآن! يمكنك الانضمام مباشرة.' : 'A live stream is active now! You can join directly.',
+                            isArLocale ? 'بث مباشر' : 'Live Session'
+                        );
+                    }
                 }
             }
         } catch (err) {

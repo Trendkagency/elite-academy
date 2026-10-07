@@ -349,8 +349,23 @@
                 .then(res => res.json())
                 .then(data => {
                     isHeartbeatPending = false;
-                    if (data.success && data.formatted_duration) {
-                        document.getElementById('meetingDurationTimer').innerText = data.formatted_duration;
+                    if (data.success) {
+                        if (data.formatted_duration) {
+                            document.getElementById('meetingDurationTimer').innerText = data.formatted_duration;
+                        }
+                        if (data.meeting_link) {
+                            const launchBtn = document.getElementById('btnExternalLaunch');
+                            if (launchBtn && launchBtn.href !== data.meeting_link) {
+                                launchBtn.href = data.meeting_link;
+                            }
+                            const frame = document.getElementById('embeddedMeetingFrame');
+                            if (frame && frame.src && !frame.classList.contains('hidden')) {
+                                const newEmbed = getEmbeddableUrl(data.meeting_link);
+                                if (newEmbed && frame.src !== newEmbed) {
+                                    frame.src = newEmbed;
+                                }
+                            }
+                        }
                     } else if (data.session_ended) {
                         alert('{{ $isRtl ? "انتهت هذه الجلسة المباشرة." : "This live session has ended." }}');
                         leaveMeetingSession();

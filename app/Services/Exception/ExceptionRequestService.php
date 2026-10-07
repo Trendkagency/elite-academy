@@ -34,10 +34,8 @@ class ExceptionRequestService
                 'admin_notes' => $notes ?: $request->admin_notes,
             ]);
 
-            // If it was previously rejected and caused a package deduction, refund the session
-            if ($wasRejected) {
-                $this->refundDeductedSession($request, $reviewer);
-            }
+            // Always refund any package deduction if this session was previously deducted
+            $this->refundDeductedSession($request, $reviewer);
 
             try {
                 $this->fcmService->notifyExceptionStatus($request);
@@ -151,6 +149,19 @@ class ExceptionRequestService
             ->where('type', 'session_deduct')
             ->latest('created_at')
             ->first();
+
+        // Prevent duplicate refunds
+        if ($transaction && $request->live_session_id) {
+            $alreadyRefunded = PackageTransaction::whereHas('studentPackage', fn ($q) => $q->where('student_user_id', $studentId))
+                ->where('live_session_id', $request->live_session_id)
+                ->where('type', 'session_refund')
+                ->where('created_at', '>=', $transaction->created_at)
+                ->exists();
+
+            if ($alreadyRefunded) {
+                return false;
+            }
+        }
 
         if ($transaction && $transaction->studentPackage) {
             $package = $transaction->studentPackage;

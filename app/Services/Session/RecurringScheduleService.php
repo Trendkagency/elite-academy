@@ -670,18 +670,23 @@ class RecurringScheduleService
     /**
      * Extend recurring schedule cycle to a new end date and generate new session instances.
      */
-    public function extendScheduleCycle(RecurringSchedule $schedule, Carbon|string $newEndDate, User $user, ?string $reason = 'Extended recurring schedule cycle'): int
+    public function extendScheduleCycle(RecurringSchedule $schedule, Carbon|string $newEndDate, ?User $user = null, ?string $reason = 'Extended recurring schedule cycle'): int
     {
         $newEnd = Carbon::parse($newEndDate)->endOfDay();
         $oldEnd = Carbon::parse($schedule->end_date)->startOfDay();
 
-        if ($newEnd->lte($oldEnd)) {
+        if ($newEnd->toDateString() <= $oldEnd->toDateString()) {
             throw ValidationException::withMessages([
-                'new_end_date' => __('The new end date must be after the current end date (:date).', ['date' => $schedule->end_date ? $schedule->end_date->format('Y-m-d') : 'today']),
+                'new_end_date' => __('تاريخ نهاية الدورة الجديد (:new) يجب أن يكون بعد تاريخ نهاية الدورة الحالية (:current).', [
+                    'new' => $newEnd->format('Y-m-d'),
+                    'current' => $schedule->end_date ? Carbon::parse($schedule->end_date)->format('Y-m-d') : 'اليوم'
+                ]),
             ]);
         }
 
-        return DB::transaction(function () use ($schedule, $oldEnd, $newEnd, $user, $reason) {
+        $userId = $user?->id ?? auth()->id() ?? User::whereHas('adminProfile')->value('id') ?? 1;
+
+        return DB::transaction(function () use ($schedule, $oldEnd, $newEnd, $userId, $reason) {
             $oldValues = $schedule->toArray();
 
             // Preview dates for the newly extended window
@@ -744,7 +749,7 @@ class RecurringScheduleService
             ]);
 
             SessionAuditLog::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'recurring_schedule_id' => $schedule->id,
                 'action' => 'extended',
                 'old_values' => $oldValues,

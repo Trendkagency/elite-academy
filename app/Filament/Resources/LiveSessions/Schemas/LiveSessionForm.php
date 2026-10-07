@@ -81,7 +81,16 @@ class LiveSessionForm
                 DateTimePicker::make('scheduled_at')
                     ->label(app()->getLocale() === 'ar' ? 'تاريخ ووقت الحصة' : 'Scheduled Date & Time')
                     ->required()
-                    ->default(now()->addHour()),
+                    ->default(now()->addHour())
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        if ($state) {
+                            $duration = (int) ($get('duration_minutes') ?: 60);
+                            $parsed = \Illuminate\Support\Carbon::parse($state);
+                            $set('start_at', $parsed->toDateTimeString());
+                            $set('end_at', $parsed->copy()->addMinutes($duration)->toDateTimeString());
+                        }
+                    }),
 
                 DateTimePicker::make('start_at')
                     ->label(app()->getLocale() === 'ar' ? 'وقت البدء الفعلي' : 'Effective Start Time')
@@ -95,7 +104,14 @@ class LiveSessionForm
                     ->label(app()->getLocale() === 'ar' ? 'المدة بالدقائق' : 'Duration (Minutes)')
                     ->numeric()
                     ->default(60)
-                    ->required(),
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $start = $get('start_at') ?: $get('scheduled_at');
+                        if ($start && $state) {
+                            $set('end_at', \Illuminate\Support\Carbon::parse($start)->addMinutes((int) $state)->toDateTimeString());
+                        }
+                    }),
 
                 Select::make('meeting_platform')
                     ->label(app()->getLocale() === 'ar' ? 'منصة البث المباشر' : 'Meeting Platform')

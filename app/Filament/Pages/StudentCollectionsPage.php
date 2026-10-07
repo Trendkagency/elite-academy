@@ -39,6 +39,9 @@ class StudentCollectionsPage extends Page
     public string $searchQuery = '';
 
     // Modals
+    public bool $showKpiDetailModal = false;
+    public ?string $inspectedKpi = null;
+
     public bool $showRenewModal = false;
     public ?int $renewingPackageId = null;
     public int $newTotalSessions = 12;
@@ -54,6 +57,9 @@ class StudentCollectionsPage extends Page
     public ?int $extendingScheduleId = null;
     public string $newScheduleEndDate = '';
     public string $extendReason = 'تجديد الدورة الشهرية للجدول الدوري';
+    public ?string $extendingScheduleTitle = null;
+    public ?string $extendingScheduleStudentName = null;
+    public ?string $extendingScheduleCurrentEndDate = null;
 
     public function mount(): void
     {
@@ -76,6 +82,11 @@ class StudentCollectionsPage extends Page
     public function getTitle(): string
     {
         return app()->getLocale() === 'ar' ? 'متابعة التحصيلات، الباقات المنتهية وتجديد الجداول الدورية' : 'Collections, Expiring Packages & Schedule Renewals';
+    }
+
+    public function getHeading(): string
+    {
+        return '';
     }
 
     public static function getNavigationBadge(): ?string
@@ -116,6 +127,142 @@ class StudentCollectionsPage extends Page
     public function setScheduleFilter(string $filter): void
     {
         $this->scheduleFilter = $filter;
+    }
+
+    public function selectKpi(string $key): void
+    {
+        if ($key === 'exhausted') {
+            $this->activeTab = 'packages';
+            $this->packageFilter = ($this->packageFilter === 'exhausted' && $this->activeTab === 'packages') ? 'all' : 'exhausted';
+        } elseif ($key === 'low') {
+            $this->activeTab = 'packages';
+            $this->packageFilter = ($this->packageFilter === 'low' && $this->activeTab === 'packages') ? 'all' : 'low';
+        } elseif ($key === 'expiring') {
+            $this->activeTab = 'packages';
+            $this->packageFilter = ($this->packageFilter === 'expiring' && $this->activeTab === 'packages') ? 'all' : 'expiring';
+        } elseif ($key === 'ending_soon') {
+            $this->activeTab = 'schedules';
+            $this->scheduleFilter = ($this->scheduleFilter === 'ending_soon' && $this->activeTab === 'schedules') ? 'all' : 'ending_soon';
+        }
+    }
+
+    public function clearKpiFilter(): void
+    {
+        if ($this->activeTab === 'packages') {
+            $this->packageFilter = 'all';
+        } else {
+            $this->scheduleFilter = 'all';
+        }
+    }
+
+    public function getActiveKpiProperty(): ?string
+    {
+        if ($this->activeTab === 'packages') {
+            return in_array($this->packageFilter, ['exhausted', 'low', 'expiring'], true) ? $this->packageFilter : null;
+        }
+        if ($this->activeTab === 'schedules') {
+            return in_array($this->scheduleFilter, ['ending_soon', 'ended'], true) ? $this->scheduleFilter : null;
+        }
+        return null;
+    }
+
+    public function inspectKpi(string $key): void
+    {
+        $this->inspectedKpi = $key;
+        $this->showKpiDetailModal = true;
+    }
+
+    public function closeKpiModal(): void
+    {
+        $this->showKpiDetailModal = false;
+        $this->inspectedKpi = null;
+    }
+
+    public function getKpiMetadata(?string $key): array
+    {
+        return match ($key) {
+            'exhausted' => [
+                'title' => 'الباقات المنتهية بالكامل (رصيد 0 حصص)',
+                'user_friendly_title' => 'باقات استنفدت كامل الحصص (رصيد صفر)',
+                'subtitle' => 'طلاب انتهت حصصهم بالكامل وتتطلب حساباتهم سداداً وتجديداً فورياً لحضور الحصص القادمة',
+                'color' => 'red',
+                'badge_class' => 'bg-red-500/15 text-red-500 border-red-500/30',
+                'icon' => 'fa-circle-exclamation',
+                'count' => $this->stats['exhausted_packages'],
+                'urgency' => 'حرج / مستحق السداد فوراً',
+                'criterion_pill' => 'الرصيد الحالي: 0 حصة',
+                'who_are_they' => 'طلاب استهلكوا كامل رصيد حصصهم وأصبح رصيدهم (صفر). لا يمكن للطالب حضور حصص جديدة إلا بعد شحن أو تجديد الباقة.',
+                'why_it_matters' => 'لتفادي استهلاك وقت المعلمين دون سداد مسبق، وحث ولي الأمر على التجديد فوراً لضمان استقرار مواعيد الطالب في الجدول.',
+                'impact_pill' => 'ضمان مستحقات الأكاديمية والمدربين',
+                'how_to_act' => 'تواصل فوراً مع ولي الأمر عبر الواتساب للمطالبة بتجديد الباقة، أو أرسل إشعاراً تطبيقياً، أو جدد الباقة مباشرة.',
+                'action_pill' => 'مطلوب: رسالة تذكير بالسداد أو تجديد الباقة',
+                'sql_condition' => "remaining_sessions <= 0 AND status IN ('active', 'exhausted')",
+                'business_rule' => 'الطلاب الذين استهلكوا كامل رصيد حصصهم وأصبح رصيدهم صفراً. لا يمكن للطالب حضور أو حجز حصص إضافية بدون تجديد الباقة أو شحن رصيد.',
+                'action_label' => 'تجديد الباقة أو إرسال مطالبة مالية عبر الواتساب',
+                'operational_impact' => 'منع استنزاف وقت وجهد المعلمين دون تحصيل مالي مسبق وتفادي تراكم المستحقات.',
+            ],
+            'low' => [
+                'title' => 'الباقات ذات الرصيد المنخفض (1 إلى 3 حصص)',
+                'user_friendly_title' => 'باقات أوشكت على النفاد (متبقي 1 إلى 3 حصص)',
+                'subtitle' => 'طلاب على وشك نفاد حصصهم ويستحسن تذكير أولياء أمورهم مبكراً قبل توقف الدروس',
+                'color' => 'amber',
+                'badge_class' => 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+                'icon' => 'fa-bell',
+                'count' => $this->stats['low_balance_packages'],
+                'urgency' => 'تنبيه مبكر / متابعة استباقية',
+                'criterion_pill' => 'الرصيد المتبقي: 1 إلى 3 حصص',
+                'who_are_they' => 'طلاب منتظمون يتبقى في رصيدهم حصة واحدة أو حصتان أو ثلاث حصص فقط من باقتهم الحالية.',
+                'why_it_matters' => 'إشعار ولي الأمر مسبقاً قبل نفاد الحصص يمنحه وقتاً كافياً للسداد براحة، ويضمن استمرار دروس الطالب دون انقطاع مفاجئ.',
+                'impact_pill' => 'استمرارية الدروس دون انقطاع',
+                'how_to_act' => 'أرسل تذكيراً ودياً عبر الواتساب أو إشعار فوري لولي الأمر لتجديد الباقة قبل انتهاء الحصص المتبقية.',
+                'action_pill' => 'مطلوب: إرسال تذكير استباقي لتجديد الباقة',
+                'sql_condition' => "remaining_sessions BETWEEN 1 AND 3 AND status = 'active'",
+                'business_rule' => 'تتبع الطلاب قبل وصولهم للصفر لتفادي توقف العملية التعليمية فجأة وإشعار ولي الأمر قبل نفاد الحصص بوقت كافٍ.',
+                'action_label' => 'إرسال تذكير استباقي عبر الواتساب لتجديد الاشتراك',
+                'operational_impact' => 'الحفاظ على استمرارية التدريس وزيادة معدل التجديد التلقائي (Retention) دون انقطاع.',
+            ],
+            'expiring' => [
+                'title' => 'الباقات التي تنتهي صلاحيتها الزمنية خلال 7 أيام',
+                'user_friendly_title' => 'باقات تنتهي صلاحيتها الزمنية هذا الأسبوع',
+                'subtitle' => 'باقات أوشكت مدتها التعاقدية على الانتهاء وتتطلب استهلاك الحصص المتبقية أو تمديد الصلاحية',
+                'color' => 'purple',
+                'badge_class' => 'bg-purple-500/15 text-purple-500 border-purple-500/30',
+                'icon' => 'fa-clock',
+                'count' => $this->stats['expiring_in_7_days'],
+                'urgency' => 'صلاحية زمنية / انتهاء تعاقد',
+                'criterion_pill' => 'تنتهي الصلاحية: خلال 7 أيام',
+                'who_are_they' => 'طلاب ستنتهي صلاحية باقتهم الزمنية خلال أقل من أسبوع حتى وإن كان لا يزال لديهم رصيد حصص.',
+                'why_it_matters' => 'لتنبيه الطالب بسرعة لجدولة حصصه المتبقية قبل فوات الأوان، أو تمديد الصلاحية بالتنسيق مع الإدارة لتفادي فقدان الرصيد.',
+                'impact_pill' => 'حماية حقوق الطالب ورضا أولياء الأمور',
+                'how_to_act' => 'تواصل مع الطالب/ولي الأمر لتنسيق مواعيد الحصص المتبقية أو تمديد فترة صلاحية الباقة بنقرة زر.',
+                'action_pill' => 'مطلوب: تذكير باستهلاك الرصيد أو تمديد الصلاحية',
+                'sql_condition' => "expires_at <= NOW() + 7 DAYS AND status = 'active'",
+                'business_rule' => 'تنبيه الإدارة بالباقات التي ستنتهي مدتها الصالحة خلال 7 أيام حتى لو كان بها رصيد متبقٍ، لمراجعة اشتراك الطالب أو تمديد الصلاحية.',
+                'action_label' => 'تجديد الباقة أو تمديد الصلاحية وتذكير الطالب',
+                'operational_impact' => 'حماية حقوق الأكاديمية وحساب تواريخ الصلاحية وتفادي الشكاوى المتعلقة بانتهاء المدة.',
+            ],
+            'ending_soon' => [
+                'title' => 'الجداول الدورية المنتهية قريباً (خلال 14 يوماً)',
+                'user_friendly_title' => 'اشتراكات شهرية أوشكت دورتها على الانتهاء',
+                'subtitle' => 'جداول حصص أسبوعية منتظمة شارفت دورتها الحالية على الانتهاء وتتطلب التمديد للشهر الجديد',
+                'color' => 'emerald',
+                'badge_class' => 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+                'icon' => 'fa-calendar-days',
+                'count' => $this->stats['cycles_ending_soon'],
+                'urgency' => 'تجديد دورة شهرية',
+                'criterion_pill' => 'نهاية الدورة: خلال أسبوعين أو انتهت',
+                'who_are_they' => 'مجموعات وجداول تعليمية أسبوعية متكررة قاربت دورتها المحددة على الانقضاء وتنتظر بدء دورة الشهر الجديد.',
+                'why_it_matters' => 'تمديد الدورة يضمن حجز مواعيد الطلاب في تقويم المعلم للشهر القادم تلقائياً دون الحاجة لإعادة الجدولة يدوياً.',
+                'impact_pill' => 'تثبيت مواعيد الدروس للشهر الجديد',
+                'how_to_act' => 'اضغط على زر (تمديد وتوليد حصص الشهر الجديد) في الجدول أدناه لتمديد الدورة لمدة شهر إضافي فوراً.',
+                'action_pill' => 'مطلوب: تمديد الدورة وتوليد حصص الشهر القادم',
+                'sql_condition' => "end_date <= NOW() + 14 DAYS AND status = 'active'",
+                'business_rule' => 'رصد مواعيد انتهاء الدورات الشهرية للجداول الدورية لتمكين الإدارة من تمديد الدورة وتوليد حصص الشهر الجديد بنقرة واحدة.',
+                'action_label' => 'تمديد الدورة لشهر إضافي وتوليد الحصص التلقائية',
+                'operational_impact' => 'ضمان عدم سقوط مواعيد الطلاب في التقويم الدراسي للمعلمين عند بداية الشهر الجديد.',
+            ],
+            default => [],
+        };
     }
 
     /**
@@ -174,13 +321,28 @@ class StudentCollectionsPage extends Page
                 'course.subject',
             ]);
 
-        // Search query
+        // Comprehensive multi-field Search query
         if (! empty($this->searchQuery)) {
             $s = trim($this->searchQuery);
-            $query->whereHas('studentUser', function ($sq) use ($s) {
-                $sq->where('name', 'like', "%{$s}%")
-                   ->orWhere('phone', 'like', "%{$s}%")
-                   ->orWhere('email', 'like', "%{$s}%");
+            $query->where(function ($q) use ($s) {
+                $q->whereHas('studentUser', function ($sq) use ($s) {
+                    $sq->where('name', 'like', "%{$s}%")
+                       ->orWhere('phone', 'like', "%{$s}%")
+                       ->orWhere('email', 'like', "%{$s}%")
+                       ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
+                })
+                ->orWhereHas('packageTemplate', fn ($pq) => $pq->where('name', 'like', "%{$s}%"))
+                ->orWhereHas('course', function ($cq) use ($s) {
+                    $cq->where('title', 'like', "%{$s}%")
+                       ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
+                })
+                ->orWhereIn('student_user_id', function ($sub) use ($s) {
+                    $sub->select('parent_student.student_user_id')
+                        ->from('parent_student')
+                        ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
+                        ->where('parent_users.name', 'like', "%{$s}%")
+                        ->orWhere('parent_users.phone', 'like', "%{$s}%");
+                });
             });
         }
 
@@ -278,16 +440,31 @@ class StudentCollectionsPage extends Page
                 'teacherProfile.user',
             ]);
 
-        // Search query
+        // Comprehensive multi-field Search query
         if (! empty($this->searchQuery)) {
             $s = trim($this->searchQuery);
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
                   ->orWhereHas('studentUser', function ($sq) use ($s) {
-                      $sq->where('name', 'like', "%{$s}%")->orWhere('phone', 'like', "%{$s}%");
+                      $sq->where('name', 'like', "%{$s}%")
+                         ->orWhere('phone', 'like', "%{$s}%")
+                         ->orWhere('email', 'like', "%{$s}%")
+                         ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
                   })
                   ->orWhereHas('teacherProfile.user', function ($tq) use ($s) {
-                      $tq->where('name', 'like', "%{$s}%");
+                      $tq->where('name', 'like', "%{$s}%")
+                         ->orWhere('phone', 'like', "%{$s}%");
+                  })
+                  ->orWhereHas('course', function ($cq) use ($s) {
+                      $cq->where('title', 'like', "%{$s}%")
+                         ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
+                  })
+                  ->orWhereIn('student_user_id', function ($sub) use ($s) {
+                      $sub->select('parent_student.student_user_id')
+                          ->from('parent_student')
+                          ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
+                          ->where('parent_users.name', 'like', "%{$s}%")
+                          ->orWhere('parent_users.phone', 'like', "%{$s}%");
                   });
             });
         }
@@ -503,12 +680,17 @@ class StudentCollectionsPage extends Page
      */
     public function openExtendScheduleModal(int $scheduleId): void
     {
-        $sch = RecurringSchedule::find($scheduleId);
+        $sch = RecurringSchedule::with(['studentUser', 'course'])->find($scheduleId);
         if (! $sch) return;
 
         $this->extendingScheduleId = $sch->id;
-        $currentEnd = $sch->end_date ?: now();
-        $this->newScheduleEndDate = Carbon::parse($currentEnd)->addMonth()->format('Y-m-d');
+        $this->extendingScheduleTitle = $sch->title ?: ($sch->course?->title ?? 'جدول دوري');
+        $this->extendingScheduleStudentName = $sch->studentUser?->name ?? 'طالب مسجل';
+        $this->extendingScheduleCurrentEndDate = $sch->end_date ? Carbon::parse($sch->end_date)->format('Y-m-d') : null;
+
+        $currentEnd = $sch->end_date ? Carbon::parse($sch->end_date) : now();
+        $baseDate = $currentEnd->isPast() ? now() : $currentEnd;
+        $this->newScheduleEndDate = $baseDate->copy()->addMonth()->format('Y-m-d');
         $this->extendReason = 'تجديد الدورة الشهرية وتوليد حصص الشهر القادم';
         $this->showExtendScheduleModal = true;
     }
@@ -518,36 +700,90 @@ class StudentCollectionsPage extends Page
      */
     public function submitExtendSchedule(RecurringScheduleService $service): void
     {
-        if (! $this->extendingScheduleId || empty($this->newScheduleEndDate)) return;
+        if (! $this->extendingScheduleId || empty($this->newScheduleEndDate)) {
+            Notification::make()->title(__('يرجى تحديد تاريخ نهاية الدورة الجديد'))->warning()->send();
+            return;
+        }
 
         $sch = RecurringSchedule::find($this->extendingScheduleId);
-        if (! $sch) return;
+        if (! $sch) {
+            $this->showExtendScheduleModal = false;
+            return;
+        }
+
+        $user = auth()->user() ?: \Filament\Facades\Filament::auth()->user() ?: User::whereHas('adminProfile')->first();
 
         try {
             $generated = $service->extendScheduleCycle(
                 schedule: $sch,
                 newEndDate: $this->newScheduleEndDate,
-                user: auth()->user(),
+                user: $user,
                 reason: $this->extendReason
             );
 
             $this->showExtendScheduleModal = false;
+            $this->extendingScheduleId = null;
 
             Notification::make()
-                ->title(__('Cycle Extended Successfully!'))
-                ->body(__('Extended cycle until :date. Generated :count new recurring session instances.', [
+                ->title(__('تم تمديد الدورة وتوليد الحصص بنجاح!'))
+                ->body(__('تم تمديد الدورة حتى :date وتوليد :count حصة جديدة في جدول الطالب والمعلم.', [
                     'date' => $this->newScheduleEndDate,
                     'count' => $generated,
                 ]))
                 ->success()
                 ->send();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstMsg = collect($e->errors())->flatten()->first() ?: $e->getMessage();
+            Notification::make()
+                ->title(__('تنبيه في تاريخ التمديد'))
+                ->body($firstMsg)
+                ->warning()
+                ->send();
         } catch (\Throwable $e) {
             Notification::make()
-                ->title(__('Failed to Extend Cycle'))
+                ->title(__('تعذر تمديد الدورة'))
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
+    }
+
+    /**
+     * Send Instant Push / In-App Schedule Renewal Reminder
+     */
+    public function sendScheduleRenewalReminder(int $scheduleId, FcmNotificationService $fcmService): void
+    {
+        $sch = RecurringSchedule::with(['student', 'course', 'subject'])->find($scheduleId);
+        if (! $sch) return;
+
+        $student = $sch->student;
+        $title = 'تنبيه: اقتراب انتهاء دورة الجدول الدراسي';
+        $endDateStr = $sch->end_date ? Carbon::parse($sch->end_date)->format('Y-m-d') : '';
+        $body = "مرحباً" . ($student ? " {$student->name}" : '') . "، نود تذكيركم باقتراب موعد انتهاء الدورة الشهرية الحالية للجدول الدراسي ({$sch->title}) في تاريخ {$endDateStr}. يرجى مراجعة إدارة الأكاديمية لتأكيد تجديد الاشتراك واستمرار الحصص.";
+
+        if ($student) {
+            $fcmService->sendNotification($student, 'schedule_reminder', $title, $body, '/student-portal');
+
+            // Notify parent if exists
+            $parent = DB::table('parent_student')
+                ->join('users', 'users.id', '=', 'parent_student.parent_user_id')
+                ->where('parent_student.student_user_id', $student->id)
+                ->select('users.id')
+                ->first();
+
+            if ($parent) {
+                $parentUser = User::find($parent->id);
+                if ($parentUser) {
+                    $fcmService->sendNotification($parentUser, 'schedule_reminder', $title, "تنبيه لولي الأمر: تقترب دورة جدول الطالب {$student->name} ({$sch->title}) من الانتهاء. يرجى مراجعة الأكاديمية لتجديد الاشتراك.", '/parent-portal');
+                }
+            }
+        }
+
+        Notification::make()
+            ->title(__('Sent Schedule Renewal Reminder!'))
+            ->body(__('Notification sent to student and parents successfully.'))
+            ->success()
+            ->send();
     }
 
     /**

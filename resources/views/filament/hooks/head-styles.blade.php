@@ -1040,4 +1040,184 @@
         background: rgba(51, 65, 85, 0.9) !important;
         color: #FFFFFF !important;
     }
+
+    /* -------------------------------------------------------------
+       ELITE ACADEMY — RECURRING SCHEDULES & FORM UI (DARK & LIGHT)
+       ------------------------------------------------------------- */
+
+    /* --- Form Sections Modern Geometry --- */
+    .fi-section {
+        border-radius: 1.25rem !important;
+        transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+    }
+
+    html:not(.dark) .fi-section {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html.dark .fi-section {
+        background-color: rgba(15, 23, 42, 0.72) !important;
+        backdrop-filter: blur(14px) !important;
+        border: 1px solid rgba(148, 163, 184, 0.16) !important;
+        box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .fi-section-header {
+        padding: 1.1rem 1.4rem !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+    }
+
+    html:not(.dark) .fi-section-header {
+        border-bottom-color: #F1F5F9 !important;
+    }
+
+    .fi-section-header-heading {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 1.05rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .fi-section-header-description {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.775rem !important;
+        color: #94A3B8 !important;
+        margin-top: 0.2rem !important;
+        line-height: 1.5 !important;
+    }
+
+    html:not(.dark) .fi-section-header-description {
+        color: #64748B !important;
+    }
+
+    /* --- Recurring Days Picker (Never wrap Arabic text, pill card styling) --- */
+    .ec-recurring-days-picker {
+        padding: 0.35rem 0 0.85rem 0 !important;
+    }
+
+    .ec-recurring-days-picker .fi-fo-checkbox-list {
+        gap: 0.75rem !important;
+    }
+
+    .ec-recurring-days-picker .fi-fo-checkbox-list-option {
+        padding: 0.65rem 0.95rem !important;
+        border-radius: 0.875rem !important;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    .ec-recurring-days-picker label,
+    .ec-recurring-days-picker span {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Days Picker: Light Mode */
+    html:not(.dark) .ec-recurring-days-picker .fi-fo-checkbox-list-option {
+        background-color: #F8FAFC !important;
+        border: 1.5px solid #E2E8F0 !important;
+        color: #334155 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html:not(.dark) .ec-recurring-days-picker .fi-fo-checkbox-list-option:hover {
+        background-color: #F1F5F9 !important;
+        border-color: #0D9488 !important;
+        color: #0F766E !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 10px rgba(13, 148, 136, 0.12) !important;
+    }
+
+    html:not(.dark) .ec-recurring-days-picker .fi-fo-checkbox-list-option:has(input:checked) {
+        background: linear-gradient(135deg, rgba(13, 148, 136, 0.12) 0%, rgba(16, 185, 129, 0.18) 100%) !important;
+        border: 1.5px solid #0D9488 !important;
+        color: #0F766E !important;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.18) !important;
+    }
+
+    /* Days Picker: Dark Mode */
+    html.dark .ec-recurring-days-picker .fi-fo-checkbox-list-option {
+        background-color: rgba(30, 41, 59, 0.6) !important;
+        border: 1.5px solid rgba(148, 163, 184, 0.16) !important;
+        color: #CBD5E1 !important;
+    }
+
+    html.dark .ec-recurring-days-picker .fi-fo-checkbox-list-option:hover {
+        background-color: rgba(30, 41, 59, 0.9) !important;
+        border-color: #14B8A6 !important;
+        color: #2DD4BF !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2) !important;
+    }
+
+    html.dark .ec-recurring-days-picker .fi-fo-checkbox-list-option:has(input:checked) {
+        background: linear-gradient(135deg, rgba(13, 148, 136, 0.28) 0%, rgba(15, 118, 110, 0.4) 100%) !important;
+        border: 1.5px solid #14B8A6 !important;
+        color: #2DD4BF !important;
+        box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3) !important;
+    }
+
+    /* --- Day Schedule Cards (.ec-day-schedule-card) --- */
+    .ec-day-schedule-card {
+        border-radius: 1rem !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .ec-day-schedule-card:hover {
+        transform: translateY(-2px) !important;
+    }
+
+    html:not(.dark) .ec-day-schedule-card {
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #E2E8F0 !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html:not(.dark) .ec-day-schedule-card:hover {
+        border-color: #0D9488 !important;
+        box-shadow: 0 8px 24px rgba(13, 148, 136, 0.12) !important;
+    }
+
+    html.dark .ec-day-schedule-card {
+        background-color: rgba(15, 23, 42, 0.65) !important;
+        border: 1.5px solid rgba(148, 163, 184, 0.18) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    html.dark .ec-day-schedule-card:hover {
+        border-color: rgba(20, 184, 166, 0.5) !important;
+        box-shadow: 0 8px 24px rgba(13, 148, 136, 0.25) !important;
+    }
+
+    /* Top accent bar on each active day schedule card */
+    .ec-day-schedule-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3.5px;
+        background: linear-gradient(90deg, #0D9488, #10B981, #14B8A6);
+        opacity: 0.9;
+    }
+
+    /* Ensure TimePicker and input labels have ample room and no truncation */
+    .ec-day-schedule-card .fi-input-wrp input {
+        min-width: 0 !important;
+        font-weight: 700 !important;
+    }
 </style>

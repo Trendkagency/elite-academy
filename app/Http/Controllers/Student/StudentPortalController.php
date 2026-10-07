@@ -354,6 +354,21 @@ class StudentPortalController extends Controller
             $visibleSessionIds
         ))));
 
+        // Resolve student's approved exceptions / absence excuses
+        $approvedExceptionSessionIds = [];
+        $approvedExceptionCourseIds = [];
+        $hasApprovedGlobalException = false;
+
+        if ($user) {
+            $approvedExceptions = ExceptionRequest::where('student_user_id', $user->id)
+                ->where('status', 'approved')
+                ->get();
+
+            $approvedExceptionSessionIds = $approvedExceptions->whereNotNull('live_session_id')->pluck('live_session_id')->all();
+            $approvedExceptionCourseIds = $approvedExceptions->whereNotNull('course_id')->pluck('course_id')->all();
+            $hasApprovedGlobalException = $approvedExceptions->contains(fn($e) => (bool)$e->is_global || $e->scope === 'global');
+        }
+
         $upcomingSessions = $user ? LiveSession::visibleToStudent($user->id, $allStudentCourseIds)
             ->where(function ($q) {
                 $q->whereNull('course_id')
@@ -364,7 +379,18 @@ class StudentPortalController extends Controller
             ->with(['teacherProfile.user', 'subject', 'course', 'attendances'])
             ->orderBy('scheduled_at', 'asc')
             ->get()
-            ->filter(function ($session) use ($user, $hasActivePackage) {
+            ->filter(function ($session) use ($user, $hasActivePackage, $approvedExceptionSessionIds, $approvedExceptionCourseIds, $hasApprovedGlobalException) {
+                // If student has an approved excuse for this session, course, or global, they must NOT see it!
+                if ($hasApprovedGlobalException) {
+                    return false;
+                }
+                if (in_array($session->id, $approvedExceptionSessionIds, true)) {
+                    return false;
+                }
+                if ($session->course_id && in_array($session->course_id, $approvedExceptionCourseIds, true)) {
+                    return false;
+                }
+
                 if ($session->course && ! $session->course->is_active) {
                     return false;
                 }
@@ -551,6 +577,19 @@ class StudentPortalController extends Controller
             'now' => $now,
         ])->render();
 
+        $activeLive = $sessionData['todaySessions']->first(fn($s) => $s->evaluateState($user, $now) === \App\Enums\LiveSessionState::LIVE);
+        $liveSessionPayload = null;
+        if ($activeLive) {
+            $liveSessionPayload = [
+                'id' => $activeLive->id,
+                'title' => $activeLive->studentFacingTitle($isAr ? 'حصة تفاعلية' : 'Live Class'),
+                'teacher' => $activeLive->teacherProfile?->user?->name ?: 'Teacher',
+                'duration' => $activeLive->duration_minutes ?: 60,
+                'join_url' => route('student.meeting.show', ['id' => $activeLive->id]),
+                'meeting_link' => $activeLive->meeting_link ?: '',
+            ];
+        }
+
         return response()->json([
             'success' => true,
             'has_changes' => true,
@@ -565,6 +604,15 @@ class StudentPortalController extends Controller
                 'soon' => $soonHtml,
                 'upcoming' => $upcomingHtml,
                 'history' => $historyHtml,
+            ],
+            'calendar_sessions' => $sessionData['allSessionsForCalendar'],
+            'live_session' => $liveSessionPayload,
+            'package' => [
+                'has_package' => (bool) $sessionData['hasActivePackage'],
+                'total' => (int) ($sessionData['package']?->total_sessions ?? 0),
+                'used' => (int) ($sessionData['package']?->used_sessions ?? 0),
+                'remaining' => (int) ($sessionData['package']?->remaining_sessions ?? 0),
+                'template_name' => $sessionData['package']?->packageTemplate?->name ?: ($sessionData['package']?->course?->title ?: ($isAr ? 'الباقة التعليمية' : 'Learning Package')),
             ],
         ]);
     }

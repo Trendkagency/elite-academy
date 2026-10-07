@@ -255,4 +255,120 @@ class StudentCollectionsAndRenewalsPageTest extends TestCase
         $schedule->refresh();
         $this->assertEquals($newEndDate, $schedule->end_date->format('Y-m-d'));
     }
+
+    public function test_interactive_kpis_can_be_clicked_and_display_details_logic(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $component = Livewire::test(\App\Filament\Pages\StudentCollectionsPage::class);
+
+        // 1. Initial State: activeKpi is null
+        $this->assertNull($component->get('activeKpi'));
+
+        // 2. Click KPI 1 (Exhausted): switches tab to 'packages' and filter to 'exhausted'
+        $component->call('selectKpi', 'exhausted')
+            ->assertSet('activeTab', 'packages')
+            ->assertSet('packageFilter', 'exhausted');
+        $this->assertEquals('exhausted', $component->get('activeKpi'));
+
+        // 3. Click KPI 4 (Ending Soon schedules): switches tab to 'schedules' and filter to 'ending_soon'
+        $component->call('selectKpi', 'ending_soon')
+            ->assertSet('activeTab', 'schedules')
+            ->assertSet('scheduleFilter', 'ending_soon');
+        $this->assertEquals('ending_soon', $component->get('activeKpi'));
+
+        // 4. Test Inspecting KPI Logic Modal
+        $component->call('inspectKpi', 'exhausted')
+            ->assertSet('showKpiDetailModal', true)
+            ->assertSet('inspectedKpi', 'exhausted');
+
+        // 5. Close Modal
+        $component->call('closeKpiModal')
+            ->assertSet('showKpiDetailModal', false);
+        $this->assertNull($component->get('inspectedKpi'));
+
+        // 6. Test Clear Filter
+        $component->call('clearKpiFilter')
+            ->assertSet('scheduleFilter', 'all');
+        $this->assertNull($component->get('inspectedKpi'));
+    }
+
+    public function test_multi_field_search_filters_packages_and_schedules_accurately(): void
+    {
+        $category = Category::create(['name' => 'Math', 'slug' => 'math']);
+        $subject = Subject::create(['name' => 'Calculus', 'slug' => 'calc', 'category_id' => $category->id]);
+        $teacherUser = User::create(['name' => 'Teacher Math', 'email' => 'tmath@edu.com', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        $teacher = TeacherProfile::create(['user_id' => $teacherUser->id, 'slug' => 'tmath']);
+
+        $course = Course::create([
+            'title' => 'دورة التفاضل المتقدم',
+            'slug' => 'calc-adv',
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+            'is_published' => true,
+        ]);
+
+        $studentA = User::create(['name' => 'طارق السعدني', 'email' => 'tarek@test.com', 'phone' => '01011112222', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        StudentProfile::create(['user_id' => $studentA->id]);
+
+        $studentB = User::create(['name' => 'ياسمين خليل', 'email' => 'yasmin@test.com', 'phone' => '01033334444', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        StudentProfile::create(['user_id' => $studentB->id]);
+
+        $parent = User::create(['name' => 'حسام السعدني', 'email' => 'hossam@test.com', 'phone' => '01099998888', 'password' => bcrypt('password'), 'status' => AccountStatus::APPROVED]);
+        \Illuminate\Support\Facades\DB::table('parent_student')->insert([
+            'parent_user_id' => $parent->id,
+            'student_user_id' => $studentA->id,
+            'relationship' => 'father',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $template = PackageTemplate::create([
+            'name' => 'باقة التميز الفصلي الخارقة',
+            'sessions_count' => 12,
+            'price' => 1200,
+            'is_active' => true,
+        ]);
+
+        StudentPackage::create([
+            'student_user_id' => $studentA->id,
+            'package_template_id' => $template->id,
+            'course_id' => $course->id,
+            'total_sessions' => 12,
+            'used_sessions' => 12,
+            'remaining_sessions' => 0,
+            'status' => 'exhausted',
+        ]);
+
+        StudentPackage::create([
+            'student_user_id' => $studentB->id,
+            'total_sessions' => 8,
+            'used_sessions' => 8,
+            'remaining_sessions' => 0,
+            'status' => 'exhausted',
+        ]);
+
+        $this->actingAs($this->adminUser);
+
+        // 1. Search by Parent Name ('حسام')
+        $comp = Livewire::test(\App\Filament\Pages\StudentCollectionsPage::class)
+            ->set('activeTab', 'packages')
+            ->set('searchQuery', 'حسام');
+
+        $packages = $comp->get('expiringPackages');
+        $this->assertCount(1, $packages);
+        $this->assertEquals('طارق السعدني', $packages->first()->student->name);
+
+        // 2. Search by Package Template Name ('الخارقة')
+        $comp->set('searchQuery', 'الخارقة');
+        $packages = $comp->get('expiringPackages');
+        $this->assertCount(1, $packages);
+        $this->assertEquals('طارق السعدني', $packages->first()->student->name);
+
+        // 3. Search by Student Phone ('01033334444')
+        $comp->set('searchQuery', '01033334444');
+        $packages = $comp->get('expiringPackages');
+        $this->assertCount(1, $packages);
+        $this->assertEquals('ياسمين خليل', $packages->first()->student->name);
+    }
 }

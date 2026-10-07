@@ -4575,6 +4575,21 @@
                             placeholder="https://vimeo.com/... or Zoom link" required
                             class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-xs font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stopwatch text-indigo-500"></i>
+                            <span>{{ __('تمديد وقت الحصة (اختياري)') }}</span>
+                        </label>
+                        <select name="extend_minutes" id="meetingLinkExtendMinutes"
+                            class="w-full h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                            <option value="0">{{ __('بدون زيادة (الإبقاء على المدة الحالية)') }}</option>
+                            <option value="15">+15 {{ __('دقيقة إضافية') }}</option>
+                            <option value="30">+30 {{ __('دقيقة إضافية') }}</option>
+                            <option value="45">+45 {{ __('دقيقة إضافية') }}</option>
+                            <option value="60">+60 {{ __('دقيقة إضافية (ساعة)') }}</option>
+                        </select>
+                    </div>
                 </div>
 
                 {{-- Sticky Modal Footer --}}
@@ -5224,15 +5239,17 @@
 
                 {{-- Scrollable Form Body --}}
                 <div class="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
-                    {{-- Question By Question Auto-Correction Breakdown --}}
+                    {{-- Student Submitted Solution File (PDF / Images) & Student Notes --}}
                     <div class="space-y-3">
-                        <h4 class="font-heading font-black text-sm text-slate-900 flex items-center gap-2">
-                            <span><i class="fa-solid fa-bullseye text-teal-600"></i></span>
-                            <span>{{ __('Questions Auto-Correction & Student Choices') }}</span>
-                        </h4>
-                        <div id="submissionQuestionsContainer"
-                            class="space-y-3 max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                            {{-- Populated via AJAX --}}
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <span><i class="fa-solid fa-file-pdf text-rose-500"></i></span>
+                                <span>{{ $isAr ? 'ملف حل الواجب المسلم (PDF / صور)' : __('Submitted Solution Document / PDF') }}</span>
+                            </h4>
+                            <span id="gradeSubmissionStatusBadge" class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"></span>
+                        </div>
+                        <div id="submissionFileContainer" class="space-y-2.5">
+                            {{-- Populated dynamically via openGradeModal --}}
                         </div>
                     </div>
 
@@ -5394,208 +5411,265 @@
         class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300"
         style="z-index: 100000;">
         <div
-            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[24px] sm:rounded-[28px] max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 max-h-[92vh]">
+            class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-[20px] sm:rounded-[28px] max-w-2xl sm:max-w-3xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 relative flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 max-h-[94vh] sm:max-h-[92vh]">
 
             {{-- Dynamic Header (Switches styling between Warning and Live Report) --}}
             <div id="deductModalHeader"
-                class="p-5 sm:p-6 bg-gradient-to-r from-amber-600 via-amber-700 to-rose-700 text-white flex items-center justify-between gap-4 shrink-0 relative overflow-hidden transition-all duration-300">
+                class="p-4 sm:p-5 bg-gradient-to-r from-amber-600 via-amber-700 to-rose-700 text-white flex items-start sm:items-center justify-between gap-3 sm:gap-4 shrink-0 relative overflow-hidden transition-all duration-300">
                 <div class="absolute -right-8 -bottom-8 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-                <div class="flex items-center gap-3.5 min-w-0 z-10">
+                <div class="flex items-start sm:items-center gap-3 sm:gap-3.5 min-w-0 z-10 flex-1">
                     <div id="deductModalHeaderIconWrap"
-                        class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-xl transition-all">
+                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-sm text-lg sm:text-xl transition-all">
                         <i id="deductModalHeaderIcon" class="fa-solid fa-triangle-exclamation animate-bounce"></i>
                     </div>
-                    <div class="min-w-0 space-y-0.5">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <h3 id="deductModalHeaderTitle" class="font-heading font-black text-base sm:text-lg text-white tracking-tight leading-snug">
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <h3 id="deductModalHeaderTitle" class="font-heading font-black text-sm sm:text-base md:text-lg text-white tracking-tight leading-snug">
                                 {{ __('تنبيه خصم الحصة من الطلاب') }}
                             </h3>
-                            <span id="deductModalHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30">
+                            <span id="deductModalHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/20 text-white border border-white/30 whitespace-nowrap">
                                 {{ __('System Alert') }}
                             </span>
                         </div>
-                        <p id="deductModalHeaderSubtitle" class="text-xs text-amber-100 font-mono">
+                        <p id="deductModalHeaderSubtitle" class="text-[11px] sm:text-xs text-amber-100 font-mono truncate">
                             {{ __('تأكيد بدء الحصة واحتساب حضور الطلاب') }}
                         </p>
                     </div>
                 </div>
                 <button type="button" onclick="closeModal('teacherDeductConfirmModal')" aria-label="{{ __('Close') }}"
-                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
-                    <i class="fa-solid fa-xmark text-base"></i>
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shrink-0">
+                    <i class="fa-solid fa-xmark text-sm sm:text-base"></i>
                 </button>
             </div>
 
             {{-- Body --}}
-            <div class="p-5 sm:p-6 space-y-4 overflow-y-auto max-h-[72vh] custom-scrollbar flex-1">
+            <div class="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4 overflow-y-auto max-h-[74vh] sm:max-h-[72vh] custom-scrollbar flex-1">
                 {{-- SECTION 1: Unstarted Warning Panel (Hidden once session is started) --}}
-                <div id="deductWarningNotice" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-500/40 dark:border-amber-700/60 space-y-2 text-start">
-                    <div class="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-sm">
-                        <i class="fa-solid fa-circle-exclamation text-amber-600 dark:text-amber-400 text-base"></i>
+                <div id="deductWarningNotice" class="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-500/40 dark:border-amber-700/60 space-y-2 text-start">
+                    <div class="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-xs sm:text-sm">
+                        <i class="fa-solid fa-circle-exclamation text-amber-600 dark:text-amber-400 text-sm sm:text-base shrink-0"></i>
                         <span>{{ __('تحذير هام: سوف يتم خصم الحصة من الطلاب!') }}</span>
                     </div>
-                    <p class="text-xs font-mono text-amber-800 dark:text-amber-300 leading-relaxed">
+                    <p class="text-[11px] sm:text-xs font-mono text-amber-800 dark:text-amber-300 leading-relaxed">
                         {{ __('عند حضورك وبدء هذه الحصة، سيتم خصم (1) حصة من باقات جميع الطلاب المسجلين لحضور هذه الحصة وفق منطق النظام الذكي.') }}
                     </p>
-                    <div class="pt-2 border-t border-amber-200/80 dark:border-amber-800/80 text-[11px] font-mono text-amber-700 dark:text-amber-300/90 space-y-1">
+                    <div class="pt-2 border-t border-amber-200/80 dark:border-amber-800/80 text-[10px] sm:text-[11px] font-mono text-amber-700 dark:text-amber-300/90 space-y-1">
                         <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-check text-emerald-600"></i>
-                            <span>{{ __('الطلاب المستثنون بعذر مقبول (Approved Excuse): لن يتم الخصم منهم إطلاقاً.') }}</span>
+                            <i class="fa-solid fa-check text-emerald-600 shrink-0"></i>
+                            <span>{{ __('الطلاب المستثنون بعذر مقبول: لن يتم الخصم منهم إطلاقاً.') }}</span>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-shield text-teal-600"></i>
+                            <i class="fa-solid fa-shield text-teal-600 shrink-0"></i>
                             <span>{{ __('حماية الرصيد: لن يتم تكرار الخصم إذا تم الخصم مسبقاً.') }}</span>
                         </div>
                     </div>
                 </div>
 
                 {{-- SECTION 2: Target Session Info Card --}}
-                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
-                    <div class="flex items-center justify-between gap-2">
+                <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
                         <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
                             {{ __('بيانات الحصة المستهدفة') }}
                         </span>
-                        <span id="deductConfirmCohortBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
-                            --
-                        </span>
+                        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <span id="sessionModalDurationBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800 flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-[9px]"></i>
+                                <span id="sessionModalDurationVal">60</span> {{ __('دقيقة') }}
+                            </span>
+                            <span id="deductConfirmCohortBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                                --
+                            </span>
+                        </div>
                     </div>
-                    <h4 id="deductConfirmSessionTitle" class="font-heading font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                    <h4 id="deductConfirmSessionTitle" class="font-heading font-black text-xs sm:text-sm md:text-base text-slate-900 dark:text-white leading-snug">
                         --
                     </h4>
-                    <div class="flex items-center gap-3 text-xs font-mono text-slate-500 dark:text-slate-400">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] sm:text-xs font-mono text-slate-500 dark:text-slate-400">
                         <span><i class="fa-solid fa-users text-teal-600"></i> <strong id="deductConfirmStudentsCount">--</strong></span>
+                        <span id="sessionModalTimeRangeBadge" class="hidden items-center gap-1.5 text-slate-600 dark:text-slate-400 bg-white/70 dark:bg-slate-900/60 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700/70">
+                            <i class="fa-solid fa-business-time text-indigo-500"></i>
+                            <span id="sessionModalTimeRangeVal">--</span>
+                        </span>
                     </div>
                 </div>
 
-                {{-- SECTION 3: Live Meeting URL Form (Dark & Light Mode Ready) --}}
-                <div id="sessionMeetingUrlPanel" class="p-4 sm:p-4.5 rounded-2xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 space-y-3 shadow-2xs">
+                {{-- SECTION 3: Live Meeting URL & Duration Booster Form (Dark & Light Mode Ready) --}}
+                <div id="sessionMeetingUrlPanel" class="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 space-y-3 shadow-2xs">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-8 h-8 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm shrink-0">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xs sm:text-sm shrink-0">
                                 <i class="fa-solid fa-video"></i>
                             </div>
                             <div class="min-w-0">
                                 <h5 class="text-xs sm:text-sm font-heading font-black text-slate-900 dark:text-white truncate">
-                                    {{ __('رابط غرفة البث المباشر (Zoom / Meet / Teams)') }}
+                                    {{ __('رابط غرفة البث المباشر وتمديد وقت الحصة') }}
                                 </h5>
-                                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
-                                    {{ __('يمكنك تحديث الرابط في أي وقت عند انتهاء صلاحيته (Expired Link) دون إعادة تحميل') }}
+                                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate hidden xs:block">
+                                    {{ __('تحديث الرابط وزيادة مدة الحصة بدون إعادة تحميل الصفحة') }}
                                 </p>
                             </div>
                         </div>
 
                         <a id="sessionModalJoinMeetingBtn" href="#" target="_blank"
-                            class="btn-lift px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs shadow-xs flex items-center gap-1.5 shrink-0 transition-transform active:scale-95">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            <span>{{ __('دخول البث الآن') }}</span>
+                            class="btn-lift px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-[11px] sm:text-xs shadow-xs flex items-center gap-1.5 shrink-0 transition-transform active:scale-95 whitespace-nowrap">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] sm:text-[10px]"></i>
+                            <span>{{ __('دخول البث') }}</span>
                         </a>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row items-stretch gap-2 pt-1">
+                    {{-- Meeting URL Field --}}
+                    <div class="space-y-1">
+                        <label class="text-[10px] sm:text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                            <i class="fa-solid fa-link text-teal-600"></i>
+                            <span>{{ __('رابط البث المباشر (Zoom / Meet / Teams):') }}</span>
+                        </label>
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 start-0 ps-3.5 flex items-center pointer-events-none text-slate-400">
+                            <div class="absolute inset-y-0 start-0 ps-3 sm:ps-3.5 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-link text-xs"></i>
                             </div>
                             <input type="url" id="sessionModalMeetingUrlInput"
                                 placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-                                class="w-full ps-9 pe-3.5 py-2.5 rounded-xl text-xs font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all outline-hidden">
+                                class="w-full ps-8.5 sm:ps-9 pe-3 py-2 sm:py-2.5 rounded-xl text-xs font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all outline-hidden">
                         </div>
+                    </div>
+
+                    {{-- Duration Extension Pills --}}
+                    <div class="p-3 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-700 space-y-2">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <label class="text-[10px] sm:text-[11px] font-mono font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                <i class="fa-solid fa-stopwatch text-indigo-500"></i>
+                                <span>{{ __('تمديد وقت الحصة (Extend Duration):') }}</span>
+                            </label>
+                            <span id="sessionModalExtensionPreview" class="text-[10px] sm:text-[11px] font-mono font-bold text-indigo-600 dark:text-indigo-400 hidden">
+                                +0 دقيقة
+                            </span>
+                        </div>
+                        <input type="hidden" id="sessionModalExtendMinutesInput" value="0">
+                        <div class="grid grid-cols-2 xs:grid-cols-3 sm:flex sm:flex-wrap items-stretch sm:items-center gap-1.5 sm:gap-2">
+                            <button type="button" onclick="selectSessionTimeExtension(0)" id="extPill_0"
+                                class="session-ext-pill px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 dark:bg-indigo-600 dark:text-white dark:border-indigo-600 text-[11px] sm:text-xs shadow-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none">
+                                {{ __('بدون زيادة') }}
+                            </button>
+                            <button type="button" onclick="selectSessionTimeExtension(15)" id="extPill_15"
+                                class="session-ext-pill px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none">
+                                +15 {{ __('دقيقة') }}
+                            </button>
+                            <button type="button" onclick="selectSessionTimeExtension(30)" id="extPill_30"
+                                class="session-ext-pill px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none">
+                                +30 {{ __('دقيقة') }}
+                            </button>
+                            <button type="button" onclick="selectSessionTimeExtension(45)" id="extPill_45"
+                                class="session-ext-pill px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none">
+                                +45 {{ __('دقيقة') }}
+                            </button>
+                            <button type="button" onclick="selectSessionTimeExtension(60)" id="extPill_60"
+                                class="session-ext-pill col-span-2 xs:col-span-1 px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none">
+                                +60 {{ __('دقيقة (ساعة)') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Actions Button --}}
+                    <div class="flex items-center justify-end gap-2 pt-0.5">
                         <button type="button" id="sessionModalUpdateUrlBtn" onclick="updateTeacherSessionMeetingUrl()"
-                            class="btn-lift px-4 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold font-mono rounded-xl shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer transition-all">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <span id="sessionModalUpdateUrlBtnText">{{ __('تحديث الرابط') }}</span>
+                            class="btn-lift w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-slate-800 hover:to-indigo-900 dark:from-indigo-600 dark:to-teal-600 dark:hover:from-indigo-500 dark:hover:to-teal-500 text-white text-xs font-bold font-mono rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all">
+                            <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                            <span id="sessionModalUpdateUrlBtnText">{{ __('حفظ وتحديث الرابط') }}</span>
                         </button>
                     </div>
                     <div id="sessionModalUrlStatus" class="hidden text-[11px] font-mono font-bold"></div>
                 </div>
 
                 {{-- SECTION 4: Live Session Operations & Attendance Report Panel --}}
-                <div id="sessionReportPanel" class="hidden space-y-3.5">
+                <div id="sessionReportPanel" class="hidden space-y-3 sm:space-y-3.5">
                     {{-- KPI Counters --}}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
-                        <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                        <div class="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                             <div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">{{ __('إجمالي الطلاب') }}</div>
-                            <div id="repStatTotal" class="text-base sm:text-lg font-heading font-black text-slate-900 dark:text-white mt-0.5">0</div>
+                            <div id="repStatTotal" class="text-sm sm:text-base md:text-lg font-heading font-black text-slate-900 dark:text-white mt-0.5">0</div>
                         </div>
-                        <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                        <div class="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
                             <div class="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold uppercase">{{ __('حضروا وخُصم') }}</div>
-                            <div id="repStatDeducted" class="text-base sm:text-lg font-heading font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
+                            <div id="repStatDeducted" class="text-sm sm:text-base md:text-lg font-heading font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
                         </div>
-                        <div class="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800">
+                        <div class="p-2 sm:p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800">
                             <div class="text-[10px] text-sky-700 dark:text-sky-300 font-bold uppercase">{{ __('مستثنى بعذر') }}</div>
-                            <div id="repStatExcused" class="text-base sm:text-lg font-heading font-black text-sky-600 dark:text-sky-400 mt-0.5">0</div>
+                            <div id="repStatExcused" class="text-sm sm:text-base md:text-lg font-heading font-black text-sky-600 dark:text-sky-400 mt-0.5">0</div>
                         </div>
-                        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+                        <div class="p-2 sm:p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
                             <div class="text-[10px] text-amber-700 dark:text-amber-300 font-bold uppercase">{{ __('غائب / أخرى') }}</div>
-                            <div id="repStatAbsent" class="text-base sm:text-lg font-heading font-black text-amber-600 dark:text-amber-400 mt-0.5">0</div>
+                            <div id="repStatAbsent" class="text-sm sm:text-base md:text-lg font-heading font-black text-amber-600 dark:text-amber-400 mt-0.5">0</div>
                         </div>
                     </div>
 
-                    {{-- Filter Tabs for Detailed Roster --}}
-                    <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                        <span class="text-xs font-heading font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <i class="fa-solid fa-users-viewfinder text-teal-600"></i>
-                            <span>{{ __('كشف تفاصيل حضور الطلاب') }}</span>
-                        </span>
-                        <div class="flex items-center gap-1 text-[11px] font-mono">
+                    {{-- Filter Tabs for Detailed Roster (Fully Responsive Header) --}}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-2.5 border-b border-slate-200/90 dark:border-slate-700/80 pb-2.5">
+                        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <i class="fa-solid fa-users-viewfinder text-teal-600 text-xs sm:text-sm"></i>
+                            <span class="text-xs sm:text-sm font-heading font-bold text-slate-900 dark:text-white">
+                                {{ __('كشف تفاصيل حضور الطلاب') }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
                             <button type="button" onclick="filterReportTab('all')" id="repTabBtn_all"
-                                class="px-2.5 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn">
+                                class="px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn">
                                 {{ __('الكل') }}
                             </button>
                             <button type="button" onclick="filterReportTab('deducted')" id="repTabBtn_deducted"
-                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                class="px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
                                 {{ __('حضروا وخُصم') }}
                             </button>
                             <button type="button" onclick="filterReportTab('excused')" id="repTabBtn_excused"
-                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                class="px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
                                 {{ __('مستثنون بعذر') }}
                             </button>
                             <button type="button" onclick="filterReportTab('absent')" id="repTabBtn_absent"
-                                class="px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
+                                class="px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn">
                                 {{ __('غائبون') }}
                             </button>
                         </div>
                     </div>
 
                     {{-- Scrollable Students List --}}
-                    <div id="sessionReportStudentsList" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar p-1">
+                    <div id="sessionReportStudentsList" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar p-0.5 sm:p-1">
                         {{-- Populated dynamically via JS --}}
                     </div>
                 </div>
 
                 {{-- Status / Error Result Box --}}
-                <div id="deductProcessingResult" class="hidden p-4 rounded-2xl border transition-all text-xs font-mono space-y-2"></div>
+                <div id="deductProcessingResult" class="hidden p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all text-xs font-mono space-y-2"></div>
             </div>
 
             {{-- Footer: Allow / Deny (when unstarted) OR Started State & Close (when started) --}}
             <div id="deductModalFooter"
-                class="p-4 sm:p-5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 rounded-b-[24px] sm:rounded-b-[28px]">
+                class="p-3.5 sm:p-5 bg-slate-50/90 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 shrink-0 rounded-b-[20px] sm:rounded-b-[28px]">
                 
                 {{-- In Unstarted State --}}
-                <div id="footerUnstartedActions" class="flex items-center justify-between w-full gap-3">
+                <div id="footerUnstartedActions" class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between w-full gap-2 sm:gap-3">
                     <button type="button" onclick="denyTeacherSessionDeduction()" id="denyDeductionBtn"
-                        class="btn-lift px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors flex items-center gap-1.5">
+                        class="btn-lift w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-xmark text-rose-500"></i>
                         <span>{{ __('Deny (إلغاء ورفض الخصم)') }}</span>
                     </button>
 
                     <button type="button" onclick="allowTeacherSessionDeduction()" id="allowDeductionBtn"
-                        class="btn-lift px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-teal-600/25 cursor-pointer flex items-center gap-2">
+                        class="btn-lift w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-teal-600/25 cursor-pointer flex items-center justify-center gap-2">
                         <i class="fa-solid fa-check"></i>
                         <span id="allowDeductionBtnText">{{ __('Allow (سماح ومتابعة الخصم)') }}</span>
                     </button>
                 </div>
 
                 {{-- In Started / Report State --}}
-                <div id="footerStartedActions" class="hidden flex items-center justify-between w-full gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 font-bold text-xs border border-emerald-300 dark:border-emerald-800 shadow-2xs">
+                <div id="footerStartedActions" class="hidden flex flex-col sm:flex-row items-stretch sm:items-center justify-between w-full gap-2 sm:gap-3">
+                    <div class="flex items-center justify-center sm:justify-start gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 font-bold text-xs border border-emerald-300 dark:border-emerald-800 shadow-2xs whitespace-nowrap">
                             <i class="fa-solid fa-circle-check text-emerald-600"></i>
                             <span>{{ __('تم بدء الحصة والخصم بنجاح') }}</span>
                         </span>
                     </div>
 
                     <button type="button" onclick="closeModal('teacherDeductConfirmModal')"
-                        class="btn-lift px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-mono transition-all cursor-pointer">
+                        class="btn-lift w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-mono transition-all cursor-pointer text-center justify-center">
                         {{ __('إغلاق النافذة') }}
                     </button>
                 </div>
@@ -5765,6 +5839,69 @@
         let currentReportStudents = [];
         let currentReportFilter = 'all';
 
+        function applySessionDurationData(sessionData) {
+            if (!sessionData) return;
+            if (sessionData.duration || sessionData.duration_minutes) {
+                const dur = parseInt(sessionData.duration || sessionData.duration_minutes, 10);
+                if (currentPromptSession) currentPromptSession.duration = dur;
+                const durVal = document.getElementById('sessionModalDurationVal');
+                if (durVal) durVal.textContent = dur;
+            }
+            const timeRangeBadge = document.getElementById('sessionModalTimeRangeBadge');
+            const timeRangeVal = document.getElementById('sessionModalTimeRangeVal');
+            const timeStr = sessionData.time_formatted || ((sessionData.start_at && sessionData.end_at) ? `${sessionData.start_at} - ${sessionData.end_at}` : '');
+            if (timeStr && timeRangeBadge && timeRangeVal) {
+                timeRangeVal.textContent = timeStr;
+                timeRangeBadge.classList.remove('hidden');
+                timeRangeBadge.classList.add('inline-flex');
+            }
+        }
+
+        function selectSessionTimeExtension(minutes) {
+            const mins = parseInt(minutes || 0, 10);
+            const input = document.getElementById('sessionModalExtendMinutesInput');
+            if (input) input.value = mins;
+
+            const pills = [0, 15, 30, 45, 60];
+            pills.forEach(p => {
+                const btn = document.getElementById(`extPill_${p}`);
+                if (!btn) return;
+                const colSpan = (p === 60) ? 'col-span-2 xs:col-span-1 ' : '';
+                const baseClass = `session-ext-pill ${colSpan}px-2.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer text-[11px] sm:text-xs text-center justify-center whitespace-nowrap flex-1 sm:flex-none `;
+                if (p === mins) {
+                    btn.className = baseClass + 'bg-slate-900 text-white border-slate-900 dark:bg-indigo-600 dark:text-white dark:border-indigo-600 shadow-xs';
+                } else {
+                    btn.className = baseClass + 'bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+                }
+            });
+
+            const preview = document.getElementById('sessionModalExtensionPreview');
+            const btnText = document.getElementById('sessionModalUpdateUrlBtnText');
+            const currentDuration = (currentPromptSession && currentPromptSession.duration) ? currentPromptSession.duration : 60;
+
+            if (mins > 0) {
+                if (preview) {
+                    preview.classList.remove('hidden');
+                    preview.textContent = isArLocale 
+                        ? `+${mins} دقيقة إضافية (المدة الجديدة: ${currentDuration + mins} دقيقة)`
+                        : `+${mins} min extra (New total: ${currentDuration + mins} min)`;
+                }
+                if (btnText) {
+                    btnText.textContent = isArLocale 
+                        ? `تحديث الرابط وتمديد (+${mins} د)`
+                        : `Update Link & Extend (+${mins}m)`;
+                }
+            } else {
+                if (preview) preview.classList.add('hidden');
+                if (btnText) {
+                    btnText.textContent = isArLocale 
+                        ? 'حفظ وتحديث الرابط' 
+                        : 'Update Meeting Link';
+                }
+            }
+        }
+        window.selectSessionTimeExtension = selectSessionTimeExtension;
+
         function promptTeacherSessionAttendance(sessionId, title, cohort, meetingLink, btnEl) {
             if (!sessionId) return;
 
@@ -5773,8 +5910,19 @@
                 title: title || (isArLocale ? 'حصة مباشرة' : 'Live Session'),
                 cohort: cohort || (isArLocale ? 'عام' : 'General'),
                 meetingLink: meetingLink || '',
+                duration: 60,
                 triggerBtn: btnEl || null
             };
+
+            // Reset Duration pills & badges
+            selectSessionTimeExtension(0);
+            const durVal = document.getElementById('sessionModalDurationVal');
+            if (durVal) durVal.textContent = '60';
+            const timeRangeBadge = document.getElementById('sessionModalTimeRangeBadge');
+            if (timeRangeBadge) {
+                timeRangeBadge.classList.add('hidden');
+                timeRangeBadge.classList.remove('inline-flex');
+            }
 
             // Reset Modal Header to Warning Mode
             const header = document.getElementById('deductModalHeader');
@@ -5874,12 +6022,15 @@
                     } else {
                         countEl.innerHTML = `${total} ${isArLocale ? 'طلاب مسجلين للحضور' : 'students enrolled'}`;
                     }
-                    if (data.session && data.session.meeting_link && !currentPromptSession.meetingLink) {
-                        currentPromptSession.meetingLink = data.session.meeting_link;
-                        if (urlInput) urlInput.value = data.session.meeting_link;
-                        if (joinBtn) {
-                            joinBtn.href = data.session.meeting_link;
-                            joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    if (data.session) {
+                        applySessionDurationData(data.session);
+                        if (data.session.meeting_link && !currentPromptSession.meetingLink) {
+                            currentPromptSession.meetingLink = data.session.meeting_link;
+                            if (urlInput) urlInput.value = data.session.meeting_link;
+                            if (joinBtn) {
+                                joinBtn.href = data.session.meeting_link;
+                                joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                            }
                         }
                     }
                 }
@@ -5920,6 +6071,15 @@
             }
 
             try {
+                const urlInput = document.getElementById('sessionModalMeetingUrlInput');
+                const extendInput = document.getElementById('sessionModalExtendMinutesInput');
+                const newUrl = urlInput ? urlInput.value.trim() : '';
+                const extendMins = parseInt(extendInput?.value || '0', 10);
+
+                const postPayload = {};
+                if (newUrl) postPayload.meeting_link = newUrl;
+                if (extendMins > 0) postPayload.extend_minutes = extendMins;
+
                 const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/start-and-deduct`, {
                     method: 'POST',
                     headers: {
@@ -5928,7 +6088,7 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify(postPayload)
                 });
 
                 const data = await res.json();
@@ -5937,9 +6097,17 @@
                     throw new Error(data.message || (isArLocale ? 'تعذر إتمام عملية الخصم' : 'Failed to process deduction'));
                 }
 
-                // Update meeting link from backend if provided
+                // Update meeting link & duration from backend if provided
                 if (data.meeting_link) {
                     currentPromptSession.meetingLink = data.meeting_link;
+                }
+                if (data.duration_minutes) {
+                    applySessionDurationData({
+                        duration: data.duration_minutes,
+                        start_at: data.start_at,
+                        end_at: data.end_at
+                    });
+                    selectSessionTimeExtension(0);
                 }
 
                 // ── Transform Modal into Live Report Mode (DO NOT CLOSE MODAL) ────────
@@ -5981,7 +6149,6 @@
                 if (startedFooter) startedFooter.classList.remove('hidden');
 
                 // Update Meeting URL input and direct join button
-                const urlInput = document.getElementById('sessionModalMeetingUrlInput');
                 if (urlInput && currentPromptSession.meetingLink) {
                     urlInput.value = currentPromptSession.meetingLink;
                 }
@@ -6056,7 +6223,7 @@
             }
         }
 
-        // ── Real-time Meeting URL Updater (Dark & Light Mode Professional Input Form) ──
+        // ── Real-time Meeting URL & Duration Updater ─────────────────────────────────
         async function updateTeacherSessionMeetingUrl() {
             if (!currentPromptSession || !currentPromptSession.sessionId) {
                 if (window.Toast) window.Toast.warning(isArLocale ? 'لا توجد حصة محددة حالياً' : 'No active session selected');
@@ -6065,36 +6232,42 @@
 
             const sessionId = currentPromptSession.sessionId;
             const inputEl = document.getElementById('sessionModalMeetingUrlInput');
+            const extendInput = document.getElementById('sessionModalExtendMinutesInput');
             const btnEl = document.getElementById('sessionModalUpdateUrlBtn');
             const btnText = document.getElementById('sessionModalUpdateUrlBtnText');
             const statusEl = document.getElementById('sessionModalUrlStatus');
             const joinBtn = document.getElementById('sessionModalJoinMeetingBtn');
 
             let newUrl = inputEl ? inputEl.value.trim() : '';
+            const extendMinutes = parseInt(extendInput?.value || '0', 10);
 
-            if (!newUrl) {
+            if (!newUrl && extendMinutes <= 0) {
                 if (statusEl) {
                     statusEl.classList.remove('hidden');
-                    statusEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> ${isArLocale ? 'يرجى كتابة رابط البث (Zoom / Google Meet)' : 'Please enter a valid meeting URL'}</span>`;
+                    statusEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> ${isArLocale ? 'يرجى كتابة رابط البث (Zoom / Google Meet) أو تحديد وقت لتمديد الحصة' : 'Please enter a valid meeting URL or select time extension'}</span>`;
                 }
                 if (inputEl) inputEl.focus();
                 return;
             }
 
             // Auto-prefix https:// if omitted
-            if (!/^https?:\/\//i.test(newUrl)) {
+            if (newUrl && !/^https?:\/\//i.test(newUrl)) {
                 newUrl = 'https://' + newUrl;
                 if (inputEl) inputEl.value = newUrl;
             }
 
             if (btnEl) btnEl.disabled = true;
-            if (btnText) btnText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isArLocale ? 'جاري الحفظ...' : 'Saving...'}`;
+            if (btnText) btnText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isArLocale ? 'جاري الحفظ والتحديث...' : 'Saving changes...'}`;
             if (statusEl) {
                 statusEl.classList.remove('hidden');
-                statusEl.innerHTML = `<span class="text-teal-600 dark:text-teal-400 font-mono text-[11px]"><i class="fa-solid fa-circle-notch fa-spin"></i> ${isArLocale ? 'جاري تحديث الرابط في السيرفر وتعميمه للطلاب...' : 'Updating link and syncing with students...'}</span>`;
+                statusEl.innerHTML = `<span class="text-teal-600 dark:text-teal-400 font-mono text-[11px]"><i class="fa-solid fa-circle-notch fa-spin"></i> ${isArLocale ? 'جاري تحديث الرابط ووقت الحصة في السيرفر وتعميمها للطلاب...' : 'Updating link and session duration...'}</span>`;
             }
 
             try {
+                const payload = {};
+                if (newUrl) payload.meeting_link = newUrl;
+                if (extendMinutes > 0) payload.extend_minutes = extendMinutes;
+
                 const res = await fetch(`${appBaseUrl}/ajax/teacher/sessions/${sessionId}/link`, {
                     method: 'POST',
                     headers: {
@@ -6103,31 +6276,40 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ meeting_link: newUrl })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.message || (isArLocale ? 'تعذر حفظ الرابط الجديد' : 'Failed to update link'));
+                    throw new Error(data.message || (isArLocale ? 'تعذر حفظ البيانات الجديدة' : 'Failed to update meeting details'));
                 }
 
-                currentPromptSession.meetingLink = data.meeting_link || newUrl;
-
-                if (joinBtn) {
-                    joinBtn.href = currentPromptSession.meetingLink;
-                    joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                if (data.meeting_link) {
+                    currentPromptSession.meetingLink = data.meeting_link;
+                    if (joinBtn) {
+                        joinBtn.href = currentPromptSession.meetingLink;
+                        joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    }
+                    const pageButtons = document.querySelectorAll(`[id="teacherBroadcastBtn_${sessionId}"]`);
+                    pageButtons.forEach(btn => {
+                        btn.setAttribute('data-meeting-link', currentPromptSession.meetingLink);
+                    });
                 }
 
-                // Update attributes on page buttons
-                const pageButtons = document.querySelectorAll(`[id="teacherBroadcastBtn_${sessionId}"]`);
-                pageButtons.forEach(btn => {
-                    btn.setAttribute('data-meeting-link', currentPromptSession.meetingLink);
-                });
+                if (data.duration_minutes) {
+                    applySessionDurationData({
+                        duration: data.duration_minutes,
+                        start_at: data.start_at,
+                        end_at: data.end_at,
+                        time_formatted: data.time_formatted
+                    });
+                    selectSessionTimeExtension(0);
+                }
 
                 if (statusEl) {
                     statusEl.classList.remove('hidden');
-                    statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> ${isArLocale ? 'تم تحديث رابط الحصة بنجاح وحفظه للطلاب!' : 'Meeting link updated successfully and live for students!'}</span>`;
+                    statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> ${isArLocale ? 'تم تحديث بيانات الحصة وتمديد الوقت بنجاح وحفظه للطلاب!' : 'Meeting details & duration updated successfully!'}</span>`;
                     setTimeout(() => {
                         if (statusEl) statusEl.classList.add('hidden');
                     }, 4000);
@@ -6135,8 +6317,8 @@
 
                 if (window.Toast) {
                     window.Toast.success(
-                        isArLocale ? 'تم تحديث رابط الحصة بنجاح' : 'Meeting URL updated successfully',
-                        isArLocale ? 'تحديث الرابط' : 'URL Updated',
+                        isArLocale ? 'تم تحديث رابط الحصة وتمديد الوقت بنجاح' : 'Meeting URL & duration updated successfully',
+                        isArLocale ? 'تحديث الحصة' : 'Session Updated',
                         3000
                     );
                 }
@@ -6150,9 +6332,15 @@
                 }
             } finally {
                 if (btnEl) btnEl.disabled = false;
-                if (btnText) btnText.innerHTML = isArLocale ? 'تحديث الرابط' : 'Update URL';
+                const extM = parseInt(document.getElementById('sessionModalExtendMinutesInput')?.value || '0', 10);
+                if (btnText) {
+                    btnText.innerHTML = extM > 0
+                        ? (isArLocale ? `تحديث الرابط وتمديد (+${extM} د)` : `Update Link & Extend (+${extM}m)`)
+                        : (isArLocale ? 'حفظ وتحديث الرابط' : 'Update URL');
+                }
             }
         }
+        window.updateTeacherSessionMeetingUrl = updateTeacherSessionMeetingUrl;
 
         // ── Open Session Details & Attendance Report Modal (For Started Sessions) ───
         function openTeacherSessionLiveDetailsModal(sessionId, title, cohort, meetingLink, btnEl) {
@@ -6163,8 +6351,13 @@
                 title: title || (isArLocale ? 'حصة مباشرة' : 'Live Session'),
                 cohort: cohort || (isArLocale ? 'عام' : 'General'),
                 meetingLink: meetingLink || '',
+                duration: 60,
                 triggerBtn: btnEl || null
             };
+
+            selectSessionTimeExtension(0);
+            const durVal = document.getElementById('sessionModalDurationVal');
+            if (durVal) durVal.textContent = '60';
 
             // Setup Modal in Live Report Mode
             const header = document.getElementById('deductModalHeader');
@@ -6251,12 +6444,15 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    if (data.session && data.session.meeting_link) {
-                        currentPromptSession.meetingLink = data.session.meeting_link;
-                        if (urlInput) urlInput.value = data.session.meeting_link;
-                        if (joinBtn) {
-                            joinBtn.href = data.session.meeting_link;
-                            joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    if (data.session) {
+                        applySessionDurationData(data.session);
+                        if (data.session.meeting_link) {
+                            currentPromptSession.meetingLink = data.session.meeting_link;
+                            if (urlInput) urlInput.value = data.session.meeting_link;
+                            if (joinBtn) {
+                                joinBtn.href = data.session.meeting_link;
+                                joinBtn.classList.remove('opacity-50', 'pointer-events-none');
+                            }
                         }
                     }
 
@@ -6304,9 +6500,9 @@
                 const btn = document.getElementById(`repTabBtn_${t}`);
                 if (btn) {
                     if (t === currentReportFilter) {
-                        btn.className = 'px-2.5 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn';
+                        btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 bg-teal-600 text-white shadow-xs transition-colors cursor-pointer rep-tab-btn';
                     } else {
-                        btn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn';
+                        btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs whitespace-nowrap shrink-0 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer rep-tab-btn';
                     }
                 }
             });
@@ -6426,7 +6622,7 @@
                                 ${extraNoticeHtml}
                             </div>
                         </div>
-                        <div class="shrink-0 flex items-center">
+                        <div class="shrink-0 flex items-center justify-start sm:justify-end w-full sm:w-auto pt-1 sm:pt-0">
                             ${badgeHtml}
                         </div>
                     </div>
@@ -6441,6 +6637,7 @@
         window.allowTeacherSessionDeduction = allowTeacherSessionDeduction;
         window.updateTeacherSessionMeetingUrl = updateTeacherSessionMeetingUrl;
         window.openTeacherSessionLiveDetailsModal = openTeacherSessionLiveDetailsModal;
+        window.selectSessionTimeExtension = selectSessionTimeExtension;
         window.filterReportTab = filterReportTab;
         window.renderReportStudents = renderReportStudents;
     })();
@@ -8970,6 +9167,8 @@
             }
             document.getElementById('linkSessionId').value = sessionId;
             document.getElementById('meetingUrlInput').value = currentLink || '';
+            const extSel = document.getElementById('meetingLinkExtendMinutes');
+            if (extSel) extSel.value = '0';
             document.getElementById('meetingLinkForm').action = `${appBaseUrl}/ajax/teacher/sessions/${sessionId}/link`;
             window.openModal('meetingLinkModal');
         }
@@ -9338,10 +9537,10 @@
             const formEl = document.getElementById('gradeForm');
             if (formEl) formEl.action = `${appBaseUrl}/ajax/teacher/submissions/${submissionId}/review`;
 
-            const questionsContainer = document.getElementById('submissionQuestionsContainer');
-            if (questionsContainer) {
-                questionsContainer.innerHTML =
-                    `<p class="text-xs text-slate-400 italic text-center py-4">${isAr ? 'جاري تحميل تفاصيل الإجابات...' : 'Loading question breakdown...'}</p>`;
+            const fileContainer = document.getElementById('submissionFileContainer');
+            if (fileContainer) {
+                fileContainer.innerHTML =
+                    `<div class="p-6 text-center text-slate-400 font-mono text-xs"><i class="fa-solid fa-spinner fa-spin text-teal-600 text-lg mb-2 block"></i>${isAr ? 'جاري تحميل ملف الحل وملاحظات الطالب...' : 'Loading solution document & student remarks...'}</div>`;
             }
 
             window.openModal('gradeModal');
@@ -9365,66 +9564,101 @@
                     if (notesEl && data.submission.evaluation_notes) {
                         notesEl.value = data.submission.evaluation_notes;
                     }
+
+                    const statusBadge = document.getElementById('gradeSubmissionStatusBadge');
+                    if (statusBadge) {
+                        const isDone = data.submission.status === 'completed' || data.submission.status === 'reviewed';
+                        statusBadge.textContent = isDone ? (isAr ? 'تم التصحيح مسبقاً' : 'Graded') : (isAr ? 'قيد المراجعة' : 'Pending Review');
+                        statusBadge.className = `text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'}`;
+                    }
                 }
-                if (data.success && data.questions && data.questions.length > 0) {
+
+                if (fileContainer) {
                     let html = '';
-                    data.questions.forEach((q, idx) => {
-                        const statusBadge = q.is_correct ?
-                            `<span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-emerald-500 text-[10px]"></i> ${isAr ? 'صحيح' : 'Correct'} (+${q.points_earned}/${q.points} pts)</span>` :
-                            `<span class="px-2 py-0.5 bg-red-100 dark:bg-rose-950/70 text-red-800 dark:text-rose-300 border border-red-300 dark:border-rose-800 text-[10px] font-mono font-bold rounded-full"><i class="fa-solid fa-circle text-rose-500 text-[10px]"></i> ${isAr ? 'خطأ' : 'Incorrect'} (0/${q.points} pts)</span>`;
 
-                        let optsHtml = '';
-                        q.options.forEach(opt => {
-                            let optStyle =
-                                'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200';
-                            let badge = '';
-
-                            if (opt.is_correct && opt.is_selected) {
-                                optStyle =
-                                    'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-bold';
-                                badge =
-                                    `<span class="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الصحيحة' : 'Student Selected (Correct)'}</span>`;
-                            } else if (opt.is_correct) {
-                                optStyle =
-                                    'bg-teal-50 dark:bg-teal-950/50 border-teal-300 dark:border-teal-800 text-teal-900 dark:text-teal-200 font-bold';
-                                badge =
-                                    `<span class="text-teal-600 dark:text-teal-400 font-mono text-[10px]">${isAr ? 'الإجابة النموذجية' : 'Correct Answer'}</span>`;
-                            } else if (opt.is_selected) {
-                                optStyle =
-                                    'bg-red-50 dark:bg-rose-950/50 border-red-300 dark:border-rose-800 text-red-900 dark:text-rose-200 font-bold';
-                                badge =
-                                    `<span class="text-red-600 dark:text-rose-400 font-mono text-[10px]">${isAr ? 'إجابة الطالب الخاطئة' : 'Student Selected (Wrong)'}</span>`;
-                            }
-
-                            optsHtml += `<div class="p-2.5 rounded-xl border ${optStyle} text-xs flex items-center justify-between gap-2">
-                                <span>${escapeHtml(opt.option_text)}</span>
-                                ${badge}
-                            </div>`;
-
-                            if (opt.explanation && opt.is_correct) {
-                                optsHtml +=
-                                    `<p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono italic pl-2">${isAr ? 'التوضيح:' : 'Explanation:'} ${escapeHtml(opt.explanation)}</p>`;
-                            }
+                    // 1. Render Student Submitted Solution Files
+                    if (data.files && data.files.length > 0) {
+                        html += `<div class="space-y-2">`;
+                        data.files.forEach(file => {
+                            const isPdf = file.file_type === 'pdf' || (file.original_name && file.original_name.toLowerCase().endsWith('.pdf'));
+                            html += `
+                                <div class="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-2xs flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-xl ${isPdf ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800' : 'bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800'} flex items-center justify-center text-lg shrink-0">
+                                            <i class="fa-solid ${isPdf ? 'fa-file-pdf' : 'fa-file-image'}"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h5 class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white truncate" title="${escapeHtml(file.original_name)}">
+                                                ${escapeHtml(file.original_name)}
+                                            </h5>
+                                            <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-0.5">
+                                                <span>${file.formatted_size || ''}</span>
+                                                ${file.created_at ? `<span>•</span><span>${file.created_at}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <a href="${file.preview_url}" target="_blank" rel="noopener noreferrer"
+                                            class="btn-lift px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 text-teal-700 dark:text-teal-300 font-mono font-bold text-xs border border-teal-200 dark:border-teal-800 inline-flex items-center gap-1.5 transition-colors">
+                                            <i class="fa-solid fa-eye text-[11px]"></i>
+                                            <span>${isAr ? 'معاينة الحل' : 'View'}</span>
+                                        </a>
+                                        <a href="${file.download_url}" download
+                                            class="btn-lift px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-mono font-bold text-xs inline-flex items-center gap-1.5 transition-colors">
+                                            <i class="fa-solid fa-download text-[11px]"></i>
+                                            <span>${isAr ? 'تحميل' : 'Download'}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
                         });
+                        html += `</div>`;
+                    } else {
+                        html += `
+                            <div class="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-center space-y-1">
+                                <div class="text-slate-400 text-xl"><i class="fa-regular fa-folder-open"></i></div>
+                                <p class="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">${isAr ? 'لم يقم الطالب بإرفاق ملف حل منفصل' : 'No solution document was uploaded'}</p>
+                                <p class="text-[11px] font-mono text-slate-400">${isAr ? 'يمكنك تقييم الطالب بناءً على الملاحظات أو التواصل المباشر.' : 'You can grade based on verbal or in-session interaction.'}</p>
+                            </div>
+                        `;
+                    }
 
-                        html += `<div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-slate-900 dark:text-white">Q${idx + 1}: ${escapeHtml(q.question_text || (isAr ? 'سؤال' : 'Question'))}</span>
-                                ${statusBadge}
+                    // 2. Render Student Submission Notes if present
+                    if (data.submission && data.submission.student_notes) {
+                        html += `
+                            <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-slate-800 dark:text-slate-200 space-y-1">
+                                <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400">
+                                    <i class="fa-solid fa-comment-dots"></i>
+                                    <span>${isAr ? 'ملاحظة مرسلة من الطالب مع الحل:' : 'Student submission remark:'}</span>
+                                </div>
+                                <p class="text-xs font-mono leading-relaxed pl-5">${escapeHtml(data.submission.student_notes)}</p>
                             </div>
-                            <div class="space-y-1.5 pt-1">
-                                ${optsHtml}
+                        `;
+                    }
+
+                    // 3. Optional Reference: Original Assignment Worksheet
+                    if (data.worksheet && data.worksheet.url) {
+                        html += `
+                            <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                                <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px] flex items-center gap-1">
+                                    <i class="fa-solid fa-paperclip text-slate-400"></i>
+                                    <span>${isAr ? 'ورقة عمل الواجب الأصلية:' : 'Original Assignment Worksheet:'}</span>
+                                </span>
+                                <a href="${data.worksheet.url}" target="_blank" class="text-teal-600 dark:text-teal-400 font-bold hover:underline font-mono text-[11px] flex items-center gap-1">
+                                    <span>${escapeHtml(data.worksheet.name)}</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                </a>
                             </div>
-                        </div>`;
-                    });
-                    if (questionsContainer) questionsContainer.innerHTML = html;
-                } else {
-                    if (questionsContainer) questionsContainer.innerHTML =
-                        `<p class="text-xs text-slate-500 dark:text-slate-400 italic text-center py-4">${isAr ? 'لا توجد تفاصيل أسئلة متاحة' : 'No question details available'}</p>`;
+                        `;
+                    }
+
+                    fileContainer.innerHTML = html;
                 }
             } catch (err) {
-                if (questionsContainer) questionsContainer.innerHTML =
-                    `<p class="text-xs text-rose-500 italic text-center py-4">${isAr ? 'تعذر تحميل التفاصيل' : 'Unable to load details'}</p>`;
+                if (fileContainer) {
+                    fileContainer.innerHTML =
+                        `<p class="text-xs text-rose-500 italic text-center py-4">${isAr ? 'تعذر تحميل ملفات التسليم' : 'Unable to load submission documents'}</p>`;
+                }
             }
         }
 

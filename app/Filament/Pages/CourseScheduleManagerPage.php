@@ -1147,13 +1147,21 @@ class CourseScheduleManagerPage extends Page
         ]);
 
         $session = LiveSession::findOrFail($this->targetSessionId);
-        $oldTime = $session->scheduled_at->format('Y-m-d H:i');
+        $oldTime = $session->scheduled_at ? $session->scheduled_at->format('Y-m-d H:i') : 'N/A';
         $newTime = Carbon::parse($this->rescheduleNewDate);
+        $duration = (int) ($session->duration_minutes ?: 60);
 
         $session->update([
+            'original_scheduled_at' => $session->scheduled_at,
             'scheduled_at' => $newTime,
+            'start_at' => $newTime,
+            'end_at' => $newTime->copy()->addMinutes($duration),
+            'status' => 'rescheduled',
+            'lifecycle_state' => 'rescheduled',
             'is_override' => true,
             'override_reason' => $this->rescheduleReason ?: "Rescheduled by admin from {$oldTime} to " . $newTime->format('Y-m-d H:i'),
+            'reminders_sent' => [],
+            'reminder_sent_at' => null,
         ]);
 
         $this->showRescheduleModal = false;
@@ -1181,17 +1189,15 @@ class CourseScheduleManagerPage extends Page
         $user = auth()->user();
         if ($user) {
             app(\App\Services\Session\RecurringScheduleService::class)->cancelSession($session, trim($this->cancelReason), $user);
-            $session->update([
-                'status' => 'cancelled',
-                'lifecycle_state' => 'cancelled',
-            ]);
-        } else {
-            $session->update([
-                'status' => 'cancelled',
-                'lifecycle_state' => 'cancelled',
-                'cancellation_reason' => trim($this->cancelReason),
-            ]);
         }
+
+        $session->update([
+            'status' => 'cancelled',
+            'lifecycle_state' => 'cancelled',
+            'cancellation_reason' => trim($this->cancelReason),
+            'cancelled_at' => now(),
+            'cancelled_by' => $user?->id,
+        ]);
 
         $this->showCancelModal = false;
 

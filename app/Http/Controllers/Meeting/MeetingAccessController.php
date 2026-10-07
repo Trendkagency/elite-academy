@@ -167,6 +167,9 @@ class MeetingAccessController extends Controller
 
         return response()->json(array_merge([
             'success' => true,
+            'duration_minutes' => $session->duration_minutes,
+            'meeting_link' => $session->meeting_link,
+            'effective_end_at' => $session->effective_end_at?->toIso8601String(),
         ], $heartbeatResult));
     }
 
