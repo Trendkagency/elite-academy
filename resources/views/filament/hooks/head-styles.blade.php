@@ -1670,29 +1670,7 @@
         background-color: rgba(13, 148, 136, 0.75) !important;
     }
 
-    /* -------------------------------------------------------------
-       CREATIVE FILE UPLOAD & FORM PAGE ENHANCEMENTS
-       ------------------------------------------------------------- */
-    .elite-creative-hero-card {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1.25rem;
-        padding: 1.5rem 1.75rem;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
 
-    html:not(.dark) .elite-creative-hero-card {
-        background: linear-gradient(135deg, #F0FDFA 0%, #FFFFFF 60%, #E6FFFA 100%);
-        border: 1.5px solid rgba(13, 148, 136, 0.2);
-        box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.08);
-    }
-
-    html.dark .elite-creative-hero-card {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(13, 148, 136, 0.12) 100%);
-        border: 1.5px solid rgba(20, 184, 166, 0.25);
-        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
-    }
 
     /* FileUpload Component Dropzone Enhancement */
     .fi-fo-file-upload .filepond--panel-root {
@@ -1718,6 +1696,69 @@
     html.dark .fi-fo-file-upload:hover .filepond--panel-root {
         border-color: #14B8A6 !important;
         background-color: rgba(13, 148, 136, 0.08) !important;
+    }
+
+    /* -------------------------------------------------------------
+       LUXURY SIDEBAR SUB-MENU & STUDENT PACKAGE STATUS STYLING
+       ------------------------------------------------------------- */
+    /* Nested Sub-Menu items under Parent Resources in Sidebar */
+    .fi-sidebar-sub-group-items {
+        margin-top: 0.25rem !important;
+        margin-bottom: 0.35rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.2rem !important;
+    }
+
+    html[dir="rtl"] .fi-sidebar-sub-group-items {
+        padding-right: 1.15rem !important;
+        border-right: 2px solid rgba(13, 148, 136, 0.25) !important;
+        margin-right: 1.25rem !important;
+    }
+
+    html:not([dir="rtl"]) .fi-sidebar-sub-group-items {
+        padding-left: 1.15rem !important;
+        border-left: 2px solid rgba(13, 148, 136, 0.25) !important;
+        margin-left: 1.25rem !important;
+    }
+
+    .fi-sidebar-sub-group-items .fi-sidebar-item-btn {
+        border-radius: 0.65rem !important;
+        padding: 0.45rem 0.75rem !important;
+        font-size: 0.825rem !important;
+        font-weight: 600 !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html:not(.dark) .fi-sidebar-sub-group-items .fi-sidebar-item-btn:hover {
+        background-color: rgba(13, 148, 136, 0.08) !important;
+        color: #0F766E !important;
+    }
+
+    html.dark .fi-sidebar-sub-group-items .fi-sidebar-item-btn:hover {
+        background-color: rgba(20, 184, 166, 0.12) !important;
+        color: #5EEAD4 !important;
+    }
+
+    /* Active Sub-menu Item */
+    .fi-sidebar-sub-group-items .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+        background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+    }
+
+    /* Sub-menu Danger Badge Glow / Pulse */
+    .fi-sidebar-item-badge-ctn .fi-badge-color-danger,
+    .fi-sidebar-sub-group-items .fi-badge-color-danger {
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.35) !important;
+        font-weight: 800 !important;
+        animation: pulseDangerBadge 2.5s infinite ease-in-out !important;
+    }
+
+    @keyframes pulseDangerBadge {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.9; }
     }
 </style>
 

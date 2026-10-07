@@ -4,14 +4,12 @@ namespace App\Filament\Resources\FileUploads\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\HtmlString;
 
 class FileUploadForm
 {
@@ -20,36 +18,6 @@ class FileUploadForm
         return $schema
             ->columns(1)
             ->components([
-                Placeholder::make('upload_hero_banner')
-                    ->hiddenLabel()
-                    ->content(new HtmlString(
-                        '<div class="elite-creative-hero-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                            <div class="flex items-center gap-3.5">
-                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400 shrink-0 shadow-sm border border-teal-500/20">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 font-[\'Cairo\']">
-                                        ' . __('مركز رفع وتوزيع المحتوى التعليمي والتكليفات / Educational Files Hub') . '
-                                    </h3>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-[\'Cairo\'] mt-0.5">
-                                        ' . __('ارفع المذكرات الدراسية، الواجبات المنزلية، والملخصات مع ربط فوري بالمقررات والطلاب المسجلين.') . '
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-[\'Cairo\']">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                    PDF & Images (25MB)
-                                </span>
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800 font-[\'Cairo\']">
-                                    <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-                                    Smart LMS Sync
-                                </span>
-                            </div>
-                        </div>'
-                    )),
-
                 Section::make(__('File Details / تفاصيل وبيانات الملف'))
                     ->icon(Heroicon::OutlinedDocumentArrowUp)
                     ->description(__('Enter the file title, select its primary purpose, and upload the file / أدخل عنوان الملف وحدد الغرض منه وارفق المستند المطلوب'))
@@ -62,7 +30,6 @@ class FileUploadForm
                         TextInput::make('title')
                             ->label(__('File Title / عنوان الملف'))
                             ->placeholder(__('e.g. مذكرة مراجعة ليلة الامتحان - الفصل الدراسي الأول'))
-                            ->prefixIcon(Heroicon::OutlinedDocumentText)
                             ->required()
                             ->maxLength(200)
                             ->columnSpan([
@@ -72,7 +39,6 @@ class FileUploadForm
 
                         Select::make('category')
                             ->label(__('File Purpose / Category (نوع الملف / الغرض)'))
-                            ->prefixIcon(Heroicon::OutlinedTag)
                             ->options([
                                 'material' => __('Study Material / مذكرة دراسية ومحتوى تعليمي'),
                                 'homework' => __('Homework Assignment / واجب منزلي وتكليف'),
@@ -88,7 +54,6 @@ class FileUploadForm
 
                         DateTimePicker::make('due_at')
                             ->label(__('Submission Deadline / آخر موعد للتسليم'))
-                            ->prefixIcon(Heroicon::OutlinedClock)
                             ->required(fn ($get) => $get('category') === 'homework')
                             ->visible(fn ($get) => $get('category') === 'homework')
                             ->helperText(__('When saved as homework, students will see this deadline in their assignments hub / يظهر هذا الموعد للطلاب في قسم الواجبات والتكليفات.'))
@@ -137,7 +102,6 @@ class FileUploadForm
                         Select::make('course_id')
                             ->label(__('Course / المقرر أو الكورس الدراسـي'))
                             ->placeholder(__('Select Course / اختر المقرر الدراسي...'))
-                            ->prefixIcon(Heroicon::OutlinedBookOpen)
                             ->relationship(
                                 name: 'course',
                                 titleAttribute: 'title',
@@ -218,7 +182,6 @@ class FileUploadForm
                         Select::make('teacher_profile_id')
                             ->label(__('Teacher / المعلم المشرف المسؤول'))
                             ->placeholder(__('Select Teacher / اختر المعلم...'))
-                            ->prefixIcon(Heroicon::OutlinedAcademicCap)
                             ->relationship(
                                 name: 'teacherProfile',
                                 titleAttribute: 'id',
@@ -267,7 +230,6 @@ class FileUploadForm
                         Select::make('student_user_id')
                             ->label(__('Specific Student (Optional) / تخصيص لطالب معين (اختياري)'))
                             ->placeholder(__('Select Student / اختر طالباً محدداً...'))
-                            ->prefixIcon(Heroicon::OutlinedUser)
                             ->relationship(
                                 name: 'studentUser',
                                 titleAttribute: 'name',
@@ -312,7 +274,6 @@ class FileUploadForm
                         Select::make('assignment_id')
                             ->label(__('Linked Assignment / الواجب والتكليف المرتبط (Optional)'))
                             ->placeholder(__('Select Assignment / اختر واجباً مرتبطاً...'))
-                            ->prefixIcon(Heroicon::OutlinedClipboardDocumentCheck)
                             ->relationship('assignment', 'title')
                             ->searchable()
                             ->searchDebounce(200)
