@@ -2006,6 +2006,9 @@
                                 data-start-date="{{ $rs->start_date ? $rs->start_date->format('Y-m-d') : '' }}"
                                 data-end-date="{{ $rs->end_date ? $rs->end_date->format('Y-m-d') : '' }}"
                                 data-days='@json($rs->days_of_week ?? [])'
+                                data-day-start-times='@json($rs->day_start_times ?? [])'
+                                data-day-durations='@json($rs->day_durations ?? [])'
+                                data-day-meeting-links='@json($rs->day_meeting_links ?? [])'
                                 data-meeting-link="{{ $rs->meeting_link ?? '' }}" data-notes="{{ $rs->notes ?? '' }}">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="space-y-1 min-w-0">
@@ -10183,24 +10186,25 @@
             document.getElementById('editRecNotes').value = notes;
 
             // Populate per-day inputs & check days
+            const dayNamesMap = { 0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday' };
             [0, 1, 2, 3, 4, 5, 6].forEach(dayVal => {
                 const cb = document.getElementById('editRecDayCheck_' + dayVal);
                 const timeInput = document.getElementById('editRecDayTime_' + dayVal);
                 const durationInput = document.getElementById('editRecDayDuration_' + dayVal);
                 const linkInput = document.getElementById('editRecDayLink_' + dayVal);
 
-                const isDayChecked = days.map(String).includes(String(dayVal));
+                const dName = dayNamesMap[dayVal];
+                const isDayChecked = Array.isArray(days) && days.some(d => String(d) === String(dayVal) || String(d).toLowerCase() === dName);
                 if (cb) cb.checked = isDayChecked;
 
                 if (timeInput) {
-                    timeInput.value = dayStartTimes[dayVal] || dayStartTimes[String(dayVal)] || startTime ||
-                    '10:00';
+                    timeInput.value = dayStartTimes[dayVal] || dayStartTimes[String(dayVal)] || dayStartTimes[dName] || startTime || '10:00';
                 }
                 if (durationInput) {
-                    durationInput.value = dayDurations[dayVal] || dayDurations[String(dayVal)] || duration || 60;
+                    durationInput.value = dayDurations[dayVal] || dayDurations[String(dayVal)] || dayDurations[dName] || duration || 60;
                 }
                 if (linkInput) {
-                    linkInput.value = dayMeetingLinks[dayVal] || dayMeetingLinks[String(dayVal)] || '';
+                    linkInput.value = dayMeetingLinks[dayVal] || dayMeetingLinks[String(dayVal)] || dayMeetingLinks[dName] || '';
                 }
 
                 if (cb && typeof window.toggleEditDayTimeCard === 'function') {
@@ -11259,8 +11263,14 @@
                             }
                             setTimeout(() => location.reload(), 800);
                         } else {
-                            showTeacherToast(data.message || (isArLocale ? 'فشل تعديل الجدول الدوري' :
-                                'Failed to update schedule'), false);
+                            let errorMsg = data.message || (isArLocale ? 'فشل تعديل الجدول الدوري' : 'Failed to update schedule');
+                            if (data.errors && typeof data.errors === 'object') {
+                                const errEntries = Object.values(data.errors);
+                                if (errEntries.length > 0 && Array.isArray(errEntries[0]) && errEntries[0].length > 0) {
+                                    errorMsg = errEntries[0][0];
+                                }
+                            }
+                            showTeacherToast(errorMsg, false);
                         }
                     } catch (err) {
                         showTeacherToast(isArLocale ? 'خطأ في الاتصال' : 'Connection error', false);

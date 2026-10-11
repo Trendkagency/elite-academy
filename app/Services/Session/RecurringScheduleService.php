@@ -103,12 +103,15 @@ class RecurringScheduleService
                         }
                     }
 
+                    $dayName = strtolower($current->englishDayOfWeek);
                     $dayCustomDuration = null;
                     if (is_array($dayDurations)) {
                         if (!empty($dayDurations[$dayOfWeek])) {
                             $dayCustomDuration = (int) $dayDurations[$dayOfWeek];
                         } elseif (!empty($dayDurations[(string)$dayOfWeek])) {
                             $dayCustomDuration = (int) $dayDurations[(string)$dayOfWeek];
+                        } elseif (!empty($dayDurations[$dayName])) {
+                            $dayCustomDuration = (int) $dayDurations[$dayName];
                         }
                     }
 
@@ -118,6 +121,8 @@ class RecurringScheduleService
                             $dayCustomLink = $dayMeetingLinks[$dayOfWeek];
                         } elseif (!empty($dayMeetingLinks[(string)$dayOfWeek])) {
                             $dayCustomLink = $dayMeetingLinks[(string)$dayOfWeek];
+                        } elseif (!empty($dayMeetingLinks[$dayName])) {
+                            $dayCustomLink = $dayMeetingLinks[$dayName];
                         }
                     }
 
@@ -489,67 +494,26 @@ class RecurringScheduleService
         DB::transaction(function () use ($schedule, $data, $user) {
             $oldValues = $schedule->toArray();
 
+            $startTime = $data['start_time'] ?? $schedule->start_time;
+            $duration = (int) ($data['duration_minutes'] ?? $schedule->duration_minutes);
+            $endTime = $data['end_time'] ?? Carbon::parse($startTime)->addMinutes($duration)->format('H:i:s');
+
             $schedule->update([
                 'title' => $data['title'] ?? $schedule->title,
-                'days_of_week' => $data['days_of_week'] ?? $schedule->days_of_week,
+                'days_of_week' => array_key_exists('days_of_week', $data) ? $data['days_of_week'] : $schedule->days_of_week,
                 'day_start_times' => array_key_exists('day_start_times', $data) ? $data['day_start_times'] : $schedule->day_start_times,
                 'day_durations' => array_key_exists('day_durations', $data) ? $data['day_durations'] : $schedule->day_durations,
                 'day_meeting_links' => array_key_exists('day_meeting_links', $data) ? $data['day_meeting_links'] : $schedule->day_meeting_links,
-                'start_time' => $data['start_time'] ?? $schedule->start_time,
-                'end_time' => $data['end_time'] ?? $schedule->end_time,
-                'duration_minutes' => (int) ($data['duration_minutes'] ?? $schedule->duration_minutes),
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'duration_minutes' => $duration,
                 'start_date' => $data['start_date'] ?? $schedule->start_date,
                 'end_date' => $data['end_date'] ?? $schedule->end_date,
-                'meeting_link' => $data['meeting_link'] ?? $schedule->meeting_link,
-                'notes' => $data['notes'] ?? $schedule->notes,
+                'meeting_link' => array_key_exists('meeting_link', $data) ? $data['meeting_link'] : $schedule->meeting_link,
+                'notes' => array_key_exists('notes', $data) ? $data['notes'] : $schedule->notes,
             ]);
 
-            // Update uncompleted, non-overridden sessions
-            $activeSessions = $schedule->sessions()
-                ->where('scheduled_at', '>=', now())
-                ->where('is_override', false)
-                ->whereNotIn('status', ['completed', 'cancelled'])
-                ->get();
-
-            $dayStartTimes = $schedule->day_start_times ?? [];
-            $dayDurations = $schedule->day_durations ?? [];
-            $dayMeetingLinks = $schedule->day_meeting_links ?? [];
-
-            foreach ($activeSessions as $session) {
-                $dayOfWeek = $session->scheduled_at->dayOfWeek;
-
-                $dayCustomTime = null;
-                if (is_array($dayStartTimes)) {
-                    $dayCustomTime = $dayStartTimes[$dayOfWeek] ?? $dayStartTimes[(string)$dayOfWeek] ?? null;
-                }
-
-                $dayCustomDuration = null;
-                if (is_array($dayDurations)) {
-                    $dayCustomDuration = $dayDurations[$dayOfWeek] ?? $dayDurations[(string)$dayOfWeek] ?? null;
-                }
-
-                $dayCustomLink = null;
-                if (is_array($dayMeetingLinks)) {
-                    $dayCustomLink = $dayMeetingLinks[$dayOfWeek] ?? $dayMeetingLinks[(string)$dayOfWeek] ?? null;
-                }
-
-                $effectiveStartTime = $dayCustomTime ?: $schedule->start_time;
-                $effectiveDuration = ($dayCustomDuration && (int)$dayCustomDuration >= 15) ? (int)$dayCustomDuration : $schedule->duration_minutes;
-                $effectiveLink = $dayCustomLink ?: $schedule->meeting_link;
-
-                $dateStr = $session->scheduled_at->format('Y-m-d');
-                $start = Carbon::parse($dateStr . ' ' . $effectiveStartTime);
-                $end = $start->copy()->addMinutes($effectiveDuration);
-
-                $session->update([
-                    'title' => $schedule->title,
-                    'scheduled_at' => $start,
-                    'start_at' => $start,
-                    'end_at' => $end,
-                    'duration_minutes' => $effectiveDuration,
-                    'meeting_link' => $effectiveLink,
-                ]);
-            }
+            $this->syncFutureSessions($schedule->fresh(), $user);
 
             SessionAuditLog::create([
                 'user_id' => $user->id,
@@ -557,10 +521,165 @@ class RecurringScheduleService
                 'action' => 'updated_entire_schedule',
                 'old_values' => $oldValues,
                 'new_values' => $schedule->fresh()->toArray(),
-                'reason' => 'Updated entire schedule rule and active sessions with per-day custom settings',
+                'reason' => 'Updated entire schedule rule and synchronized future sessions',
                 'ip_address' => request()->ip(),
             ]);
         });
+    }
+
+    /**
+     * Synchronize all future live sessions with the recurring schedule rule.
+     * Updates times, durations, links and titles for upcoming sessions,
+     * deletes sessions for removed days/dates, and generates new sessions for added days/extended dates.
+     */
+    public function syncFutureSessions(RecurringSchedule $schedule, ?User $user = null): void
+    {
+        if ($schedule->status !== 'active') {
+            return;
+        }
+
+        $now = now();
+        $startDate = $schedule->start_date ? Carbon::parse($schedule->start_date)->startOfDay() : $now->copy()->startOfDay();
+        $endDate = $schedule->end_date ? Carbon::parse($schedule->end_date)->endOfDay() : null;
+
+        if (! $endDate || $endDate->lt($now)) {
+            return;
+        }
+
+        // Only manage slots from max(today, start_date) up to end_date
+        $effectiveStartDate = $startDate->lt($now->copy()->startOfDay()) ? $now->copy()->startOfDay() : $startDate;
+
+        $previewParams = [
+            'course_id' => $schedule->course_id,
+            'teacher_profile_id' => $schedule->teacher_profile_id,
+            'student_user_id' => $schedule->student_user_id,
+            'start_date' => $effectiveStartDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'start_time' => $schedule->start_time ?: '10:00',
+            'duration_minutes' => $schedule->duration_minutes ?: 60,
+            'recurrence_type' => $schedule->recurrence_type ?? 'weekly',
+            'days_of_week' => $schedule->days_of_week ?? [],
+            'day_start_times' => $schedule->day_start_times ?? [],
+            'day_durations' => $schedule->day_durations ?? [],
+            'day_meeting_links' => $schedule->day_meeting_links ?? [],
+            'meeting_link' => $schedule->meeting_link,
+            'monthly_pattern' => $schedule->monthly_pattern ?? null,
+        ];
+
+        $targetSlots = $this->previewDates($previewParams);
+
+        // Filter out slots that have already started/passed in the past
+        $targetSlotsByDate = [];
+        foreach ($targetSlots as $slot) {
+            $slotStart = Carbon::parse($slot['date'] . ' ' . $slot['start_time']);
+            if ($slotStart->isPast()) {
+                continue;
+            }
+            $targetSlotsByDate[$slot['date']] = $slot;
+        }
+
+        // Fetch existing future uncompleted sessions for this schedule
+        $existingFutureSessions = $schedule->liveSessions()
+            ->where('scheduled_at', '>=', $now)
+            ->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])
+            ->get();
+
+        $existingByDate = [];
+        $sessionsToDelete = [];
+
+        foreach ($existingFutureSessions as $ses) {
+            if ($ses->is_override) {
+                // Keep manual teacher overrides untouched
+                continue;
+            }
+
+            $dateStr = $ses->scheduled_at->format('Y-m-d');
+            if (isset($targetSlotsByDate[$dateStr]) && ! isset($existingByDate[$dateStr])) {
+                $existingByDate[$dateStr] = $ses;
+            } else {
+                // Day was unchecked, date range shortened, or redundant session on the same date
+                $sessionsToDelete[] = $ses;
+            }
+        }
+
+        // Delete orphaned sessions (clean up student sessions & attendances)
+        foreach ($sessionsToDelete as $ses) {
+            \App\Models\StudentSession::where('live_session_id', $ses->id)->delete();
+            \App\Models\MeetingAttendance::where('live_session_id', $ses->id)->delete();
+            $ses->delete();
+        }
+
+        // Update matching existing sessions
+        foreach ($existingByDate as $dateStr => $ses) {
+            $slot = $targetSlotsByDate[$dateStr];
+            $start = Carbon::parse($slot['date'] . ' ' . $slot['start_time']);
+            $end = Carbon::parse($slot['date'] . ' ' . $slot['end_time']);
+            $duration = $start->diffInMinutes($end);
+            $link = ! empty($slot['meeting_link']) ? $slot['meeting_link'] : $schedule->meeting_link;
+
+            $ses->update([
+                'title' => $schedule->title,
+                'teacher_profile_id' => $schedule->teacher_profile_id,
+                'student_user_id' => $schedule->student_user_id,
+                'course_id' => $schedule->course_id,
+                'subject_id' => $schedule->course?->subject_id ?? $ses->subject_id,
+                'scheduled_at' => $start,
+                'start_at' => $start,
+                'end_at' => $end,
+                'duration_minutes' => $duration,
+                'meeting_link' => $link,
+                'meeting_platform' => $schedule->meeting_platform ?: 'agora',
+            ]);
+        }
+
+        // Create new sessions for dates in targetSlotsByDate that do not have an existing session
+        $course = $schedule->course;
+        foreach ($targetSlotsByDate as $dateStr => $slot) {
+            if (isset($existingByDate[$dateStr])) {
+                continue;
+            }
+
+            // If an override already exists on this date, respect it
+            $hasOverride = $schedule->liveSessions()
+                ->whereDate('scheduled_at', $dateStr)
+                ->where('is_override', true)
+                ->exists();
+            if ($hasOverride) {
+                continue;
+            }
+
+            $start = Carbon::parse($slot['date'] . ' ' . $slot['start_time']);
+            $end = Carbon::parse($slot['date'] . ' ' . $slot['end_time']);
+            $duration = $start->diffInMinutes($end);
+            $link = ! empty($slot['meeting_link']) ? $slot['meeting_link'] : $schedule->meeting_link;
+
+            $newSession = LiveSession::create([
+                'title' => $schedule->title,
+                'student_user_id' => $schedule->student_user_id,
+                'teacher_profile_id' => $schedule->teacher_profile_id,
+                'subject_id' => $course?->subject_id,
+                'course_id' => $schedule->course_id,
+                'recurring_schedule_id' => $schedule->id,
+                'scheduled_at' => $start,
+                'start_at' => $start,
+                'end_at' => $end,
+                'duration_minutes' => $duration,
+                'meeting_link' => $link,
+                'meeting_platform' => $schedule->meeting_platform ?: 'agora',
+                'status' => 'scheduled',
+                'lifecycle_state' => 'scheduled',
+                'is_override' => false,
+            ]);
+
+            if ($schedule->student_user_id) {
+                \App\Models\StudentSession::updateOrCreate([
+                    'student_user_id' => $schedule->student_user_id,
+                    'live_session_id' => $newSession->id,
+                ], [
+                    'session_status' => 'scheduled',
+                ]);
+            }
+        }
     }
 
     /**

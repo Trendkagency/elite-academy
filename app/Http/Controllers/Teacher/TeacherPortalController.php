@@ -669,20 +669,84 @@ class TeacherPortalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
+        // Normalize fallback meeting link
+        $linkInput = trim((string) $request->input('meeting_link'));
+        if ($linkInput === '' || $linkInput === 'https://...' || $linkInput === 'http://...') {
+            $request->merge(['meeting_link' => null]);
+        } elseif (! str_starts_with($linkInput, 'http://') && ! str_starts_with($linkInput, 'https://')) {
+            $request->merge(['meeting_link' => 'https://' . $linkInput]);
+        }
+
+        // Normalize per-day meeting links
+        if ($request->has('day_meeting_links') && is_array($request->input('day_meeting_links'))) {
+            $cleanedDayLinks = [];
+            foreach ($request->input('day_meeting_links') as $k => $val) {
+                $v = trim((string) $val);
+                if ($v === '' || $v === 'https://...' || $v === 'http://...') {
+                    continue;
+                }
+                if (! str_starts_with($v, 'http://') && ! str_starts_with($v, 'https://')) {
+                    $v = 'https://' . $v;
+                }
+                $cleanedDayLinks[$k] = $v;
+            }
+            $request->merge(['day_meeting_links' => $cleanedDayLinks]);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'days_of_week' => 'nullable|array',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'days_of_week' => 'required|array|min:1',
             'start_time' => 'required|string',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
+            'day_start_times' => 'nullable|array',
+            'day_durations' => 'nullable|array',
+            'day_meeting_links' => 'nullable|array',
             'meeting_link' => 'nullable|url|max:500',
             'notes' => 'nullable|string|max:1000',
+        ], [
+            'title.required' => app()->getLocale() === 'ar' ? 'يرجى إدخال عنوان الجدول الدوري.' : __('Schedule title is required.'),
+            'days_of_week.required' => app()->getLocale() === 'ar' ? 'يرجى اختيار يوم واحد على الأقل للجدول.' : __('Please select at least one teaching day.'),
+            'days_of_week.min' => app()->getLocale() === 'ar' ? 'يرجى اختيار يوم واحد على الأقل للجدول.' : __('Please select at least one teaching day.'),
+            'end_date.after_or_equal' => app()->getLocale() === 'ar' ? 'تاريخ نهاية الجدول يجب أن يكون بعد تاريخ البداية أو مساوياً له.' : __('End date must be after or equal to start date.'),
+            'start_time.required' => app()->getLocale() === 'ar' ? 'يرجى تحديد موعد البدء الرئيسي.' : __('Start time is required.'),
         ]);
+
+        // Normalize days of week to numeric integers
+        $validated['days_of_week'] = array_values(array_map('intval', (array) $validated['days_of_week']));
+
+        // Clean per-day settings for only selected days
+        $selectedDays = $validated['days_of_week'];
+        $cleanDayTimes = [];
+        $cleanDayDurations = [];
+        $cleanDayLinks = [];
+
+        foreach ($selectedDays as $day) {
+            $cleanDayTimes[$day] = ! empty($validated['day_start_times'][$day])
+                ? $validated['day_start_times'][$day]
+                : $validated['start_time'];
+
+            $cleanDayDurations[$day] = ! empty($validated['day_durations'][$day]) && (int) $validated['day_durations'][$day] >= 15
+                ? (int) $validated['day_durations'][$day]
+                : (int) ($validated['duration_minutes'] ?? $schedule->duration_minutes ?? 60);
+
+            if (! empty($validated['day_meeting_links'][$day])) {
+                $cleanDayLinks[$day] = $validated['day_meeting_links'][$day];
+            }
+        }
+
+        $validated['day_start_times'] = $cleanDayTimes;
+        $validated['day_durations'] = $cleanDayDurations;
+        $validated['day_meeting_links'] = $cleanDayLinks;
 
         $service->updateEntireSchedule($schedule, $validated, auth()->user());
 
         return response()->json([
             'success' => true,
-            'message' => __('Recurring schedule updated successfully!'),
+            'message' => app()->getLocale() === 'ar' 
+                ? 'تم تحديث الجدول الدوري ومزامنة كافة الحصص المستقبلية بنجاح!' 
+                : __('Recurring schedule and future sessions updated successfully!'),
         ]);
     }
 

@@ -22,6 +22,7 @@ class RecurringSchedule extends Model
         'recurrence_type',
         'days_of_week',
         'day_start_times',
+        'day_durations',
         'day_meeting_links',
         'monthly_pattern',
         'start_time',
@@ -40,6 +41,7 @@ class RecurringSchedule extends Model
     protected $casts = [
         'days_of_week' => 'array',
         'day_start_times' => 'array',
+        'day_durations' => 'array',
         'day_meeting_links' => 'array',
         'monthly_pattern' => 'array',
         'duration_minutes' => 'integer',
@@ -50,53 +52,29 @@ class RecurringSchedule extends Model
     protected static function booted(): void
     {
         static::saved(function (RecurringSchedule $schedule) {
-            if ($schedule->wasChanged([
+            $changedAttributes = [
                 'teacher_profile_id',
                 'student_user_id',
                 'course_id',
+                'title',
+                'recurrence_type',
+                'days_of_week',
+                'day_start_times',
+                'day_durations',
+                'day_meeting_links',
+                'start_time',
+                'end_time',
+                'duration_minutes',
+                'start_date',
+                'end_date',
+                'status',
                 'meeting_link',
                 'meeting_platform',
-                'duration_minutes',
-                'title',
-            ])) {
-                $futureSessions = $schedule->liveSessions()
-                    ->where('scheduled_at', '>=', now())
-                    ->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])
-                    ->get();
+            ];
 
-                foreach ($futureSessions as $session) {
-                    $updates = [];
-
-                    if ($schedule->wasChanged('teacher_profile_id')) {
-                        $updates['teacher_profile_id'] = $schedule->teacher_profile_id;
-                    }
-                    if ($schedule->wasChanged('course_id')) {
-                        $updates['course_id'] = $schedule->course_id;
-                    }
-                    if ($schedule->wasChanged('student_user_id')) {
-                        $updates['student_user_id'] = $schedule->student_user_id;
-                    }
-                    if ($schedule->wasChanged('meeting_link') && ! $session->is_override) {
-                        $updates['meeting_link'] = $schedule->meeting_link;
-                    }
-                    if ($schedule->wasChanged('meeting_platform') && ! $session->is_override) {
-                        $updates['meeting_platform'] = $schedule->meeting_platform;
-                    }
-                    if ($schedule->wasChanged('duration_minutes') && ! $session->is_override) {
-                        $updates['duration_minutes'] = $schedule->duration_minutes;
-                        $sessionStart = $session->scheduled_at ?: $session->start_at;
-                        if ($sessionStart) {
-                            $updates['end_at'] = $sessionStart->copy()->addMinutes($schedule->duration_minutes);
-                        }
-                    }
-                    if ($schedule->wasChanged('title') && ! $session->is_override) {
-                        $updates['title'] = $schedule->title;
-                    }
-
-                    if (! empty($updates)) {
-                        $session->update($updates);
-                    }
-                }
+            if ($schedule->wasChanged($changedAttributes)) {
+                $user = auth()->user() ?: $schedule->creator ?: $schedule->teacherProfile?->user;
+                app(\App\Services\Session\RecurringScheduleService::class)->syncFutureSessions($schedule, $user);
             }
         });
     }
