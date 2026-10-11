@@ -59,6 +59,147 @@
             flex: 1 1 0% !important;
         }
     }
+
+    /* ══════════════════════════════════════════════════════════════════ */
+    /* GOOGLE CALENDAR WEEK TIMETABLE (Pixel-perfect & High Polish)       */
+    /* ══════════════════════════════════════════════════════════════════ */
+    .gcal-card-box {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+    }
+    :root:not(.dark) .gcal-card-box {
+        background: #ffffff;
+        border-color: #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .gcal-scroll-canvas {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain !important;
+    }
+    .gcal-canvas-inner {
+        min-width: 720px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    @media (min-width: 900px) {
+        .gcal-canvas-inner {
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+    }
+    .gcal-header-row {
+        display: grid !important;
+        grid-template-columns: 68px repeat(7, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        background: #111827;
+        border-bottom: 1px solid #1e293b;
+    }
+    :root:not(.dark) .gcal-header-row {
+        background: #f8fafc;
+        border-bottom-color: #e2e8f0;
+    }
+    .gcal-day-header-btn {
+        width: 100%;
+        padding: 0.625rem 0.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-inline-end: 1px solid #1e293b;
+        transition: all 0.15s ease-in-out;
+        cursor: pointer;
+        background: transparent;
+        user-select: none;
+    }
+    :root:not(.dark) .gcal-day-header-btn {
+        border-inline-end-color: #e2e8f0;
+    }
+    .gcal-day-header-btn:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    :root:not(.dark) .gcal-day-header-btn:hover {
+        background: rgba(0, 0, 0, 0.03);
+    }
+    .gcal-body-scroll {
+        max-height: 520px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: relative;
+        background: #090e17;
+        overscroll-behavior: contain !important;
+        scroll-behavior: smooth;
+    }
+    :root:not(.dark) .gcal-body-scroll {
+        background: #ffffff;
+    }
+    .gcal-body-grid {
+        display: grid !important;
+        grid-template-columns: 68px repeat(7, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    .gcal-gutter-col {
+        position: relative;
+        border-inline-end: 1px solid #1e293b;
+        background: rgba(15, 23, 42, 0.6);
+        user-select: none;
+    }
+    :root:not(.dark) .gcal-gutter-col {
+        border-inline-end-color: #e2e8f0;
+        background: #f8fafc;
+    }
+    .gcal-day-col {
+        position: relative;
+        border-inline-end: 1px solid #1e293b;
+        transition: background-color 0.15s ease;
+    }
+    :root:not(.dark) .gcal-day-col {
+        border-inline-end-color: #f1f5f9;
+    }
+    .gcal-day-col.is-today-col {
+        background: rgba(13, 148, 136, 0.04);
+    }
+    .gcal-day-col.is-selected-col {
+        background: rgba(13, 148, 136, 0.08) !important;
+    }
+    .gcal-hour-line {
+        position: absolute;
+        inset-inline: 0;
+        height: 60px;
+        border-top: 1px solid rgba(30, 41, 59, 0.7);
+        pointer-events: none;
+    }
+    :root:not(.dark) .gcal-hour-line {
+        border-top-color: #f1f5f9;
+    }
+    .gcal-event-pill {
+        position: absolute;
+        border-radius: 0.65rem;
+        padding: 6px 10px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, z-index 0.16s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+    }
+    .gcal-event-pill:hover {
+        transform: translateY(-2px) scale(1.015);
+        z-index: 30;
+        box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.5);
+    }
 </style>
 
 <section id="sectionPane_overview" class="student-section-pane space-y-6 sm:space-y-7 {{ $activeTab === 'overview' ? '' : 'hidden' }}">
@@ -89,12 +230,17 @@
             </div>
 
             <div class="flex items-center gap-2.5 flex-wrap">
-                {{-- View Mode Switcher: Weekly (Default) vs Monthly --}}
+                {{-- View Mode Switcher: Weekly vs Google Calendar vs Monthly --}}
                 <div class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80">
                     <button type="button" id="calModeBtn_week" onclick="switchCalViewMode('weekly')"
                         class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black transition-all cursor-pointer bg-teal-600 text-white shadow-2xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-calendar-week text-[11px]"></i>
+                        <i class="fa-solid fa-list-check text-[11px]"></i>
                         <span>{{ $isAr ? 'عرض أسبوعي' : 'Weekly' }}</span>
+                    </button>
+                    <button type="button" id="calModeBtn_google" onclick="switchCalViewMode('google_week')"
+                        class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-days text-[11px] text-sky-500"></i>
+                        <span>{{ $isAr ? 'تقويم Google (أسبوعي)' : 'Google Calendar' }}</span>
                     </button>
                     <button type="button" id="calModeBtn_month" onclick="switchCalViewMode('monthly')"
                         class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5">
@@ -210,8 +356,71 @@
             </div>
         </div>
 
+        {{-- GOOGLE CALENDAR WEEK TIMETABLE VIEW (Aligned with design system) --}}
+        <div id="calGoogleWeekWrapper" class="hidden space-y-4">
+            {{-- Navigation Bar matching Google Calendar Reference (Image 2) --}}
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/90 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+                {{-- Left: Nav Controls + Month & Year + Today Button --}}
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 bg-white dark:bg-slate-700 p-1 rounded-xl border border-slate-200 dark:border-slate-600 shadow-2xs">
+                        <button type="button" onclick="navGoogleWeek(-1)" aria-label="Previous Week"
+                            class="w-8 h-8 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-600 hover:text-teal-600 flex items-center justify-center text-xs transition-colors cursor-pointer">
+                            <i class="fa-solid fa-chevron-{{ $isAr ? 'right' : 'left' }}"></i>
+                        </button>
+                        <button type="button" onclick="navGoogleWeek(1)" aria-label="Next Week"
+                            class="w-8 h-8 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-600 hover:text-teal-600 flex items-center justify-center text-xs transition-colors cursor-pointer">
+                            <i class="fa-solid fa-chevron-{{ $isAr ? 'left' : 'right' }}"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <h4 id="googleWeekMonthTitle" class="font-heading font-black text-base sm:text-lg md:text-xl text-slate-900 dark:text-white tracking-wide">
+                            October 2026
+                        </h4>
+                    </div>
+
+                    <button type="button" onclick="jumpGoogleWeekToday()"
+                        class="px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/70 dark:hover:bg-teal-900/80 text-teal-700 dark:text-teal-300 border border-teal-500/30 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                        <i class="fa-regular fa-calendar-check text-teal-600 dark:text-teal-400"></i>
+                        <span>{{ $isAr ? 'اليوم' : 'Today' }}</span>
+                    </button>
+                </div>
+
+                {{-- Right: Meta Pills --}}
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 flex items-center gap-1.5 shadow-2xs">
+                        <i class="fa-solid fa-clock text-teal-500 text-[11px]"></i>
+                        <span>{{ $isAr ? 'توقيت القاهرة (GMT+3)' : 'Cairo Time (GMT+3)' }}</span>
+                    </span>
+                    <span id="googleWeekTotalClassesBadge" class="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/25 flex items-center gap-1.5">
+                        <i class="fa-solid fa-graduation-cap text-teal-500 text-[11px]"></i>
+                        <span>0 {{ $isAr ? 'حصة هذا الأسبوع' : 'sessions this week' }}</span>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Timetable Container with Sticky Headers & Clean Grid Lines --}}
+            <div class="gcal-card-box">
+                <div class="gcal-scroll-canvas custom-scrollbar">
+                    <div class="gcal-canvas-inner">
+                        {{-- 7 Days Strip Header matching Google Calendar Header (SUN 11, MON 12, etc.) --}}
+                        <div id="googleWeekDaysHeader" class="gcal-header-row select-none">
+                            {{-- Populated dynamically via JS --}}
+                        </div>
+
+                        {{-- Timetable Grid (07:00 AM - 11:00 PM, 17 hours = 1020px) --}}
+                        <div id="googleWeekScrollContainer" class="gcal-body-scroll custom-scrollbar">
+                            <div id="googleWeekTimetableGrid" class="gcal-body-grid">
+                                {{-- Populated dynamically via JS --}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- MAIN CONTENT AREA (Split into Left Navigator/Digest + Right Sessions List) --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div id="calMainSplitContent" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {{-- Column 1A: Weekly Summary Sidebar (Visible in Weekly mode) --}}
             <div id="calWeekSummaryCol" class="lg:col-span-4 bg-slate-50 dark:bg-slate-800/60 rounded-3xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/80 space-y-4">
@@ -1090,6 +1299,63 @@
         @endif
     </div>
 
+    {{-- GOOGLE CALENDAR EVENT DETAIL & DAY SESSIONS MODAL --}}
+    <div id="googleCalEventModal" class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs transition-all duration-300" onclick="if(event.target === this) closeGoogleCalModal();">
+        <div class="elite-modal-dialog bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200/90 dark:border-slate-800 space-y-4 text-start">
+            <div class="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="space-y-1">
+                    <span id="gModalSubjectBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-500/30">
+                        Math
+                    </span>
+                    <h4 id="gModalTitle" class="font-heading font-black text-base text-slate-900 dark:text-white">
+                        Live Session
+                    </h4>
+                </div>
+                <button type="button" onclick="closeGoogleCalModal()" aria-label="Close"
+                    class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center cursor-pointer transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            {{-- Mode 1: Single Session Details --}}
+            <div id="gModalSingleEventBody" class="space-y-2.5 text-xs font-mono text-slate-600 dark:text-slate-300">
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-teal-500 w-4"></i>
+                    <span id="gModalDate">--</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-amber-500 w-4"></i>
+                    <span id="gModalTime">--</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user text-teal-600 dark:text-teal-400 w-4"></i>
+                    <span id="gModalTeacher">--</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-signal text-emerald-500 w-4"></i>
+                    <span id="gModalStatus">--</span>
+                </div>
+            </div>
+
+            {{-- Mode 2: Day Overview List (Multiple sessions or empty state on clicked day) --}}
+            <div id="gModalDayListBody" class="hidden space-y-2.5 max-h-[320px] overflow-y-auto custom-scrollbar">
+                {{-- Populated dynamically via JS --}}
+            </div>
+
+            <div id="gModalActionArea" class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeGoogleCalModal()"
+                    class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                    {{ $isAr ? 'إغلاق' : 'Close' }}
+                </button>
+                <a id="gModalJoinBtn" href="#"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm inline-flex items-center gap-1.5 cursor-pointer">
+                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                    <span>{{ $isAr ? 'دخول الحصة الآن' : 'Join Session' }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
 </section>
 
 {{-- ════════════════════════════════════════════════════════════════════════════ --}}
@@ -1218,24 +1484,32 @@
         const weekSummary = document.getElementById('calWeekSummaryCol');
         const monthPicker = document.getElementById('calMonthPickerCol');
         const sessionsCol = document.getElementById('calSessionsCol');
+        const mainSplit = document.getElementById('calMainSplitContent');
+        const googleWrapper = document.getElementById('calGoogleWeekWrapper');
 
         if (mode === 'weekly') {
+            if (googleWrapper) googleWrapper.classList.add('hidden');
             if (weekStrip) weekStrip.classList.remove('hidden');
+            if (mainSplit) mainSplit.classList.remove('hidden');
             if (weekSummary) weekSummary.classList.remove('hidden');
             if (monthPicker) monthPicker.classList.add('hidden');
-            if (sessionsCol) {
-                sessionsCol.className = 'lg:col-span-8 space-y-4';
-            }
+            if (sessionsCol) sessionsCol.className = 'lg:col-span-8 space-y-4';
             renderWeeklyDaysStrip();
             renderWeeklySummary();
             renderSessionList();
-        } else {
+        } else if (mode === 'google_week') {
             if (weekStrip) weekStrip.classList.add('hidden');
+            if (mainSplit) mainSplit.classList.add('hidden');
+            if (googleWrapper) googleWrapper.classList.remove('hidden');
+            renderGoogleCalendarWeek();
+        } else {
+            // monthly
+            if (googleWrapper) googleWrapper.classList.add('hidden');
+            if (weekStrip) weekStrip.classList.add('hidden');
+            if (mainSplit) mainSplit.classList.remove('hidden');
             if (weekSummary) weekSummary.classList.add('hidden');
             if (monthPicker) monthPicker.classList.remove('hidden');
-            if (sessionsCol) {
-                sessionsCol.className = 'lg:col-span-7 space-y-4';
-            }
+            if (sessionsCol) sessionsCol.className = 'lg:col-span-7 space-y-4';
             renderCalendar();
             renderSessionList();
         }
@@ -1243,14 +1517,518 @@
 
     function updateModeButtons() {
         const btnWeek = document.getElementById('calModeBtn_week');
+        const btnGoogle = document.getElementById('calModeBtn_google');
         const btnMonth = document.getElementById('calModeBtn_month');
-        if (calViewMode === 'weekly') {
-            if (btnWeek) btnWeek.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black transition-all cursor-pointer bg-teal-600 text-white shadow-2xs flex items-center gap-1.5';
-            if (btnMonth) btnMonth.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5';
-        } else {
-            if (btnMonth) btnMonth.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black transition-all cursor-pointer bg-teal-600 text-white shadow-2xs flex items-center gap-1.5';
-            if (btnWeek) btnWeek.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5';
+
+        const activeClass = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black transition-all cursor-pointer bg-teal-600 text-white shadow-2xs flex items-center gap-1.5';
+        const inactiveClass = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5';
+
+        if (btnWeek) btnWeek.className = (calViewMode === 'weekly') ? activeClass : inactiveClass;
+        if (btnGoogle) btnGoogle.className = (calViewMode === 'google_week') ? activeClass : inactiveClass;
+        if (btnMonth) btnMonth.className = (calViewMode === 'monthly') ? activeClass : inactiveClass;
+    }
+
+    let selectedGoogleDate = null;
+
+    function getGoogleWeekStart(date) {
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const day = d.getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
+        d.setDate(d.getDate() - day); // rewind to Sunday
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+
+    let googleWeekCurrentStart = getGoogleWeekStart(new Date());
+
+    window.navGoogleWeek = function(dir) {
+        googleWeekCurrentStart.setDate(googleWeekCurrentStart.getDate() + (dir * 7));
+        renderGoogleCalendarWeek();
+    };
+
+    window.jumpGoogleWeekToday = function() {
+        googleWeekCurrentStart = getGoogleWeekStart(new Date());
+        selectedGoogleDate = getTodayKey();
+        renderGoogleCalendarWeek();
+    };
+
+    window.closeGoogleCalModal = function() {
+        const modal = document.getElementById('googleCalEventModal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.classList.add('hidden');
         }
+        document.body.style.overflow = '';
+        if (typeof window.closeEliteModal === 'function') {
+            try { window.closeEliteModal('googleCalEventModal'); } catch (e) {}
+        }
+    };
+
+    window.showGoogleCalEventDetails = function(sessionId) {
+        const s = rawSessions.find(item => String(item.id) === String(sessionId));
+        if (!s) return;
+
+        const modal = document.getElementById('googleCalEventModal');
+        if (!modal) return;
+
+        const badge = document.getElementById('gModalSubjectBadge');
+        if (badge) badge.textContent = s.subject || (isAr ? 'مادة دراسية' : 'Subject');
+        const titleEl = document.getElementById('gModalTitle');
+        if (titleEl) titleEl.textContent = s.title || (isAr ? 'حصة تفاعلية' : 'Live Class');
+
+        const singleBody = document.getElementById('gModalSingleEventBody');
+        const dayBody = document.getElementById('gModalDayListBody');
+        if (singleBody) singleBody.classList.remove('hidden');
+        if (dayBody) dayBody.classList.add('hidden');
+
+        const dateEl = document.getElementById('gModalDate');
+        if (dateEl) dateEl.textContent = s.date || '';
+        const timeEl = document.getElementById('gModalTime');
+        if (timeEl) timeEl.textContent = (s.time || '') + ' (' + (s.duration || 60) + ' ' + (isAr ? 'دقيقة' : 'min') + ')';
+        const teacherEl = document.getElementById('gModalTeacher');
+        if (teacherEl) teacherEl.textContent = s.teacher ? (isAr ? 'المعلم: ' : 'Instructor: ') + s.teacher : '';
+        const statusEl = document.getElementById('gModalStatus');
+        if (statusEl) statusEl.textContent = s.status_label || (s.is_live ? (isAr ? 'بث مباشر الآن' : 'Live Now') : (isAr ? 'مجدولة' : 'Scheduled'));
+
+        const joinBtn = document.getElementById('gModalJoinBtn');
+        if (joinBtn) {
+            if (s.can_join || s.is_live) {
+                joinBtn.href = s.join_url;
+                joinBtn.classList.remove('hidden');
+            } else {
+                joinBtn.classList.add('hidden');
+            }
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        if (typeof window.openEliteModal === 'function') {
+            try { window.openEliteModal('googleCalEventModal'); } catch (e) {}
+        }
+    };
+
+    window.selectGoogleCalDay = function(dateStr) {
+        selectedGoogleDate = dateStr;
+        renderGoogleCalendarWeek();
+
+        const daySessions = rawSessions.filter(s => s.date === dateStr);
+        const parts = dateStr.split('-');
+        const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayName = isAr ? weekDayNamesAr[(dObj.getDay() + 1) % 7] : weekDayNamesEn[(dObj.getDay() + 1) % 7];
+
+        const modal = document.getElementById('googleCalEventModal');
+        if (!modal) return;
+
+        const badge = document.getElementById('gModalSubjectBadge');
+        const titleEl = document.getElementById('gModalTitle');
+        const singleBody = document.getElementById('gModalSingleEventBody');
+        const dayBody = document.getElementById('gModalDayListBody');
+        const joinBtn = document.getElementById('gModalJoinBtn');
+
+        if (daySessions.length === 1) {
+            window.showGoogleCalEventDetails(daySessions[0].id);
+            return;
+        }
+
+        if (daySessions.length > 1) {
+            if (badge) badge.textContent = `${daySessions.length} ${isAr ? 'حصص دراسية' : 'Sessions'}`;
+            if (titleEl) titleEl.textContent = isAr ? `حصص يوم ${dayName} (${dateStr})` : `Sessions on ${dayName} (${dateStr})`;
+
+            if (singleBody) singleBody.classList.add('hidden');
+            if (dayBody) {
+                dayBody.classList.remove('hidden');
+                dayBody.innerHTML = daySessions.map(item => `
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border border-teal-500/25">
+                                ${item.subject}
+                            </span>
+                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                                <i class="fa-regular fa-clock text-amber-500"></i> ${item.time}
+                            </span>
+                        </div>
+                        <h5 class="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                            ${item.title}
+                        </h5>
+                        <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-slate-700/60 text-[11px] font-mono text-slate-500">
+                            <span><i class="fa-solid fa-chalkboard-user text-teal-600"></i> ${item.teacher || ''}</span>
+                            ${item.can_join || item.is_live ? `
+                                <a href="${item.join_url}" class="px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white inline-flex items-center gap-1 shadow-xs">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                    <span>${isAr ? 'دخول الحصة' : 'Join'}</span>
+                                </a>
+                            ` : `<span class="text-[10px] text-slate-400">${item.status_label || (isAr ? 'مجدولة' : 'Scheduled')}</span>`}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            if (joinBtn) joinBtn.classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (typeof window.openEliteModal === 'function') {
+                try { window.openEliteModal('googleCalEventModal'); } catch (e) {}
+            }
+        } else {
+            if (badge) badge.textContent = isAr ? 'لا توجد حصص' : 'No Classes';
+            if (titleEl) titleEl.textContent = isAr ? `يوم ${dayName} (${dateStr})` : `${dayName} (${dateStr})`;
+
+            if (singleBody) singleBody.classList.add('hidden');
+            if (dayBody) {
+                dayBody.classList.remove('hidden');
+                dayBody.innerHTML = `
+                    <div class="py-6 px-4 text-center space-y-2.5">
+                        <div class="w-12 h-12 mx-auto rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center text-xl border border-teal-500/20">
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+                        <h5 class="font-heading font-black text-sm text-slate-900 dark:text-white">
+                            ${isAr ? 'لا توجد حصص مجدولة لهذا اليوم' : 'No classes scheduled for this day'}
+                        </h5>
+                        <p class="text-xs font-mono text-slate-400 max-w-xs mx-auto">
+                            ${isAr ? 'يمكنك استعراض باقي أيام الأسبوع أو الرجوع للحصص السابقة والقادمة.' : 'Check other days of the week or browse upcoming sessions.'}
+                        </p>
+                    </div>
+                `;
+            }
+            if (joinBtn) joinBtn.classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (typeof window.openEliteModal === 'function') {
+                try { window.openEliteModal('googleCalEventModal'); } catch (e) {}
+            }
+        }
+    };
+
+    function renderGoogleCalendarWeek() {
+        const titleEl = document.getElementById('googleWeekMonthTitle');
+        const headerEl = document.getElementById('googleWeekDaysHeader');
+        const gridEl = document.getElementById('googleWeekTimetableGrid');
+        const badgeEl = document.getElementById('googleWeekTotalClassesBadge');
+        const scrollEl = document.getElementById('googleWeekScrollContainer');
+        if (!headerEl || !gridEl) return;
+
+        // Calculate 7 days for current week (Starts on Sunday matching Image 2 reference)
+        const weekDays = [];
+        const start = new Date(googleWeekCurrentStart);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(start);
+            d.setDate(start.getDate() + i);
+            weekDays.push(d);
+        }
+
+        // Title: Month + Year matching Google Calendar (e.g. October 2026 / أكتوبر 2026)
+        const firstMonth = weekDays[0].getMonth();
+        const lastMonth = weekDays[6].getMonth();
+        const year = weekDays[0].getFullYear();
+        if (titleEl) {
+            if (firstMonth === lastMonth) {
+                const mName = isAr ? monthNamesAr[firstMonth] : monthNamesEn[firstMonth];
+                titleEl.textContent = `${mName} ${year}`;
+            } else {
+                const m1 = isAr ? monthNamesAr[firstMonth] : monthNamesEn[firstMonth].slice(0, 3);
+                const m2 = isAr ? monthNamesAr[lastMonth] : monthNamesEn[lastMonth].slice(0, 3);
+                titleEl.textContent = `${m1} — ${m2} ${year}`;
+            }
+        }
+
+        const todayKey = getTodayKey();
+        const startKey = formatDateKey(weekDays[0].getFullYear(), weekDays[0].getMonth(), weekDays[0].getDate());
+        const endKey = formatDateKey(weekDays[6].getFullYear(), weekDays[6].getMonth(), weekDays[6].getDate());
+
+        const thisWeekSessions = rawSessions.filter(s => s.date >= startKey && s.date <= endKey);
+        if (badgeEl) {
+            badgeEl.innerHTML = `<i class="fa-solid fa-graduation-cap text-teal-500 text-[11px]"></i> <span>${thisWeekSessions.length} ${isAr ? 'حصة هذا الأسبوع' : 'sessions this week'}</span>`;
+        }
+
+        // Dynamically compute the bounded hour range for the week's sessions (NO overscroll / endless blank space)
+        let weekHours = [];
+        thisWeekSessions.forEach(s => {
+            const pt = parseSessionStartTime(s);
+            if (pt) {
+                weekHours.push(pt.hour);
+                const durH = Math.ceil((parseInt(s.duration, 10) || 60) / 60);
+                weekHours.push(pt.hour + durH);
+            }
+        });
+
+        let startHour = 8;
+        let endHour = 15; // default 8 AM to 3 PM (7 hours) if no classes
+
+        if (weekHours.length > 0) {
+            const minH = Math.min(...weekHours);
+            const maxH = Math.max(...weekHours);
+            // Start 1 hour before earliest session (min 7 AM)
+            startHour = Math.max(7, minH - 1);
+            // End 1 hour after latest session (min 5 hours span, max 23 PM)
+            endHour = Math.min(23, Math.max(startHour + 5, maxH + 1));
+        }
+
+        const totalHours = endHour - startHour + 1;
+        const gridHeight = totalHours * 60;
+
+        // Apply dynamic heights to avoid overscroll
+        gridEl.style.height = `${gridHeight}px`;
+        if (scrollEl) {
+            scrollEl.style.maxHeight = `${Math.min(520, gridHeight)}px`;
+        }
+
+        // Day abbreviations matching Google Calendar
+        const dayNamesAbbrEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const dayNamesAbbrAr = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        headerEl.innerHTML = '';
+
+        // 1. Time Gutter header corner (68px)
+        const cornerCell = document.createElement('div');
+        cornerCell.className = 'py-2 px-1 flex flex-col items-center justify-center text-center border-inline-end border-slate-200 dark:border-slate-800 select-none';
+        cornerCell.innerHTML = `
+            <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20 text-[10px] font-mono shadow-2xs">
+                <i class="fa-regular fa-clock text-[10px]"></i>
+                <span>GMT+3</span>
+            </div>
+        `;
+        headerEl.appendChild(cornerCell);
+
+        // 2. 7 Day Header Columns (SUN 11 to SAT 17)
+        weekDays.forEach(d => {
+            const dKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const isToday = (dKey === todayKey);
+            const isSelected = (dKey === selectedGoogleDate);
+            const dayOfWeekIdx = d.getDay(); // 0 is Sunday
+            const dayNameStr = isAr ? dayNamesAbbrAr[dayOfWeekIdx] : dayNamesAbbrEn[dayOfWeekIdx];
+            const dayNum = d.getDate();
+            const dayClasses = rawSessions.filter(s => s.date === dKey);
+            const hasClasses = dayClasses.length > 0;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'gcal-day-header-btn group' + 
+                (isSelected ? ' bg-teal-500/15' : (isToday ? ' bg-teal-500/[0.04]' : ''));
+            btn.onclick = () => window.selectGoogleCalDay(dKey);
+            btn.title = isAr ? `انقر لعرض حصص يوم ${dayNameStr} (${dayClasses.length} حصة)` : `Click to view ${dayNameStr} (${dayClasses.length} sessions)`;
+
+            const nameClass = isToday 
+                ? 'text-[11px] font-mono font-black uppercase tracking-wider text-teal-600 dark:text-teal-400' 
+                : (isSelected ? 'text-[11px] font-mono font-extrabold text-teal-500' : 'text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400');
+
+            let circleClass = 'w-9 h-9 rounded-full text-slate-800 dark:text-slate-200 font-black text-sm flex items-center justify-center mt-0.5 transition-all group-hover:scale-105';
+            if (isToday) {
+                circleClass = 'w-9 h-9 rounded-full bg-teal-600 text-white font-black text-sm flex items-center justify-center mt-0.5 shadow-md ring-4 ring-teal-500/20';
+            } else if (isSelected) {
+                circleClass = 'w-9 h-9 rounded-full bg-teal-500/25 text-teal-700 dark:text-teal-300 font-black text-sm flex items-center justify-center mt-0.5 border-2 border-teal-500 shadow-xs';
+            }
+
+            btn.innerHTML = `
+                <span class="${nameClass}">${dayNameStr}</span>
+                <span class="${circleClass}">${dayNum}</span>
+                ${hasClasses ? `<span class="w-1.5 h-1.5 rounded-full ${isToday ? 'bg-teal-500' : 'bg-teal-400'} mt-1"></span>` : '<span class="w-1.5 h-1.5 mt-1 opacity-0">•</span>'}
+            `;
+            headerEl.appendChild(btn);
+        });
+
+        // Timetable Grid
+        gridEl.innerHTML = '';
+
+        // 1. Time Gutter Column
+        const timeGutter = document.createElement('div');
+        timeGutter.className = 'gcal-gutter-col select-none';
+        timeGutter.style.height = `${gridHeight}px`;
+
+        for (let h = 0; h < totalHours; h++) {
+            const hourVal = startHour + h;
+            const hourData = formatGCalHour(hourVal);
+
+            // Horizontal hour guideline connecting across gutter
+            const gutterLine = document.createElement('div');
+            gutterLine.className = 'gcal-hour-line';
+            gutterLine.style.top = `${h * 60}px`;
+            timeGutter.appendChild(gutterLine);
+
+            // Centered crisp hour badge
+            const slot = document.createElement('div');
+            const isFirst = (h === 0);
+            slot.className = 'absolute inset-inline-0 flex items-center justify-center pointer-events-none select-none z-10';
+            if (isFirst) {
+                slot.style.top = '4px';
+            } else {
+                slot.style.top = `${h * 60}px`;
+                slot.style.transform = 'translateY(-50%)';
+            }
+
+            slot.innerHTML = `
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-100 shadow-2xs backdrop-blur-xs transition-all">
+                    <span class="text-xs font-mono font-black tracking-tight text-slate-700 dark:text-slate-100">${hourData.num}</span>
+                    <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400">${hourData.period}</span>
+                </span>
+            `;
+            timeGutter.appendChild(slot);
+        }
+        gridEl.appendChild(timeGutter);
+
+        // 2. 7 Day Columns
+        let earliestSessionTop = null;
+
+        weekDays.forEach((d) => {
+            const dKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const isToday = (dKey === todayKey);
+            const isSelected = (dKey === selectedGoogleDate);
+            const daySessions = rawSessions.filter(s => s.date === dKey);
+
+            const dayCol = document.createElement('div');
+            dayCol.className = 'gcal-day-col' + (isToday ? ' is-today-col' : '') + (isSelected ? ' is-selected-col' : '');
+            dayCol.style.height = `${gridHeight}px`;
+
+            // Horizontal hour lines (every 60px)
+            for (let h = 0; h < totalHours; h++) {
+                const line = document.createElement('div');
+                line.className = 'gcal-hour-line';
+                line.style.top = `${h * 60}px`;
+                dayCol.appendChild(line);
+            }
+
+            // Red current time indicator line if today
+            if (isToday) {
+                const now = new Date();
+                const nowHour = now.getHours();
+                const nowMin = now.getMinutes();
+                const nowTop = ((nowHour - startHour) * 60) + nowMin;
+
+                if (nowTop >= 0 && nowTop <= gridHeight) {
+                    const redLine = document.createElement('div');
+                    redLine.className = 'absolute inset-inline-0 z-20 pointer-events-none flex items-center';
+                    redLine.style.top = `${nowTop}px`;
+                    redLine.innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 -ms-1 shrink-0 shadow-sm animate-pulse"></span>
+                        <div class="w-full border-t-2 border-rose-500"></div>
+                    `;
+                    dayCol.appendChild(redLine);
+                }
+            }
+
+            // Event Cards
+            daySessions.forEach(s => {
+                const parsedTime = parseSessionStartTime(s);
+                if (!parsedTime) return;
+
+                const top = Math.max(0, ((parsedTime.hour - startHour) * 60) + parsedTime.minute);
+                const duration = Math.min(240, Math.max(42, parseInt(s.duration, 10) || 60));
+                const height = duration - 4;
+
+                if (earliestSessionTop === null || top < earliestSessionTop) {
+                    earliestSessionTop = top;
+                }
+
+                const isLive = s.is_live;
+                const isPast = s.is_past;
+
+                let styleAttrs = '';
+                let titleClass = '';
+                let metaClass = '';
+
+                if (isLive) {
+                    styleAttrs = 'background: linear-gradient(135deg, rgba(225, 29, 72, 0.28) 0%, rgba(190, 18, 60, 0.16) 100%); border: 1px solid rgba(244, 63, 94, 0.65); border-inline-start: 4px solid #f43f5e; box-shadow: 0 4px 14px -2px rgba(225, 29, 72, 0.25);';
+                    titleClass = 'text-rose-100 font-black';
+                    metaClass = 'text-rose-200';
+                } else if (isPast) {
+                    styleAttrs = 'background: rgba(51, 65, 85, 0.25); border: 1px solid rgba(100, 116, 139, 0.35); border-inline-start: 4px solid #64748b;';
+                    titleClass = 'text-slate-300 font-extrabold';
+                    metaClass = 'text-slate-400';
+                } else {
+                    styleAttrs = 'background: linear-gradient(135deg, rgba(13, 148, 136, 0.24) 0%, rgba(15, 118, 110, 0.14) 100%); border: 1px solid rgba(20, 184, 166, 0.55); border-inline-start: 4px solid #14b8a6; box-shadow: 0 4px 14px -2px rgba(13, 148, 136, 0.2);';
+                    titleClass = 'text-teal-100 font-black';
+                    metaClass = 'text-teal-200/90';
+                }
+
+                const evEl = document.createElement('div');
+                evEl.className = 'gcal-event-pill group';
+                evEl.style.cssText = `top: ${top}px; height: ${height}px; inset-inline: 4px; ${styleAttrs}`;
+                evEl.onclick = (e) => {
+                    e.stopPropagation();
+                    window.showGoogleCalEventDetails(s.id);
+                };
+
+                evEl.innerHTML = `
+                    <div class="flex items-start justify-between gap-1 leading-tight w-full">
+                        <span class="font-heading font-black text-xs sm:text-sm tracking-wide ${titleClass} truncate">
+                            ${s.subject || s.title}
+                        </span>
+                        ${isLive ? '<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0 mt-0.5"></span>' : ''}
+                    </div>
+                    <div class="text-[10px] font-mono ${metaClass} truncate mt-1 flex items-center gap-1.5 leading-tight">
+                        <i class="fa-regular fa-clock text-[9px] opacity-80"></i>
+                        <span>${s.time}</span>
+                        ${s.teacher ? `<span class="opacity-60">•</span><span class="truncate">${s.teacher}</span>` : ''}
+                    </div>
+                    ${height >= 68 && s.title && s.title !== s.subject ? `
+                        <div class="text-[9px] font-mono text-slate-400 dark:text-slate-400 truncate mt-0.5 opacity-90">
+                            ${s.title}
+                        </div>
+                    ` : ''}
+                `;
+                dayCol.appendChild(evEl);
+            });
+
+            gridEl.appendChild(dayCol);
+        });
+
+        // Smart scroll to earliest morning session or active time without overscroll
+        if (scrollEl) {
+            setTimeout(() => {
+                if (earliestSessionTop !== null) {
+                    scrollEl.scrollTo({
+                        top: Math.max(0, earliestSessionTop - 20),
+                        behavior: 'smooth'
+                    });
+                }
+            }, 50);
+        }
+    }
+
+    function formatGCalHour(h) {
+        let num = h;
+        let period = '';
+        if (h === 0 || h === 24) {
+            num = 12;
+            period = isAr ? 'ص' : 'AM';
+        } else if (h < 12) {
+            num = h;
+            period = isAr ? 'ص' : 'AM';
+        } else if (h === 12) {
+            num = 12;
+            period = isAr ? 'م' : 'PM';
+        } else {
+            num = h - 12;
+            period = isAr ? 'م' : 'PM';
+        }
+        return { num, period, text: `${num} ${period}` };
+    }
+
+    function parseSessionStartTime(s) {
+        if (s.time) {
+            const match = s.time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (match) {
+                let hour = parseInt(match[1], 10);
+                const minute = parseInt(match[2], 10);
+                const ampm = (match[3] || '').toUpperCase();
+                if (ampm === 'PM' && hour < 12) hour += 12;
+                if (ampm === 'AM' && hour === 12) hour = 0;
+                return { hour, minute };
+            }
+        }
+
+        if (s.iso_date) {
+            try {
+                const d = new Date(s.iso_date);
+                if (!isNaN(d.getTime())) {
+                    return { hour: d.getHours(), minute: d.getMinutes() };
+                }
+            } catch (e) {}
+        }
+        return { hour: 10, minute: 0 };
     }
 
     function updateFilterPills() {
@@ -1899,10 +2677,13 @@
         if (calViewMode === 'weekly') {
             renderWeeklyDaysStrip();
             renderWeeklySummary();
+            renderSessionList();
+        } else if (calViewMode === 'google_week') {
+            renderGoogleCalendarWeek();
         } else {
             renderCalendar();
+            renderSessionList();
         }
-        renderSessionList();
     };
 
     function initCalendar() {

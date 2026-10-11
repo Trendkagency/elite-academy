@@ -7,6 +7,7 @@ use App\Models\CourseSession;
 use App\Models\LiveSession;
 use App\Models\RecurringSchedule;
 use App\Models\SessionAuditLog;
+use App\Models\StudentPackage;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -29,10 +30,198 @@ class RecurringScheduleService
     ];
 
     /**
+     * Calculate automatic end date and check real-time student package quota.
+     * End date is calculated automatically based on the course sessions count (or monthly distribution)
+     * and the selected days of the week, with strict student package balance verification.
+     */
+    public function calculateEndDateAndQuota(array $params): array
+    {
+        $courseId = ! empty($params['course_id']) ? (int) $params['course_id'] : null;
+        $studentUserId = (! empty($params['student_user_id']) && $params['student_user_id'] !== '__group__' && $params['student_user_id'] !== 'null')
+            ? (int) $params['student_user_id']
+            : null;
+        $startDateStr = ! empty($params['start_date']) ? $params['start_date'] : now()->toDateString();
+        $startDate = Carbon::parse($startDateStr)->startOfDay();
+        $recurrenceType = $params['recurrence_type'] ?? 'weekly';
+        $daysOfWeek = $params['days_of_week'] ?? [];
+
+        // Normalize days of week
+        $normalizedDays = array_values(array_unique(array_map(function ($d) {
+            if (is_numeric($d)) return (int) $d;
+            $lower = strtolower(trim((string) $d));
+            return self::DAY_MAP[$lower] ?? 0;
+        }, (array) $daysOfWeek)));
+
+        $course = $courseId ? Course::find($courseId) : null;
+
+        // Determine target sessions count:
+        // 1. If course has defined sessions_count > 0, use it.
+        // 2. Otherwise distribute across a standard month (4 weeks * selected days, min 4 sessions).
+        $daysCount = count($normalizedDays);
+        if ($course && (int) $course->sessions_count > 0) {
+            $targetSessions = (int) $course->sessions_count;
+            $sessionsSource = 'course_defined';
+        } else {
+            $effectiveDays = $daysCount > 0 ? $daysCount : 2;
+            $targetSessions = max(1, $effectiveDays * 4); // 4 weeks of recurrence across the month
+            $sessionsSource = 'monthly_distributed';
+        }
+
+        // Student Package Quota Check (for 1-to-1 private schedule)
+        $studentQuota = null;
+        if ($studentUserId) {
+            $studentUser = User::find($studentUserId);
+
+            $package = StudentPackage::where('student_user_id', $studentUserId)
+                ->where(function ($q) use ($courseId) {
+                    if ($courseId) {
+                        $q->where('course_id', $courseId)
+                          ->orWhereNull('course_id');
+                    }
+                })
+                ->where('status', 'active')
+                ->where(function ($q) {
+                    $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+                })
+                ->orderByRaw('course_id IS NOT NULL DESC')
+                ->latest('created_at')
+                ->first();
+
+            $isAr = app()->getLocale() === 'ar';
+            if ($package) {
+                $remaining = (int) $package->remaining_sessions;
+                $canCreate = $remaining >= $targetSessions;
+                $packageName = $package->packageTemplate?->name ?: ($isAr ? 'باقة مخصصة' : 'Custom Package');
+
+                $studentQuota = [
+                    'has_student' => true,
+                    'student_name' => $studentUser?->name ?: "Student #{$studentUserId}",
+                    'has_package' => true,
+                    'package_id' => $package->id,
+                    'package_name' => $packageName,
+                    'total_sessions' => (int) $package->total_sessions,
+                    'remaining_sessions' => $remaining,
+                    'required_sessions' => $targetSessions,
+                    'can_create' => $canCreate,
+                    'status' => $canCreate ? 'sufficient' : 'insufficient',
+                    'message' => $canCreate
+                        ? ($isAr
+                            ? "✅ رصيد باقة الطالب كافٍ ({$remaining} حصة متاحة من {$package->total_sessions}، والمطلوب {$targetSessions} حصة)."
+                            : "✅ Student package balance is sufficient ({$remaining} available / {$targetSessions} required).")
+                        : ($isAr
+                            ? "❌ عجز في رصيد الباقة: الطالب لديه {$remaining} حصة متاحة فقط، بينما الجدول يتطلب {$targetSessions} حصة!"
+                            : "❌ Insufficient package balance: Student has {$remaining} sessions available, but schedule requires {$targetSessions}."),
+                ];
+            } else {
+                $hasAnyPackage = StudentPackage::where('student_user_id', $studentUserId)->exists();
+                $isEnrolled = $courseId ? \App\Models\CourseEnrollment::where('course_id', $courseId)
+                    ->where('student_user_id', $studentUserId)
+                    ->where('status', 'active')
+                    ->exists() : false;
+
+                if (! $hasAnyPackage && $isEnrolled) {
+                    $studentQuota = [
+                        'has_student' => true,
+                        'student_name' => $studentUser?->name ?: "Student #{$studentUserId}",
+                        'has_package' => false,
+                        'package_id' => null,
+                        'package_name' => $isAr ? 'تسجيل معتمد في المقرر' : 'Active Course Enrollment',
+                        'total_sessions' => $targetSessions,
+                        'remaining_sessions' => $targetSessions,
+                        'required_sessions' => $targetSessions,
+                        'can_create' => true,
+                        'status' => 'enrolled_direct',
+                        'message' => $isAr
+                            ? "✅ الطالب مسجل رسمياً في هذا المقرر بنجاح (تسجيل مباشر معتمد - لا يتطلب باقة منفصلة)."
+                            : "✅ Student is actively enrolled in this course (direct enrollment - no separate package required).",
+                    ];
+                } else {
+                    $studentQuota = [
+                        'has_student' => true,
+                        'student_name' => $studentUser?->name ?: "Student #{$studentUserId}",
+                        'has_package' => false,
+                        'package_id' => null,
+                        'package_name' => null,
+                        'total_sessions' => 0,
+                        'remaining_sessions' => 0,
+                        'required_sessions' => $targetSessions,
+                        'can_create' => false,
+                        'status' => 'no_package',
+                        'message' => $isAr
+                            ? "⚠️ لا توجد باقة حصص نشطة أو تسجيل معتمد لهذا الطالب في هذا المقرر. يرجى تفعيل أو شحن الباقة أولاً."
+                            : "⚠️ No active package or valid course enrollment found for this student.",
+                    ];
+                }
+            }
+        }
+
+        // Calculate exact end_date based on targetSessions and recurrence pattern
+        $calculatedEndDate = $startDate->copy();
+
+        if ($recurrenceType === 'single') {
+            $calculatedEndDate = $startDate->copy();
+        } elseif ($recurrenceType === 'monthly') {
+            $calculatedEndDate = $startDate->copy()->addMonths(max(1, $targetSessions - 1));
+        } else {
+            // weekly, biweekly, daily
+            if (empty($normalizedDays)) {
+                $normalizedDays = [$startDate->dayOfWeek];
+            }
+
+            $cursor = $startDate->copy();
+            $scheduledCount = 0;
+            $maxSafetyLimit = 750;
+            $loop = 0;
+
+            // Reference base date for biweekly alternating parity
+            $parityBaseDate = $startDate->copy()->startOfWeek(Carbon::SATURDAY);
+
+            while ($scheduledCount < $targetSessions && $loop < $maxSafetyLimit) {
+                $dayOfWeek = $cursor->dayOfWeek;
+                $isBiweeklySkip = false;
+
+                if ($recurrenceType === 'biweekly') {
+                    $weekDiff = $cursor->copy()->startOfWeek(Carbon::SATURDAY)->diffInWeeks($parityBaseDate);
+                    if (($weekDiff % 2) !== 0) {
+                        $isBiweeklySkip = true;
+                    }
+                }
+
+                if (! $isBiweeklySkip && in_array($dayOfWeek, $normalizedDays, true)) {
+                    $scheduledCount++;
+                    if ($scheduledCount === $targetSessions) {
+                        $calculatedEndDate = $cursor->copy();
+                        break;
+                    }
+                }
+
+                $cursor->addDay();
+                $loop++;
+            }
+        }
+
+        return [
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $calculatedEndDate->toDateString(),
+            'target_sessions' => $targetSessions,
+            'sessions_source' => $sessionsSource,
+            'course_id' => $courseId,
+            'course_title' => $course?->title,
+            'course_sessions_count' => $course ? (int) $course->sessions_count : null,
+            'student_quota' => $studentQuota,
+        ];
+    }
+
+    /**
      * Preview recurring dates and validate conflicts without saving to the database.
      */
     public function previewDates(array $params): array
     {
+        if (empty($params['end_date'])) {
+            $calc = $this->calculateEndDateAndQuota($params);
+            $params['end_date'] = $calc['end_date'];
+        }
+
         $startDate = Carbon::parse($params['start_date'])->startOfDay();
         $endDate = Carbon::parse($params['end_date'])->endOfDay();
         $startTime = $params['start_time']; // e.g. "10:00"
@@ -328,6 +517,21 @@ class RecurringScheduleService
             $teacherProfileId = (int) $data['teacher_profile_id'];
             $studentUserId = !empty($data['student_user_id']) ? (int) $data['student_user_id'] : null;
 
+            // Automatically compute end_date and validate student package quota
+            $calc = $this->calculateEndDateAndQuota($data);
+            if (empty($data['end_date'])) {
+                $data['end_date'] = $calc['end_date'];
+            }
+
+            if ($studentUserId) {
+                $quota = $calc['student_quota'];
+                if ($quota && ! $quota['can_create']) {
+                    throw ValidationException::withMessages([
+                        'student_user_id' => $quota['message'],
+                    ]);
+                }
+            }
+
             $schedule = RecurringSchedule::create([
                 'teacher_profile_id' => $teacherProfileId,
                 'course_id' => $course->id,
@@ -530,11 +734,25 @@ class RecurringScheduleService
             $duration = (int) ($data['duration_minutes'] ?? $schedule->duration_minutes);
             $endTime = $data['end_time'] ?? Carbon::parse($startTime)->addMinutes($duration)->format('H:i:s');
 
+            $merged = array_merge($schedule->toArray(), $data);
+            $calc = $this->calculateEndDateAndQuota($merged);
+            $endDate = $calc['end_date'];
+
+            $studentUserId = array_key_exists('student_user_id', $data) ? $data['student_user_id'] : $schedule->student_user_id;
+            if ($studentUserId) {
+                $quota = $calc['student_quota'];
+                if ($quota && ! $quota['can_create']) {
+                    throw ValidationException::withMessages([
+                        'student_user_id' => $quota['message'],
+                    ]);
+                }
+            }
+
             $schedule->update([
                 'title' => $data['title'] ?? $schedule->title,
                 'teacher_profile_id' => $data['teacher_profile_id'] ?? $schedule->teacher_profile_id,
                 'course_id' => $data['course_id'] ?? $schedule->course_id,
-                'student_user_id' => array_key_exists('student_user_id', $data) ? $data['student_user_id'] : $schedule->student_user_id,
+                'student_user_id' => $studentUserId,
                 'recurrence_type' => $data['recurrence_type'] ?? $schedule->recurrence_type,
                 'meeting_platform' => $data['meeting_platform'] ?? $schedule->meeting_platform,
                 'status' => $data['status'] ?? $schedule->status,
@@ -546,7 +764,7 @@ class RecurringScheduleService
                 'end_time' => $endTime,
                 'duration_minutes' => $duration,
                 'start_date' => $data['start_date'] ?? $schedule->start_date,
-                'end_date' => $data['end_date'] ?? $schedule->end_date,
+                'end_date' => $endDate,
                 'meeting_link' => array_key_exists('meeting_link', $data) ? $data['meeting_link'] : $schedule->meeting_link,
                 'notes' => array_key_exists('notes', $data) ? $data['notes'] : $schedule->notes,
             ]);
@@ -618,6 +836,23 @@ class RecurringScheduleService
             'meeting_link' => $schedule->meeting_link,
             'monthly_pattern' => $schedule->monthly_pattern ?? null,
         ];
+
+        if (empty($schedule->days_of_week)) {
+            $schedule->liveSessions()
+                ->where('scheduled_at', '>=', $now)
+                ->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])
+                ->where('is_override', false)
+                ->update([
+                    'title' => $schedule->title,
+                    'teacher_profile_id' => $schedule->teacher_profile_id,
+                    'student_user_id' => $schedule->student_user_id,
+                    'course_id' => $schedule->course_id,
+                    'duration_minutes' => $schedule->duration_minutes ?: 60,
+                    'meeting_link' => $schedule->meeting_link,
+                    'meeting_platform' => $schedule->meeting_platform ?: 'agora',
+                ]);
+            return;
+        }
 
         $targetSlots = $this->previewDates($previewParams);
 

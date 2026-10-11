@@ -60,10 +60,22 @@ class CourseSession extends Model
                 $updateData['meeting_link'] = $courseSession->video_url;
             }
 
-            LiveSession::updateOrCreate(
-                ['course_session_id' => $courseSession->id],
-                $updateData
-            );
+            $existing = LiveSession::where('course_session_id', $courseSession->id)->first();
+            if ($existing) {
+                $existing->update($updateData);
+            } else {
+                $unsynced = LiveSession::where('course_id', $courseSession->course_id)
+                    ->whereNull('course_session_id')
+                    ->where('title', $courseSession->title)
+                    ->latest('id')
+                    ->first();
+
+                if ($unsynced) {
+                    $unsynced->updateQuietly(array_merge($updateData, ['course_session_id' => $courseSession->id]));
+                } else {
+                    LiveSession::create(array_merge($updateData, ['course_session_id' => $courseSession->id]));
+                }
+            }
         });
 
         static::deleted(function (CourseSession $courseSession) {

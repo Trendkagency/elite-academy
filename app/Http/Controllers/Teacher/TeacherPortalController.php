@@ -444,7 +444,7 @@ class TeacherPortalController extends Controller
             'course_id' => 'required|exists:courses,id',
             'student_user_id' => 'nullable|exists:users,id',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
             'start_time' => 'required|string',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'recurrence_type' => 'required|in:single,weekly,monthly,multi_month,yearly',
@@ -458,8 +458,6 @@ class TeacherPortalController extends Controller
             'course_id.required' => __('Please select a course first to preview the schedule.'),
             'course_id.exists' => __('The selected course was not found or is invalid.'),
             'start_date.required' => __('Please select a start date.'),
-            'end_date.required' => __('Please select an end date.'),
-            'end_date.after_or_equal' => __('End date cannot be earlier than start date.'),
             'start_time.required' => __('Please specify a start time.'),
         ]);
 
@@ -497,12 +495,18 @@ class TeacherPortalController extends Controller
         ]);
 
         try {
+            $calc = $service->calculateEndDateAndQuota($params);
+            $params['end_date'] = $calc['end_date'];
+
             $dates = $service->previewDates($params);
             $hasAnyConflict = collect($dates)->contains('has_conflict', true);
 
             return response()->json([
                 'success' => true,
+                'calculated_end_date' => $calc['end_date'],
                 'total_sessions' => count($dates),
+                'target_sessions' => $calc['target_sessions'],
+                'student_quota' => $calc['student_quota'],
                 'has_conflicts' => $hasAnyConflict,
                 'dates' => $dates,
             ]);
@@ -559,7 +563,7 @@ class TeacherPortalController extends Controller
             'course_id' => 'required|exists:courses,id',
             'student_user_id' => 'nullable|exists:users,id',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
             'start_time' => 'required|string',
             'duration_minutes' => 'nullable|integer|min:15|max:300',
             'recurrence_type' => 'required|in:single,weekly,monthly,multi_month,yearly',
@@ -576,8 +580,6 @@ class TeacherPortalController extends Controller
             'course_id.required' => __('Please select a course first.'),
             'course_id.exists' => __('The selected course was not found or is invalid.'),
             'start_date.required' => __('Please select a start date.'),
-            'end_date.required' => __('Please select an end date.'),
-            'end_date.after_or_equal' => __('End date cannot be earlier than start date.'),
             'start_time.required' => __('Please specify a start time.'),
         ]);
 
@@ -613,6 +615,20 @@ class TeacherPortalController extends Controller
         $data = array_merge($validated, [
             'teacher_profile_id' => $teacherProfile->id,
         ]);
+
+        $calc = $service->calculateEndDateAndQuota($data);
+        $data['end_date'] = ! empty($validated['end_date']) ? $validated['end_date'] : $calc['end_date'];
+
+        if ($studentUserId) {
+            $quota = $calc['student_quota'];
+            if ($quota && ! $quota['can_create']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $quota['message'],
+                    'quota' => $quota,
+                ], 422);
+            }
+        }
 
         try {
             $schedule = $service->createSchedule($data, auth()->user());
@@ -696,7 +712,7 @@ class TeacherPortalController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
             'recurrence_type' => 'nullable|string|in:weekly,biweekly,daily,monthly',
             'days_of_week' => 'required|array|min:1',
             'start_time' => 'required|string',
@@ -710,7 +726,6 @@ class TeacherPortalController extends Controller
             'title.required' => app()->getLocale() === 'ar' ? 'يرجى إدخال عنوان الجدول الدوري.' : __('Schedule title is required.'),
             'days_of_week.required' => app()->getLocale() === 'ar' ? 'يرجى اختيار يوم واحد على الأقل للجدول.' : __('Please select at least one teaching day.'),
             'days_of_week.min' => app()->getLocale() === 'ar' ? 'يرجى اختيار يوم واحد على الأقل للجدول.' : __('Please select at least one teaching day.'),
-            'end_date.after_or_equal' => app()->getLocale() === 'ar' ? 'تاريخ نهاية الجدول يجب أن يكون بعد تاريخ البداية أو مساوياً له.' : __('End date must be after or equal to start date.'),
             'start_time.required' => app()->getLocale() === 'ar' ? 'يرجى تحديد موعد البدء الرئيسي.' : __('Start time is required.'),
         ]);
 

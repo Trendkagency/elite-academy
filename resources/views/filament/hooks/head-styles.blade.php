@@ -1760,6 +1760,163 @@
         0%, 100% { transform: scale(1); opacity: 1; }
         50% { transform: scale(1.05); opacity: 0.9; }
     }
+
+    /* =============================================================
+       RECURRING SCHEDULE FORM: HIGH-END HUD & QUOTA WIDGETS
+       ============================================================= */
+    .rec-quota-card {
+        border-radius: 1rem !important;
+        padding: 1.15rem 1.25rem !important;
+        margin: 0.65rem 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1.25rem !important;
+        flex-wrap: wrap !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    .rec-quota-card-sufficient {
+        background: linear-gradient(135deg, rgba(6, 78, 59, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        border: 1.5px solid rgba(16, 185, 129, 0.55) !important;
+        box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.4), inset 0 1px 0 rgba(16, 185, 129, 0.25) !important;
+    }
+    .rec-quota-card-insufficient {
+        background: linear-gradient(135deg, rgba(136, 19, 55, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        border: 1.5px solid rgba(244, 63, 94, 0.6) !important;
+        box-shadow: 0 10px 25px -5px rgba(136, 19, 55, 0.4), inset 0 1px 0 rgba(244, 63, 94, 0.25) !important;
+    }
+    .rec-quota-card-no-package {
+        background: linear-gradient(135deg, rgba(120, 53, 15, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.6) !important;
+        box-shadow: 0 10px 25px -5px rgba(120, 53, 15, 0.4), inset 0 1px 0 rgba(245, 158, 11, 0.25) !important;
+    }
+    .rec-quota-card-enrolled {
+        background: linear-gradient(135deg, rgba(8, 51, 68, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        border: 1.5px solid rgba(6, 182, 212, 0.55) !important;
+        box-shadow: 0 10px 25px -5px rgba(8, 51, 68, 0.4), inset 0 1px 0 rgba(6, 182, 212, 0.25) !important;
+    }
+
+    .rec-quota-icon-badge {
+        width: 2.75rem !important;
+        height: 2.75rem !important;
+        border-radius: 0.85rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    .rec-quota-sufficient-icon {
+        background: rgba(16, 185, 129, 0.25) !important;
+        border: 1.5px solid rgba(16, 185, 129, 0.5) !important;
+        color: #34d399 !important;
+    }
+    .rec-quota-insufficient-icon {
+        background: rgba(244, 63, 94, 0.25) !important;
+        border: 1.5px solid rgba(244, 63, 94, 0.5) !important;
+        color: #fb7185 !important;
+    }
+    .rec-quota-no-package-icon {
+        background: rgba(245, 158, 11, 0.25) !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+        color: #fbbf24 !important;
+    }
+    .rec-quota-enrolled-icon {
+        background: rgba(6, 182, 212, 0.25) !important;
+        border: 1.5px solid rgba(6, 182, 212, 0.5) !important;
+        color: #22d3ee !important;
+    }
+
+    .rec-chip-group {
+        display: flex !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+    }
+    .rec-chip {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        padding: 0.4rem 0.75rem !important;
+        border-radius: 0.65rem !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid rgba(148, 163, 184, 0.25) !important;
+        color: #e2e8f0 !important;
+        letter-spacing: 0.02em !important;
+    }
+    .rec-chip strong {
+        font-weight: 900 !important;
+        font-family: monospace !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* 4-Column Live Sync HUD Grid */
+    .rec-sync-hud {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.75rem !important;
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98)) !important;
+        border: 1.5px solid rgba(51, 65, 85, 0.7) !important;
+        border-radius: 1rem !important;
+        padding: 0.85rem !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+        margin-top: 0.5rem !important;
+    }
+    @media (max-width: 768px) {
+        .rec-sync-hud {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    .rec-hud-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 0.75rem 0.5rem !important;
+        border-radius: 0.75rem !important;
+        transition: transform 0.2s ease !important;
+    }
+    .rec-hud-item:hover {
+        transform: translateY(-2px) !important;
+    }
+    .rec-hud-teal {
+        background: rgba(20, 184, 166, 0.08) !important;
+        border: 1px solid rgba(20, 184, 166, 0.3) !important;
+    }
+    .rec-hud-indigo {
+        background: rgba(99, 102, 241, 0.08) !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+    }
+    .rec-hud-emerald {
+        background: rgba(16, 185, 129, 0.08) !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    }
+    .rec-hud-cyan {
+        background: rgba(6, 182, 212, 0.08) !important;
+        border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    }
+    .rec-hud-label {
+        font-size: 0.68rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        margin-bottom: 0.35rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+    }
+    .rec-hud-value {
+        font-size: 0.925rem !important;
+        font-weight: 900 !important;
+        font-family: monospace !important;
+        color: #ffffff !important;
+        letter-spacing: 0.02em !important;
+    }
 </style>
 
 <script>

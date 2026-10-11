@@ -2046,11 +2046,16 @@
                                     @enderror
                                 </div>
                                 <div class="sch-form-group">
-                                    <label class="sch-label">
-                                        <span>{{ __('End Date') }} *</span>
-                                    </label>
-                                    <input type="date" wire:model="recEndDate" required class="sch-input">
-                                    <span style="font-size: 0.65rem; color: #0D9488; font-weight: 700;">{{ __('Cycle End Date (Auto-Calculated)') }}</span>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                                        <label class="sch-label" style="margin: 0;">
+                                            <span>{{ __('End Date') }} *</span>
+                                        </label>
+                                        <span style="font-size: 0.65rem; font-weight: 800; color: #14B8A6; background: rgba(20, 184, 166, 0.15); border: 1px solid rgba(20, 184, 166, 0.3); padding: 0.1rem 0.5rem; border-radius: 9999px;">
+                                            🔒 {{ __('Auto-Calculated & Locked') }}
+                                        </span>
+                                    </div>
+                                    <input type="text" wire:model="recEndDate" readonly disabled tabindex="-1" class="sch-input" style="pointer-events: none !important; cursor: not-allowed !important; user-select: none !important; background: rgba(15, 23, 42, 0.75) !important; border-color: rgba(20, 184, 166, 0.45) !important; color: #2dd4bf !important; font-family: ui-monospace, SFMono-Regular, monospace !important; font-weight: 700 !important;">
+                                    <span style="font-size: 0.65rem; color: #0D9488; font-weight: 700; margin-top: 0.25rem; display: block;">🔒 {{ __('Automatically calculated based on course sessions count') }}</span>
                                     @error('recEndDate')
                                         <span style="color: #E11D48; font-size: 0.725rem; font-weight: 700;">{{ $message }}</span>
                                     @enderror

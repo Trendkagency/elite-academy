@@ -3134,6 +3134,9 @@
                         </div>
                     </div>
 
+                    {{-- 3.1 Real-time Student Package Quota & Balance Alert Card --}}
+                    <div id="recPortalPackageQuotaAlert" class="hidden transition-all"></div>
+
                     {{-- Recurrence Pattern & Main Settings --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="min-w-0">
@@ -3177,13 +3180,21 @@
                                 min="{{ today()->format('Y-m-d') }}" onchange="autoCalcEndDate()">
                         </div>
                         <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                <i class="fa-regular fa-calendar-check text-indigo-500"></i>
-                                <span>{{ __('End Date') }} *</span>
-                            </label>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label
+                                    class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-regular fa-calendar-check text-indigo-500"></i>
+                                    <span>{{ __('End Date') }}</span>
+                                </label>
+                                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                                    <i class="fa-solid fa-lock text-[9px] me-1"></i>{{ $isAr ? 'يُحسب تلقائياً' : 'Auto' }}
+                                </span>
+                            </div>
                             <input type="date" name="end_date" id="recPortalEndDate"
-                                value="{{ today()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile font-mono text-xs">
+                                readonly class="input-mobile font-mono text-xs bg-slate-100/90 dark:bg-slate-800/80 cursor-not-allowed opacity-90 border-dashed border-teal-500/40 select-none">
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
+                                {{ $isAr ? '🔒 يتم احتساب تاريخ النهاية وتوزيعه تلقائياً على الشهر حسب حصص المقرر والأيام المحددة' : '🔒 Automatically calculated and distributed based on course sessions.' }}
+                            </p>
                         </div>
                         <div class="sm:col-span-2 lg:col-span-1">
                             <label
@@ -3426,9 +3437,17 @@
                             <input type="date" id="editRecStartDate" name="start_date" oninput="recalculateEditRecSyncSummary()" class="input-mobile">
                         </div>
                         <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}</label>
-                            <input type="date" id="editRecEndDate" name="end_date" oninput="recalculateEditRecSyncSummary()" class="input-mobile">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label
+                                    class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-regular fa-calendar-check text-indigo-500"></i>
+                                    <span>{{ __('Schedule End Date') }}</span>
+                                </label>
+                                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                                    <i class="fa-solid fa-lock text-[9px] me-1"></i>{{ $isAr ? 'يُحسب تلقائياً' : 'Auto' }}
+                                </span>
+                            </div>
+                            <input type="date" id="editRecEndDate" name="end_date" readonly class="input-mobile font-mono text-xs bg-slate-100/90 dark:bg-slate-800/80 cursor-not-allowed opacity-90 border-dashed border-teal-500/40 select-none">
                         </div>
                     </div>
 
@@ -4189,11 +4208,21 @@
                                 value="{{ now()->format('Y-m-d') }}" required class="input-mobile font-mono">
                         </div>
                         <div>
-                            <label
-                                class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}
-                                *</label>
-                            <input type="date" id="recEndDate" name="end_date"
-                                value="{{ now()->addMonths(3)->format('Y-m-d') }}" required class="input-mobile font-mono">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label
+                                    class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">{{ __('Schedule End Date') }}
+                                    *</label>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20 select-none">
+                                    <i class="fa-solid fa-lock text-[9px]"></i> {{ $isAr ? 'مقفل ومحسوب آلياً' : 'Locked & Computed' }}
+                                </span>
+                            </div>
+                            <input type="text" id="recEndDate" name="end_date"
+                                readonly tabindex="-1"
+                                class="input-mobile font-mono font-bold text-xs bg-slate-100/90 dark:bg-slate-800/80 cursor-not-allowed select-none pointer-events-none border-dashed border-teal-500/50 text-teal-600 dark:text-teal-400"
+                                style="pointer-events: none !important; cursor: not-allowed !important;">
+                            <span class="block text-[10px] text-teal-600 dark:text-teal-400 font-bold mt-1 select-none">
+                                {{ $isAr ? '🔒 يُحسب تلقائياً ويوزع على مدار الشهر بناءً على عدد حصص المقرر' : '🔒 Auto-calculated from course sessions count' }}
+                            </span>
                         </div>
                     </div>
 
@@ -11522,6 +11551,7 @@
                         if (studentHidden) studentHidden.value = '';
                         window.onRecurrenceStudentChange('__group__');
                     }
+                    setTimeout(() => window.autoCalcEndDate(), 50);
                 }
             };
 
@@ -11677,6 +11707,7 @@
                         courseSelect.disabled = true;
                     }
                 }
+                window.autoCalcEndDate();
             };
 
             window.onRecurrenceCourseChange = function(courseId) {
@@ -11685,6 +11716,7 @@
                 if (isGroup) {
                     window.fetchCourseStudents(courseId);
                 }
+                window.autoCalcEndDate();
             };
 
             window.selectRecurrenceStudent = function(studentUserId) {
@@ -11769,20 +11801,147 @@
                 }
             };
 
-            // ── Auto-calculate end date based on pattern ────────────────────
-            window.autoCalcEndDate = function() {
+            // ── Auto-calculate end date & real-time quota verification ──────
+            window.autoCalcEndDate = async function() {
+                const form = document.getElementById('recurringSchedulePortalForm');
+                if (!form) return;
+
                 const startInput = document.getElementById('recPortalStartDate');
                 const endInput = document.getElementById('recPortalEndDate');
                 const typeSelect = document.getElementById('recPortalType');
+                const courseSelect = document.getElementById('recPortalCourseId');
+                const studentSelect = document.getElementById('recPortalStudentSelect');
+                const quotaAlert = document.getElementById('recPortalPackageQuotaAlert');
+                const submitBtn = document.getElementById('recPortalSubmitBtn');
+
                 if (!startInput || !endInput || !startInput.value) return;
-                const start = new Date(startInput.value);
-                const type = typeSelect ? typeSelect.value : 'weekly';
-                let end = new Date(start);
-                if (type === 'weekly') end.setDate(end.getDate() + 28);
-                else if (type === 'monthly') end.setMonth(end.getMonth() + 1);
-                else if (type === 'multi_month') end.setMonth(end.getMonth() + 3);
-                else if (type === 'yearly') end.setMonth(end.getMonth() + 9);
-                endInput.value = end.toISOString().split('T')[0];
+
+                const startDate = new Date(startInput.value);
+                if (isNaN(startDate.getTime())) return;
+
+                const recType = typeSelect ? typeSelect.value : 'weekly';
+                const checkedDayBoxes = Array.from(form.querySelectorAll('input[name="days_of_week[]"]:checked'));
+                const checkedDays = checkedDayBoxes.map(el => parseInt(el.value, 10));
+
+                // 1. Instant Client-Side Proactive Calculation
+                let calculatedEnd = new Date(startDate);
+                if (recType === 'single') {
+                    calculatedEnd = new Date(startDate);
+                } else if (recType === 'monthly') {
+                    calculatedEnd.setMonth(calculatedEnd.getMonth() + 1);
+                } else {
+                    const daysCount = checkedDays.length > 0 ? checkedDays.length : 2;
+                    const targetSessions = Math.max(1, daysCount * 4); // Standard monthly cohort (4 weeks)
+                    const activeDays = checkedDays.length > 0 ? checkedDays : [0, 6];
+
+                    let cursor = new Date(startDate);
+                    let count = 0;
+                    let safety = 0;
+                    while (count < targetSessions && safety < 500) {
+                        const dow = cursor.getDay(); // 0 = Sun, 6 = Sat
+                        if (activeDays.includes(dow)) {
+                            count++;
+                            if (count === targetSessions) {
+                                calculatedEnd = new Date(cursor);
+                                break;
+                            }
+                        }
+                        cursor.setDate(cursor.getDate() + 1);
+                        safety++;
+                    }
+                }
+
+                endInput.value = calculatedEnd.toISOString().split('T')[0];
+
+                // 2. Real-Time Backend Quota & Exact Course Sync Check
+                const courseId = courseSelect ? courseSelect.value : '';
+                const studentId = studentSelect ? studentSelect.value : '';
+
+                if (courseId) {
+                    const formData = new FormData(form);
+                    if (!studentId || studentId === '__group__') {
+                        formData.delete('student_user_id');
+                    } else {
+                        formData.set('student_user_id', studentId);
+                    }
+
+                    try {
+                        const res = await fetch('{{ route('ajax.teacher.recurring.preview') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            if (data.calculated_end_date) {
+                                endInput.value = data.calculated_end_date;
+                            }
+
+                            // Render Student Package Quota Box
+                            if (quotaAlert) {
+                                if (data.student_quota && studentId && studentId !== '__group__') {
+                                    const q = data.student_quota;
+                                    if (q.can_create) {
+                                        quotaAlert.className = 'p-3 sm:p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-3 shadow-2xs';
+                                        quotaAlert.innerHTML = `
+                                            <i class="fa-solid fa-circle-check text-emerald-500 text-base shrink-0"></i>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="font-bold flex items-center gap-1.5 flex-wrap">
+                                                    <span>${q.package_name || (isArLocale ? 'باقة الطالب' : 'Student Package')}</span>
+                                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold">${isArLocale ? 'الرصيد كافٍ' : 'Sufficient Balance'}</span>
+                                                </div>
+                                                <div class="text-[11px] opacity-90 mt-0.5 leading-relaxed">${q.message}</div>
+                                            </div>
+                                        `;
+                                        quotaAlert.classList.remove('hidden');
+                                        if (submitBtn) {
+                                            submitBtn.disabled = false;
+                                            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                        }
+                                    } else {
+                                        quotaAlert.className = 'p-3 sm:p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-3 shadow-2xs';
+                                        quotaAlert.innerHTML = `
+                                            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base shrink-0"></i>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="font-bold flex items-center gap-1.5 flex-wrap">
+                                                    <span>${q.package_name || (isArLocale ? 'تنبيه باقة الطالب' : 'Student Package Warning')}</span>
+                                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 font-mono font-bold">${isArLocale ? 'عجز في الرصيد' : 'Insufficient'}</span>
+                                                </div>
+                                                <div class="text-[11px] opacity-90 mt-0.5 leading-relaxed">${q.message}</div>
+                                            </div>
+                                        `;
+                                        quotaAlert.classList.remove('hidden');
+                                        if (submitBtn) {
+                                            submitBtn.disabled = true;
+                                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                                        }
+                                    }
+                                } else {
+                                    quotaAlert.classList.add('hidden');
+                                    quotaAlert.innerHTML = '';
+                                    if (submitBtn) {
+                                        submitBtn.disabled = false;
+                                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Silent fallback
+                    }
+                } else {
+                    if (quotaAlert) {
+                        quotaAlert.classList.add('hidden');
+                        quotaAlert.innerHTML = '';
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
             };
 
             // ── Handle recurrence type toggle ───────────────────────────────
@@ -11798,6 +11957,13 @@
                 // Recalculate end date when pattern changes
                 window.autoCalcEndDate();
             };
+
+            // Hook checkboxes in recurring schedule form to autoCalcEndDate
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('#recurringSchedulePortalForm input[name="days_of_week[]"]').forEach(cb => {
+                    cb.addEventListener('change', () => window.autoCalcEndDate());
+                });
+            });
 
             // ── Preview recurring schedule ───────────────────────────────────
             window.previewPortalSchedule = async function() {

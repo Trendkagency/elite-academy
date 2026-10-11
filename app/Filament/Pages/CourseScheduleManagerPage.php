@@ -1015,6 +1015,16 @@ class CourseScheduleManagerPage extends Page
             }
         }
 
+        $calc = $service->calculateEndDateAndQuota([
+            'course_id' => $course->id,
+            'teacher_profile_id' => $teacherId,
+            'student_user_id' => ! empty($this->recStudentIds) ? $this->recStudentIds[0] : null,
+            'start_date' => $this->recStartDate,
+            'recurrence_type' => $this->recType,
+            'days_of_week' => $this->recDays,
+        ]);
+        $this->recEndDate = $calc['end_date'];
+
         $previewData = $service->previewDates([
             'course_id' => $course->id,
             'teacher_profile_id' => $teacherId,

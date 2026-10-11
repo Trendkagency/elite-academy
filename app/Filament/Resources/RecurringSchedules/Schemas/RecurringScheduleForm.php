@@ -29,7 +29,9 @@ class RecurringScheduleForm
             ->columns(12)
             ->components([
                 // ── 1. BASIC COHORT INFORMATION ──────────────────────────────
-                Section::make(new HtmlString('<i class="fa-solid fa-graduation-cap text-teal-500 me-2"></i>' . ($isAr ? 'البيانات الأساسية للجدول الأسبوعي' : 'Basic Cohort Schedule Information')))
+                Section::make($isAr ? 'البيانات الأساسية للجدول الأسبوعي' : 'Basic Cohort Schedule Information')
+                    ->icon('heroicon-o-academic-cap')
+                    ->iconColor('teal')
                     ->description($isAr ? 'تحديد مسمى الجدول، المعلم المسؤول، الكورس وحالة الجدول' : 'Cohort title, assigned teacher, course and active status')
                     ->columnSpan([
                         'default' => 12,
@@ -60,6 +62,8 @@ class RecurringScheduleForm
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
                             ->columnSpan(1),
 
                         Select::make('student_user_id')
@@ -75,8 +79,118 @@ class RecurringScheduleForm
                             })
                             ->searchable()
                             ->nullable()
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
                             ->helperText($isAr ? 'اتركه فارغاً ليتاح لجميع طلاب المجموعة العامة بالمقرر' : 'Leave empty for course-wide public cohort')
                             ->columnSpan(1),
+
+                        Placeholder::make('student_package_quota_status')
+                            ->label($isAr ? 'حالة باقة الطالب والرصيد المتاح' : 'Student Package & Quota Balance')
+                            ->columnSpanFull()
+                            ->visible(fn ($get) => ! empty($get('student_user_id')))
+                            ->content(function ($get) use ($isAr) {
+                                $studentId = $get('student_user_id');
+                                $courseId = $get('course_id');
+                                if (! $studentId) return null;
+
+                                $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                $res = $service->calculateEndDateAndQuota([
+                                    'course_id' => $courseId,
+                                    'student_user_id' => $studentId,
+                                    'start_date' => $get('start_date') ?: now()->toDateString(),
+                                    'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                                    'days_of_week' => (array) ($get('days_of_week') ?? []),
+                                ]);
+
+                                $quota = $res['student_quota'];
+                                if (! $quota) return null;
+
+                                if (! empty($quota['status']) && $quota['status'] === 'enrolled_direct') {
+                                    return new HtmlString('
+                                        <div class="rec-quota-card rec-quota-card-enrolled">
+                                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                                <div class="rec-quota-icon-badge rec-quota-enrolled-icon">
+                                                    <i class="fa-solid fa-graduation-cap"></i>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                        <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'تسجيل معتمد في المقرر (مباشر)' : 'Active Course Direct Enrollment') . '</span>
+                                                        <span style="background: rgba(6, 182, 212, 0.25); color: #a5f3fc; border: 1px solid rgba(6, 182, 212, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">🟢 ' . ($isAr ? 'مسموح بالجدولة' : 'Allowed') . '</span>
+                                                    </div>
+                                                    <div style="color: #cffafe; font-size: 0.75rem; margin-top: 0.25rem;">' . ($isAr ? 'الطالب مسجل رسمياً في المقرر بدون باقة حصص مقيدة. يمكن جدولة الحصص مباشرة.' : 'Student is officially enrolled in this course without package restriction.') . '</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ');
+                                }
+
+                                if ($quota['has_package']) {
+                                    if ($quota['can_create']) {
+                                        $remainingAfter = max(0, $quota['remaining_sessions'] - $quota['required_sessions']);
+                                        return new HtmlString('
+                                            <div class="rec-quota-card rec-quota-card-sufficient">
+                                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                                    <div class="rec-quota-icon-badge rec-quota-sufficient-icon">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                            <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'باقة الطالب نشطة ورصيد الحصص كافٍ' : 'Student Package Active & Sufficient') . '</span>
+                                                            <span style="background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">' . e($quota['package_name']) . '</span>
+                                                        </div>
+                                                        <div style="color: #a7f3d0; font-size: 0.75rem; margin-top: 0.25rem;">' . ($isAr ? 'رصيد الطالب يغطي كامل حصص هذا الجدول بنجاح.' : 'Package balance covers full schedule requirements.') . '</div>
+                                                    </div>
+                                                </div>
+                                                <div class="rec-chip-group">
+                                                    <span class="rec-chip">' . ($isAr ? 'المتاح: ' : 'Available: ') . '<strong style="color: #34d399;">' . $quota['remaining_sessions'] . '</strong> ' . ($isAr ? 'من ' : 'of ') . $quota['total_sessions'] . '</span>
+                                                    <span class="rec-chip">' . ($isAr ? 'المطلوب: ' : 'Required: ') . '<strong style="color: #22d3ee;">' . $quota['required_sessions'] . '</strong></span>
+                                                    <span class="rec-chip" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4);">' . ($isAr ? 'المتبقي بعد الخصم: ' : 'Remaining: ') . '<strong style="color: #6ee7b7;">' . $remainingAfter . '</strong></span>
+                                                </div>
+                                            </div>
+                                        ');
+                                    } else {
+                                        $deficit = $quota['required_sessions'] - $quota['remaining_sessions'];
+                                        return new HtmlString('
+                                            <div class="rec-quota-card rec-quota-card-insufficient">
+                                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                                    <div class="rec-quota-icon-badge rec-quota-insufficient-icon">
+                                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                            <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'عجز في رصيد باقة الطالب (الجدولة موقوفة)' : 'Insufficient Balance (Schedule Blocked)') . '</span>
+                                                            <span style="background: rgba(244, 63, 94, 0.25); color: #fecdd3; border: 1px solid rgba(244, 63, 94, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">' . e($quota['package_name']) . '</span>
+                                                        </div>
+                                                        <div style="color: #fecdd3; font-size: 0.75rem; margin-top: 0.25rem;">' . ($isAr ? 'رصيد الطالب غير كافٍ. يلزم تجديد أو شحن الباقة لإتمام الجدول.' : 'Package balance is less than required sessions.') . '</div>
+                                                    </div>
+                                                </div>
+                                                <div class="rec-chip-group">
+                                                    <span class="rec-chip">' . ($isAr ? 'المتاح فقط: ' : 'Available: ') . '<strong style="color: #fb7185;">' . $quota['remaining_sessions'] . '</strong></span>
+                                                    <span class="rec-chip">' . ($isAr ? 'المطلوب: ' : 'Required: ') . '<strong style="color: #f59e0b;">' . $quota['required_sessions'] . '</strong></span>
+                                                    <span class="rec-chip" style="background: rgba(244, 63, 94, 0.25); border-color: rgba(244, 63, 94, 0.5); color: #fff;">' . ($isAr ? 'عجز: ' : 'Deficit: ') . '<strong style="color: #fda4af;">-' . $deficit . '</strong> ' . ($isAr ? 'حصة' : '') . '</span>
+                                                </div>
+                                            </div>
+                                        ');
+                                    }
+                                } else {
+                                    return new HtmlString('
+                                        <div class="rec-quota-card rec-quota-card-no-package">
+                                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                                <div class="rec-quota-icon-badge rec-quota-no-package-icon">
+                                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                        <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'لا توجد باقة حصص نشطة للطالب في هذا المقرر' : 'No Active Student Package Found') . '</span>
+                                                        <span style="background: rgba(245, 158, 11, 0.25); color: #fef3c7; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">⚠️ ' . ($isAr ? 'يلزم التفعيل' : 'Activation Required') . '</span>
+                                                    </div>
+                                                    <div style="color: #fde68a; font-size: 0.75rem; margin-top: 0.25rem; line-height: 1.4;">' . ($isAr ? 'الطالب ليس لديه باقة حصص مفعّلة في هذا المقرر. يرجى شحن أو تفعيل باقة أولاً قبل جدولة الحصص الفردية.' : 'Student does not have an active package for this course. Please activate package first.') . '</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ');
+                                }
+                            }),
 
                         Select::make('recurrence_type')
                             ->label($isAr ? 'نمط التكرار' : 'Recurrence Pattern')
@@ -88,6 +202,7 @@ class RecurringScheduleForm
                             ])
                             ->default('weekly')
                             ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
                             ->required()
                             ->columnSpan(1),
 
@@ -105,7 +220,9 @@ class RecurringScheduleForm
                     ]),
 
                 // ── 2. DEFAULT SESSION SETTINGS & TIMING ─────────────────────
-                Section::make(new HtmlString('<i class="fa-solid fa-clock text-amber-500 me-2"></i>' . ($isAr ? 'الإعدادات العامة والافتراضية للجلسات' : 'Default Session Settings & Timing')))
+                Section::make($isAr ? 'الإعدادات العامة والافتراضية للجلسات' : 'Default Session Settings & Timing')
+                    ->icon('heroicon-o-clock')
+                    ->iconColor('amber')
                     ->description($isAr ? 'التوقيت الافتراضي للبدء، مدة الحصة، وتواريخ سريان الدورة' : 'Default start times, session duration, and calendar validity')
                     ->columnSpan([
                         'default' => 12,
@@ -135,13 +252,32 @@ class RecurringScheduleForm
                             ->required()
                             ->default(now()->toDateString())
                             ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
                             ->columnSpan(1),
 
-                        DatePicker::make('end_date')
+                        TextInput::make('end_date')
                             ->label($isAr ? 'تاريخ نهاية الجدول' : 'End Date')
-                            ->required()
-                            ->default(now()->addMonths(3)->toDateString())
-                            ->live()
+                            ->disabled()
+                            ->dehydrated()
+                            ->readOnly()
+                            ->prefixIcon('heroicon-m-lock-closed')
+                            ->prefixIconColor('teal')
+                            ->extraInputAttributes([
+                                'tabindex' => '-1',
+                                'readonly' => 'readonly',
+                                'disabled' => 'disabled',
+                                'style' => 'pointer-events: none !important; user-select: none !important; cursor: not-allowed !important; font-family: monospace !important; font-weight: 800 !important; font-size: 0.95rem !important; letter-spacing: 0.05em !important; color: #2dd4bf !important;',
+                            ])
+                            ->default(function () {
+                                $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                $calc = $service->calculateEndDateAndQuota([
+                                    'start_date' => now()->toDateString(),
+                                    'days_of_week' => [6, 0],
+                                    'recurrence_type' => 'weekly',
+                                ]);
+                                return $calc['end_date'];
+                            })
+                            ->helperText(new HtmlString('<span style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; font-weight:700; color:#14b8a6; margin-top:0.3rem;"><i class="fa-solid fa-lock" style="font-size:0.7rem;"></i> ' . ($isAr ? 'محسوب تلقائياً وموزع على مدار الشهر حسب حصص المقرر (مقفل)' : 'Auto-computed from course sessions & distributed (Locked)') . '</span>'))
                             ->columnSpan(1),
 
                         Placeholder::make('live_sync_stats')
@@ -153,21 +289,33 @@ class RecurringScheduleForm
                                 $days = (array) ($get('days_of_week') ?? []);
                                 $recurrence = $get('recurrence_type') ?? 'weekly';
 
-                                if (! $startDate || ! $endDate) {
-                                    return new HtmlString('<div class="text-xs text-slate-400">' . ($isAr ? 'يرجى تحديد تاريخ البداية والنهاية لحساب الجلسات.' : 'Select start and end dates.') . '</div>');
+                                $service = app(\App\Services\Session\RecurringScheduleService::class);
+
+                                if (! $startDate) {
+                                    $startDate = now()->toDateString();
+                                }
+
+                                if (! $endDate) {
+                                    $calc = $service->calculateEndDateAndQuota([
+                                        'course_id' => $get('course_id'),
+                                        'student_user_id' => $get('student_user_id'),
+                                        'start_date' => $startDate,
+                                        'recurrence_type' => $recurrence,
+                                        'days_of_week' => $days,
+                                    ]);
+                                    $endDate = $calc['end_date'];
                                 }
 
                                 try {
                                     $start = \Carbon\Carbon::parse($startDate);
                                     $end = \Carbon\Carbon::parse($endDate);
                                     if ($end->lt($start)) {
-                                        return new HtmlString('<div class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold">' . ($isAr ? '⚠️ تنبيه: تاريخ النهاية يسبق تاريخ البداية، لن يتم إنشاء أو مزامنة حصص.' : '⚠️ Warning: End date is before start date.') . '</div>');
+                                        return new HtmlString('<div style="padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgba(244, 63, 94, 0.15); border: 1.5px solid rgba(244, 63, 94, 0.4); color: #fb7185; font-size: 0.8rem; font-weight: 700;">' . ($isAr ? '⚠️ تنبيه: تاريخ النهاية يسبق تاريخ البداية، لن يتم إنشاء أو مزامنة حصص.' : '⚠️ Warning: End date is before start date.') . '</div>');
                                     }
 
                                     $diffDays = $start->diffInDays($end) + 1;
                                     $diffWeeks = (int) ceil($diffDays / 7);
 
-                                    $service = app(\App\Services\Session\RecurringScheduleService::class);
                                     $previewDates = $service->previewDates([
                                         'start_date' => $start->toDateString(),
                                         'end_date' => $end->toDateString(),
@@ -176,25 +324,41 @@ class RecurringScheduleForm
                                         'recurrence_type' => $recurrence,
                                         'days_of_week' => $days,
                                         'teacher_profile_id' => $get('teacher_profile_id') ?: 0,
+                                        'student_user_id' => $get('student_user_id') ?: null,
+                                        'course_id' => $get('course_id') ?: null,
                                     ]);
 
                                     $sessionsCount = count($previewDates);
                                     $daysCount = count($days);
-                                    $activeClass = $sessionsCount > 0 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' : 'border-amber-500/30 bg-amber-500/10 text-amber-400';
 
-                                    return new HtmlString(
-                                        '<div class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/60 shadow-sm">' .
-                                        '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-500/15 text-teal-300 border border-teal-500/30">' .
-                                            '<i class="fa-solid fa-calendar-range me-1.5 text-teal-400"></i>' . ($isAr ? "المدة: {$diffWeeks} أسبوع ({$diffDays} يوم)" : "Duration: {$diffWeeks} wks ({$diffDays} days)") .
-                                        '</span>' .
-                                        '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">' .
-                                            '<i class="fa-solid fa-calendar-days me-1.5 text-indigo-400"></i>' . ($isAr ? "الأيام المحددة: {$daysCount} أيام/أسبوع" : "Days: {$daysCount}/wk") .
-                                        '</span>' .
-                                        '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold ' . $activeClass . ' border">' .
-                                            '<i class="fa-solid fa-bolt me-1.5"></i>' . ($isAr ? "المزامنة الكاملة: {$sessionsCount} حصة متوقعة" : "Full Sync: {$sessionsCount} Sessions") .
-                                        '</span>' .
-                                        '</div>'
-                                    );
+                                    return new HtmlString('
+                                        <div class="rec-sync-hud">
+                                            <div class="rec-hud-item rec-hud-teal">
+                                                <div class="rec-hud-label" style="color: #5eead4;">
+                                                    <i class="fa-solid fa-calendar-range"></i> ' . ($isAr ? 'المدة الإجمالية' : 'Duration') . '
+                                                </div>
+                                                <div class="rec-hud-value">' . ($isAr ? "{$diffWeeks} أسبوع ({$diffDays} يوم)" : "{$diffWeeks} wks ({$diffDays} d)") . '</div>
+                                            </div>
+                                            <div class="rec-hud-item rec-hud-indigo">
+                                                <div class="rec-hud-label" style="color: #a5b4fc;">
+                                                    <i class="fa-solid fa-calendar-days"></i> ' . ($isAr ? 'الأيام المحددة' : 'Days/Week') . '
+                                                </div>
+                                                <div class="rec-hud-value">' . ($isAr ? "{$daysCount} أيام/أسبوع" : "{$daysCount} Days/Wk") . '</div>
+                                            </div>
+                                            <div class="rec-hud-item rec-hud-emerald">
+                                                <div class="rec-hud-label" style="color: #6ee7b7;">
+                                                    <i class="fa-solid fa-bolt"></i> ' . ($isAr ? 'إجمالي الحصص' : 'Total Sessions') . '
+                                                </div>
+                                                <div class="rec-hud-value" style="color: #34d399;">' . ($isAr ? "{$sessionsCount} حصة موزعة" : "{$sessionsCount} Sessions") . '</div>
+                                            </div>
+                                            <div class="rec-hud-item rec-hud-cyan">
+                                                <div class="rec-hud-label" style="color: #67e8f9;">
+                                                    <i class="fa-solid fa-flag-checkered"></i> ' . ($isAr ? 'تاريخ الختام' : 'End Date') . '
+                                                </div>
+                                                <div class="rec-hud-value" style="color: #22d3ee;">' . $end->toDateString() . '</div>
+                                            </div>
+                                        </div>
+                                    ');
                                 } catch (\Throwable $e) {
                                     return '';
                                 }
@@ -252,6 +416,7 @@ class RecurringScheduleForm
                             ->default([6, 0])
                             ->columnSpanFull()
                             ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
                             ->extraAttributes(['class' => 'ec-recurring-days-picker'])
                             ->hintAction(
                                 Action::make('syncMainSettings')
@@ -329,5 +494,28 @@ class RecurringScheduleForm
                             ),
                     ]),
             ]);
+    }
+
+    /**
+     * Real-time synchronizer for automatic end_date calculation and student package quota
+     */
+    public static function syncAutoEndDateAndQuota($set, $get): void
+    {
+        try {
+            $service = app(\App\Services\Session\RecurringScheduleService::class);
+            $res = $service->calculateEndDateAndQuota([
+                'course_id' => $get('course_id'),
+                'student_user_id' => $get('student_user_id'),
+                'start_date' => $get('start_date') ?: now()->toDateString(),
+                'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                'days_of_week' => (array) ($get('days_of_week') ?? []),
+            ]);
+
+            if (! empty($res['end_date'])) {
+                $set('end_date', $res['end_date']);
+            }
+        } catch (\Throwable $e) {
+            // Graceful fallback
+        }
     }
 }
