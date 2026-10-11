@@ -127,7 +127,12 @@ class LiveSession extends Model
 
         static::created(function (LiveSession $session) {
             $service = app(\App\Services\Notification\FcmNotificationService::class);
-            $service->notifyTeacherSessionAssigned($session);
+            try {
+                $service->notifyTeacherSessionAssigned($session);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('[FCM] notifyTeacherSessionAssigned failed: ' . $e->getMessage());
+            }
+
             // Notify admins about new session creation (wrapped to not break session creation on failure)
             try {
                 $service->notifyAdminSessionCreated($session);

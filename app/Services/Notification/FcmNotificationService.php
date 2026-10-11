@@ -869,12 +869,16 @@ class FcmNotificationService
      */
     protected function dispatchFcmPayload(array $tokens, string $title, string $body, ?string $actionUrl = null): void
     {
-        $mode = config('fcm.mode', 'legacy');
+        try {
+            $mode = config('fcm.mode', 'legacy');
 
-        if ($mode === 'v1') {
-            $this->dispatchV1($tokens, $title, $body, $actionUrl);
-        } else {
-            $this->dispatchLegacy($tokens, $title, $body, $actionUrl);
+            if ($mode === 'v1') {
+                $this->dispatchV1($tokens, $title, $body, $actionUrl);
+            } else {
+                $this->dispatchLegacy($tokens, $title, $body, $actionUrl);
+            }
+        } catch (\Throwable $e) {
+            Log::channel(config('fcm.logging.channel', 'stack'))->error('[FCM] dispatchFcmPayload failed: ' . $e->getMessage());
         }
     }
 
@@ -1112,6 +1116,18 @@ class FcmNotificationService
 
     /**
      * Log a fallback message when FCM credentials are not configured.
+     */
+    protected function logFallback(string $mode, string $title, string $body, int $tokenCount): void
+    {
+        if (config('fcm.logging.enabled', true)) {
+            Log::channel(config('fcm.logging.channel', 'stack'))->info("FCM [{$mode}] not configured — notification logged only", [
+                'title'  => $title,
+                'body'   => $body,
+                'tokens' => $tokenCount,
+            ]);
+        }
+    }
+
     /**
      * Notify enrolled/assigned students when session duration is extended or meeting URL is updated.
      */
