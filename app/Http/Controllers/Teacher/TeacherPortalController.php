@@ -697,6 +697,7 @@ class TeacherPortalController extends Controller
             'title' => 'required|string|max:255',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'recurrence_type' => 'nullable|string|in:weekly,biweekly,daily,monthly',
             'days_of_week' => 'required|array|min:1',
             'start_time' => 'required|string',
             'duration_minutes' => 'nullable|integer|min:15|max:300',

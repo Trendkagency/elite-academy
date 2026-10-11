@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -86,6 +87,7 @@ class RecurringScheduleForm
                                 'monthly' => $isAr ? 'شهري' : 'Monthly',
                             ])
                             ->default('weekly')
+                            ->live()
                             ->required()
                             ->columnSpan(1),
 
@@ -116,6 +118,7 @@ class RecurringScheduleForm
                             ->required()
                             ->seconds(false)
                             ->default('10:00')
+                            ->live(debounce: 500)
                             ->columnSpan(1),
 
                         TextInput::make('duration_minutes')
@@ -124,19 +127,78 @@ class RecurringScheduleForm
                             ->default(60)
                             ->suffix($isAr ? 'دقيقة' : 'min')
                             ->required()
+                            ->live(debounce: 500)
                             ->columnSpan(1),
 
                         DatePicker::make('start_date')
                             ->label($isAr ? 'تاريخ بداية الجدول' : 'Start Date')
                             ->required()
                             ->default(now()->toDateString())
+                            ->live()
                             ->columnSpan(1),
 
                         DatePicker::make('end_date')
                             ->label($isAr ? 'تاريخ نهاية الجدول' : 'End Date')
                             ->required()
                             ->default(now()->addMonths(3)->toDateString())
+                            ->live()
                             ->columnSpan(1),
+
+                        Placeholder::make('live_sync_stats')
+                            ->label($isAr ? 'المزامنة التلقائية للجلسات والأيام' : 'Live Session Auto-Sync Overview')
+                            ->columnSpanFull()
+                            ->content(function ($get) use ($isAr) {
+                                $startDate = $get('start_date');
+                                $endDate = $get('end_date');
+                                $days = (array) ($get('days_of_week') ?? []);
+                                $recurrence = $get('recurrence_type') ?? 'weekly';
+
+                                if (! $startDate || ! $endDate) {
+                                    return new HtmlString('<div class="text-xs text-slate-400">' . ($isAr ? 'يرجى تحديد تاريخ البداية والنهاية لحساب الجلسات.' : 'Select start and end dates.') . '</div>');
+                                }
+
+                                try {
+                                    $start = \Carbon\Carbon::parse($startDate);
+                                    $end = \Carbon\Carbon::parse($endDate);
+                                    if ($end->lt($start)) {
+                                        return new HtmlString('<div class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold">' . ($isAr ? '⚠️ تنبيه: تاريخ النهاية يسبق تاريخ البداية، لن يتم إنشاء أو مزامنة حصص.' : '⚠️ Warning: End date is before start date.') . '</div>');
+                                    }
+
+                                    $diffDays = $start->diffInDays($end) + 1;
+                                    $diffWeeks = (int) ceil($diffDays / 7);
+
+                                    $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                    $previewDates = $service->previewDates([
+                                        'start_date' => $start->toDateString(),
+                                        'end_date' => $end->toDateString(),
+                                        'start_time' => $get('start_time') ?: '10:00',
+                                        'duration_minutes' => (int) ($get('duration_minutes') ?: 60),
+                                        'recurrence_type' => $recurrence,
+                                        'days_of_week' => $days,
+                                        'teacher_profile_id' => $get('teacher_profile_id') ?: 0,
+                                    ]);
+
+                                    $sessionsCount = count($previewDates);
+                                    $daysCount = count($days);
+                                    $activeClass = $sessionsCount > 0 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' : 'border-amber-500/30 bg-amber-500/10 text-amber-400';
+
+                                    return new HtmlString(
+                                        '<div class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/60 shadow-sm">' .
+                                        '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-500/15 text-teal-300 border border-teal-500/30">' .
+                                            '<i class="fa-solid fa-calendar-range me-1.5 text-teal-400"></i>' . ($isAr ? "المدة: {$diffWeeks} أسبوع ({$diffDays} يوم)" : "Duration: {$diffWeeks} wks ({$diffDays} days)") .
+                                        '</span>' .
+                                        '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">' .
+                                            '<i class="fa-solid fa-calendar-days me-1.5 text-indigo-400"></i>' . ($isAr ? "الأيام المحددة: {$daysCount} أيام/أسبوع" : "Days: {$daysCount}/wk") .
+                                        '</span>' .
+                                        '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold ' . $activeClass . ' border">' .
+                                            '<i class="fa-solid fa-bolt me-1.5"></i>' . ($isAr ? "المزامنة الكاملة: {$sessionsCount} حصة متوقعة" : "Full Sync: {$sessionsCount} Sessions") .
+                                        '</span>' .
+                                        '</div>'
+                                    );
+                                } catch (\Throwable $e) {
+                                    return '';
+                                }
+                            }),
 
                         Select::make('meeting_platform')
                             ->label($isAr ? 'منصة البث الافتراضية' : 'Default Meeting Platform')

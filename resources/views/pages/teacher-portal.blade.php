@@ -3378,6 +3378,7 @@
             <form id="editRecurringScheduleForm" class="flex-1 overflow-y-auto custom-scrollbar">
                 @csrf
                 <input type="hidden" id="editRecScheduleId" name="schedule_id">
+                <input type="hidden" id="editRecRecurrenceType" name="recurrence_type" value="weekly">
                 <div class="p-4 sm:p-6 space-y-5">
 
                     {{-- Title --}}
@@ -3422,12 +3423,26 @@
                         <div>
                             <label
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule Start Date') }}</label>
-                            <input type="date" id="editRecStartDate" name="start_date" class="input-mobile">
+                            <input type="date" id="editRecStartDate" name="start_date" oninput="recalculateEditRecSyncSummary()" class="input-mobile">
                         </div>
                         <div>
                             <label
                                 class="block text-xs font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ __('Schedule End Date') }}</label>
-                            <input type="date" id="editRecEndDate" name="end_date" class="input-mobile">
+                            <input type="date" id="editRecEndDate" name="end_date" oninput="recalculateEditRecSyncSummary()" class="input-mobile">
+                        </div>
+                    </div>
+
+                    {{-- Live Calculation / Sync Summary Badge --}}
+                    <div id="editRecSyncSummaryBadge" class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ $isAr ? 'المزامنة التلقائية للجلسات:' : 'Auto-Sync Projection:' }}</span>
+                            <span id="editRecExpectedSessionsCount" class="font-bold text-emerald-600 dark:text-emerald-400">0 {{ $isAr ? 'حصة متوقعة' : 'sessions' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-300 font-mono text-[11px]">
+                            <span id="editRecDurationWeeks">{{ $isAr ? 'المدة:' : 'Duration:' }} 0 {{ $isAr ? 'أسبوع' : 'wks' }}</span>
+                            <span>•</span>
+                            <span id="editRecSelectedDaysCount">{{ $isAr ? 'الأيام المحددة:' : 'Selected Days:' }} 0</span>
                         </div>
                     </div>
 
@@ -10212,6 +10227,14 @@
                 }
             });
 
+            if (document.getElementById('editRecRecurrenceType')) {
+                document.getElementById('editRecRecurrenceType').value = recurrenceType || 'weekly';
+            }
+
+            if (typeof window.recalculateEditRecSyncSummary === 'function') {
+                window.recalculateEditRecSyncSummary();
+            }
+
             if (typeof window.openScheduleModal === 'function') {
                 window.openScheduleModal('editRecurringScheduleModal');
             } else {
@@ -10257,6 +10280,67 @@
         window.confirmDeleteSession = confirmDeleteSession;
         window.openEditRecurringScheduleModal = openEditRecurringScheduleModal;
         window.confirmDeleteRecurringSchedule = confirmDeleteRecurringSchedule;
+
+        function recalculateEditRecSyncSummary() {
+            const startVal = document.getElementById('editRecStartDate')?.value;
+            const endVal = document.getElementById('editRecEndDate')?.value;
+            const countEl = document.getElementById('editRecExpectedSessionsCount');
+            const weeksEl = document.getElementById('editRecDurationWeeks');
+            const daysEl = document.getElementById('editRecSelectedDaysCount');
+            if (!countEl || !weeksEl || !daysEl) return;
+
+            const checkedBoxes = Array.from(document.querySelectorAll('.edit-rec-day-checkbox:checked'));
+            const selectedDaysCount = checkedBoxes.length;
+            const isAr = @json(app()->getLocale() === 'ar');
+
+            daysEl.textContent = (isAr ? 'الأيام المحددة: ' : 'Selected Days: ') + selectedDaysCount;
+
+            if (!startVal || !endVal) {
+                countEl.textContent = '0 ' + (isAr ? 'حصة متوقعة' : 'sessions');
+                weeksEl.textContent = (isAr ? 'المدة: ' : 'Duration: ') + '0 ' + (isAr ? 'أسبوع' : 'wks');
+                return;
+            }
+
+            const startDate = new Date(startVal + 'T00:00:00');
+            const endDate = new Date(endVal + 'T23:59:59');
+
+            if (endDate < startDate) {
+                countEl.textContent = isAr ? '⚠️ تاريخ غير صالح' : '⚠️ Invalid range';
+                weeksEl.textContent = (isAr ? 'المدة: ' : 'Duration: ') + '0';
+                return;
+            }
+
+            const diffMs = endDate - startDate;
+            const diffDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+            const diffWeeks = Math.max(1, Math.ceil(diffDays / 7));
+            weeksEl.textContent = (isAr ? 'المدة: ' : 'Duration: ') + diffWeeks + ' ' + (isAr ? 'أسبوع' : 'wks') + ` (${diffDays} ` + (isAr ? 'يوم' : 'd') + ')';
+
+            const checkedDayValues = checkedBoxes.map(cb => parseInt(cb.value, 10));
+            let matchingDays = 0;
+            const cur = new Date(startDate);
+            const recType = document.getElementById('editRecRecurrenceType')?.value || 'weekly';
+
+            let maxLimit = 1000;
+            let cnt = 0;
+            while (cur <= endDate && cnt < maxLimit) {
+                const dow = cur.getDay(); // 0 = Sunday, 6 = Saturday
+                if (checkedDayValues.includes(dow)) {
+                    if (recType === 'biweekly') {
+                        const weekDiff = Math.floor((cur - startDate) / (1000 * 60 * 60 * 24 * 7));
+                        if (weekDiff % 2 === 0) {
+                            matchingDays++;
+                        }
+                    } else {
+                        matchingDays++;
+                    }
+                }
+                cur.setDate(cur.getDate() + 1);
+                cnt++;
+            }
+
+            countEl.textContent = matchingDays + ' ' + (isAr ? 'حصة متوقعة' : 'sessions');
+        }
+        window.recalculateEditRecSyncSummary = recalculateEditRecSyncSummary;
 
         function showTeacherToast(message, isSuccess) {
             if (window.Toast) {
@@ -10801,6 +10885,9 @@
                         badge.className =
                             'edit-rec-day-status-badge text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-500';
                     }
+                }
+                if (typeof window.recalculateEditRecSyncSummary === 'function') {
+                    window.recalculateEditRecSyncSummary();
                 }
             };
 

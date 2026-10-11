@@ -57,13 +57,14 @@ class RecurringScheduleService
 
         $dates = [];
         $current = $startDate->copy();
-        $maxLimit = 366; // Prevent runaway loops
+        $maxLimit = 1000; // Allow long schedules across academic semesters
         $count = 0;
+        $ignoreRecurringScheduleId = ! empty($params['ignore_recurring_schedule_id']) ? (int) $params['ignore_recurring_schedule_id'] : null;
 
         if ($recurrenceType === 'single') {
             $sessionStart = Carbon::parse($startDate->format('Y-m-d') . ' ' . $startTime);
             $sessionEnd = $sessionStart->copy()->addMinutes($duration);
-            $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd);
+            $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd, null, $ignoreRecurringScheduleId);
 
             $dates[] = [
                 'date' => $sessionStart->format('Y-m-d'),
@@ -81,14 +82,30 @@ class RecurringScheduleService
         $dayMeetingLinks = $params['day_meeting_links'] ?? [];
         $mainMeetingLink = $params['meeting_link'] ?? null;
 
-        if ($recurrenceType === 'weekly' || $recurrenceType === 'multi_month' || $recurrenceType === 'yearly') {
-            if (empty($normalizedDays)) {
+        if (in_array($recurrenceType, ['weekly', 'biweekly', 'daily', 'multi_month', 'yearly'], true)) {
+            if ($recurrenceType === 'daily' && empty($normalizedDays)) {
+                $normalizedDays = [0, 1, 2, 3, 4, 5, 6];
+            } elseif (empty($normalizedDays)) {
                 $normalizedDays = [$startDate->dayOfWeek];
             }
 
+            // Reference base date for alternating weeks in biweekly pattern
+            $parityBaseDate = isset($params['base_start_date'])
+                ? Carbon::parse($params['base_start_date'])->startOfWeek(Carbon::SATURDAY)
+                : $startDate->copy()->startOfWeek(Carbon::SATURDAY);
+
             while ($current->lte($endDate) && $count < $maxLimit) {
                 $dayOfWeek = $current->dayOfWeek;
-                if (in_array($dayOfWeek, $normalizedDays, true)) {
+                $isBiweeklySkip = false;
+
+                if ($recurrenceType === 'biweekly') {
+                    $weekDiff = $current->copy()->startOfWeek(Carbon::SATURDAY)->diffInWeeks($parityBaseDate);
+                    if (($weekDiff % 2) !== 0) {
+                        $isBiweeklySkip = true;
+                    }
+                }
+
+                if (! $isBiweeklySkip && (in_array($dayOfWeek, $normalizedDays, true) || ($recurrenceType === 'daily' && empty($params['days_of_week'])))) {
                     $dayCustomTime = null;
                     if (is_array($dayStartTimes)) {
                         if (!empty($dayStartTimes[$dayOfWeek])) {
@@ -132,7 +149,7 @@ class RecurringScheduleService
 
                     $sessionStart = Carbon::parse($current->format('Y-m-d') . ' ' . $effectiveStartTime);
                     $sessionEnd = $sessionStart->copy()->addMinutes($effectiveDuration);
-                    $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd);
+                    $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd, null, $ignoreRecurringScheduleId);
 
                     $dates[] = [
                         'date' => $sessionStart->format('Y-m-d'),
@@ -166,7 +183,7 @@ class RecurringScheduleService
                 if ($targetDate && $targetDate->gte($startDate) && $targetDate->lte($endDate)) {
                     $sessionStart = Carbon::parse($targetDate->format('Y-m-d') . ' ' . $startTime);
                     $sessionEnd = $sessionStart->copy()->addMinutes($duration);
-                    $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd);
+                    $conflicts = $this->detectConflicts($teacherProfileId, $studentUserId, $sessionStart, $sessionEnd, null, $ignoreRecurringScheduleId);
 
                     $dates[] = [
                         'date' => $sessionStart->format('Y-m-d'),
@@ -220,7 +237,7 @@ class RecurringScheduleService
     /**
      * Detect schedule conflicts for teacher and student.
      */
-    public function detectConflicts(int $teacherProfileId, ?int $studentUserId, Carbon $startAt, Carbon $endAt, ?int $ignoreSessionId = null): array
+    public function detectConflicts(int $teacherProfileId, ?int $studentUserId, Carbon $startAt, Carbon $endAt, ?int $ignoreSessionId = null, ?int $ignoreRecurringScheduleId = null): array
     {
         $conflicts = [];
 
@@ -239,6 +256,13 @@ class RecurringScheduleService
 
         if ($ignoreSessionId) {
             $teacherQuery->where('id', '!=', $ignoreSessionId);
+        }
+
+        if ($ignoreRecurringScheduleId) {
+            $teacherQuery->where(function ($q) use ($ignoreRecurringScheduleId) {
+                $q->whereNull('recurring_schedule_id')
+                    ->orWhere('recurring_schedule_id', '!=', $ignoreRecurringScheduleId);
+            });
         }
 
         $teacherOverlap = $teacherQuery->first();
@@ -270,6 +294,13 @@ class RecurringScheduleService
 
             if ($ignoreSessionId) {
                 $studentQuery->where('id', '!=', $ignoreSessionId);
+            }
+
+            if ($ignoreRecurringScheduleId) {
+                $studentQuery->where(function ($q) use ($ignoreRecurringScheduleId) {
+                    $q->whereNull('recurring_schedule_id')
+                        ->orWhere('recurring_schedule_id', '!=', $ignoreRecurringScheduleId);
+                });
             }
 
             $studentOverlap = $studentQuery->first();
@@ -305,6 +336,7 @@ class RecurringScheduleService
                 'recurrence_type' => $data['recurrence_type'] ?? 'weekly',
                 'days_of_week' => $data['days_of_week'] ?? [],
                 'day_start_times' => $data['day_start_times'] ?? null,
+                'day_durations' => $data['day_durations'] ?? null,
                 'day_meeting_links' => $data['day_meeting_links'] ?? null,
                 'monthly_pattern' => $data['monthly_pattern'] ?? null,
                 'start_time' => $data['start_time'],
@@ -500,6 +532,12 @@ class RecurringScheduleService
 
             $schedule->update([
                 'title' => $data['title'] ?? $schedule->title,
+                'teacher_profile_id' => $data['teacher_profile_id'] ?? $schedule->teacher_profile_id,
+                'course_id' => $data['course_id'] ?? $schedule->course_id,
+                'student_user_id' => array_key_exists('student_user_id', $data) ? $data['student_user_id'] : $schedule->student_user_id,
+                'recurrence_type' => $data['recurrence_type'] ?? $schedule->recurrence_type,
+                'meeting_platform' => $data['meeting_platform'] ?? $schedule->meeting_platform,
+                'status' => $data['status'] ?? $schedule->status,
                 'days_of_week' => array_key_exists('days_of_week', $data) ? $data['days_of_week'] : $schedule->days_of_week,
                 'day_start_times' => array_key_exists('day_start_times', $data) ? $data['day_start_times'] : $schedule->day_start_times,
                 'day_durations' => array_key_exists('day_durations', $data) ? $data['day_durations'] : $schedule->day_durations,
@@ -534,11 +572,24 @@ class RecurringScheduleService
      */
     public function syncFutureSessions(RecurringSchedule $schedule, ?User $user = null): void
     {
+        $now = now();
+
+        if ($schedule->status === 'cancelled') {
+            $schedule->liveSessions()
+                ->where('scheduled_at', '>=', $now)
+                ->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])
+                ->update([
+                    'status' => 'cancelled',
+                    'lifecycle_state' => 'cancelled',
+                    'cancellation_reason' => __('Recurring schedule was cancelled.'),
+                ]);
+            return;
+        }
+
         if ($schedule->status !== 'active') {
             return;
         }
 
-        $now = now();
         $startDate = $schedule->start_date ? Carbon::parse($schedule->start_date)->startOfDay() : $now->copy()->startOfDay();
         $endDate = $schedule->end_date ? Carbon::parse($schedule->end_date)->endOfDay() : null;
 
@@ -555,6 +606,8 @@ class RecurringScheduleService
             'student_user_id' => $schedule->student_user_id,
             'start_date' => $effectiveStartDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
+            'base_start_date' => $schedule->start_date ? Carbon::parse($schedule->start_date)->format('Y-m-d') : null,
+            'ignore_recurring_schedule_id' => $schedule->id,
             'start_time' => $schedule->start_time ?: '10:00',
             'duration_minutes' => $schedule->duration_minutes ?: 60,
             'recurrence_type' => $schedule->recurrence_type ?? 'weekly',
