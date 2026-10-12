@@ -11,9 +11,15 @@ class CreateRecurringSchedule extends CreateRecord
 {
     protected static string $resource = RecurringScheduleResource::class;
 
+    public function getTitle(): string
+    {
+        return app()->getLocale() === 'ar' ? 'إضافة جدول أسبوعي متكرر' : 'Create Recurring Schedule';
+    }
+
     protected function handleRecordCreation(array $data): Model
     {
         $service = app(RecurringScheduleService::class);
         return $service->createSchedule($data, auth()->user());
     }
 }
+
