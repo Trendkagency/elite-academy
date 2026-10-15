@@ -13,13 +13,13 @@ class MeetingAttendanceResource extends Resource
 {
     protected static ?string $model = MeetingAttendance::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 4;
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+        return app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions';
     }
 
     public static function getNavigationLabel(): string

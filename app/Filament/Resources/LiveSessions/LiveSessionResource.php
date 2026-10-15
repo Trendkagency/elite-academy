@@ -24,7 +24,7 @@ class LiveSessionResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+        return app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions';
     }
 
     public static function getNavigationLabel(): string

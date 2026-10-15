@@ -3,16 +3,20 @@
 namespace App\Filament\Resources\RecurringSchedules\Schemas;
 
 use App\Models\Course;
+use App\Models\PackageTemplate;
+use App\Models\StudentPackage;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -105,6 +109,30 @@ class RecurringScheduleForm
                                 $quota = $res['student_quota'];
                                 if (! $quota) return null;
 
+                                if ($get('auto_renew_package')) {
+                                    $renewCount = (int) ($get('renew_sessions_count') ?: $quota['required_sessions']);
+                                    return new HtmlString('
+                                        <div class="rec-quota-card rec-quota-card-auto-provision">
+                                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                                <div class="rec-quota-icon-badge" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1.5px solid rgba(139, 92, 246, 0.4);">
+                                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                        <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'تم تفعيل التجديد التلقائي للباقة مع هذا الجدول' : 'Package Auto-Renew / Provisioning Active') . '</span>
+                                                        <span style="background: rgba(139, 92, 246, 0.25); color: #ddd6fe; border: 1px solid rgba(139, 92, 246, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">⚡ ' . ($isAr ? 'جاهز للحفظ' : 'Ready to Save') . '</span>
+                                                    </div>
+                                                    <div style="color: #ede9fe; font-size: 0.75rem; margin-top: 0.25rem; line-height: 1.4;">' . ($isAr ? "سيتم تفعيل أو تجديد باقة الطالب تلقائياً برصيد ({$renewCount} حصة) فور حفظ هذا الجدول، ولن يتم حظر إنشاء الحصص." : "Package will be automatically provisioned/renewed with {$renewCount} sessions on save.") . '</div>
+                                                </div>
+                                            </div>
+                                            <div class="rec-chip-group">
+                                                <span class="rec-chip" style="background: rgba(139, 92, 246, 0.25); border-color: rgba(139, 92, 246, 0.5); color: #ede9fe;">' . ($isAr ? 'رصيد الباقة الجديد: ' : 'New Balance: ') . '<strong style="color: #c4b5fd;">' . $renewCount . '</strong> ' . ($isAr ? 'حصة' : 'sessions') . '</span>
+                                                <span class="rec-chip">' . ($isAr ? 'المطلوب للجدول: ' : 'Required: ') . '<strong style="color: #22d3ee;">' . $quota['required_sessions'] . '</strong></span>
+                                            </div>
+                                        </div>
+                                    ');
+                                }
+
                                 if (! empty($quota['status']) && $quota['status'] === 'enrolled_direct') {
                                     return new HtmlString('
                                         <div class="rec-quota-card rec-quota-card-enrolled">
@@ -161,7 +189,7 @@ class RecurringScheduleForm
                                                             <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'عجز في رصيد باقة الطالب (الجدولة موقوفة)' : 'Insufficient Balance (Schedule Blocked)') . '</span>
                                                             <span style="background: rgba(244, 63, 94, 0.25); color: #fecdd3; border: 1px solid rgba(244, 63, 94, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">' . e($quota['package_name']) . '</span>
                                                         </div>
-                                                        <div style="color: #fecdd3; font-size: 0.75rem; margin-top: 0.25rem;">' . ($isAr ? 'رصيد الطالب غير كافٍ. يلزم تجديد أو شحن الباقة لإتمام الجدول.' : 'Package balance is less than required sessions.') . '</div>
+                                                        <div style="color: #fecdd3; font-size: 0.75rem; margin-top: 0.25rem;">' . ($isAr ? 'رصيد الطالب غير كافٍ. يلزم تجديد أو شحن الباقة لإتمام الجدول. يمكنك تفعيل خيار «تجديد / تفعيل باقة الطالب تلقائياً» بالأسفل.' : 'Package balance is less than required sessions. Enable auto-renew below to proceed.') . '</div>
                                                     </div>
                                                 </div>
                                                 <div class="rec-chip-group">
@@ -184,13 +212,121 @@ class RecurringScheduleForm
                                                         <span style="font-weight: 800; font-size: 0.875rem; color: #ffffff;">' . ($isAr ? 'لا توجد باقة حصص نشطة للطالب في هذا المقرر' : 'No Active Student Package Found') . '</span>
                                                         <span style="background: rgba(245, 158, 11, 0.25); color: #fef3c7; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">⚠️ ' . ($isAr ? 'يلزم التفعيل' : 'Activation Required') . '</span>
                                                     </div>
-                                                    <div style="color: #fde68a; font-size: 0.75rem; margin-top: 0.25rem; line-height: 1.4;">' . ($isAr ? 'الطالب ليس لديه باقة حصص مفعّلة في هذا المقرر. يرجى شحن أو تفعيل باقة أولاً قبل جدولة الحصص الفردية.' : 'Student does not have an active package for this course. Please activate package first.') . '</div>
+                                                    <div style="color: #fde68a; font-size: 0.75rem; margin-top: 0.25rem; line-height: 1.4;">' . ($isAr ? 'الطالب ليس لديه باقة حصص مفعّلة في هذا المقرر. يمكنك تفعيل خيار «تجديد / تفعيل باقة الطالب تلقائياً» بالأسفل لإنشاء أو تجديد الباقة مع هذا الجدول مباشرة.' : 'Student does not have an active package. Enable auto-renew below to create or renew a package on save.') . '</div>
                                                 </div>
                                             </div>
                                         </div>
                                     ');
                                 }
                             }),
+
+                        Section::make($isAr ? 'تجديد / تفعيل باقة الطالب تلقائياً (Auto-Renew)' : 'Auto-Renew & Student Package Provisioning')
+                            ->icon('heroicon-o-sparkles')
+                            ->iconColor('warning')
+                            ->description($isAr ? 'في حال عدم وجود باقة أو عجز في الرصيد، يمكنك تفعيل هذا الخيار لإنشاء أو تجديد الباقة تلقائياً عند حفظ الجدول دون أي تعطل' : 'Automatically provision or renew student package upon saving schedule')
+                            ->collapsible()
+                            ->collapsed(fn ($get) => empty($get('auto_renew_package')))
+                            ->visible(fn ($get) => ! empty($get('student_user_id')))
+                            ->columnSpanFull()
+                            ->columns(2)
+                            ->components([
+                                Toggle::make('auto_renew_package')
+                                    ->label($isAr ? 'تفعيل أو تجديد باقة الطالب تلقائياً عند حفظ هذا الجدول' : 'Auto-Renew / Provision Package with Schedule')
+                                    ->helperText($isAr ? 'عند التفعيل، سيتم تفعيل أو تجديد باقة الطالب بالحصص المحددة فوراً عند حفظ هذا الجدول والسماح بإنشاء الحصص.' : 'Package will be provisioned or renewed automatically upon saving.')
+                                    ->live()
+                                    ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
+                                    ->columnSpanFull(),
+
+                                Radio::make('renew_action_type')
+                                    ->label($isAr ? 'نوع إجراء التجديد' : 'Renewal Action')
+                                    ->options([
+                                        'auto' => $isAr ? 'تلقائي (تجديد الباقة الحالية إن وجدت، أو إنشاء باقة جديدة)' : 'Auto (Renew existing or create new)',
+                                        'renew' => $isAr ? 'تجديد الباقة الحالية وتعيين رصيد الحصص' : 'Renew existing package',
+                                        'top_up' => $isAr ? 'إضافة رصيد حصص للباقة الحالية (Top-up)' : 'Top up additional sessions',
+                                        'create_new' => $isAr ? 'إنشاء باقة جديدة منفصلة' : 'Create brand new package',
+                                    ])
+                                    ->default('auto')
+                                    ->visible(fn ($get) => (bool) $get('auto_renew_package'))
+                                    ->columnSpanFull(),
+
+                                Select::make('renew_package_template_id')
+                                    ->label($isAr ? 'نموذج الباقة (اختياري)' : 'Package Template (Optional)')
+                                    ->options(fn () => PackageTemplate::where('is_active', true)->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->nullable()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                        if ($state) {
+                                            $template = PackageTemplate::find($state);
+                                            if ($template && $template->sessions_count) {
+                                                $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                                $calc = $service->calculateEndDateAndQuota([
+                                                    'course_id' => $get('course_id'),
+                                                    'student_user_id' => $get('student_user_id'),
+                                                    'start_date' => $get('start_date') ?: now()->toDateString(),
+                                                    'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                                                    'days_of_week' => (array) ($get('days_of_week') ?? []),
+                                                ]);
+                                                $minRequired = max(1, (int) ($calc['target_sessions'] ?? 1));
+                                                $set('renew_sessions_count', max($template->sessions_count, $minRequired));
+                                                self::syncAutoEndDateAndQuota($set, $get);
+                                            }
+                                        }
+                                    })
+                                    ->visible(fn ($get) => (bool) $get('auto_renew_package'))
+                                    ->columnSpan(1),
+
+                                TextInput::make('renew_sessions_count')
+                                    ->label($isAr ? 'عدد الحصص (لا يمكن أن يقل عن حصص المقرر)' : 'Package Sessions (Min. Required)')
+                                    ->numeric()
+                                    ->required(fn ($get) => (bool) $get('auto_renew_package'))
+                                    ->live()
+                                    ->afterStateUpdated(fn ($state, $set, $get) => self::syncAutoEndDateAndQuota($set, $get))
+                                    ->default(function ($get) {
+                                        $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                        $calc = $service->calculateEndDateAndQuota([
+                                            'course_id' => $get('course_id'),
+                                            'student_user_id' => $get('student_user_id'),
+                                            'start_date' => $get('start_date') ?: now()->toDateString(),
+                                            'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                                            'days_of_week' => (array) ($get('days_of_week') ?? []),
+                                        ]);
+                                        return max(1, (int) ($calc['target_sessions'] ?? 1));
+                                    })
+                                    ->minValue(function ($get) {
+                                        $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                        $calc = $service->calculateEndDateAndQuota([
+                                            'course_id' => $get('course_id'),
+                                            'student_user_id' => $get('student_user_id'),
+                                            'start_date' => $get('start_date') ?: now()->toDateString(),
+                                            'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                                            'days_of_week' => (array) ($get('days_of_week') ?? []),
+                                        ]);
+                                        return max(1, (int) ($calc['target_sessions'] ?? 1));
+                                    })
+                                    ->helperText(function ($get) use ($isAr) {
+                                        $service = app(\App\Services\Session\RecurringScheduleService::class);
+                                        $calc = $service->calculateEndDateAndQuota([
+                                            'course_id' => $get('course_id'),
+                                            'student_user_id' => $get('student_user_id'),
+                                            'start_date' => $get('start_date') ?: now()->toDateString(),
+                                            'recurrence_type' => $get('recurrence_type') ?: 'weekly',
+                                            'days_of_week' => (array) ($get('days_of_week') ?? []),
+                                        ]);
+                                        $minRequired = max(1, (int) ($calc['target_sessions'] ?? 1));
+                                        return $isAr
+                                            ? "الحد الأدنى لحصص هذا المقرر هو {$minRequired} حصة. لا يمكن تحديد عدد أقل."
+                                            : "Minimum required for this course is {$minRequired} sessions. Cannot be less.";
+                                    })
+                                    ->visible(fn ($get) => (bool) $get('auto_renew_package'))
+                                    ->columnSpan(1),
+
+                                DatePicker::make('renew_expires_at')
+                                    ->label($isAr ? 'تاريخ انتهاء صلاحية الباقة (اختياري)' : 'Package Expiry Date (Optional)')
+                                    ->default(now()->addMonths(3))
+                                    ->visible(fn ($get) => (bool) $get('auto_renew_package'))
+                                    ->columnSpan(1),
+                            ]),
 
                         Select::make('recurrence_type')
                             ->label($isAr ? 'نمط التكرار' : 'Recurrence Pattern')

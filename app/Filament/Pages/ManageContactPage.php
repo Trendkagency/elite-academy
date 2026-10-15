@@ -19,6 +19,8 @@ class ManageContactPage extends Page implements HasForms
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-phone';
 
+    protected static ?int $navigationSort = 4;
+
     public static function getNavigationGroup(): ?string
     {
         return app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS';
@@ -26,7 +28,7 @@ class ManageContactPage extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'صفحة اتصل بنا والمعاينة' : 'Contact Page CMS & Live Preview';
+        return app()->getLocale() === 'ar' ? 'محتوى صفحة اتصل بنا' : 'Contact Page Content';
     }
 
     public function getTitle(): string

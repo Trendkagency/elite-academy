@@ -33,7 +33,7 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedLanguage;
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {

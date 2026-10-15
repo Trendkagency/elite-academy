@@ -21,7 +21,7 @@ class CourseScheduleManagerPage extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.course-schedule-manager-page';
 
@@ -116,7 +116,7 @@ class CourseScheduleManagerPage extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return __('Academic Management');
+        return app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions';
     }
 
     public static function getNavigationLabel(): string

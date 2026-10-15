@@ -214,6 +214,169 @@ class EditRecurringSchedule extends EditRecord
                     }
                 }),
 
+            \Filament\Actions\Action::make('renewStudentPackageTop')
+                ->label($isAr ? 'تجديد / تفعيل باقة الطالب' : 'Renew / Provision Package')
+                ->icon('heroicon-o-sparkles')
+                ->color('warning')
+                ->visible(fn () => ! empty($record->student_user_id))
+                ->modalHeading($isAr ? 'تجديد أو شحن باقة الطالب فوراً' : 'Renew or Top-up Student Package')
+                ->modalSubheading($isAr ? 'يمكنك تجديد باقة الطالب الحالية أو إنشاء باقة جديدة وتعيين الرصيد فوراً لهذا المقرر.' : 'Instantly renew or top-up package for this student and course.')
+                ->modalWidth('2xl')
+                ->modalSubmitActionLabel($isAr ? 'تأكيد التجديد وتحديث الرصيد الآن' : 'Confirm Renewal Now')
+                ->form(function () use ($record, $isAr) {
+                    $studentId = $record->student_user_id;
+                    $studentUser = $studentId ? \App\Models\User::find($studentId) : null;
+                    $course = $record->course;
+
+                    $service = app(\App\Services\Session\RecurringScheduleService::class);
+                    $calc = $service->calculateEndDateAndQuota([
+                        'course_id' => $record->course_id,
+                        'student_user_id' => $studentId,
+                        'start_date' => $record->start_date ?: now()->toDateString(),
+                        'recurrence_type' => $record->recurrence_type ?: 'weekly',
+                        'days_of_week' => (array) ($record->days_of_week ?? []),
+                    ]);
+                    $minRequired = max(1, (int) ($calc['target_sessions'] ?? 1));
+
+                    $existingPackage = $studentId ? \App\Models\StudentPackage::where('student_user_id', $studentId)
+                        ->where(function ($q) use ($record) {
+                            if ($record->course_id) {
+                                $q->where('course_id', $record->course_id)->orWhereNull('course_id');
+                            }
+                        })
+                        ->orderByRaw('course_id IS NOT NULL DESC')
+                        ->latest('created_at')
+                        ->first() : null;
+
+                    return [
+                        \Filament\Forms\Components\Placeholder::make('package_status_overview')
+                            ->hiddenLabel()
+                            ->columnSpanFull()
+                            ->content(function () use ($studentUser, $course, $existingPackage, $minRequired, $isAr) {
+                                $studentName = $studentUser?->name ?: "Student #{$studentUser?->id}";
+                                $packageName = $existingPackage?->packageTemplate?->name ?: ($existingPackage ? ($isAr ? 'باقة مخصصة' : 'Custom Package') : ($isAr ? 'لا توجد باقة نشطة' : 'No Package'));
+                                $currentRemaining = $existingPackage ? $existingPackage->remaining_sessions : 0;
+                                $statusBadge = $existingPackage
+                                    ? ($existingPackage->status === 'active' ? '🟢 ' . ($isAr ? 'نشطة' : 'Active') : '🔴 ' . ($isAr ? 'منتهية/مستنفذة' : 'Exhausted'))
+                                    : '⚠️ ' . ($isAr ? 'غير موجودة' : 'Not Found');
+
+                                return new \Illuminate\Support\HtmlString('
+                                    <div class="rec-attendance-hud-banner">
+                                        <div class="rec-hud-grid">
+                                            <div class="rec-hud-card">
+                                                <div class="rec-hud-card-icon rec-card-teal-icon">
+                                                    <i class="fa-solid fa-graduation-cap"></i>
+                                                </div>
+                                                <div class="rec-hud-card-body">
+                                                    <div class="rec-hud-card-label">' . ($isAr ? 'الطالب' : 'Student') . '</div>
+                                                    <div class="rec-hud-card-title">' . e($studentName) . '</div>
+                                                    <div class="rec-hud-card-sub text-teal-600 dark:text-teal-400 font-mono">' . e($course?->title ?: 'Course') . '</div>
+                                                </div>
+                                            </div>
+                                            <div class="rec-hud-card">
+                                                <div class="rec-hud-card-icon rec-card-indigo-icon">
+                                                    <i class="fa-solid fa-box-archive"></i>
+                                                </div>
+                                                <div class="rec-hud-card-body">
+                                                    <div class="rec-hud-card-label">' . ($isAr ? 'الباقة الحالية' : 'Current Package') . '</div>
+                                                    <div class="rec-hud-card-title">' . e($packageName) . '</div>
+                                                    <div class="rec-hud-card-sub">' . $statusBadge . '</div>
+                                                </div>
+                                            </div>
+                                            <div class="rec-hud-card">
+                                                <div class="rec-hud-card-icon rec-card-emerald-icon">
+                                                    <i class="fa-solid fa-layer-group"></i>
+                                                </div>
+                                                <div class="rec-hud-card-body">
+                                                    <div class="rec-hud-card-label">' . ($isAr ? 'الرصيد المتاح' : 'Remaining') . '</div>
+                                                    <div class="rec-hud-card-title font-mono text-emerald-600 dark:text-emerald-400">' . $currentRemaining . ' ' . ($isAr ? 'حصة' : 'credits') . '</div>
+                                                    <div class="rec-hud-card-sub">' . ($isAr ? "مطلوب: {$minRequired} حصة" : "Req: {$minRequired}") . '</div>
+                                                </div>
+                                            </div>
+                                            <div class="rec-hud-card">
+                                                <div class="rec-hud-card-icon rec-card-amber-icon">
+                                                    <i class="fa-solid fa-lock"></i>
+                                                </div>
+                                                <div class="rec-hud-card-body">
+                                                    <div class="rec-hud-card-label">' . ($isAr ? 'الحد الأدنى المطلوب' : 'Min Required') . '</div>
+                                                    <div class="rec-hud-card-title text-amber-600 dark:text-amber-400 font-mono">' . $minRequired . ' ' . ($isAr ? 'حصة' : 'sessions') . '</div>
+                                                    <div class="rec-hud-card-sub text-xs">' . ($isAr ? 'لا يمكن التجديد بأقل منه' : 'Enforced limit') . '</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ');
+                            }),
+
+                        \Filament\Forms\Components\Radio::make('action_type')
+                            ->label(new \Illuminate\Support\HtmlString('<span class="flex items-center gap-1.5 font-bold text-sm"><i class="fa-solid fa-gear text-teal-500"></i> ' . ($isAr ? 'نوع إجراء التجديد' : 'Action Type') . '</span>'))
+                            ->options([
+                                'auto' => new \Illuminate\Support\HtmlString('<span class="rec-radio-opt"><i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i><strong>' . ($isAr ? 'تلقائي' : 'Auto') . '</strong> <span class="text-xs opacity-75">(' . ($isAr ? 'تجديد الباقة الحالية إن وجدت أو إنشاء باقة جديدة' : 'Renew existing or create new') . ')</span></span>'),
+                                'renew' => new \Illuminate\Support\HtmlString('<span class="rec-radio-opt"><i class="fa-solid fa-rotate text-emerald-500"></i><strong>' . ($isAr ? 'تجديد الباقة الحالية' : 'Renew Package') . '</strong> <span class="text-xs opacity-75">(' . ($isAr ? 'إعادة ضبط الرصيد وتنشيط الباقة' : 'Reset balance & activate') . ')</span></span>'),
+                                'top_up' => new \Illuminate\Support\HtmlString('<span class="rec-radio-opt"><i class="fa-solid fa-plus-circle text-cyan-500"></i><strong>' . ($isAr ? 'شحن رصيد إضافي (Top-up)' : 'Top-up') . '</strong> <span class="text-xs opacity-75">(' . ($isAr ? 'إضافة حصص فوق الرصيد الحالي' : 'Add to existing balance') . ')</span></span>'),
+                                'create_new' => new \Illuminate\Support\HtmlString('<span class="rec-radio-opt"><i class="fa-solid fa-square-plus text-amber-500"></i><strong>' . ($isAr ? 'إنشاء باقة جديدة منفصلة' : 'Create New') . '</strong> <span class="text-xs opacity-75">(' . ($isAr ? 'بدء باقة جديدة للطالب' : 'Start separate new package') . ')</span></span>'),
+                            ])
+                            ->default('auto')
+                            ->required()
+                            ->columnSpanFull(),
+
+                        \Filament\Forms\Components\Select::make('package_template_id')
+                            ->label(new \Illuminate\Support\HtmlString('<span class="flex items-center gap-1.5 font-bold text-sm"><i class="fa-solid fa-box text-teal-500"></i> ' . ($isAr ? 'نموذج الباقة (اختياري)' : 'Package Template (Optional)') . '</span>'))
+                            ->options(\App\Models\PackageTemplate::where('is_active', true)->pluck('name', 'id'))
+                            ->searchable()
+                            ->nullable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set) use ($minRequired) {
+                                if ($state) {
+                                    $tmpl = \App\Models\PackageTemplate::find($state);
+                                    if ($tmpl && $tmpl->sessions_count) {
+                                        $set('sessions_count', max($tmpl->sessions_count, $minRequired));
+                                    }
+                                }
+                            })
+                            ->columnSpanFull(),
+
+                        \Filament\Forms\Components\TextInput::make('sessions_count')
+                            ->label(new \Illuminate\Support\HtmlString('<span class="flex items-center gap-1.5 font-bold text-sm"><i class="fa-solid fa-list-ol text-teal-500"></i> ' . ($isAr ? 'عدد الحصص (لا يمكن أن يقل عن حصص المقرر)' : 'Package Sessions (Min. Required)') . '</span>'))
+                            ->numeric()
+                            ->required()
+                            ->default($minRequired)
+                            ->minValue($minRequired)
+                            ->helperText($isAr
+                                ? "الحد الأدنى لحصص هذا المقرر هو {$minRequired} حصة. لا يمكن تحديد عدد أقل."
+                                : "Minimum required for this course is {$minRequired} sessions. Cannot be less.")
+                            ->columnSpanFull(),
+
+                        \Filament\Forms\Components\DatePicker::make('expires_at')
+                            ->label(new \Illuminate\Support\HtmlString('<span class="flex items-center gap-1.5 font-bold text-sm"><i class="fa-solid fa-calendar text-teal-500"></i> ' . ($isAr ? 'تاريخ انتهاء صلاحية الباقة' : 'Expiry Date') . '</span>'))
+                            ->default(now()->addMonths(3))
+                            ->columnSpanFull(),
+                    ];
+                })
+                ->action(function (array $data) use ($record, $isAr): void {
+                    $service = app(\App\Services\Session\RecurringScheduleService::class);
+                    $package = $service->provisionOrRenewStudentPackage([
+                        'student_user_id' => $record->student_user_id,
+                        'course_id' => $record->course_id,
+                        'sessions_count' => (int) $data['sessions_count'],
+                        'package_template_id' => $data['package_template_id'] ?? null,
+                        'expires_at' => $data['expires_at'] ?? null,
+                        'action_type' => $data['action_type'] ?? 'auto',
+                        'reason' => 'Package Renewed/Provisioned from Recurring Schedule Edit Page',
+                        'start_date' => $record->start_date ?: now()->toDateString(),
+                        'recurrence_type' => $record->recurrence_type ?: 'weekly',
+                        'days_of_week' => (array) ($record->days_of_week ?? []),
+                    ], auth()->user());
+
+                    \Filament\Notifications\Notification::make()
+                        ->title($isAr ? 'تم تجديد / تفعيل باقة الطالب بنجاح' : 'Package Renewed Successfully')
+                        ->body($isAr
+                            ? "أصبح رصيد الطالب الآن {$package->remaining_sessions} حصة متاحة، وأصبحت الباقة صالحة للجدولة والخصم."
+                            : "Student now has {$package->remaining_sessions} sessions available.")
+                        ->success()
+                        ->send();
+                }),
+
             DeleteAction::make(),
         ];
     }

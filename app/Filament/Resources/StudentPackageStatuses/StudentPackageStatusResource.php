@@ -20,17 +20,12 @@ class StudentPackageStatusResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة المستخدمين والأدوار' : 'User Management';
-    }
-
-    public static function getNavigationParentItem(): ?string
-    {
-        return app()->getLocale() === 'ar' ? 'حسابات الطلاب' : 'Student Profiles';
+        return app()->getLocale() === 'ar' ? 'إدارة الباقات والمالية' : 'Packages & Finance';
     }
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'الباقات المنتهية' : 'Student Package Statuses';
+        return app()->getLocale() === 'ar' ? 'متابعة الباقات المنتهية' : 'Expired & Exhausted Packages';
     }
 
     public static function getModelLabel(): string

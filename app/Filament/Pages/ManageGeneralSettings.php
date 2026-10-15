@@ -24,7 +24,7 @@ class ManageGeneralSettings extends Page implements HasForms
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?int $navigationSort = 90;
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {

@@ -18,6 +18,8 @@ class ManageAboutPage extends Page implements HasForms
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-information-circle';
 
+    protected static ?int $navigationSort = 3;
+
     public static function getNavigationGroup(): ?string
     {
         return app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS';
@@ -25,7 +27,7 @@ class ManageAboutPage extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'صفحة من نحن والمعاينة' : 'About Page CMS & Live Preview';
+        return app()->getLocale() === 'ar' ? 'محتوى صفحة من نحن' : 'About Page Content';
     }
 
     public function getTitle(): string

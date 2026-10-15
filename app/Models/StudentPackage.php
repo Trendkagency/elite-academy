@@ -174,6 +174,43 @@ class StudentPackage extends Model
     }
 
     /**
+     * Top-up the package: add additional session credits and optionally extend expiry.
+     */
+    public function topUpSessions(
+        int $additionalSessions,
+        ?\Carbon\Carbon $newExpiresAt = null,
+        string $reason = 'Package Top-up'
+    ): bool {
+        $balanceBefore = $this->remaining_sessions;
+
+        $this->total_sessions     += $additionalSessions;
+        $this->remaining_sessions += $additionalSessions;
+        if ($this->status === 'exhausted' && $this->remaining_sessions > 0) {
+            $this->status = 'active';
+        }
+        if ($newExpiresAt !== null) {
+            $this->expires_at = $newExpiresAt;
+        }
+
+        $this->save();
+        $this->distributeSessionsOnce(force: true);
+
+        PackageTransaction::create([
+            'student_package_id' => $this->id,
+            'live_session_id'    => null,
+            'type'               => 'package_topup',
+            'sessions_delta'     => $additionalSessions,
+            'balance_before'     => $balanceBefore,
+            'balance_after'      => $this->remaining_sessions,
+            'reason'             => $reason,
+            'performed_by'       => auth()->id(),
+            'created_at'         => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
      * Distribute total session credits across student's subjects/courses ONCE ONLY.
      * Prevents re-distribution or repeated allocation on subsequent operations.
      *

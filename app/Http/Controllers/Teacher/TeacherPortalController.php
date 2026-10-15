@@ -575,6 +575,12 @@ class TeacherPortalController extends Controller
             'meeting_link' => 'nullable|url|max:500',
             'meeting_platform' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
+            'auto_renew_package' => 'nullable|boolean',
+            'renew_package' => 'nullable|boolean',
+            'renew_sessions_count' => 'nullable|integer',
+            'renew_package_template_id' => 'nullable|integer',
+            'renew_action_type' => 'nullable|string',
+            'renew_expires_at' => 'nullable|date',
         ], [
             'title.required' => __('Please provide a schedule title.'),
             'course_id.required' => __('Please select a course first.'),
@@ -599,12 +605,13 @@ class TeacherPortalController extends Controller
         }
 
         $studentUserId = ! empty($validated['student_user_id']) ? (int) $validated['student_user_id'] : null;
+        $autoRenew = ! empty($validated['auto_renew_package']) || ! empty($validated['renew_package']);
         if ($studentUserId) {
             $isEnrolled = \App\Models\CourseEnrollment::where('student_user_id', $studentUserId)
                 ->where('course_id', $course->id)
                 ->exists();
 
-            if (! $isEnrolled) {
+            if (! $isEnrolled && ! $autoRenew) {
                 return response()->json([
                     'success' => false,
                     'message' => __('Selected student is not enrolled in this course.'),
@@ -621,7 +628,7 @@ class TeacherPortalController extends Controller
 
         if ($studentUserId) {
             $quota = $calc['student_quota'];
-            if ($quota && ! $quota['can_create']) {
+            if ($quota && ! $quota['can_create'] && ! $autoRenew) {
                 return response()->json([
                     'success' => false,
                     'message' => $quota['message'],

@@ -3,8 +3,11 @@
 namespace App\Services\Session;
 
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\LiveSession;
+use App\Models\PackageTemplate;
+use App\Models\PackageTransaction;
 use App\Models\RecurringSchedule;
 use App\Models\SessionAuditLog;
 use App\Models\StudentPackage;
@@ -508,6 +511,134 @@ class RecurringScheduleService
     }
 
     /**
+     * Provision a new package or renew/top-up an existing package for the student.
+     * Enforces the business rule that package sessions cannot be less than course requirements.
+     */
+    public function provisionOrRenewStudentPackage(array $params, ?User $actor = null): StudentPackage
+    {
+        $studentUserId = (int) ($params['student_user_id'] ?? 0);
+        $courseId = !empty($params['course_id']) ? (int) $params['course_id'] : null;
+        $actionType = $params['action_type'] ?? 'auto'; // 'auto', 'renew', 'top_up', 'create_new'
+        $packageTemplateId = !empty($params['package_template_id']) ? (int) $params['package_template_id'] : null;
+        $expiresAt = !empty($params['expires_at']) ? Carbon::parse($params['expires_at']) : null;
+        $reason = $params['reason'] ?? 'Provisioned/Renewed during Recurring Schedule Setup';
+        $actorId = $actor?->id ?: auth()->id();
+
+        if (!$studentUserId) {
+            throw new \InvalidArgumentException('student_user_id is required for package provisioning.');
+        }
+
+        // Determine target/required sessions from calculation
+        $calc = $this->calculateEndDateAndQuota([
+            'course_id' => $courseId,
+            'student_user_id' => $studentUserId,
+            'start_date' => $params['start_date'] ?? now()->toDateString(),
+            'recurrence_type' => $params['recurrence_type'] ?? 'weekly',
+            'days_of_week' => $params['days_of_week'] ?? [],
+        ]);
+        $minRequired = max(1, (int) ($calc['target_sessions'] ?? 1));
+
+        // Sessions count from request, or default to max of template sessions or minRequired
+        $sessionsCount = !empty($params['sessions_count']) ? (int) $params['sessions_count'] : 0;
+        if ($sessionsCount <= 0 && $packageTemplateId) {
+            $template = PackageTemplate::find($packageTemplateId);
+            if ($template && $template->sessions_count) {
+                $sessionsCount = (int) $template->sessions_count;
+            }
+        }
+        if ($sessionsCount <= 0) {
+            $sessionsCount = $minRequired;
+        }
+
+        // Strict validation: Package sessions cannot be less than course requirements!
+        if ($sessionsCount < $minRequired) {
+            $isAr = app()->getLocale() === 'ar';
+            $msg = $isAr
+                ? "عدد حصص الباقة ({$sessionsCount}) لا يمكن أن يقل عن الحد الأدنى لحصص المقرر ({$minRequired} حصة)."
+                : "Package sessions limit ({$sessionsCount}) cannot be less than the required course sessions ({$minRequired}).";
+            throw ValidationException::withMessages([
+                'renew_sessions_count' => $msg,
+                'sessions_count' => $msg,
+            ]);
+        }
+
+        // Ensure Course Enrollment exists if course specified
+        if ($courseId) {
+            CourseEnrollment::firstOrCreate([
+                'student_user_id' => $studentUserId,
+                'course_id' => $courseId,
+            ], [
+                'cohort' => 'individual',
+                'status' => 'active',
+                'enrolled_at' => now(),
+                'progress_percent' => 0,
+            ]);
+        }
+
+        // Find any existing package for this student and course (or general)
+        $existingPackage = StudentPackage::where('student_user_id', $studentUserId)
+            ->where(function ($q) use ($courseId) {
+                if ($courseId) {
+                    $q->where('course_id', $courseId)
+                      ->orWhereNull('course_id');
+                }
+            })
+            ->orderByRaw('course_id IS NOT NULL DESC')
+            ->latest('created_at')
+            ->first();
+
+        // 1. Create brand new package if requested or if no package exists
+        if ($actionType === 'create_new' || (!$existingPackage && in_array($actionType, ['auto', 'renew', 'top_up']))) {
+            $package = StudentPackage::create([
+                'student_user_id' => $studentUserId,
+                'course_id' => $courseId,
+                'package_template_id' => $packageTemplateId,
+                'total_sessions' => $sessionsCount,
+                'used_sessions' => 0,
+                'remaining_sessions' => $sessionsCount,
+                'status' => 'active',
+                'activated_at' => now(),
+                'expires_at' => $expiresAt ?: now()->addMonths(3),
+            ]);
+
+            PackageTransaction::create([
+                'student_package_id' => $package->id,
+                'live_session_id' => null,
+                'type' => 'package_purchase',
+                'sessions_delta' => $sessionsCount,
+                'balance_before' => 0,
+                'balance_after' => $sessionsCount,
+                'reason' => $reason,
+                'performed_by' => $actorId,
+                'created_at' => now(),
+            ]);
+
+            return $package->fresh();
+        }
+
+        // 2. Top-up existing package
+        if ($actionType === 'top_up' && $existingPackage) {
+            $existingPackage->topUpSessions(
+                $sessionsCount,
+                $expiresAt ?: ($existingPackage->expires_at && !$existingPackage->expires_at->isPast() ? $existingPackage->expires_at : now()->addMonths(3)),
+                $reason
+            );
+
+            return $existingPackage->fresh();
+        }
+
+        // 3. Default 'auto' or 'renew': renew the existing package
+        $existingPackage->renewPackage(
+            $sessionsCount,
+            $packageTemplateId,
+            $expiresAt ?: ($existingPackage->expires_at && !$existingPackage->expires_at->isPast() ? $existingPackage->expires_at : now()->addMonths(3)),
+            $reason
+        );
+
+        return $existingPackage->fresh();
+    }
+
+    /**
      * Create Recurring Schedule and generate all session instances in batch.
      */
     public function createSchedule(array $data, User $creator): RecurringSchedule
@@ -525,6 +656,28 @@ class RecurringScheduleService
 
             if ($studentUserId) {
                 $quota = $calc['student_quota'];
+                $autoRenew = !empty($data['auto_renew_package']) || !empty($data['renew_package']);
+
+                if ($autoRenew) {
+                    $targetSessions = (int) ($data['renew_sessions_count'] ?? $calc['target_sessions']);
+                    $this->provisionOrRenewStudentPackage([
+                        'student_user_id' => $studentUserId,
+                        'course_id' => $course->id,
+                        'sessions_count' => $targetSessions,
+                        'package_template_id' => $data['renew_package_template_id'] ?? null,
+                        'expires_at' => $data['renew_expires_at'] ?? null,
+                        'action_type' => $data['renew_action_type'] ?? 'auto',
+                        'reason' => 'Auto-renewed during recurring schedule creation',
+                        'start_date' => $data['start_date'] ?? now()->toDateString(),
+                        'recurrence_type' => $data['recurrence_type'] ?? 'weekly',
+                        'days_of_week' => $data['days_of_week'] ?? [],
+                    ], $creator);
+
+                    // Re-evaluate quota after renewal
+                    $calc = $this->calculateEndDateAndQuota($data);
+                    $quota = $calc['student_quota'];
+                }
+
                 if ($quota && ! $quota['can_create']) {
                     throw ValidationException::withMessages([
                         'student_user_id' => $quota['message'],
@@ -741,6 +894,28 @@ class RecurringScheduleService
             $studentUserId = array_key_exists('student_user_id', $data) ? $data['student_user_id'] : $schedule->student_user_id;
             if ($studentUserId) {
                 $quota = $calc['student_quota'];
+                $autoRenew = !empty($data['auto_renew_package']) || !empty($data['renew_package']);
+
+                if ($autoRenew) {
+                    $targetSessions = (int) ($data['renew_sessions_count'] ?? $calc['target_sessions']);
+                    $this->provisionOrRenewStudentPackage([
+                        'student_user_id' => $studentUserId,
+                        'course_id' => $data['course_id'] ?? $schedule->course_id,
+                        'sessions_count' => $targetSessions,
+                        'package_template_id' => $data['renew_package_template_id'] ?? null,
+                        'expires_at' => $data['renew_expires_at'] ?? null,
+                        'action_type' => $data['renew_action_type'] ?? 'auto',
+                        'reason' => 'Auto-renewed during recurring schedule update',
+                        'start_date' => $data['start_date'] ?? $schedule->start_date,
+                        'recurrence_type' => $data['recurrence_type'] ?? $schedule->recurrence_type,
+                        'days_of_week' => $data['days_of_week'] ?? $schedule->days_of_week,
+                    ], $user);
+
+                    // Re-calculate quota after renewal
+                    $calc = $this->calculateEndDateAndQuota($merged);
+                    $quota = $calc['student_quota'];
+                }
+
                 if ($quota && ! $quota['can_create']) {
                     throw ValidationException::withMessages([
                         'student_user_id' => $quota['message'],

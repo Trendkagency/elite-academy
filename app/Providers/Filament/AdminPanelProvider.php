@@ -51,6 +51,41 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::BODY_END,
                 fn (): \Illuminate\Contracts\View\View => view('filament.hooks.ctrl-s-shortcut')
             )
+            ->navigationGroups([
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management')
+                    ->icon('heroicon-o-academic-cap'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions')
+                    ->icon('heroicon-o-calendar-days'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة المستخدمين والأدوار' : 'User Management')
+                    ->icon('heroicon-o-user-group'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة الباقات والمالية' : 'Packages & Finance')
+                    ->icon('heroicon-o-banknotes'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'التقارير والإحصائيات' : 'Reports & Analytics')
+                    ->icon('heroicon-o-chart-bar'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'التواصل والدعم الفني' : 'Communication & Support')
+                    ->icon('heroicon-o-chat-bubble-left-right'),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS')
+                    ->icon('heroicon-o-globe-alt')
+                    ->collapsed(),
+
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'الإعدادات العامة' : 'Settings')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->collapsed(),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

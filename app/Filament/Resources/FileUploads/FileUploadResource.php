@@ -20,16 +20,16 @@ class FileUploadResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentArrowUp;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 5;
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة الملفات والمرفقات' : 'Files & Documents';
+        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
     }
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'الملفات والمذكرات التعليمية' : 'Educational Files';
+        return app()->getLocale() === 'ar' ? 'الملفات والمذكرات التعليمية' : 'Educational Files & Materials';
     }
 
     public static function getModelLabel(): string

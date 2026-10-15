@@ -17,13 +17,13 @@ class MeetingProviderResource extends Resource
 {
     protected static ?string $model = MeetingProvider::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedVideoCamera;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedServerStack;
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 5;
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+        return app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions';
     }
 
     public static function getNavigationLabel(): string

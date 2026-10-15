@@ -22,7 +22,7 @@ class ContactMessageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
@@ -31,7 +31,7 @@ class ContactMessageResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'ar' ? 'رسائل اتصل بنا واستفسارات' : 'Contact Messages';
+        return app()->getLocale() === 'ar' ? 'رسائل واستفسارات اتصل بنا' : 'Contact Messages & Inquiries';
     }
 
     public static function getModelLabel(): string

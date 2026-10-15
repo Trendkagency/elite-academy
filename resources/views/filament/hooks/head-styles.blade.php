@@ -1827,6 +1827,18 @@
         color: #0e7490 !important;
     }
 
+    html:not(.dark) .rec-quota-card-auto-provision {
+        background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%) !important;
+        border: 1.5px solid #8b5cf6 !important;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15) !important;
+    }
+    html:not(.dark) .rec-quota-card-auto-provision span {
+        color: #5b21b6 !important;
+    }
+    html:not(.dark) .rec-quota-card-auto-provision div {
+        color: #6d28d9 !important;
+    }
+
     /* Dark Mode: Rec Quota Cards */
     html.dark .rec-quota-card-sufficient {
         background: linear-gradient(135deg, rgba(6, 78, 59, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
@@ -1847,6 +1859,11 @@
         background: linear-gradient(135deg, rgba(8, 51, 68, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.5px solid rgba(6, 182, 212, 0.55) !important;
         box-shadow: 0 10px 25px -5px rgba(8, 51, 68, 0.4), inset 0 1px 0 rgba(6, 182, 212, 0.25) !important;
+    }
+    html.dark .rec-quota-card-auto-provision {
+        background: linear-gradient(135deg, rgba(76, 29, 149, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        border: 1.5px solid rgba(139, 92, 246, 0.6) !important;
+        box-shadow: 0 10px 25px -5px rgba(76, 29, 149, 0.4), inset 0 1px 0 rgba(139, 92, 246, 0.25) !important;
     }
 
     .rec-quota-icon-badge {

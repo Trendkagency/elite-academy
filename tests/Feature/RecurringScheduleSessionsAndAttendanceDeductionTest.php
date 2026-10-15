@@ -288,4 +288,136 @@ class RecurringScheduleSessionsAndAttendanceDeductionTest extends TestCase
         $this->assertEquals('excused', $session->attendance_status);
         $this->assertEquals('completed', $session->status);
     }
+
+    public function test_can_create_recurring_schedule_with_auto_renew_package_when_student_has_no_package(): void
+    {
+        $newStudent = User::create([
+            'name' => 'Sara New Student',
+            'email' => 'sara_rec@elite.edu',
+            'password' => bcrypt('StudentPass123!'),
+            'role' => 'student',
+            'status' => \App\Enums\AccountStatus::APPROVED,
+        ]);
+        StudentProfile::create(['user_id' => $newStudent->id, 'student_code' => 'STU-SARA-01']);
+
+        // Student has NO package and NO enrollment initially
+        $this->assertNull(StudentPackage::where('student_user_id', $newStudent->id)->first());
+
+        $service = app(RecurringScheduleService::class);
+        $schedule = $service->createSchedule([
+            'title' => 'Weekly Physics with Sara',
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'student_user_id' => $newStudent->id,
+            'start_date' => Carbon::tomorrow()->toDateString(),
+            'start_time' => '11:00:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [1, 3], // 2 days a week
+            'auto_renew_package' => true,
+            'renew_sessions_count' => 12,
+            'renew_action_type' => 'create_new',
+        ], $this->adminUser);
+
+        $this->assertNotNull($schedule);
+        $this->assertEquals('Weekly Physics with Sara', $schedule->title);
+
+        // Check package was created with 12 sessions
+        $pkg = StudentPackage::where('student_user_id', $newStudent->id)->where('course_id', $this->course->id)->first();
+        $this->assertNotNull($pkg);
+        $this->assertEquals(12, $pkg->total_sessions);
+        $this->assertEquals(12, $pkg->remaining_sessions);
+        $this->assertEquals('active', $pkg->status);
+
+        // Check enrollment was created
+        $enrollment = CourseEnrollment::where('student_user_id', $newStudent->id)->where('course_id', $this->course->id)->first();
+        $this->assertNotNull($enrollment);
+        $this->assertEquals('active', $enrollment->status);
+
+        // Check transaction log
+        $txn = PackageTransaction::where('student_package_id', $pkg->id)->latest('created_at')->first();
+        $this->assertNotNull($txn);
+        $this->assertEquals('package_purchase', $txn->type);
+        $this->assertEquals(12, $txn->sessions_delta);
+    }
+
+    public function test_can_renew_existing_exhausted_package_when_creating_schedule(): void
+    {
+        // Set student's existing package to 0 remaining sessions
+        $this->studentPackage->update([
+            'total_sessions' => 8,
+            'remaining_sessions' => 0,
+            'used_sessions' => 8,
+            'status' => 'exhausted',
+        ]);
+
+        $service = app(RecurringScheduleService::class);
+        $schedule = $service->createSchedule([
+            'title' => 'Physics Renewal Schedule',
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => Carbon::tomorrow()->toDateString(),
+            'start_time' => '14:00:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [1, 3],
+            'auto_renew_package' => true,
+            'renew_sessions_count' => 10,
+            'renew_action_type' => 'renew',
+        ], $this->adminUser);
+
+        $this->assertNotNull($schedule);
+
+        $this->studentPackage->refresh();
+        $this->assertEquals(10, $this->studentPackage->total_sessions);
+        $this->assertEquals(10, $this->studentPackage->remaining_sessions);
+        $this->assertEquals('active', $this->studentPackage->status);
+
+        // Check renewal transaction
+        $txn = PackageTransaction::where('student_package_id', $this->studentPackage->id)->latest('created_at')->first();
+        $this->assertNotNull($txn);
+        $this->assertEquals('renewal', $txn->type);
+        $this->assertEquals(10, $txn->sessions_delta);
+    }
+
+    public function test_package_sessions_cannot_be_less_than_course_required_sessions(): void
+    {
+        // Course has 8 sessions required (or defined)
+        $this->course->update(['sessions_count' => 10]);
+
+        $service = app(RecurringScheduleService::class);
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+
+        // Attempting to provision only 4 sessions when course requires 10
+        $service->provisionOrRenewStudentPackage([
+            'student_user_id' => $this->studentUser->id,
+            'course_id' => $this->course->id,
+            'sessions_count' => 4,
+            'action_type' => 'renew',
+        ], $this->adminUser);
+    }
+
+    public function test_existing_valid_package_unaffected_when_auto_renew_not_specified(): void
+    {
+        // Student already has 8 sessions available
+        $this->assertEquals(8, $this->studentPackage->remaining_sessions);
+
+        $service = app(RecurringScheduleService::class);
+        $schedule = $service->createSchedule([
+            'title' => 'Standard Physics Schedule',
+            'course_id' => $this->course->id,
+            'teacher_profile_id' => $this->teacherProfile->id,
+            'student_user_id' => $this->studentUser->id,
+            'start_date' => Carbon::tomorrow()->toDateString(),
+            'start_time' => '10:00:00',
+            'duration_minutes' => 60,
+            'recurrence_type' => 'weekly',
+            'days_of_week' => [1, 3], // 8 sessions target
+        ], $this->adminUser);
+
+        $this->assertNotNull($schedule);
+        $this->assertEquals(8, $this->studentPackage->fresh()->remaining_sessions);
+    }
 }

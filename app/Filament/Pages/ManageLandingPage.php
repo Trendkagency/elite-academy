@@ -27,7 +27,7 @@ class ManageLandingPage extends Page implements HasForms
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedPaintBrush;
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {

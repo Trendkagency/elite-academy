@@ -20,11 +20,11 @@ class RecurringScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management';
+        return app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions';
     }
 
     public static function getNavigationLabel(): string

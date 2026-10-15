@@ -20,7 +20,7 @@ class GradeLevelResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookmarkSquare;
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
