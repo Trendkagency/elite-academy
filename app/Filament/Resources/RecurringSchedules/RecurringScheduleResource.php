@@ -52,6 +52,13 @@ class RecurringScheduleResource extends Resource
         return RecurringSchedulesTable::configure($table);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\SessionsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
@@ -61,3 +68,4 @@ class RecurringScheduleResource extends Resource
         ];
     }
 }
+

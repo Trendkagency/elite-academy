@@ -2052,6 +2052,12 @@
                                 </div>
                                 <div
                                     class="flex items-center gap-2 pt-2.5 border-t border-slate-200/80 dark:border-slate-700/80 justify-end">
+                                    <button type="button"
+                                        onclick="filterTeacherSessionsByRecurringSchedule({{ $rs->id }}, '{{ addslashes($rs->title ?? __('Schedule')) }}')"
+                                        class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded-xl border border-emerald-200/70 dark:border-emerald-800/70 transition-all cursor-pointer flex items-center gap-1.5">
+                                        <i class="fa-solid fa-clipboard-check text-xs"></i>
+                                        <span>{{ __('Sessions & Attendance') }} ({{ $rsTotalCount }})</span>
+                                    </button>
                                     <button type="button" data-id="{{ $rs->id }}"
                                         data-title="{{ $rs->title }}" data-course-id="{{ $rs->course_id }}"
                                         data-recurrence-type="{{ $rs->recurrence_type }}"
@@ -10302,6 +10308,29 @@
             }
         }
 
+        function filterTeacherSessionsByRecurringSchedule(rsId, rsTitle) {
+            if (typeof switchTeacherTab === 'function') {
+                switchTeacherTab('sessions');
+            } else {
+                const tabBtn = document.querySelector('[data-tab="sessions"]');
+                if (tabBtn) tabBtn.click();
+            }
+
+            setTimeout(() => {
+                const searchInput = document.getElementById('sessionsSearchInput') || document.querySelector('input[name="sessions_search"]');
+                if (searchInput) {
+                    searchInput.value = rsTitle || '';
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                const firstScheduleMatch = document.querySelector(`[data-recurring-schedule-id="${rsId}"]`);
+                if (firstScheduleMatch) {
+                    firstScheduleMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstScheduleMatch.classList.add('ring-2', 'ring-teal-500');
+                    setTimeout(() => firstScheduleMatch.classList.remove('ring-2', 'ring-teal-500'), 3000);
+                }
+            }, 250);
+        }
+
         window.openEditAssignmentModal = openEditAssignmentModal;
         window.confirmDeleteAssignment = confirmDeleteAssignment;
         window.deleteCurrentAssignmentFromModal = deleteCurrentAssignmentFromModal;
@@ -10309,6 +10338,8 @@
         window.confirmDeleteSession = confirmDeleteSession;
         window.openEditRecurringScheduleModal = openEditRecurringScheduleModal;
         window.confirmDeleteRecurringSchedule = confirmDeleteRecurringSchedule;
+        window.filterTeacherSessionsByRecurringSchedule = filterTeacherSessionsByRecurringSchedule;
+
 
         function recalculateEditRecSyncSummary() {
             const startVal = document.getElementById('editRecStartDate')?.value;

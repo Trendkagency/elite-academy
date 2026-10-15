@@ -1762,7 +1762,7 @@
     }
 
     /* =============================================================
-       RECURRING SCHEDULE FORM: HIGH-END HUD & QUOTA WIDGETS
+       RECURRING SCHEDULE FORM & ATTENDANCE: DUAL LIGHT/DARK HUD
        ============================================================= */
     .rec-quota-card {
         border-radius: 1rem !important;
@@ -1777,22 +1777,73 @@
         position: relative !important;
         overflow: hidden !important;
     }
-    .rec-quota-card-sufficient {
+
+    /* Light Mode: Rec Quota Cards */
+    html:not(.dark) .rec-quota-card-sufficient {
+        background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%) !important;
+        border: 1.5px solid #10b981 !important;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12) !important;
+    }
+    html:not(.dark) .rec-quota-card-sufficient span {
+        color: #065f46 !important;
+    }
+    html:not(.dark) .rec-quota-card-sufficient div {
+        color: #047857 !important;
+    }
+
+    html:not(.dark) .rec-quota-card-insufficient {
+        background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%) !important;
+        border: 1.5px solid #f43f5e !important;
+        box-shadow: 0 4px 15px rgba(244, 63, 94, 0.12) !important;
+    }
+    html:not(.dark) .rec-quota-card-insufficient span {
+        color: #9f1239 !important;
+    }
+    html:not(.dark) .rec-quota-card-insufficient div {
+        color: #be123c !important;
+    }
+
+    html:not(.dark) .rec-quota-card-no-package {
+        background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%) !important;
+        border: 1.5px solid #f59e0b !important;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12) !important;
+    }
+    html:not(.dark) .rec-quota-card-no-package span {
+        color: #92400e !important;
+    }
+    html:not(.dark) .rec-quota-card-no-package div {
+        color: #b45309 !important;
+    }
+
+    html:not(.dark) .rec-quota-card-enrolled {
+        background: linear-gradient(135deg, #ecfeff 0%, #ffffff 100%) !important;
+        border: 1.5px solid #06b6d4 !important;
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.12) !important;
+    }
+    html:not(.dark) .rec-quota-card-enrolled span {
+        color: #155e75 !important;
+    }
+    html:not(.dark) .rec-quota-card-enrolled div {
+        color: #0e7490 !important;
+    }
+
+    /* Dark Mode: Rec Quota Cards */
+    html.dark .rec-quota-card-sufficient {
         background: linear-gradient(135deg, rgba(6, 78, 59, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.5px solid rgba(16, 185, 129, 0.55) !important;
         box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.4), inset 0 1px 0 rgba(16, 185, 129, 0.25) !important;
     }
-    .rec-quota-card-insufficient {
+    html.dark .rec-quota-card-insufficient {
         background: linear-gradient(135deg, rgba(136, 19, 55, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.5px solid rgba(244, 63, 94, 0.6) !important;
         box-shadow: 0 10px 25px -5px rgba(136, 19, 55, 0.4), inset 0 1px 0 rgba(244, 63, 94, 0.25) !important;
     }
-    .rec-quota-card-no-package {
+    html.dark .rec-quota-card-no-package {
         background: linear-gradient(135deg, rgba(120, 53, 15, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.5px solid rgba(245, 158, 11, 0.6) !important;
         box-shadow: 0 10px 25px -5px rgba(120, 53, 15, 0.4), inset 0 1px 0 rgba(245, 158, 11, 0.25) !important;
     }
-    .rec-quota-card-enrolled {
+    html.dark .rec-quota-card-enrolled {
         background: linear-gradient(135deg, rgba(8, 51, 68, 0.65) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         border: 1.5px solid rgba(6, 182, 212, 0.55) !important;
         box-shadow: 0 10px 25px -5px rgba(8, 51, 68, 0.4), inset 0 1px 0 rgba(6, 182, 212, 0.25) !important;
@@ -1811,22 +1862,22 @@
     .rec-quota-sufficient-icon {
         background: rgba(16, 185, 129, 0.25) !important;
         border: 1.5px solid rgba(16, 185, 129, 0.5) !important;
-        color: #34d399 !important;
+        color: #10b981 !important;
     }
     .rec-quota-insufficient-icon {
         background: rgba(244, 63, 94, 0.25) !important;
         border: 1.5px solid rgba(244, 63, 94, 0.5) !important;
-        color: #fb7185 !important;
+        color: #f43f5e !important;
     }
     .rec-quota-no-package-icon {
         background: rgba(245, 158, 11, 0.25) !important;
         border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
-        color: #fbbf24 !important;
+        color: #f59e0b !important;
     }
     .rec-quota-enrolled-icon {
         background: rgba(6, 182, 212, 0.25) !important;
         border: 1.5px solid rgba(6, 182, 212, 0.5) !important;
-        color: #22d3ee !important;
+        color: #06b6d4 !important;
     }
 
     .rec-chip-group {
@@ -1843,10 +1894,17 @@
         border-radius: 0.65rem !important;
         font-size: 0.75rem !important;
         font-weight: 700 !important;
+        letter-spacing: 0.02em !important;
+    }
+    html:not(.dark) .rec-chip {
+        background: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #1e293b !important;
+    }
+    html.dark .rec-chip {
         background: rgba(15, 23, 42, 0.75) !important;
         border: 1px solid rgba(148, 163, 184, 0.25) !important;
         color: #e2e8f0 !important;
-        letter-spacing: 0.02em !important;
     }
     .rec-chip strong {
         font-weight: 900 !important;
@@ -1859,13 +1917,21 @@
         display: grid !important;
         grid-template-columns: repeat(4, 1fr) !important;
         gap: 0.75rem !important;
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98)) !important;
-        border: 1.5px solid rgba(51, 65, 85, 0.7) !important;
         border-radius: 1rem !important;
         padding: 0.85rem !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
         margin-top: 0.5rem !important;
     }
+    html:not(.dark) .rec-sync-hud {
+        background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+        border: 1.5px solid #cbd5e1 !important;
+        box-shadow: 0 4px 15px -2px rgba(15, 23, 42, 0.08) !important;
+    }
+    html.dark .rec-sync-hud {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98)) !important;
+        border: 1.5px solid rgba(51, 65, 85, 0.7) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+
     @media (max-width: 768px) {
         .rec-sync-hud {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -1884,22 +1950,42 @@
     .rec-hud-item:hover {
         transform: translateY(-2px) !important;
     }
-    .rec-hud-teal {
+
+    /* Light & Dark Hud Items */
+    html:not(.dark) .rec-hud-teal {
+        background: #f0fdfa !important;
+        border: 1px solid #99f6e4 !important;
+    }
+    html:not(.dark) .rec-hud-indigo {
+        background: #eef2ff !important;
+        border: 1px solid #c7d2fe !important;
+    }
+    html:not(.dark) .rec-hud-emerald {
+        background: #ecfdf5 !important;
+        border: 1px solid #a7f3d0 !important;
+    }
+    html:not(.dark) .rec-hud-cyan {
+        background: #ecfeff !important;
+        border: 1px solid #a5f3fc !important;
+    }
+
+    html.dark .rec-hud-teal {
         background: rgba(20, 184, 166, 0.08) !important;
         border: 1px solid rgba(20, 184, 166, 0.3) !important;
     }
-    .rec-hud-indigo {
+    html.dark .rec-hud-indigo {
         background: rgba(99, 102, 241, 0.08) !important;
         border: 1px solid rgba(99, 102, 241, 0.3) !important;
     }
-    .rec-hud-emerald {
+    html.dark .rec-hud-emerald {
         background: rgba(16, 185, 129, 0.08) !important;
         border: 1px solid rgba(16, 185, 129, 0.3) !important;
     }
-    .rec-hud-cyan {
+    html.dark .rec-hud-cyan {
         background: rgba(6, 182, 212, 0.08) !important;
         border: 1px solid rgba(6, 182, 212, 0.3) !important;
     }
+
     .rec-hud-label {
         font-size: 0.68rem !important;
         font-weight: 800 !important;
@@ -1910,12 +1996,279 @@
         align-items: center !important;
         gap: 0.35rem !important;
     }
+    html:not(.dark) .rec-hud-label {
+        color: #0f766e !important;
+    }
+    html:not(.dark) .rec-hud-indigo .rec-hud-label {
+        color: #4338ca !important;
+    }
+    html:not(.dark) .rec-hud-emerald .rec-hud-label {
+        color: #047857 !important;
+    }
+    html:not(.dark) .rec-hud-cyan .rec-hud-label {
+        color: #0e7490 !important;
+    }
+
     .rec-hud-value {
         font-size: 0.925rem !important;
         font-weight: 900 !important;
         font-family: monospace !important;
-        color: #ffffff !important;
         letter-spacing: 0.02em !important;
+    }
+    html:not(.dark) .rec-hud-value {
+        color: #0f172a !important;
+    }
+    html.dark .rec-hud-value {
+        color: #ffffff !important;
+    }
+
+    /* Modal Attendance HUD Banner in Light & Dark Modes */
+    .rec-attendance-hud-banner {
+        width: 100% !important;
+        display: block !important;
+        margin: 0.25rem 0 1.25rem 0 !important;
+        padding: 1.15rem 1.25rem !important;
+        border-radius: 1rem !important;
+        transition: all 0.25s ease !important;
+        box-sizing: border-box !important;
+    }
+    html:not(.dark) .rec-attendance-hud-banner {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
+        border: 1.5px solid #cbd5e1 !important;
+        box-shadow: 0 4px 15px -2px rgba(15, 23, 42, 0.08) !important;
+    }
+    html.dark .rec-attendance-hud-banner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
+        border: 1.5px solid rgba(51, 65, 85, 0.7) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .rec-hud-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 0.85rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    @media (max-width: 1024px) {
+        .rec-hud-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
+    @media (max-width: 640px) {
+        .rec-hud-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    .rec-hud-card {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.85rem !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 0.85rem !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+    .rec-hud-card:hover {
+        transform: translateY(-2px) !important;
+    }
+    html:not(.dark) .rec-hud-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    }
+    html.dark .rec-hud-card {
+        background: rgba(30, 41, 59, 0.6) !important;
+        border: 1px solid rgba(51, 65, 85, 0.6) !important;
+    }
+
+    .rec-hud-card-icon {
+        width: 2.75rem !important;
+        height: 2.75rem !important;
+        border-radius: 0.75rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.25rem !important;
+        flex-shrink: 0 !important;
+    }
+    .rec-card-teal-icon {
+        background: rgba(13, 148, 136, 0.15) !important;
+        border: 1px solid rgba(13, 148, 136, 0.35) !important;
+        color: #0d9488 !important;
+    }
+    .rec-card-indigo-icon {
+        background: rgba(99, 102, 241, 0.15) !important;
+        border: 1px solid rgba(99, 102, 241, 0.35) !important;
+        color: #6366f1 !important;
+    }
+    .rec-card-emerald-icon {
+        background: rgba(16, 185, 129, 0.15) !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        color: #10b981 !important;
+    }
+    .rec-card-amber-icon {
+        background: rgba(245, 158, 11, 0.15) !important;
+        border: 1px solid rgba(245, 158, 11, 0.35) !important;
+        color: #f59e0b !important;
+    }
+
+    .rec-hud-card-body {
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+    .rec-hud-card-label {
+        font-size: 0.68rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        margin-bottom: 0.2rem !important;
+    }
+    html:not(.dark) .rec-hud-card-label {
+        color: #64748b !important;
+    }
+    html.dark .rec-hud-card-label {
+        color: #94a3b8 !important;
+    }
+
+    .rec-hud-card-title {
+        font-size: 0.875rem !important;
+        font-weight: 800 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    html:not(.dark) .rec-hud-card-title {
+        color: #0f172a !important;
+    }
+    html.dark .rec-hud-card-title {
+        color: #f8fafc !important;
+    }
+
+    .rec-hud-card-sub {
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
+        margin-top: 0.15rem !important;
+    }
+
+    /* Professional Radio Option Styling with FontAwesome Icons */
+    .rec-radio-opt {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        padding: 0.45rem 0.75rem !important;
+        border-radius: 0.65rem !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease !important;
+        line-height: 1.4 !important;
+    }
+    html:not(.dark) .rec-radio-opt {
+        color: #1e293b !important;
+    }
+    html.dark .rec-radio-opt {
+        color: #e2e8f0 !important;
+    }
+    .rec-radio-opt i {
+        font-size: 1.1rem !important;
+    }
+
+    /* Badges with FontAwesome Icons in Table */
+    .rec-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important;
+        padding: 0.25rem 0.65rem !important;
+        border-radius: 9999px !important;
+        font-size: 0.75rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.02em !important;
+        white-space: nowrap !important;
+    }
+    .rec-badge i {
+        font-size: 0.85rem !important;
+    }
+    .rec-badge-success {
+        background: rgba(16, 185, 129, 0.15) !important;
+        color: #059669 !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    }
+    html.dark .rec-badge-success {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #34d399 !important;
+        border: 1px solid rgba(16, 185, 129, 0.45) !important;
+    }
+
+    .rec-badge-warning {
+        background: rgba(245, 158, 11, 0.15) !important;
+        color: #d97706 !important;
+        border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    }
+    html.dark .rec-badge-warning {
+        background: rgba(245, 158, 11, 0.2) !important;
+        color: #fbbf24 !important;
+        border: 1px solid rgba(245, 158, 11, 0.45) !important;
+    }
+
+    .rec-badge-info {
+        background: rgba(6, 182, 212, 0.15) !important;
+        color: #0891b2 !important;
+        border: 1px solid rgba(6, 182, 212, 0.35) !important;
+    }
+    html.dark .rec-badge-info {
+        background: rgba(6, 182, 212, 0.2) !important;
+        color: #22d3ee !important;
+        border: 1px solid rgba(6, 182, 212, 0.45) !important;
+    }
+
+    .rec-badge-danger {
+        background: rgba(244, 63, 94, 0.15) !important;
+        color: #e11d48 !important;
+        border: 1px solid rgba(244, 63, 94, 0.35) !important;
+    }
+    html.dark .rec-badge-danger {
+        background: rgba(244, 63, 94, 0.2) !important;
+        color: #fb7185 !important;
+        border: 1px solid rgba(244, 63, 94, 0.45) !important;
+    }
+
+    .rec-badge-amber-pulse {
+        background: rgba(245, 158, 11, 0.2) !important;
+        color: #b45309 !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+        animation: rec-pulse 2s infinite ease-in-out !important;
+    }
+    html.dark .rec-badge-amber-pulse {
+        background: rgba(245, 158, 11, 0.25) !important;
+        color: #fbbf24 !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.6) !important;
+    }
+    @keyframes rec-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.85; transform: scale(1.02); }
+    }
+
+    .rec-badge-neutral {
+        background: rgba(148, 163, 184, 0.15) !important;
+        color: #475569 !important;
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+    }
+    html.dark .rec-badge-neutral {
+        background: rgba(148, 163, 184, 0.2) !important;
+        color: #94a3b8 !important;
+        border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    }
+
+    /* Modal HUD clean full-width presentation */
+    .fi-modal .fi-fo-placeholder,
+    .fi-modal-window .fi-fo-placeholder {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
     }
 </style>
 

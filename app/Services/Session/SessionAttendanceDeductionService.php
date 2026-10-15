@@ -404,6 +404,216 @@ class SessionAttendanceDeductionService
     }
 
     /**
+     * Explicit attendance recording with customizable date, status, notes, and package deduction.
+     * Supports both real-time attendance and retroactive/past date attendance recording.
+     */
+    public function recordAttendanceAndDeduct(
+        LiveSession $session,
+        int $studentUserId,
+        string $attendanceStatus = 'present',
+        ?\Carbon\Carbon $attendedAt = null,
+        ?string $note = null,
+        ?User $actor = null,
+        bool $deductPackage = true
+    ): array {
+        return DB::transaction(function () use ($session, $studentUserId, $attendanceStatus, $attendedAt, $note, $actor, $deductPackage) {
+            $student = User::find($studentUserId);
+            $profile = \App\Models\StudentProfile::where('user_id', $studentUserId)->with('gradeLevel')->first();
+            $studentName = $student?->name ?: "Student #{$studentUserId}";
+            $studentCode = $profile?->student_code ?: ('STU-' . str_pad((string) $studentUserId, 5, '0', STR_PAD_LEFT));
+            $effectiveDate = $attendedAt ?: ($session->scheduled_at ?: now());
+            $isAr = app()->getLocale() === 'ar';
+
+            // Check if student has an approved exception request
+            $exception = $this->getStudentExceptionForSession($studentUserId, $session);
+            $hasApprovedException = ($exception && $exception->status === 'approved');
+
+            if ($hasApprovedException) {
+                $attendanceStatus = 'excused';
+            }
+
+            // 1. Update LiveSession
+            $session->update([
+                'attendance_status' => $attendanceStatus,
+                'status' => 'completed',
+                'lifecycle_state' => 'ended',
+                'start_at' => $session->start_at ?: $effectiveDate,
+                'end_at' => $session->end_at ?: $effectiveDate->copy()->addMinutes($session->duration_minutes ?: 60),
+            ]);
+
+            // 2. Update StudentSession
+            StudentSession::updateOrCreate(
+                [
+                    'student_user_id' => $studentUserId,
+                    'live_session_id' => $session->id,
+                ],
+                [
+                    'attendance_status' => $attendanceStatus,
+                    'session_status' => 'completed',
+                    'completed_at' => $effectiveDate,
+                ]
+            );
+
+            // 3. Update MeetingAttendance
+            try {
+                MeetingAttendance::updateOrCreate(
+                    [
+                        'live_session_id' => $session->id,
+                        'student_user_id' => $studentUserId,
+                    ],
+                    [
+                        'status' => $attendanceStatus,
+                        'joined_at' => $effectiveDate,
+                        'last_seen_at' => $effectiveDate->copy()->addMinutes($session->duration_minutes ?: 60),
+                    ]
+                );
+            } catch (\Throwable $e) {}
+
+            // 4. Handle Package Deduction / Refund based on status
+            if ($attendanceStatus === 'excused') {
+                $refunded = $this->refundIfPreviouslyDeducted($session, $studentUserId, $actor, $note ?: 'Marked as Excused - Session Restored');
+                return [
+                    'success' => true,
+                    'action' => 'excused',
+                    'status' => 'excused',
+                    'deducted' => false,
+                    'refunded' => $refunded,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تسجيل الطالب كـ معذور بعذر رسمي (تم حفظ رصيد باقة الطالب دون خصم)."
+                        : "Student recorded as excused. Package balance preserved without deduction.",
+                ];
+            }
+
+            if ($attendanceStatus === 'absent') {
+                return [
+                    'success' => true,
+                    'action' => 'absent',
+                    'status' => 'absent',
+                    'deducted' => false,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تسجيل غياب الطالب عن الحصة بنجاح."
+                        : "Student recorded as absent for this session.",
+                ];
+            }
+
+            // Status is present or late
+            if (! $deductPackage) {
+                return [
+                    'success' => true,
+                    'action' => 'marked_without_deduction',
+                    'status' => $attendanceStatus,
+                    'deducted' => false,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تسجيل حضور الطالب بنجاح (بدون خصم من باقة الحصص بناءً على الاختيار)."
+                        : "Attendance recorded successfully without package balance deduction.",
+                ];
+            }
+
+            // Check if free demo
+            if ($this->liveSessionService->isSessionFreeDemo($session)) {
+                return [
+                    'success' => true,
+                    'action' => 'free_demo',
+                    'status' => $attendanceStatus,
+                    'deducted' => false,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تسجيل الحضور (حصة تجريبية مجانية — تم الحفاظ على رصيد الباقة)."
+                        : "Attendance confirmed (Free Trial Session — Package balance preserved).",
+                ];
+            }
+
+            // Check if already deducted to preserve idempotency
+            $alreadyDeducted = PackageTransaction::whereHas('studentPackage', function ($q) use ($studentUserId) {
+                $q->where('student_user_id', $studentUserId);
+            })
+            ->where('live_session_id', $session->id)
+            ->where('type', 'session_deduct')
+            ->exists();
+
+            if ($alreadyDeducted) {
+                return [
+                    'success' => true,
+                    'action' => 'already_deducted',
+                    'status' => $attendanceStatus,
+                    'deducted' => false,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تحديث الحضور بنجاح. تم خصم الحصة من الباقة مسبقاً (تم منع الخصم المزدوج)."
+                        : "Attendance updated. Session credit was already deducted previously.",
+                ];
+            }
+
+            // Find active package
+            $package = $this->findActivePackageForStudent($studentUserId, $session);
+            if (! $package) {
+                return [
+                    'success' => true,
+                    'action' => 'no_package',
+                    'status' => $attendanceStatus,
+                    'deducted' => false,
+                    'student_name' => $studentName,
+                    'student_code' => $studentCode,
+                    'message' => $isAr
+                        ? "تم تسجيل حضور الطالب بنجاح، لكن لا توجد باقة حصص نشطة برصيد متاح للخصم."
+                        : "Attendance recorded, but student has no active package with available session credits.",
+                ];
+            }
+
+            // Perform deduction
+            $performedBy = $actor ? $actor->id : auth()->id();
+            $balanceBefore = $package->remaining_sessions;
+            $package->remaining_sessions--;
+            $package->used_sessions++;
+            if ($package->remaining_sessions <= 0) {
+                $package->status = 'exhausted';
+            }
+            $package->save();
+
+            $reasonText = $note ?: (
+                $isAr
+                    ? "تسجيل حضور الحصة #{$session->id} (" . ($session->title ?: 'حصة جدول دوري') . ") بتاريخ " . $effectiveDate->format('Y-m-d')
+                    : "Attendance deduction for Session #{$session->id} (" . ($session->title ?: 'Cohort Class') . ") on " . $effectiveDate->format('Y-m-d')
+            );
+
+            PackageTransaction::create([
+                'student_package_id' => $package->id,
+                'live_session_id' => $session->id,
+                'type' => 'session_deduct',
+                'sessions_delta' => -1,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $package->remaining_sessions,
+                'reason' => $reasonText,
+                'performed_by' => $performedBy,
+            ]);
+
+            return [
+                'success' => true,
+                'action' => 'deducted',
+                'status' => $attendanceStatus,
+                'deducted' => true,
+                'package_id' => $package->id,
+                'package_name' => $package->packageTemplate?->name ?: ($isAr ? 'باقة حصص مخصصة' : 'Custom Package'),
+                'balance_before' => $balanceBefore,
+                'balance_after' => $package->remaining_sessions,
+                'student_name' => $studentName,
+                'student_code' => $studentCode,
+                'message' => $isAr
+                    ? "تم تسجيل الحضور بنجاح وخصم حصة واحدة من باقة الطالب ({$package->packageTemplate?->name}). الرصيد المتبقي: {$package->remaining_sessions} حصة."
+                    : "Attendance recorded and 1 session deducted from student package. Remaining balance: {$package->remaining_sessions} sessions.",
+            ];
+        });
+    }
+
+    /**
      * Refund session if previously deducted.
      */
     public function refundIfPreviouslyDeducted(LiveSession $session, int $studentUserId, ?User $actor = null, string $reason = 'Session Refund'): bool
@@ -422,3 +632,4 @@ class SessionAttendanceDeductionService
         return false;
     }
 }
+

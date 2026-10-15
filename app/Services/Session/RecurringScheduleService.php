@@ -968,7 +968,54 @@ class RecurringScheduleService
                 ]);
             }
         }
+
+        // Ensure any past date slots between start_date and today exist for recording past attendance
+        if ($startDate->lt($now->copy()->startOfDay())) {
+            $pastPreviewParams = array_merge($previewParams, [
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $now->format('Y-m-d'),
+            ]);
+            $pastSlots = $this->previewDates($pastPreviewParams);
+            foreach ($pastSlots as $slot) {
+                $dateStr = $slot['date'];
+                $exists = $schedule->liveSessions()->whereDate('scheduled_at', $dateStr)->exists();
+                if (! $exists) {
+                    $start = Carbon::parse($slot['date'] . ' ' . $slot['start_time']);
+                    $end = Carbon::parse($slot['date'] . ' ' . $slot['end_time']);
+                    $duration = $start->diffInMinutes($end);
+                    $link = ! empty($slot['meeting_link']) ? $slot['meeting_link'] : $schedule->meeting_link;
+
+                    $pastSession = LiveSession::create([
+                        'title' => $schedule->title,
+                        'student_user_id' => $schedule->student_user_id,
+                        'teacher_profile_id' => $schedule->teacher_profile_id,
+                        'subject_id' => $course?->subject_id,
+                        'course_id' => $schedule->course_id,
+                        'recurring_schedule_id' => $schedule->id,
+                        'scheduled_at' => $start,
+                        'start_at' => $start,
+                        'end_at' => $end,
+                        'duration_minutes' => $duration,
+                        'meeting_link' => $link,
+                        'meeting_platform' => $schedule->meeting_platform ?: 'agora',
+                        'status' => 'scheduled',
+                        'lifecycle_state' => 'scheduled',
+                        'is_override' => false,
+                    ]);
+
+                    if ($schedule->student_user_id) {
+                        \App\Models\StudentSession::updateOrCreate([
+                            'student_user_id' => $schedule->student_user_id,
+                            'live_session_id' => $pastSession->id,
+                        ], [
+                            'session_status' => 'scheduled',
+                        ]);
+                    }
+                }
+            }
+        }
     }
+
 
     /**
      * Cancel an individual session
