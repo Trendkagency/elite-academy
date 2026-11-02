@@ -5,6 +5,23 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 
+// Compatibility guard: ensure asignua/filament-infinite-scroll is safe with Filament 5.x
+$vendorInfiniteScroll = dirname(__DIR__) . '/vendor/asignua/filament-infinite-scroll/src/FilamentInfiniteScrollServiceProvider.php';
+if (file_exists($vendorInfiniteScroll)) {
+    $scrollContent = (string) @file_get_contents($vendorInfiniteScroll);
+    if (str_contains($scrollContent, 'TablesRenderHook::CONTENT_AFTER') && ! str_contains($scrollContent, 'constant(')) {
+        $scrollContent = str_replace(
+            [
+                'defined(TablesRenderHook::class . \'::CONTENT_AFTER\') ? TablesRenderHook::CONTENT_AFTER : \'tables::content.after\'',
+                'TablesRenderHook::CONTENT_AFTER',
+            ],
+            'defined(TablesRenderHook::class . \'::CONTENT_AFTER\') ? constant(TablesRenderHook::class . \'::CONTENT_AFTER\') : \'tables::content.after\'',
+            $scrollContent
+        );
+        @file_put_contents($vendorInfiniteScroll, $scrollContent);
+    }
+}
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',

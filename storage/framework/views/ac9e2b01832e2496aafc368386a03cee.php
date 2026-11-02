@@ -76,7 +76,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[90px] lg:h-[100px] flex items-center justify-between gap-2 lg:gap-4">
         
         <a href="<?php echo e(route('home')); ?>" class="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-xl transition-all duration-300 shrink-0 py-1" aria-label="Elite Academy Homepage">
-            <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105" fetchpriority="high">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
+                <img src="<?php echo e(brand_logo('light')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105 dark:hidden" fetchpriority="high">
+                <img src="<?php echo e(brand_logo('dark')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105 hidden dark:block" fetchpriority="high">
+            <?php else: ?>
+                <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56" class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105" fetchpriority="high">
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </a>
 
         
@@ -236,7 +241,12 @@
             
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                 <a href="<?php echo e(route('home')); ?>" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-lg">
-                    <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="160" height="36" class="h-12 sm:h-14 w-auto object-contain" loading="lazy">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
+                        <img src="<?php echo e(brand_logo('light')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-9 sm:h-10 w-auto object-contain dark:hidden" loading="lazy">
+                        <img src="<?php echo e(brand_logo('dark')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-9 sm:h-10 w-auto object-contain hidden dark:block" loading="lazy">
+                    <?php else: ?>
+                        <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="160" height="36" class="h-12 sm:h-14 w-auto object-contain" loading="lazy">
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </a>
                 <label for="mobile-drawer-toggle"
                        class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer font-bold text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"

@@ -6,8 +6,8 @@
     <meta name="google" content="notranslate">
     <meta name="theme-color" content="#0D9488">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
-    <link rel="shortcut icon" href="{{ asset('images/logo_500.webp') }}" type="image/webp">
+    <link rel="icon" href="{{ demo_enabled() ? asset(config('demo.branding.favicon', 'demo/favicon.ico')) : asset('images/logo_500.webp') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ demo_enabled() ? asset(config('demo.branding.favicon', 'demo/favicon.ico')) : asset('images/logo_500.webp') }}" type="image/x-icon">
 
     {{-- Defensive protection against buggy browser extensions calling removeChild on mismatched parents --}}
     <script>

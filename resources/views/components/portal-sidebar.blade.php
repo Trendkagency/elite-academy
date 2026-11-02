@@ -28,17 +28,21 @@
     <!-- Sidebar Header: Brand & Portal Badge -->
     <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800/80 bg-slate-950/40">
         <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 p-0.5 shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform flex items-center justify-center">
-                <span class="text-slate-950 font-black font-heading text-lg">E</span>
-            </div>
-            <div>
-                <span class="font-heading font-black text-xl text-white tracking-tight flex items-center gap-1">
-                    <span class="text-teal-400">Elite</span> Academy<span class="text-teal-500">.</span>
-                </span>
-                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded-full border border-teal-800/60">
-                    <span>{!! $roleIcon !!}</span> {{ $roleBadgeText }}
-                </span>
-            </div>
+            @if(demo_enabled())
+                <img src="{{ brand_logo('dark') }}" alt="{{ brand('app_name', 'Elite Academy') }}" class="h-10 w-auto object-contain">
+            @else
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 p-0.5 shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform flex items-center justify-center">
+                    <span class="text-slate-950 font-black font-heading text-lg">E</span>
+                </div>
+                <div>
+                    <span class="font-heading font-black text-xl text-white tracking-tight flex items-center gap-1">
+                        <span class="text-teal-400">Elite</span> Academy<span class="text-teal-500">.</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded-full border border-teal-800/60">
+                        <span>{!! $roleIcon !!}</span> {{ $roleBadgeText }}
+                    </span>
+                </div>
+            @endif
         </a>
 
         <!-- Mobile Close Button -->

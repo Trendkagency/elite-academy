@@ -52,9 +52,13 @@
 
             
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
-                <a href="<?php echo e(route('home')); ?>" class="inline-block" aria-label="Elite Academy Homepage">
+                <a href="<?php echo e(route('home')); ?>" class="inline-block" aria-label="<?php echo e(brand('app_name', 'Elite Academy Homepage')); ?>">
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
+                    <img src="<?php echo e(brand_logo('dark')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-10 sm:h-12 w-auto object-contain mx-auto sm:mx-0" loading="lazy">
+                <?php else: ?>
                     <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56"
                         class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </a>
                 <p
                     class="text-sm text-slate-300 leading-relaxed max-w-sm text-center rtl:sm:text-right ltr:sm:text-left">
@@ -155,7 +159,7 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
             </div>
-            <p><?php echo e($rights); ?></p>
+            <p><?php echo e(brand('footer_text', $rights)); ?></p>
         </div>
     </div>
 </footer>
