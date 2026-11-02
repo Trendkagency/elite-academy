@@ -44,8 +44,12 @@ class FilamentInfiniteScrollServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $cssPath = file_exists(base_path('vendor/asignua/filament-infinite-scroll/resources/dist/filament-infinite-scroll.css'))
+            ? base_path('vendor/asignua/filament-infinite-scroll/resources/dist/filament-infinite-scroll.css')
+            : __DIR__.'/../resources/dist/filament-infinite-scroll.css';
+
         FilamentAsset::register([
-            Css::make(self::STYLESHEET, __DIR__.'/../resources/dist/filament-infinite-scroll.css'),
+            Css::make(self::STYLESHEET, $cssPath),
         ], self::PACKAGE);
 
         Table::macro('infiniteScroll', function (
@@ -60,8 +64,12 @@ class FilamentInfiniteScrollServiceProvider extends PackageServiceProvider
 
         // After the rows and before Filament's own pagination (which the stylesheet hides for
         // these tables): no override of the table view is needed.
+        $infiniteHook = defined(TablesRenderHook::class . '::CONTENT_AFTER')
+            ? constant(TablesRenderHook::class . '::CONTENT_AFTER')
+            : 'tables::content.after';
+
         FilamentView::registerRenderHook(
-            defined(TablesRenderHook::class . '::CONTENT_AFTER') ? TablesRenderHook::CONTENT_AFTER : 'tables::content.after',
+            $infiniteHook,
             function (array $data): string {
                 $table = $data['table'] ?? null;
                 $records = $data['records'] ?? null;

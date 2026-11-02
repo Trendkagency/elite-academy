@@ -6,7 +6,7 @@ return [
 
     /* ---------- Branding ---------- */
     'branding' => [
-        'app_name' => env('DEMO_APP_NAME', 'Elite Academy Demo'),
+        'app_name' => env('DEMO_APP_NAME', 'EDU Demo'),
         'app_name_ar' => 'أكاديمية إيليت (نسخة تجريبية)',
         'tagline' => 'Learn. Practice. Succeed.',
         'tagline_ar' => 'تعلّم. تدرّب. انجح.',
@@ -15,7 +15,7 @@ return [
         'favicon' => 'demo/favicon.ico',
         'primary_color' => '#2563eb',
         'accent_color' => '#f59e0b',
-        'footer_text' => '© Elite Academy Demo — for presentation only',
+        'footer_text' => '© EDU Demo — for presentation only',
         'support_email' => 'demo@example.com',
         'support_phone' => '+20 100 000 0000',
         'currency' => ['code' => 'EGP', 'symbol_en' => 'EGP', 'symbol_ar' => 'ج.م'],
@@ -34,7 +34,7 @@ return [
     /* ---------- LOGIN PAGE DESIGN (public login + Filament admin login) ---------- */
     'login' => [
         'layout' => 'split',            // split | centered | card-left | card-right
-        'heading' => ['en' => 'Try Elite Academy', 'ar' => 'جرّب أكاديمية إيليت'],
+        'heading' => ['en' => 'Try EDU', 'ar' => 'جرّب أكاديمية إيليت'],
         'subheading' => ['en' => 'Pick a role and sign in instantly.', 'ar' => 'اختر دورًا وسجّل الدخول فورًا.'],
         'show_logo' => true,
         'logo_height' => '4rem',

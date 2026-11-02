@@ -1,0 +1,541 @@
+<?php
+    if (demo_enabled()) {
+        $minimalLayout = true;
+    }
+?>
+
+<?php $__env->startSection('content'); ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
+    <?php if (isset($component)) { $__componentOriginal2f929279032bca8629f79f934832b4da = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2f929279032bca8629f79f934832b4da = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.demo.login-shell','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('demo.login-shell'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+        
+        <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold transition-all duration-200"></div>
+
+        
+        <form id="signinForm" action="<?php echo e(route('ajax.login')); ?>" method="POST" class="space-y-4" novalidate>
+            <?php echo csrf_field(); ?>
+            
+            
+            <div class="space-y-1.5" id="group-email">
+                <div class="flex justify-between items-center">
+                    <label for="login-email" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <?php echo e(__('auth.email_label')); ?>
+
+                    </label>
+                    <span id="email-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="email" 
+                        id="login-email"
+                        name="email" 
+                        required 
+                        autocomplete="email"
+                        placeholder="student@demo.test" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    >
+                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-blue-600 dark:text-blue-400">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p id="email-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            
+            <div class="space-y-1.5" id="group-password">
+                <div class="flex justify-between items-center">
+                    <label for="login-password" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <?php echo e(__('auth.password_label')); ?>
+
+                    </label>
+                    <a href="#" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold"><?php echo e(__('auth.forgot_password')); ?></a>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="login-password"
+                        name="password" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="••••••••" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none pe-10"
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePasswordBtn"
+                        aria-label="<?php echo e(app()->getLocale() === 'ar' ? 'إظهار / إخفاء كلمة المرور' : 'Toggle password visibility'); ?>"
+                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg focus:outline-none text-sm transition-colors cursor-pointer"
+                    >
+                        <svg id="togglePasswordSvg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 font-medium">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                    <span><?php echo e(__('auth.remember_me')); ?></span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary w-full py-3 text-xs font-bold rounded-2xl transition-all shadow-md hover:shadow-lg text-white flex items-center justify-center gap-2" style="background-color: var(--brand-primary, #2563eb);">
+                <span id="btnText"><?php echo e(__('auth.sign_in_btn')); ?></span>
+                <svg id="btnIconSvg" class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+                <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                <?php echo e(__('auth.dont_have_account')); ?>
+
+                <a href="<?php echo e(route('register')); ?>" class="font-bold text-blue-600 dark:text-blue-400 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span><?php echo e(__('auth.create_account_link')); ?></span>
+                    <svg class="w-2.5 h-2.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </p>
+        </div>
+     <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2f929279032bca8629f79f934832b4da)): ?>
+<?php $attributes = $__attributesOriginal2f929279032bca8629f79f934832b4da; ?>
+<?php unset($__attributesOriginal2f929279032bca8629f79f934832b4da); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2f929279032bca8629f79f934832b4da)): ?>
+<?php $component = $__componentOriginal2f929279032bca8629f79f934832b4da; ?>
+<?php unset($__componentOriginal2f929279032bca8629f79f934832b4da); ?>
+<?php endif; ?>
+<?php else: ?>
+<section class="py-12 md:py-20 px-4 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-140px)] flex items-center justify-center transition-colors">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-2xl font-bold mx-auto border border-teal-100 dark:border-teal-800 shadow-xs">
+                <i class="fa-solid fa-key" aria-hidden="true"></i>
+            </div>
+            <h1 class="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
+                <?php echo e(__('auth.login_title')); ?>
+
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                <?php echo e(__('auth.login_subtitle')); ?>
+
+            </p>
+        </div>
+
+        
+        <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold transition-all duration-200"></div>
+
+        
+        <form id="signinForm" action="<?php echo e(route('ajax.login')); ?>" method="POST" class="space-y-4" novalidate>
+            <?php echo csrf_field(); ?>
+            
+            
+            <div class="space-y-1.5" id="group-email">
+                <div class="flex justify-between items-center">
+                    <label for="login-email" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <?php echo e(__('auth.email_label')); ?>
+
+                    </label>
+                    <span id="email-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="email" 
+                        id="login-email"
+                        name="email" 
+                        required 
+                        autocomplete="email"
+                        placeholder="student@eliteacademy.edu.eg" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
+                    >
+                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600 dark:text-teal-400">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p id="email-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            
+            <div class="space-y-1.5" id="group-password">
+                <div class="flex justify-between items-center">
+                    <label for="login-password" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <?php echo e(__('auth.password_label')); ?>
+
+                    </label>
+                    <a href="#" class="text-xs text-teal-600 dark:text-teal-400 hover:underline font-bold"><?php echo e(__('auth.forgot_password')); ?></a>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="login-password"
+                        name="password" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="••••••••" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none pe-10"
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePasswordBtn"
+                        aria-label="<?php echo e(app()->getLocale() === 'ar' ? 'إظهار / إخفاء كلمة المرور' : 'Toggle password visibility'); ?>"
+                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg focus:outline-none text-sm transition-colors cursor-pointer"
+                    >
+                        <i class="fa-solid fa-eye" id="togglePasswordIcon" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 font-medium">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 dark:border-slate-700 text-teal-600 focus:ring-teal-500">
+                    <span><?php echo e(__('auth.remember_me')); ?></span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary w-full py-3.5 text-xs font-bold rounded-2xl transition-all">
+                <span id="btnText"><?php echo e(__('auth.sign_in_btn')); ?></span>
+                <i class="fa-solid <?php echo e(app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'); ?> text-xs" id="btnIcon" aria-hidden="true"></i>
+                <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        
+        <div class="pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                <?php echo e(__('auth.dont_have_account')); ?>
+
+                <a href="<?php echo e(route('register')); ?>" class="font-bold text-teal-600 dark:text-teal-400 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span><?php echo e(__('auth.create_account_link')); ?></span>
+                    <i class="fa-solid <?php echo e(app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'); ?> text-[10px]" aria-hidden="true"></i>
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const isAr = <?php echo e(app()->getLocale() === 'ar' ? 'true' : 'false'); ?>;
+    const form = document.getElementById('signinForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const alertBox = document.getElementById('authAlert');
+
+    const emailInput = document.getElementById('login-email');
+    const emailBadge = document.getElementById('email-live-badge');
+    const emailFeedback = document.getElementById('email-feedback');
+    const emailSpinner = document.getElementById('email-spinner');
+
+    const passwordInput = document.getElementById('login-password');
+    const passwordFeedback = document.getElementById('password-feedback');
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
+    const checkEmailUrl = "<?php echo e(route('ajax.validate.email-exists')); ?>";
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>';
+
+    // Toggle Password Visibility
+    if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            const togglePasswordSvg = document.getElementById('togglePasswordSvg');
+            if (togglePasswordSvg) {
+                if (isPassword) {
+                    togglePasswordSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>';
+                } else {
+                    togglePasswordSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+                }
+            }
+            if (togglePasswordIcon) {
+                togglePasswordIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            }
+        });
+    }
+
+    // Helper: Toast / Alert Notification (Top Center)
+    function notify(message, isDanger = true, title = null) {
+        const defaultTitle = isDanger 
+            ? (isAr ? 'فشل تسجيل الدخول' : 'Login Failed') 
+            : (isAr ? 'تم تسجيل الدخول' : 'Login Successful');
+
+        if (window.Toast) {
+            if (isDanger) {
+                window.Toast.danger(message, title || defaultTitle);
+            } else {
+                window.Toast.success(message, title || defaultTitle);
+            }
+        } else if (alertBox) {
+            alertBox.className = `p-3.5 rounded-2xl text-xs font-semibold ${isDanger ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            alertBox.textContent = Array.isArray(message) ? message.join(' ') : message;
+            alertBox.classList.remove('hidden');
+        }
+    }
+
+    // Field Status Utilities
+    function setFieldState(input, feedbackEl, badgeEl, state, message = '') {
+        // Clear previous classes
+        input.classList.remove('border-rose-400', 'bg-rose-50/40', 'focus:border-rose-500', 'focus:ring-rose-500/20',
+                               'border-emerald-400', 'bg-emerald-50/40', 'focus:border-emerald-500', 'focus:ring-emerald-500/20',
+                               'border-slate-200', 'bg-slate-50');
+
+        if (state === 'error') {
+            input.classList.add('border-rose-400', 'bg-rose-50/40', 'focus:border-rose-500', 'focus:ring-rose-500/20');
+            if (feedbackEl) {
+                feedbackEl.textContent = message;
+                feedbackEl.className = 'text-[11px] font-semibold text-rose-600 block';
+            }
+            if (badgeEl) {
+                badgeEl.innerHTML = '<svg class="w-3 h-3 inline-block me-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' + (isAr ? 'غير مسجل' : 'Not found');
+                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 inline-flex items-center gap-1';
+            }
+        } else if (state === 'success') {
+            input.classList.add('border-emerald-400', 'bg-emerald-50/40', 'focus:border-emerald-500', 'focus:ring-emerald-500/20');
+            if (feedbackEl) {
+                feedbackEl.textContent = message;
+                feedbackEl.className = 'text-[11px] font-semibold text-emerald-600 block';
+            }
+            if (badgeEl) {
+                badgeEl.innerHTML = '<svg class="w-3 h-3 inline-block me-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' + (isAr ? 'حساب موجود' : 'Verified');
+                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center gap-1';
+            }
+        } else {
+            input.classList.add('border-slate-200', 'bg-slate-50');
+            if (feedbackEl) {
+                feedbackEl.textContent = '';
+                feedbackEl.className = 'hidden';
+            }
+            if (badgeEl) {
+                badgeEl.textContent = '';
+                badgeEl.className = 'hidden';
+            }
+        }
+    }
+
+    // Email Syntax Validator
+    function isValidEmailSyntax(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Debounced Real-Time Email Validation
+    let emailDebounceTimer = null;
+    let lastCheckedEmail = '';
+
+    async function checkEmailRealtime(value, immediate = false) {
+        const email = value.trim().toLowerCase();
+        if (!email) {
+            setFieldState(emailInput, emailFeedback, emailBadge, 'idle');
+            return null;
+        }
+
+        if (!isValidEmailSyntax(email)) {
+            setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '<?php echo e(__('app.auth.invalid_email_format')); ?>' : 'Please enter a valid email address');
+            return false;
+        }
+
+        if (email === lastCheckedEmail) return true;
+
+        if (emailSpinner) emailSpinner.classList.remove('hidden');
+
+        try {
+            const res = await fetch(checkEmailUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ email: email })
+            });
+            const data = await res.json();
+            lastCheckedEmail = email;
+
+            if (emailSpinner) emailSpinner.classList.add('hidden');
+
+            if (data.exists) {
+                setFieldState(emailInput, emailFeedback, emailBadge, 'success', data.message || (isAr ? '<?php echo e(__('app.auth.email_exists')); ?>' : 'Account verified'));
+                return true;
+            } else {
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', data.message || (isAr ? '<?php echo e(__('app.auth.email_not_found')); ?>' : 'This email is not registered in our system'));
+                return false;
+            }
+        } catch (err) {
+            if (emailSpinner) emailSpinner.classList.add('hidden');
+            return null;
+        }
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('input', function () {
+            clearTimeout(emailDebounceTimer);
+            const val = this.value.trim();
+            if (!val) {
+                setFieldState(emailInput, emailFeedback, emailBadge, 'idle');
+                return;
+            }
+            emailDebounceTimer = setTimeout(() => {
+                checkEmailRealtime(val);
+            }, 380);
+        });
+
+        emailInput.addEventListener('blur', function () {
+            const val = this.value.trim();
+            if (val) {
+                checkEmailRealtime(val, true);
+            }
+        });
+    }
+
+    // Password Real-Time Feedback
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function () {
+            if (this.value.length > 0) {
+                setFieldState(passwordInput, passwordFeedback, null, 'idle');
+            }
+        });
+    }
+
+    // Form Submit Handler with Top-Center Toast Notifications
+    if (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (alertBox) alertBox.classList.add('hidden');
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // Client-Side Pre-Validation
+            if (!email) {
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '<?php echo e(__('app.auth.invalid_email_format')); ?>' : 'Email is required');
+                notify(isAr ? '<?php echo e(__('app.auth.invalid_email_format')); ?>' : 'Please enter your email address', true);
+                emailInput.focus();
+                return;
+            }
+
+            if (!isValidEmailSyntax(email)) {
+                setFieldState(emailInput, emailFeedback, emailBadge, 'error', isAr ? '<?php echo e(__('app.auth.invalid_email_format')); ?>' : 'Please enter a valid email address');
+                notify(isAr ? '<?php echo e(__('app.auth.invalid_email_format')); ?>' : 'Invalid email format', true);
+                emailInput.focus();
+                return;
+            }
+
+            if (!password) {
+                setFieldState(passwordInput, passwordFeedback, null, 'error', isAr ? '<?php echo e(__('app.auth.password_min_length')); ?>' : 'Password is required');
+                notify(isAr ? '<?php echo e(__('app.auth.password_min_length')); ?>' : 'Please enter your password', true);
+                passwordInput.focus();
+                return;
+            }
+
+            // Lock Submit Button with Spinner
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            if (btnText) btnText.textContent = isAr ? 'جاري التحقق...' : 'Signing In...';
+            if (btnIcon) btnIcon.classList.add('hidden');
+            if (btnSpinner) btnSpinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(form);
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    let errMsg = data.message || (isAr ? '<?php echo e(__('app.auth.invalid_credentials')); ?>' : 'Login failed. Please check your credentials.');
+                    
+                    // Field specific feedback
+                    if (data.field === 'email' || (data.errors && data.errors.email)) {
+                        const emailErr = data.errors?.email?.[0] || data.message;
+                        setFieldState(emailInput, emailFeedback, emailBadge, 'error', emailErr);
+                        errMsg = emailErr;
+                        emailInput.focus();
+                    } else if (data.field === 'password' || (data.errors && data.errors.password)) {
+                        const pwdErr = data.errors?.password?.[0] || data.message;
+                        setFieldState(passwordInput, passwordFeedback, null, 'error', pwdErr);
+                        errMsg = pwdErr;
+                        passwordInput.focus();
+                    } else if (data.errors) {
+                        const errs = Object.values(data.errors).flat();
+                        if (errs.length > 0) errMsg = errs;
+                    }
+
+                    // Trigger Top-Center Danger Toast
+                    notify(errMsg, true);
+
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                    if (btnText) btnText.textContent = isAr ? 'تسجيل الدخول' : 'Sign In to Portal';
+                    if (btnIcon) btnIcon.classList.remove('hidden');
+                    if (btnSpinner) btnSpinner.classList.add('hidden');
+                    return;
+                }
+
+                // Success State: Top-Center Success Toast & Smooth Redirect
+                setFieldState(emailInput, emailFeedback, emailBadge, 'success');
+                setFieldState(passwordInput, passwordFeedback, null, 'success');
+                
+                const successMsg = data.message || (isAr ? '<?php echo e(__('app.auth.login_success')); ?>' : 'Login successful! Redirecting...');
+                notify(successMsg, false);
+
+                if (btnText) btnText.textContent = isAr ? 'تم بنجاح! جاري التوجيه...' : 'Success! Redirecting...';
+
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || '/student-portal';
+                }, 800);
+
+            } catch (err) {
+                notify(isAr ? 'حدث خطأ في الاتصال بالشبكة. يرجى المحاولة لاحقاً.' : 'Network connection error. Please try again.', true);
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                if (btnText) btnText.textContent = isAr ? 'تسجيل الدخول' : 'Sign In to Portal';
+                if (btnIcon) btnIcon.classList.remove('hidden');
+                if (btnSpinner) btnSpinner.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\elite-academy\resources\views/pages/login.blade.php ENDPATH**/ ?>
