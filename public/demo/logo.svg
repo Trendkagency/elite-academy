@@ -1,24 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" fill="none">
-    <!-- Elite Academy Demo Logo (Light Backgrounds) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 50" fill="none">
+    <!-- EDU Demo Logo (Light Backgrounds) -->
     <defs>
-        <linearGradient id="grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="edu-grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#2563eb" />
             <stop offset="100%" stop-color="#1d4ed8" />
         </linearGradient>
-        <linearGradient id="grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="edu-grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#f59e0b" />
             <stop offset="100%" stop-color="#d97706" />
         </linearGradient>
     </defs>
     
     <!-- Emblem -->
-    <rect x="6" y="8" width="44" height="44" rx="12" fill="url(#grad-primary)" />
-    <path d="M28 16L40 23V35L28 42L16 35V23L28 16Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" />
-    <path d="M28 24L34 27.5V34.5L28 38L22 34.5V27.5L28 24Z" fill="url(#grad-accent)" />
+    <rect x="4" y="5" width="40" height="40" rx="11" fill="url(#edu-grad-primary)" />
+    <!-- Graduation Cap / Diamond Emblem -->
+    <path d="M24 13L35 19L24 25L13 19L24 13Z" fill="white" />
+    <path d="M16 23.5V29C16 31.5 19.5 34 24 34C28.5 34 32 31.5 32 29V23.5L24 28L16 23.5Z" fill="white" fill-opacity="0.9" />
+    <circle cx="34" cy="27" r="2" fill="url(#edu-grad-accent)" />
     
-    <!-- Text -->
-    <text x="62" y="32" font-family="'Cairo', system-ui, sans-serif" font-size="20" font-weight="900" fill="#0f172a" letter-spacing="-0.5">ELITE <tspan fill="#2563eb">ACADEMY</tspan></text>
-    <rect x="62" y="38" width="46" height="15" rx="4" fill="#fef3c7" />
-    <text x="68" y="49" font-family="'Cairo', system-ui, sans-serif" font-size="9" font-weight="800" fill="#b45309" letter-spacing="0.5">DEMO V2</text>
-    <text x="114" y="49" font-family="'Cairo', system-ui, sans-serif" font-size="9.5" font-weight="600" fill="#64748b">LMS Platform</text>
+    <!-- Brand Text: EDU -->
+    <text x="54" y="30" font-family="'Cairo', system-ui, -apple-system, sans-serif" font-size="24" font-weight="900" fill="#0f172a" letter-spacing="-0.5">EDU</text>
+    
+    <!-- Demo Pill Badge -->
+    <rect x="108" y="14" width="44" height="18" rx="5" fill="#fef3c7" stroke="#fcd34d" stroke-width="0.75" />
+    <text x="115" y="27" font-family="'Cairo', system-ui, -apple-system, sans-serif" font-size="9.5" font-weight="900" fill="#b45309" letter-spacing="0.5">DEMO</text>
 </svg>

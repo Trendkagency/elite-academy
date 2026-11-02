@@ -7,7 +7,7 @@ return [
     /* ---------- Branding ---------- */
     'branding' => [
         'app_name' => env('DEMO_APP_NAME', 'EDU Demo'),
-        'app_name_ar' => 'أكاديمية إيليت (نسخة تجريبية)',
+        'app_name_ar' => env('DEMO_APP_NAME_AR', env('DEMO_APP_NAME', 'EDU (نسخة تجريبية)')),
         'tagline' => 'Learn. Practice. Succeed.',
         'tagline_ar' => 'تعلّم. تدرّب. انجح.',
         'logo' => 'demo/logo.svg',
@@ -15,7 +15,7 @@ return [
         'favicon' => 'demo/favicon.ico',
         'primary_color' => '#2563eb',
         'accent_color' => '#f59e0b',
-        'footer_text' => '© EDU Demo — for presentation only',
+        'footer_text' => env('DEMO_FOOTER_TEXT', '© ' . env('DEMO_APP_NAME', 'EDU Demo') . ' — for presentation only'),
         'support_email' => 'demo@example.com',
         'support_phone' => '+20 100 000 0000',
         'currency' => ['code' => 'EGP', 'symbol_en' => 'EGP', 'symbol_ar' => 'ج.م'],
