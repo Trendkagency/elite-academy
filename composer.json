@@ -57,7 +57,6 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php -r \"$f='vendor/asignua/filament-infinite-scroll/src/FilamentInfiniteScrollServiceProvider.php'; if(file_exists($f)){$c=file_get_contents($f); if(str_contains($c,'TablesRenderHook::CONTENT_AFTER')&&!str_contains($c,'constant(')){file_put_contents($f,str_replace('TablesRenderHook::CONTENT_AFTER', \\\"defined(TablesRenderHook::class.'::CONTENT_AFTER') ? constant(TablesRenderHook::class.'::CONTENT_AFTER') : 'tables::content.after'\\\", $c));}}\"",
             "@php artisan package:discover --ansi",
             "@php artisan filament:upgrade"
         ],
