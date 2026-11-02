@@ -1,0 +1,1062 @@
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->check() && !request()->boolean('iframe')): ?>
+    
+    
+    
+
+    
+    <div id="fcm-floating-bell-wrapper" class="fixed bottom-6 start-6 z-40">
+        <button id="fcm-floating-bell-btn" type="button"
+            title="<?php echo e(__('Notification Settings')); ?>"
+            class="group relative flex items-center justify-center w-12 h-12 rounded-full bg-slate-900/90 text-teal-400 border border-teal-500/30 shadow-xl backdrop-blur-md hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer">
+            <i class="fa-solid fa-bell text-lg group-hover:rotate-12 transition-transform"></i>
+            <span id="fcm-status-indicator" class="absolute -top-1 -end-1 flex h-3.5 w-3.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-slate-900"></span>
+            </span>
+        </button>
+    </div>
+
+    
+    <div id="fcm-permission-modal"
+        class="fixed bottom-6 start-6 end-6 sm:end-auto sm:max-w-md z-50 transform transition-all duration-500 ease-out opacity-0 translate-y-8 pointer-events-none">
+        <div class="relative overflow-hidden bg-slate-950/95 backdrop-blur-xl text-white p-6 rounded-3xl shadow-2xl border border-teal-500/30 ring-1 ring-white/10">
+            
+            <div class="absolute -top-16 -end-16 w-36 h-36 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -start-16 w-36 h-36 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            
+            <button id="btn-close-fcm-modal" type="button"
+                class="absolute top-4 end-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/80 transition-colors cursor-pointer"
+                aria-label="<?php echo e(__('Close')); ?>">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            <div class="flex items-start gap-4">
+                
+                <div class="relative flex-shrink-0">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/10 text-teal-400 border border-teal-500/30 flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-bell animate-bounce" style="animation-duration: 2.5s;"></i>
+                    </div>
+                </div>
+
+                
+                <div class="flex-1 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-heading font-bold text-base text-white">
+                            <?php echo e(__('Enable Push Notifications?')); ?>
+
+                        </h4>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                            <?php echo e(__('Live Alerts')); ?>
+
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        <?php echo e(__('Get real-time browser alerts for live session reminders, 24h assignment deadlines, and course announcements even when this tab is in the background.')); ?>
+
+                    </p>
+
+                    
+                    <div class="grid grid-cols-2 gap-1.5 py-1 text-[11px] text-slate-300 font-medium">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-teal-400 text-[10px]"></i>
+                            <span><?php echo e(__('Live Sessions')); ?></span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-teal-400 text-[10px]"></i>
+                            <span><?php echo e(__('Assignment Deadlines')); ?></span>
+                        </div>
+                    </div>
+
+                    
+                    <div id="fcm-ios-prompt-tip" class="hidden my-1.5 p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/25 text-[11px] text-teal-300 flex items-center gap-2">
+                        <i class="fa-brands fa-apple text-base text-teal-400 flex-shrink-0"></i>
+                        <span><?php echo e(app()->getLocale() === 'ar' ? 'مستخدمو iOS (آيفون/آيباد): اضغط هنا لعرض خطوات التثبيت وتفعيل الإشعارات.' : 'iOS users: tap here to see quick setup steps for Apple devices.'); ?></span>
+                    </div>
+
+                    
+                    <div class="flex items-center gap-2.5 pt-2">
+                        
+                        <button id="btn-enable-fcm" type="button"
+                            class="flex-1 px-4 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-300 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span id="btn-enable-icon"><i class="fa-solid fa-check"></i></span>
+                            <span id="btn-enable-text"><?php echo e(__('Yes, Allow Notifications')); ?></span>
+                        </button>
+
+                        
+                        <button id="btn-dismiss-fcm" type="button"
+                            class="px-4 py-2.5 bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold rounded-xl text-xs border border-slate-700/60 transition-all cursor-pointer">
+                            <?php echo e(__('No, Later')); ?>
+
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="fcm-blocked-modal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog relative bg-slate-900 text-white p-6 rounded-[28px] max-w-md w-full border border-rose-500/30 shadow-2xl">
+            <div class="flex items-center gap-3 text-rose-400 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-bell-slash"></i>
+                </div>
+                <h4 class="font-bold text-base text-white"><?php echo e(__('Notifications Are Blocked')); ?></h4>
+            </div>
+            <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                <?php echo e(__('Your browser has notifications blocked for this site. To receive alerts, please allow notifications in your browser settings:')); ?>
+
+            </p>
+
+            
+            <div id="fcm-blocked-default-steps" class="bg-slate-950/60 rounded-xl p-3 border border-slate-800 text-xs text-slate-300 space-y-2 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">1</span>
+                    <span><?php echo e(__('Click the lock / tune icon (🔒) in your browser address bar.')); ?></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">2</span>
+                    <span><?php echo e(__('Find "Notifications" and switch it to "Allow".')); ?></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">3</span>
+                    <span><?php echo e(__('Refresh the page to activate.')); ?></span>
+                </div>
+            </div>
+
+            
+            <div id="fcm-blocked-ios-steps" class="hidden bg-slate-950/60 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300 space-y-2.5 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">1</span>
+                    <span><?php echo e(app()->getLocale() === 'ar' ? 'افتح تطبيق الإعدادات (Settings) على جهازك.' : 'Open Settings on your iPhone / iPad.'); ?></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">2</span>
+                    <span><?php echo e(app()->getLocale() === 'ar' ? 'اضغط على "الإشعارات" (Notifications) ثم اختر "Elite Academy".' : 'Tap "Notifications" and select "Elite Academy".'); ?></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">3</span>
+                    <span><?php echo e(app()->getLocale() === 'ar' ? 'فعّل خيار "السماح بالإشعارات" (Allow Notifications).' : 'Turn on "Allow Notifications".'); ?></span>
+                </div>
+            </div>
+
+            <button type="button" onclick="window.closeModal ? window.closeModal('fcm-blocked-modal') : document.getElementById('fcm-blocked-modal').classList.add('hidden')"
+                class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer">
+                <?php echo e(__('Understood')); ?>
+
+            </button>
+        </div>
+    </div>
+
+    
+    <div id="fcm-ios-install-modal"
+        class="elite-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/80 backdrop-blur-md transition-all duration-300">
+        <div class="elite-modal-dialog relative bg-slate-900 text-white p-6 sm:p-7 rounded-[32px] max-w-lg w-full border border-teal-500/30 shadow-2xl overflow-hidden ring-1 ring-white/10">
+            
+            <div class="absolute -top-20 -end-20 w-44 h-44 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -start-20 w-44 h-44 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            
+            <button type="button" onclick="document.getElementById('fcm-ios-install-modal').classList.add('hidden')"
+                class="absolute top-4 end-4 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/80 transition-colors cursor-pointer"
+                aria-label="<?php echo e(__('Close')); ?>">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/20 to-indigo-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+                    <i class="fa-brands fa-apple"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-heading font-bold text-base sm:text-lg text-white">
+                            <?php echo e(app()->getLocale() === 'ar' ? 'تفعيل الإشعارات على أجهزة Apple (iOS)' : 'Enable Notifications on iOS'); ?>
+
+                        </h4>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                            iOS 16.4+
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400">
+                        <?php echo e(app()->getLocale() === 'ar' ? 'خطوات سهلة لتشغيل إشعارات الحصص والتنبيهات المباشرة' : 'Quick steps to enable real-time alerts on your Apple device'); ?>
+
+                    </p>
+                </div>
+            </div>
+
+            
+            <div class="space-y-2.5 mb-5 text-xs text-slate-300">
+                
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-teal-500/20 text-teal-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        1
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span><?php echo e(app()->getLocale() === 'ar' ? 'اضغط على زر المشاركة (Share)' : 'Tap the Share Button'); ?></span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-teal-400 text-[11px] border border-slate-700">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            <?php echo e(app()->getLocale() === 'ar' ? 'في متصفح Safari بالأسفل (أو بأعلى شاشة iPad)، اضغط على أيقونة المشاركة (مربع يخرج منه سهم للأعلى).' : 'In Safari, tap the Share icon at the bottom of your screen (or top on iPad).'); ?>
+
+                        </p>
+                    </div>
+                </div>
+
+                
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-teal-500/20 text-teal-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        2
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span><?php echo e(app()->getLocale() === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'); ?></span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 text-[11px] border border-slate-700">
+                                <i class="fa-regular fa-square-plus"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            <?php echo e(app()->getLocale() === 'ar' ? 'مرر القائمة لأسفل واختر "إضافة إلى الصفحة الرئيسية" ثم اضغط "إضافة (Add)" في أعلى اليمين.' : 'Scroll down in the share sheet and tap "Add to Home Screen", then tap "Add".'); ?>
+
+                        </p>
+                    </div>
+                </div>
+
+                
+                <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-teal-500/30 transition-colors">
+                    <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                        3
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-white mb-0.5 flex items-center gap-1.5">
+                            <span><?php echo e(app()->getLocale() === 'ar' ? 'افتح التطبيق وفعّل الإشعارات' : 'Open the App & Allow Alerts'); ?></span>
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 text-[11px] border border-slate-700">
+                                <i class="fa-solid fa-bell"></i>
+                            </span>
+                        </div>
+                        <p class="text-slate-400 text-[11.5px] leading-relaxed">
+                            <?php echo e(app()->getLocale() === 'ar' ? 'افتح تطبيق Elite Academy من شاشتك الرئيسية، وسيطلب منك السماح بالإشعارات بنقرة واحدة لتصلك تنبيهات الحصص والمواعيد فوراً!' : 'Launch Elite Academy from your home screen and tap "Allow" to receive instant alerts even when the device is locked!'); ?>
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="document.getElementById('fcm-ios-install-modal').classList.add('hidden')"
+                    class="flex-1 py-3 bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-300 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-xs sm:text-sm shadow-lg shadow-teal-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-check"></i>
+                    <span><?php echo e(app()->getLocale() === 'ar' ? 'فهمت الخطوات، سأقوم بالتفعيل الآن' : 'Got it, I will enable it now'); ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase JS SDK (v9 Compat) for Web Push Notifications -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+    <script>
+        window.firebaseConfig = {
+            apiKey: "<?php echo e(config('fcm.web_config.api_key')); ?>",
+            authDomain: "<?php echo e(config('fcm.web_config.auth_domain', 'elite-academy-67a15.firebaseapp.com')); ?>",
+            projectId: "<?php echo e(config('fcm.v1.project_id', 'elite-academy-67a15')); ?>",
+            storageBucket: "<?php echo e(config('fcm.web_config.storage_bucket', 'elite-academy-67a15.firebasestorage.app')); ?>",
+            messagingSenderId: "<?php echo e(config('fcm.web_config.messaging_sender_id', '53377882422')); ?>",
+            appId: "<?php echo e(config('fcm.web_config.app_id')); ?>"
+        };
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // 1. Crystal-Clear Web Audio API Notification Chime (Zero External Files)
+        // ─────────────────────────────────────────────────────────────────────────
+        (function () {
+            let sharedAudioCtx = null;
+            let audioUnlocked = false;
+
+            function getAudioContext() {
+                if (!sharedAudioCtx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        try {
+                            sharedAudioCtx = new AudioCtx();
+                        } catch (e) {}
+                    }
+                }
+                return sharedAudioCtx;
+            }
+
+            function unlockAudio(e) {
+                if (audioUnlocked) return;
+                if (e && !e.isTrusted) return;
+                
+                // Check userActivation state if available to prevent browser autoplay warnings
+                if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+                    return;
+                }
+
+                try {
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
+                    if (ctx.state === 'suspended') {
+                        ctx.resume().then(() => {
+                            if (ctx.state === 'running') {
+                                audioUnlocked = true;
+                                cleanupListeners();
+                            }
+                        }).catch(() => {});
+                    } else if (ctx.state === 'running') {
+                        audioUnlocked = true;
+                        cleanupListeners();
+                    }
+                } catch (err) {}
+            }
+
+            const events = ['click', 'keydown', 'touchstart'];
+            function cleanupListeners() {
+                events.forEach(evt => document.removeEventListener(evt, unlockAudio, true));
+            }
+            events.forEach(evt => {
+                document.addEventListener(evt, unlockAudio, { once: false, passive: true, capture: true });
+            });
+
+            window.playNotificationChime = function (isUrgent = false) {
+                try {
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
+
+                    if (ctx.state === 'suspended') {
+                        ctx.resume().catch(() => {});
+                    }
+
+                    const now = ctx.currentTime;
+
+                    // Dynamics compressor to maximize loud volume without clipping/distortion
+                    const compressor = ctx.createDynamicsCompressor();
+                    compressor.threshold.setValueAtTime(-12, now);
+                    compressor.knee.setValueAtTime(4, now);
+                    compressor.ratio.setValueAtTime(8, now);
+                    compressor.attack.setValueAtTime(0.002, now);
+                    compressor.release.setValueAtTime(0.2, now);
+                    compressor.connect(ctx.destination);
+
+                    // Master Volume Node (High Loud Gain: 0.85)
+                    const masterGain = ctx.createGain();
+                    masterGain.gain.setValueAtTime(isUrgent ? 0.95 : 0.85, now);
+                    masterGain.connect(compressor);
+
+                    function playChimeNote(freq, startTime, duration, noteGainVal) {
+                        // Fundamental Sine Tone (Deep Body)
+                        const osc = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        g.gain.setValueAtTime(0, startTime);
+                        g.gain.linearRampToValueAtTime(noteGainVal, startTime + 0.02);
+                        g.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+                        osc.connect(g);
+                        g.connect(masterGain);
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+
+                        // Overtone Triangle Wave (Crisp Presence & Loudness)
+                        const overtone = ctx.createOscillator();
+                        const og = ctx.createGain();
+                        overtone.type = 'triangle';
+                        overtone.frequency.setValueAtTime(freq * 2, startTime);
+                        og.gain.setValueAtTime(0, startTime);
+                        og.gain.linearRampToValueAtTime(noteGainVal * 0.45, startTime + 0.015);
+                        og.gain.exponentialRampToValueAtTime(0.0005, startTime + duration * 0.7);
+                        overtone.connect(og);
+                        og.connect(masterGain);
+                        overtone.start(startTime);
+                        overtone.stop(startTime + duration * 0.7);
+                    }
+
+                    // Loud Resonant Chime Sequence (C5 -> E5 -> G5 -> C6)
+                    playChimeNote(523.25, now, 0.45, 0.75);         // C5
+                    playChimeNote(659.25, now + 0.09, 0.48, 0.80);  // E5
+                    playChimeNote(783.99, now + 0.18, 0.52, 0.85);  // G5
+                    playChimeNote(1046.50, now + 0.27, 0.75, 0.90); // C6 (High bright chime ring)
+
+                    // If Urgent (Session approaching / Live now), play a 2nd rapid fanfare chime!
+                    if (isUrgent) {
+                        const secondPass = now + 0.45;
+                        playChimeNote(659.25, secondPass, 0.35, 0.85);
+                        playChimeNote(880.00, secondPass + 0.08, 0.40, 0.90);
+                        playChimeNote(1174.66, secondPass + 0.16, 0.80, 0.95);
+
+                        // Phone vibration alert if supported
+                        if ('vibrate' in navigator) {
+                            try { navigator.vibrate([300, 100, 300, 100, 500]); } catch (_) {}
+                        }
+                    }
+                } catch (err) {
+                    console.debug('[Audio] Loud chime note:', err);
+                }
+            };
+        })();
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // 2. Real-Time Notification Poller & Dispatch Engine
+        // ─────────────────────────────────────────────────────────────────────────
+        (function () {
+            const currentUserId = "<?php echo e(auth()->id() ?? 0); ?>";
+            const fcmTokenKey = 'elite_fcm_token_' + currentUserId;
+            const dismissedKey = 'fcm_prompt_dismissed_until_' + currentUserId;
+
+            // iOS and Standalone (PWA) Detection
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isStandalone = ('standalone' in window.navigator && window.navigator.standalone) || 
+                                 window.matchMedia('(display-mode: standalone)').matches;
+
+            const modal = document.getElementById('fcm-permission-modal');
+            const btnEnable = document.getElementById('btn-enable-fcm');
+            const btnDismiss = document.getElementById('btn-dismiss-fcm');
+            const btnClose = document.getElementById('btn-close-fcm-modal');
+            const floatingBellBtn = document.getElementById('fcm-floating-bell-btn');
+            const statusIndicator = document.getElementById('fcm-status-indicator');
+            const blockedModal = document.getElementById('fcm-blocked-modal');
+            const iosModal = document.getElementById('fcm-ios-install-modal');
+            const iosPromptTip = document.getElementById('fcm-ios-prompt-tip');
+            const blockedIosSteps = document.getElementById('fcm-blocked-ios-steps');
+            const blockedDefaultSteps = document.getElementById('fcm-blocked-default-steps');
+
+            let messaging = null;
+            let latestNotificationId = 0;
+            let isPollingActive = false;
+            const displayedToastIds = new Set();
+
+            // Global iOS Notification Setup Guide Trigger
+            window.openIosNotificationGuide = function () {
+                hideModal();
+                if (iosModal) {
+                    iosModal.classList.remove('hidden');
+                }
+            };
+
+            // Centralized System Desktop Notification Dispatcher (Windows / Browser Native)
+            function stripHtmlAndEntities(str) {
+                if (!str) return '';
+                const tmp = document.createElement('div');
+                tmp.innerHTML = str;
+                return (tmp.textContent || tmp.innerText || '').trim();
+            }
+
+            function displaySystemDesktopNotification(n) {
+                if (!('Notification' in window) || Notification.permission !== 'granted') {
+                    return;
+                }
+
+                const rawTitle = n.title || 'أكاديمية النخبة | Elite Academy';
+                const rawBody = n.body || '';
+                const cleanTitle = stripHtmlAndEntities(rawTitle) || 'أكاديمية النخبة | Elite Academy';
+                const cleanBody = stripHtmlAndEntities(rawBody);
+
+                // Detect Arabic for direction & language
+                const isArabic = /[\u0600-\u06FF]/.test(cleanTitle + ' ' + cleanBody);
+
+                // Absolute origin-relative icon to prevent mixed content & ERR_CONNECTION_REFUSED
+                const safeOrigin = window.location.origin;
+                const iconUrl = n.icon && n.icon.startsWith('http') ? n.icon : (safeOrigin + '/images/icon-192.png');
+                const badgeUrl = safeOrigin + '/images/icon-192.png';
+
+                // Target URL for click
+                let clickTarget = n.action_url || (n.data && (n.data.url || n.data.action_url)) || null;
+                if (clickTarget && !clickTarget.startsWith('http')) {
+                    clickTarget = safeOrigin + (clickTarget.startsWith('/') ? clickTarget : '/' + clickTarget);
+                }
+                const finalTargetUrl = clickTarget || window.location.href;
+                const isSessionAlert = (n.type && (n.type.includes('SESSION') || n.type.includes('LIVE'))) ||
+                    /حصة|جلسة|session|live|بدأت|تذكير/i.test(cleanTitle + ' ' + cleanBody);
+
+                const options = {
+                    body: cleanBody,
+                    icon: iconUrl,
+                    badge: badgeUrl,
+                    dir: isArabic ? 'rtl' : 'ltr',
+                    lang: isArabic ? 'ar' : 'en',
+                    tag: notifTag,
+                    renotify: true,
+                    requireInteraction: isSessionAlert,
+                    vibrate: isSessionAlert ? [300, 100, 300, 100, 500] : [200, 100, 200],
+                    data: {
+                        url: finalTargetUrl,
+                        id: n.id || null
+                    }
+                };
+
+                // Use Service Worker showNotification if available (works outside tab, handles OS clicks cleanly)
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then((reg) => {
+                        reg.showNotification(cleanTitle, options);
+                    }).catch(() => {
+                        fallbackDesktopNotification(cleanTitle, options, finalTargetUrl);
+                    });
+                } else {
+                    fallbackDesktopNotification(cleanTitle, options, finalTargetUrl);
+                }
+            }
+
+            function fallbackDesktopNotification(title, options, targetUrl) {
+                try {
+                    const notif = new Notification(title, options);
+                    notif.onclick = function (e) {
+                        e.preventDefault();
+                        window.focus();
+                        if (targetUrl) {
+                            window.location.href = targetUrl;
+                        }
+                        try { notif.close(); } catch (_) {}
+                    };
+                } catch (e) {
+                    console.debug('[Desktop Notification] Display note:', e);
+                }
+            }
+
+            let consecutivePollFailures = 0;
+
+            // Global Real-Time Poller
+            window.pollNotifications = async function (forceImmediate = false) {
+                if (isPollingActive && !forceImmediate) return;
+                
+                // If offline or multiple consecutive network failures, back off polling to avoid console spam
+                if (!forceImmediate && consecutivePollFailures >= 3) {
+                    if (consecutivePollFailures % 6 !== 0) {
+                        consecutivePollFailures++;
+                        return;
+                    }
+                }
+
+                isPollingActive = true;
+
+                try {
+                    const checkUrl = '/ajax/notifications/check?since_id=' + latestNotificationId;
+                    const res = await fetch(checkUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!res.ok) {
+                        consecutivePollFailures++;
+                        isPollingActive = false;
+                        return;
+                    }
+
+                    const data = await res.json();
+                    consecutivePollFailures = 0; // Reset on successful response
+                    if (data && data.success) {
+                        const previousLatest = latestNotificationId;
+                        latestNotificationId = Math.max(latestNotificationId, data.latest_id || 0);
+
+                        // Broadcast latest state to Navbar Bell and any open listeners
+                        window.dispatchEvent(new CustomEvent('notifications-updated', {
+                            detail: {
+                                unread_count: data.unread_count,
+                                recent_notifications: data.recent_notifications,
+                                latest_id: data.latest_id
+                            }
+                        }));
+
+                        // If new notifications arrived (and this wasn't just the initial page load scan)
+                        if (previousLatest > 0 && data.has_new && data.new_notifications && data.new_notifications.length > 0) {
+                            const newNotifs = data.new_notifications.filter(n => !displayedToastIds.has(n.id));
+
+                            if (newNotifs.length > 0) {
+                                const hasUrgentSession = newNotifs.some(n => 
+                                    (n.type && (n.type.includes('SESSION') || n.type.includes('LIVE'))) ||
+                                    /حصة|جلسة|session|live|بدأت|تذكير/i.test((n.title || '') + ' ' + (n.body || ''))
+                                );
+                                window.playNotificationChime(hasUrgentSession);
+
+                                // If only 1 or 2 new items, display distinct toasts cleanly
+                                if (newNotifs.length <= 2) {
+                                    newNotifs.forEach((n, idx) => {
+                                        displayedToastIds.add(n.id);
+                                        setTimeout(() => {
+                                            if (window.Toast) {
+                                                window.Toast.info(n.body, n.title);
+                                            }
+                                        }, idx * 300);
+
+                                        // Native desktop push formatted correctly outside the system
+                                        displaySystemDesktopNotification({
+                                            id: n.id,
+                                            title: n.title,
+                                            body: n.body,
+                                            action_url: n.action_url
+                                        });
+
+                                        window.dispatchEvent(new CustomEvent('new-notification-received', {
+                                            detail: n
+                                        }));
+                                    });
+                                } else {
+                                    // Consolidated single summary toast for multiple simultaneous notifications
+                                    newNotifs.forEach(n => displayedToastIds.add(n.id));
+                                    const isAr = <?php echo json_encode(app()->getLocale() === 'ar', 15, 512) ?>;
+                                    const summaryTitle = isAr ? '🔔 تنبيهات دراسية جديدة' : '🔔 New Academic Updates';
+                                    const summaryBody = isAr
+                                        ? `لديك ${newNotifs.length} إشعارات دراسية جديدة. تفقد مركز الإشعارات.`
+                                        : `You have ${newNotifs.length} new academic notifications. Check your notification center.`;
+
+                                    if (window.Toast) {
+                                        window.Toast.info(summaryBody, summaryTitle);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    consecutivePollFailures++;
+                    console.debug('[Notifications] Poll check note:', e);
+                } finally {
+                    isPollingActive = false;
+                }
+            };
+
+            // Global Instant Test Push Trigger
+            window.triggerTestPush = async function (buttonEl) {
+                if (buttonEl) {
+                    buttonEl.disabled = true;
+                    buttonEl.classList.add('opacity-60', 'cursor-not-allowed');
+                }
+
+                if (window.Toast) {
+                    window.Toast.info(<?php echo json_encode(app()->getLocale() === 'ar' ? 'جارٍ إرسال الإشعار وتجربة البث المباشر...' : 'Dispatching real-time test notification...', 15, 512) ?>);
+                }
+
+                try {
+                    const res = await fetch('/ajax/notifications/test-push', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        // Immediately poll backend to receive and display notification in real time!
+                        setTimeout(() => {
+                            window.pollNotifications(true);
+                        }, 250);
+                    } else {
+                        if (window.Toast) {
+                            window.Toast.error(data.message || 'Error triggering test push');
+                        }
+                    }
+                } catch (err) {
+                    if (window.Toast) {
+                        window.Toast.error('Network error triggering test push');
+                    }
+                } finally {
+                    if (buttonEl) {
+                        setTimeout(() => {
+                            buttonEl.disabled = false;
+                            buttonEl.classList.remove('opacity-60', 'cursor-not-allowed');
+                        }, 1800);
+                    }
+                }
+            };
+
+            // Global Mark as Read Helpers
+            window.markNotificationAsRead = async function (id) {
+                try {
+                    const res = await fetch('/ajax/notifications/' + id + '/read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.pollNotifications(true);
+                    }
+                } catch (e) {}
+            };
+
+            window.markAllNotificationsAsRead = async function () {
+                try {
+                    const res = await fetch('/ajax/notifications/read-all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        if (window.Toast) {
+                            window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم تمييز جميع الإشعارات كمقروءة' : 'All notifications marked as read', 15, 512) ?>);
+                        }
+                        window.pollNotifications(true);
+                    }
+                } catch (e) {}
+            };
+
+            // Initialize Firebase Messaging safely
+            function initFirebase() {
+                if (typeof firebase !== 'undefined' && firebase.messaging && firebase.messaging.isSupported()) {
+                    try {
+                        if (!firebase.apps.length) {
+                            firebase.initializeApp(window.firebaseConfig);
+                        }
+                        messaging = firebase.messaging();
+                        attachForegroundListener();
+                        return true;
+                    } catch (e) {
+                        console.warn('[FCM] Init error:', e);
+                    }
+                }
+                return false;
+            }
+
+            // Handle FCM Foreground Messages
+            function attachForegroundListener() {
+                if (!messaging) return;
+                messaging.onMessage((payload) => {
+                    const title = (payload.notification && payload.notification.title) ||
+                        (payload.data && payload.data.title) ||
+                        '<?php echo e(__("New Notification")); ?>';
+
+                    const body = (payload.notification && payload.notification.body) ||
+                        (payload.data && payload.data.body) ||
+                        '';
+
+                    const icon = (payload.notification && payload.notification.image) ||
+                        (payload.data && payload.data.icon) ||
+                        (window.location.origin + '/images/icon-192.png');
+
+                    const isUrgent = (payload.data && ((payload.data.type || '').includes('SESSION') || (payload.data.type || '').includes('LIVE'))) ||
+                        /حصة|جلسة|session|live|بدأت|تذكير/i.test(title + ' ' + body);
+
+                    window.playNotificationChime(isUrgent);
+
+                    if (window.Toast) {
+                        window.Toast.info(body, title);
+                    }
+
+                    // Native desktop push formatted correctly outside the system
+                    displaySystemDesktopNotification({
+                        id: (payload.data && payload.data.id) || null,
+                        title: title,
+                        body: body,
+                        icon: icon,
+                        action_url: (payload.data && (payload.data.url || payload.data.action_url)) || null
+                    });
+
+                    window.dispatchEvent(new CustomEvent('fcm-realtime-message', {
+                        detail: {
+                            notification: { title, body, image: icon },
+                            data: payload.data || {}
+                        }
+                    }));
+
+                    // Immediately poll backend to sync feed
+                    window.pollNotifications(true);
+                });
+            }
+
+            // Send Token to Laravel Backend
+            window.sendFcmTokenToServer = function (token) {
+                if (!token) return;
+                localStorage.setItem(fcmTokenKey, token);
+
+                const tokenInputs = document.querySelectorAll('#userFcmTokenInput');
+                tokenInputs.forEach(input => { input.value = token; });
+
+                fetch('/ajax/notifications/fcm-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        device_type: isIOS ? 'ios_safari' : 'web_browser'
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateIndicatorState('granted');
+                        }
+                    })
+                    .catch(() => { });
+            };
+
+            // Request Live Firebase Token
+            window.requestLiveFirebaseToken = async function (isUserInitiated = true) {
+                // If iOS and NOT running in standalone (PWA) mode, Apple requires adding to Home Screen first
+                if (isIOS && !isStandalone) {
+                    hideModal();
+                    if (iosModal) iosModal.classList.remove('hidden');
+                    return;
+                }
+
+                if (!('Notification' in window) || !('PushManager' in window) || !('serviceWorker' in navigator)) {
+                    if (isIOS) {
+                        hideModal();
+                        if (iosModal) iosModal.classList.remove('hidden');
+                        return;
+                    }
+                    if (isUserInitiated && window.Toast) {
+                        window.Toast.error(<?php echo json_encode(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح الفورية' : 'Browser does not support Web Push notifications', 15, 512) ?>);
+                    }
+                    return;
+                }
+
+                if (btnEnable && isUserInitiated) {
+                    btnEnable.disabled = true;
+                    const iconSpan = document.getElementById('btn-enable-icon');
+                    const textSpan = document.getElementById('btn-enable-text');
+                    if (iconSpan) iconSpan.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    if (textSpan) textSpan.innerText = <?php echo json_encode(app()->getLocale() === 'ar' ? 'جارٍ التفعيل...' : 'Enabling...', 15, 512) ?>;
+                }
+
+                try {
+                    let permission;
+                    if (isUserInitiated && Notification.permission !== 'granted') {
+                        // iOS Safari & modern browsers: await Promise or callback
+                        const req = Notification.requestPermission();
+                        if (req && typeof req.then === 'function') {
+                            permission = await req;
+                        } else {
+                            permission = await new Promise(resolve => Notification.requestPermission(resolve));
+                        }
+                    } else {
+                        permission = Notification.permission;
+                    }
+
+                    if (permission === 'granted') {
+                        initFirebase();
+                        if (messaging) {
+                            const appBasePath = (() => {
+                                const match = window.location.pathname.match(/^(\/[^\/]+\/public)/);
+                                return match ? (match[1] + '/') : '<?php echo e(rtrim(parse_url(url('/'), PHP_URL_PATH) ?: '/', '/') . '/'); ?>';
+                            })();
+                            const swUrl = (() => {
+                                const match = window.location.pathname.match(/^(\/[^\/]+\/public)/);
+                                return match ? (window.location.origin + match[1] + '/firebase-messaging-sw.js') : (window.location.origin + '/firebase-messaging-sw.js');
+                            })();
+                            let reg;
+                            try {
+                                reg = await navigator.serviceWorker.register(swUrl, { scope: appBasePath });
+                            } catch (scopeErr) {
+                                console.warn('[FCM] Scope register fallback to default:', scopeErr);
+                                reg = await navigator.serviceWorker.register(swUrl);
+                            }
+                            await navigator.serviceWorker.ready;
+
+                            const vapidKey = "<?php echo e(config('fcm.web_config.vapid_key')); ?>";
+                            const opts = { serviceWorkerRegistration: reg };
+                            if (vapidKey) opts.vapidKey = vapidKey;
+
+                            const token = await messaging.getToken(opts);
+                            if (token) {
+                                sendFcmTokenToServer(token);
+                                hideModal();
+                                updateIndicatorState('granted');
+
+                                if (isUserInitiated && window.Toast) {
+                                    window.Toast.success(<?php echo json_encode(app()->getLocale() === 'ar' ? 'تم تفعيل إشعارات المتصفح بنجاح! 🔔' : 'Push notifications enabled successfully! 🔔', 15, 512) ?>);
+                                }
+                            }
+                        }
+                    } else if (permission === 'denied') {
+                        hideModal();
+                        updateIndicatorState('denied');
+                        if (isUserInitiated) {
+                            if (isIOS) {
+                                if (blockedIosSteps) blockedIosSteps.classList.remove('hidden');
+                                if (blockedDefaultSteps) blockedDefaultSteps.classList.add('hidden');
+                            } else {
+                                if (blockedIosSteps) blockedIosSteps.classList.add('hidden');
+                                if (blockedDefaultSteps) blockedDefaultSteps.classList.remove('hidden');
+                            }
+                            if (blockedModal) blockedModal.classList.remove('hidden');
+                        }
+                    } else {
+                        hideModal();
+                    }
+                } catch (err) {
+                    console.warn('[FCM] Permission/Token error:', err);
+                    if (isUserInitiated && window.Toast) {
+                        window.Toast.error(err ? err.message : 'Error enabling notifications');
+                    }
+                } finally {
+                    if (btnEnable) {
+                        btnEnable.disabled = false;
+                        const iconSpan = document.getElementById('btn-enable-icon');
+                        const textSpan = document.getElementById('btn-enable-text');
+                        if (iconSpan) iconSpan.innerHTML = '<i class="fa-solid fa-check"></i>';
+                        if (textSpan) textSpan.innerText = <?php echo json_encode(app()->getLocale() === 'ar' ? 'نعم، تفعيل الإشعارات' : 'Yes, Allow Notifications', 512) ?>;
+                    }
+                }
+            };
+
+            // UI Helpers
+            function showModal() {
+                if (!modal) return;
+                modal.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+                modal.classList.add('opacity-100', 'translate-y-0');
+            }
+
+            function hideModal() {
+                if (!modal) return;
+                modal.classList.remove('opacity-100', 'translate-y-0');
+                modal.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
+            }
+
+            function dismissPrompt(days = 2) {
+                hideModal();
+                const expiry = Date.now() + (days * 24 * 60 * 60 * 1000);
+                localStorage.setItem(dismissedKey, expiry.toString());
+            }
+
+            function updateIndicatorState(permission) {
+                if (!statusIndicator) return;
+                if (permission === 'granted') {
+                    statusIndicator.innerHTML = '<span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-slate-900"></span>';
+                } else if (permission === 'denied') {
+                    statusIndicator.innerHTML = '<span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500 border-2 border-slate-900"></span>';
+                } else {
+                    statusIndicator.innerHTML = '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-slate-900"></span>';
+                }
+            }
+
+            // Document Ready Setup
+            document.addEventListener('DOMContentLoaded', function () {
+                initFirebase();
+
+                const savedToken = localStorage.getItem(fcmTokenKey);
+                if (savedToken) {
+                    sendFcmTokenToServer(savedToken);
+                }
+
+                // Setup iOS specific tips and settings helpers
+                if (isIOS) {
+                    if (iosPromptTip && !isStandalone) {
+                        iosPromptTip.classList.remove('hidden');
+                        iosPromptTip.classList.add('cursor-pointer');
+                        iosPromptTip.addEventListener('click', function () {
+                            window.openIosNotificationGuide();
+                        });
+                    }
+
+                    if (blockedIosSteps && blockedDefaultSteps) {
+                        blockedIosSteps.classList.remove('hidden');
+                        blockedDefaultSteps.classList.add('hidden');
+                    }
+                }
+
+                const dismissedUntil = localStorage.getItem(dismissedKey);
+                const now = Date.now();
+                const isDismissed = dismissedUntil && now <= parseInt(dismissedUntil, 10);
+
+                if ('Notification' in window) {
+                    updateIndicatorState(Notification.permission);
+
+                    if (Notification.permission === 'default' && !isDismissed) {
+                        setTimeout(showModal, 1500);
+                    } else if (Notification.permission === 'granted') {
+                        if (!savedToken && messaging) {
+                            window.requestLiveFirebaseToken(false);
+                        }
+                    }
+                } else if (isIOS && !isStandalone && !isDismissed) {
+                    // Show prompt on iOS Safari so user can easily tap to see how to enable notifications
+                    setTimeout(showModal, 1500);
+                }
+
+                // Button Event Listeners
+                if (btnEnable) {
+                    btnEnable.addEventListener('click', function () {
+                        window.requestLiveFirebaseToken(true);
+                    });
+                }
+
+                if (btnDismiss) {
+                    btnDismiss.addEventListener('click', function () {
+                        dismissPrompt(2);
+                    });
+                }
+
+                if (btnClose) {
+                    btnClose.addEventListener('click', function () {
+                        dismissPrompt(1);
+                    });
+                }
+
+                if (floatingBellBtn) {
+                    floatingBellBtn.addEventListener('click', function () {
+                        if (isIOS && !isStandalone) {
+                            window.openIosNotificationGuide();
+                            return;
+                        }
+
+                        if ('Notification' in window) {
+                            if (Notification.permission === 'granted') {
+                                if (window.Toast) {
+                                    window.Toast.info(<?php echo json_encode(app()->getLocale() === 'ar' ? 'الإشعارات مفعلة بالفعل على هذا الجهاز 🔔' : 'Push notifications are already active on this device 🔔', 15, 512) ?>);
+                                }
+                            } else if (Notification.permission === 'denied') {
+                                if (isIOS) {
+                                    if (blockedIosSteps) blockedIosSteps.classList.remove('hidden');
+                                    if (blockedDefaultSteps) blockedDefaultSteps.classList.add('hidden');
+                                } else {
+                                    if (blockedIosSteps) blockedIosSteps.classList.add('hidden');
+                                    if (blockedDefaultSteps) blockedDefaultSteps.classList.remove('hidden');
+                                }
+                                if (blockedModal) blockedModal.classList.remove('hidden');
+                            } else {
+                                showModal();
+                            }
+                        } else {
+                            if (isIOS) {
+                                window.openIosNotificationGuide();
+                            } else if (window.Toast) {
+                                window.Toast.error(<?php echo json_encode(app()->getLocale() === 'ar' ? 'المتصفح لا يدعم إشعارات المتصفح' : 'Browser does not support notifications', 15, 512) ?>);
+                            }
+                        }
+                    });
+                }
+
+                // Initial poll to load current unread counts and latest ID
+                setTimeout(() => {
+                    window.pollNotifications(true);
+                }, 800);
+
+                // Polling loop every 5.5 seconds for true real-time delivery
+                setInterval(() => {
+                    window.pollNotifications(false);
+                }, 5500);
+
+                // Immediate poll on tab focus
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        window.pollNotifications(true);
+                    }
+                });
+            });
+        })();
+    </script>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php /**PATH C:\laragon\www\elite-academy\resources\views/partials/realtime-notifications.blade.php ENDPATH**/ ?>
