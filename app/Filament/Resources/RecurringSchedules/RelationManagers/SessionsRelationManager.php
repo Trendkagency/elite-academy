@@ -28,6 +28,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
@@ -125,6 +126,7 @@ class SessionsRelationManager extends RelationManager
         $recurringSchedule = $this->getOwnerRecord();
 
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->recordTitleAttribute('title')
             ->defaultSort('scheduled_at', 'asc')
             ->columns([

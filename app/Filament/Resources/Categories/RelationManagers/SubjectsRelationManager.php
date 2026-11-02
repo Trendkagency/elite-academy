@@ -15,6 +15,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
@@ -73,6 +74,7 @@ class SubjectsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Subject Name'))

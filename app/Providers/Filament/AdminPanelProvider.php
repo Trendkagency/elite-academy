@@ -2,16 +2,28 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\ManageTranslationSystem;
+use App\Filament\Widgets\AdminOverviewStatsWidget;
+use App\Filament\Widgets\SessionsAnalyticsChartWidget;
+use App\Filament\Widgets\StudentAccountStatusChartWidget;
+use App\Http\Middleware\EnsureAdminAccountExists;
+use App\Http\Middleware\SetLocale;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -28,14 +40,23 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Elite Academy')
-            ->brandLogo(fn () => request()->isSecure() || app()->environment('production', 'staging') || str_starts_with((string) config('app.url'), 'https://') ? secure_asset('images/logo_500.webp') : asset('images/logo_500.webp'))
+            ->brandName(fn () => brand('app_name', 'Elite Academy'))
+            ->brandLogo(fn () => brand_logo('light', 'images/logo_500.webp'))
+            ->darkModeBrandLogo(fn () => brand_logo('dark', 'images/logo_500.webp'))
             ->brandLogoHeight('2.6rem')
-            ->favicon(fn () => request()->isSecure() || app()->environment('production', 'staging') || str_starts_with((string) config('app.url'), 'https://') ? secure_asset('images/logo_500.webp') : asset('images/logo_500.webp'))
+            ->favicon(fn () => brand_logo('light', 'images/logo_500.webp'))
+            ->maxContentWidth(Width::Full)
+            ->font(
+                family: fn (): string => app()->getLocale() === 'ar' ? 'Cairo' : 'Inter',
+                provider: GoogleFontProvider::class,
+            )
+            ->plugins([
+                FilamentShieldPlugin::make(),
+            ])
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop()
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => demo_enabled() && config('demo.branding.primary_color') ? Color::hex(config('demo.branding.primary_color')) : Color::Teal,
                 'gray' => Color::Slate,
                 'amber' => Color::Amber,
                 'success' => Color::Emerald,
@@ -44,44 +65,44 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->renderHook(
-                \Filament\View\PanelsRenderHook::HEAD_END,
-                fn (): \Illuminate\Contracts\View\View => view('filament.hooks.head-styles')
+                PanelsRenderHook::HEAD_END,
+                fn (): View => view('filament.hooks.head-styles')
             )
             ->renderHook(
-                \Filament\View\PanelsRenderHook::BODY_END,
-                fn (): \Illuminate\Contracts\View\View => view('filament.hooks.ctrl-s-shortcut')
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.hooks.ctrl-s-shortcut')
             )
             ->navigationGroups([
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة الشؤون الأكاديمية' : 'Academic Management')
                     ->icon('heroicon-o-academic-cap'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'الجداول والبث المباشر' : 'Schedules & Live Sessions')
                     ->icon('heroicon-o-calendar-days'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة المستخدمين والأدوار' : 'User Management')
                     ->icon('heroicon-o-user-group'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة الباقات والمالية' : 'Packages & Finance')
                     ->icon('heroicon-o-banknotes'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'التقارير والإحصائيات' : 'Reports & Analytics')
                     ->icon('heroicon-o-chart-bar'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'التواصل والدعم الفني' : 'Communication & Support')
                     ->icon('heroicon-o-chat-bubble-left-right'),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'إدارة المحتوى والموقع' : 'Landing Page CMS')
                     ->icon('heroicon-o-globe-alt')
                     ->collapsed(),
 
-                \Filament\Navigation\NavigationGroup::make()
+                NavigationGroup::make()
                     ->label(fn () => app()->getLocale() === 'ar' ? 'الإعدادات العامة' : 'Settings')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(),
@@ -90,18 +111,18 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
-                \App\Filament\Pages\ManageTranslationSystem::class,
+                ManageTranslationSystem::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                \App\Filament\Widgets\AdminOverviewStatsWidget::class,
-                \App\Filament\Widgets\SessionsAnalyticsChartWidget::class,
-                \App\Filament\Widgets\StudentAccountStatusChartWidget::class,
+                AdminOverviewStatsWidget::class,
+                SessionsAnalyticsChartWidget::class,
+                StudentAccountStatusChartWidget::class,
             ])
             ->userMenuItems([
-                \Filament\Navigation\MenuItem::make('language_switcher')
+                MenuItem::make('language_switcher')
                     ->label(fn () => app()->getLocale() === 'ar' ? 'English (🇬🇧 EN)' : 'اللغة العربية (🇪🇬 AR)')
-                    ->icon(\Filament\Support\Icons\Heroicon::OutlinedLanguage)
+                    ->icon(Heroicon::OutlinedLanguage)
                     ->url(fn () => route('lang.switch', ['locale' => app()->getLocale() === 'ar' ? 'en' : 'ar'])),
             ])
             ->middleware([
@@ -114,8 +135,8 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \App\Http\Middleware\SetLocale::class,
-                \App\Http\Middleware\EnsureAdminAccountExists::class,
+                SetLocale::class,
+                EnsureAdminAccountExists::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

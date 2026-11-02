@@ -28,6 +28,10 @@
     .fi-section, .fi-widget, .fi-table {
         font-family: 'Cairo', sans-serif !important;
     }
+    /* Trendk Standard 3.6: Cairo for Arabic */
+    [dir="rtl"], html[lang="ar"], :lang(ar) {
+        font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+    }
 
     /* --- Background & Overall Canvas --- */
     html:not(.dark) .fi-body,

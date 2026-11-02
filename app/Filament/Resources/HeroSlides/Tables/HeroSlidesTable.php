@@ -8,6 +8,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 
 class HeroSlidesTable
@@ -15,6 +16,7 @@ class HeroSlidesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->columns([
                 // Drag-to-reorder handle is added via ->reorderable() on the table
                 TextColumn::make('sort_order')

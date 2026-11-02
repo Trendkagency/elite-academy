@@ -7,6 +7,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 
 class MeetingAttendanceResource extends Resource
@@ -40,6 +41,7 @@ class MeetingAttendanceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->columns([
                 TextColumn::make('id')->sortable(),
                 TextColumn::make('studentUser.name')

@@ -13,6 +13,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 
 class ContactMessagesTable
@@ -20,6 +21,7 @@ class ContactMessagesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->columns([
                 TextColumn::make('full_name')
                     ->label(__('Full Name'))

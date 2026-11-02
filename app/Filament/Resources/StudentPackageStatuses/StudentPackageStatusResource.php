@@ -8,6 +8,7 @@ use App\Models\StudentPackage;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 
 class StudentPackageStatusResource extends Resource

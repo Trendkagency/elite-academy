@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 
 class SessionsRelationManager extends RelationManager
@@ -67,6 +68,7 @@ class SessionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->columns([
                 TextColumn::make('sort_order')
                     ->label('Order')

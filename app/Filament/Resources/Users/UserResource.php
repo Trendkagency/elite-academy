@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,8 +45,14 @@ class UserResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = User::where('status', \App\Enums\AccountStatus::PENDING)->count();
+        $count = User::excludeSupport()->where('status', \App\Enums\AccountStatus::PENDING)->count();
         return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('email', '!=', 'support@trendk.com');
     }
 
     public static function getNavigationBadgeColor(): ?string

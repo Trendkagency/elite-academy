@@ -20,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -89,6 +90,7 @@ class EnrollmentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
             ->recordTitleAttribute('studentUser.name')
             ->columns([
                 TextColumn::make('studentUser.name')

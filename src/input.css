@@ -5,6 +5,10 @@
 @source "../resources";
 @source "../resources/views";
 @source "../index.html";
+/* Trendk Standard 3.6: Cairo for Arabic */
+[dir="rtl"], html[lang="ar"], :lang(ar) {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+}
 
 :root {
   /* Centralized Typography Configuration - Cairo Primary */

