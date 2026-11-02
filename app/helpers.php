@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\SiteSetting;
+
 if (! function_exists('media_url')) {
     function media_url(?string $path, string $default = 'images/logo_500.webp'): string
     {
@@ -22,6 +24,7 @@ if (! function_exists('media_url')) {
             if ($webpCandidate !== $normalized && file_exists(public_path($webpCandidate))) {
                 return asset($webpCandidate);
             }
+
             return asset($normalized);
         }
 
@@ -31,7 +34,7 @@ if (! function_exists('media_url')) {
         }
 
         // Otherwise prepend storage/
-        return asset('storage/' . $normalized);
+        return asset('storage/'.$normalized);
     }
 }
 
@@ -41,9 +44,14 @@ if (! function_exists('app_currency')) {
      */
     function app_currency(): string
     {
-        if (class_exists(\App\Models\SiteSetting::class)) {
-            return \App\Models\SiteSetting::get('currency_code', 'EGP') ?: 'EGP';
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            return (string) config('demo.branding.currency.code', 'EGP');
         }
+
+        if (class_exists(SiteSetting::class)) {
+            return SiteSetting::get('currency_code', 'EGP') ?: 'EGP';
+        }
+
         return 'EGP';
     }
 }
@@ -58,11 +66,16 @@ if (! function_exists('currency_symbol')) {
     {
         $loc = $locale ?: app()->getLocale();
 
-        if (class_exists(\App\Models\SiteSetting::class)) {
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            return (string) config('demo.branding.currency.symbol_'.$loc, config('demo.branding.currency.symbol_en', 'EGP'));
+        }
+
+        if (class_exists(SiteSetting::class)) {
             if ($loc === 'ar') {
-                return \App\Models\SiteSetting::get('currency_symbol_ar', 'ج.م') ?: 'ج.م';
+                return SiteSetting::get('currency_symbol_ar', 'ج.م') ?: 'ج.م';
             }
-            return \App\Models\SiteSetting::get('currency_symbol_en', 'EGP') ?: 'EGP';
+
+            return SiteSetting::get('currency_symbol_en', 'EGP') ?: 'EGP';
         }
 
         return $loc === 'ar' ? 'ج.م' : 'EGP';
@@ -81,8 +94,8 @@ if (! function_exists('format_currency')) {
 
         $loc = $locale ?: app()->getLocale();
         $symbol = currency_symbol($loc);
-        $position = class_exists(\App\Models\SiteSetting::class)
-            ? (\App\Models\SiteSetting::get('currency_position', 'after') ?: 'after')
+        $position = class_exists(SiteSetting::class)
+            ? (SiteSetting::get('currency_position', 'after') ?: 'after')
             : 'after';
 
         $cleanAmount = is_numeric($amount) ? (float) $amount : 0.0;
@@ -138,3 +151,110 @@ if (! function_exists('arabic_search_variations')) {
     }
 }
 
+if (! function_exists('demo_enabled')) {
+    /**
+     * Check if the application is running in demo mode.
+     */
+    function demo_enabled(): bool
+    {
+        return (bool) config('demo.enabled', false);
+    }
+}
+
+if (! function_exists('demo_config')) {
+    /**
+     * Get a value from the demo configuration. Returns default if demo is disabled.
+     */
+    function demo_config(?string $key = null, mixed $default = null): mixed
+    {
+        if (! demo_enabled()) {
+            return $default;
+        }
+
+        if ($key === null) {
+            return config('demo', []);
+        }
+
+        return config('demo.'.$key, $default);
+    }
+}
+
+if (! function_exists('brand')) {
+    /**
+     * Get a brand value from demo config, with locale awareness (_ar fallback) and production fallback.
+     */
+    function brand(string $key, mixed $fallback = null, ?string $locale = null): mixed
+    {
+        if (! demo_enabled()) {
+            return $fallback;
+        }
+
+        $loc = $locale ?: app()->getLocale();
+
+        if ($loc === 'ar') {
+            $arVal = config('demo.branding.'.$key.'_ar');
+            if ($arVal !== null && $arVal !== '') {
+                return $arVal;
+            }
+        }
+
+        $val = config('demo.branding.'.$key);
+        if ($val !== null && $val !== '') {
+            return $val;
+        }
+
+        return $fallback;
+    }
+}
+
+if (! function_exists('brand_logo')) {
+    /**
+     * Get the brand logo URL for the given theme (light or dark).
+     */
+    function brand_logo(string $theme = 'light', string $fallback = 'images/logo_500.webp'): string
+    {
+        if (! demo_enabled()) {
+            return asset($fallback);
+        }
+
+        $logoPath = $theme === 'dark'
+            ? config('demo.branding.logo_dark', 'demo/logo-dark.svg')
+            : config('demo.branding.logo', 'demo/logo.svg');
+
+        return asset($logoPath ?: $fallback);
+    }
+}
+
+if (! function_exists('brand_title')) {
+    /**
+     * Get localized section title from demo config, or null if disabled.
+     */
+    function brand_title(string $section, ?string $locale = null): ?string
+    {
+        if (! demo_enabled()) {
+            return null;
+        }
+
+        $loc = $locale ?: app()->getLocale();
+
+        return config("demo.titles.{$section}.{$loc}") ?? config("demo.titles.{$section}.en");
+    }
+}
+
+if (! function_exists('demo_login')) {
+    /**
+     * Get a value from demo login configuration, or default if disabled.
+     */
+    function demo_login(?string $key = null, mixed $default = null): mixed
+    {
+        if (! demo_enabled()) {
+            return $default;
+        }
+
+        if ($key === null) {
+            return config('demo.login', []);
+        }
+
+        return config('demo.login.'.$key, $default);
+    }
+}
