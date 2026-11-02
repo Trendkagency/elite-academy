@@ -65,6 +65,16 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::post('/ajax/login', [LoginController::class, 'login'])->middleware('throttle:login')->name('ajax.login');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Demo One-Click Direct Login (Trendk Demo Standards)
+    Route::post('/demo/login/{role}', [\App\Http\Controllers\Demo\DemoLoginController::class, 'directLogin'])
+        ->middleware(['demo.only', 'throttle:10,1'])
+        ->name('demo.login');
+
+    // Portal Redirection Aliases
+    Route::redirect('/teacher', '/teacher-portal');
+    Route::redirect('/student', '/student-portal');
+    Route::redirect('/parent', '/parent-portal');
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/ajax/register', [RegisterController::class, 'register'])->middleware('throttle:register')->name('ajax.register');
 

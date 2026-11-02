@@ -69,6 +69,10 @@ class AdminPanelProvider extends PanelProvider
                 fn (): View => view('filament.hooks.head-styles')
             )
             ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn (): View => view('filament.hooks.demo-login-card')
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.hooks.ctrl-s-shortcut')
             )

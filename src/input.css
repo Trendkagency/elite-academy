@@ -6,8 +6,34 @@
 @source "../resources/views";
 @source "../index.html";
 /* Trendk Standard 3.6: Cairo for Arabic */
-[dir="rtl"], html[lang="ar"], :lang(ar) {
-    font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+html[dir="rtl"], html[lang="ar"], body[dir="rtl"] {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+}
+
+/* Font Awesome Icon Preservation - Never override icon glyphs with text fonts */
+.fa,
+.fas,
+.far,
+.fal,
+.fad,
+.fab,
+.fa-solid,
+.fa-regular,
+.fa-light,
+.fa-thin,
+.fa-duotone,
+.fa-brands,
+i[class*="fa-"],
+span[class*="fa-"] {
+    font-family: "Font Awesome 6 Free" !important;
+    font-style: normal;
+}
+.fa-brands,
+.fab,
+i[class*="fa-brands"],
+span[class*="fa-brands"] {
+    font-family: "Font Awesome 6 Brands" !important;
+    font-style: normal;
 }
 
 :root {
@@ -1488,3 +1514,45 @@ html.dark .skeleton-shimmer {
 
 
 
+
+/* ==========================================================================
+   Font Awesome & Icon Preservation (Overrides [dir=rtl] span/div !important)
+   ========================================================================== */
+.fa,
+.fas,
+.far,
+.fal,
+.fad,
+.fab,
+.fa-solid,
+.fa-regular,
+.fa-light,
+.fa-thin,
+.fa-duotone,
+.fa-brands,
+i[class*=fa-],
+span[class*=fa-],
+[class^=fa-],
+[class*= fa-] {
+    font-family: Font Awesome 6 Free !important;
+    font-style: normal !important;
+    font-weight: 900 !important;
+    display: inline-block;
+    line-height: 1;
+}
+
+.fa-brands,
+.fab,
+i[class*=fa-brands],
+span[class*=fa-brands] {
+    font-family: Font Awesome 6 Brands !important;
+    font-weight: 400 !important;
+}
+
+.fa-regular,
+.far,
+i[class*=fa-regular],
+span[class*=fa-regular] {
+    font-family: Font Awesome 6 Free !important;
+    font-weight: 400 !important;
+}

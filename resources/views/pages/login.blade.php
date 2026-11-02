@@ -1,6 +1,115 @@
 @extends('layouts.app')
 
+@php
+    if (demo_enabled()) {
+        $minimalLayout = true;
+    }
+@endphp
+
 @section('content')
+@if(demo_enabled())
+    <x-demo.login-shell>
+        {{-- Fallback Error / Success Alert Container --}}
+        <div id="authAlert" class="hidden p-3.5 rounded-2xl text-xs font-semibold transition-all duration-200"></div>
+
+        {{-- Dedicated Sign In Form --}}
+        <form id="signinForm" action="{{ route('ajax.login') }}" method="POST" class="space-y-4" novalidate>
+            @csrf
+            
+            {{-- Email Input with Real-time Validation --}}
+            <div class="space-y-1.5" id="group-email">
+                <div class="flex justify-between items-center">
+                    <label for="login-email" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.email_label') }}
+                    </label>
+                    <span id="email-live-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="email" 
+                        id="login-email"
+                        name="email" 
+                        required 
+                        autocomplete="email"
+                        placeholder="student@demo.test" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                    >
+                    <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-blue-600 dark:text-blue-400">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p id="email-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            {{-- Password Input with Show/Hide Toggle & Real-time Validation --}}
+            <div class="space-y-1.5" id="group-password">
+                <div class="flex justify-between items-center">
+                    <label for="login-password" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {{ __('auth.password_label') }}
+                    </label>
+                    <a href="#" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold">{{ __('auth.forgot_password') }}</a>
+                </div>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="login-password"
+                        name="password" 
+                        required 
+                        autocomplete="current-password"
+                        placeholder="••••••••" 
+                        class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none pe-10"
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePasswordBtn"
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'إظهار / إخفاء كلمة المرور' : 'Toggle password visibility' }}"
+                        class="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg focus:outline-none text-sm transition-colors cursor-pointer"
+                    >
+                        <svg id="togglePasswordSvg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <p id="password-feedback" class="hidden text-[11px] font-semibold transition-all"></p>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 font-medium">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                    <span>{{ __('auth.remember_me') }}</span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary w-full py-3 text-xs font-bold rounded-2xl transition-all shadow-md hover:shadow-lg text-white flex items-center justify-center gap-2" style="background-color: var(--brand-primary, #2563eb);">
+                <span id="btnText">{{ __('auth.sign_in_btn') }}</span>
+                <svg id="btnIconSvg" class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+                <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        {{-- Separate Register Link --}}
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {{ __('auth.dont_have_account') }}
+                <a href="{{ route('register') }}" class="font-bold text-blue-600 dark:text-blue-400 hover:underline ms-1 inline-flex items-center gap-1">
+                    <span>{{ __('auth.create_account_link') }}</span>
+                    <svg class="w-2.5 h-2.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </p>
+        </div>
+    </x-demo.login-shell>
+@else
 <section class="py-12 md:py-20 px-4 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-140px)] flex items-center justify-center transition-colors">
     <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
         <div class="text-center space-y-2">
@@ -109,6 +218,7 @@
         </div>
     </div>
 </section>
+@endif
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -134,14 +244,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
     // Toggle Password Visibility
-    if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+    if (togglePasswordBtn && passwordInput) {
         togglePasswordBtn.addEventListener('click', function () {
             const isPassword = passwordInput.type === 'password';
             passwordInput.type = isPassword ? 'text' : 'password';
-            if (isPassword) {
-                togglePasswordIcon.className = 'fa-solid fa-eye-slash';
-            } else {
-                togglePasswordIcon.className = 'fa-solid fa-eye';
+            const togglePasswordSvg = document.getElementById('togglePasswordSvg');
+            if (togglePasswordSvg) {
+                if (isPassword) {
+                    togglePasswordSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>';
+                } else {
+                    togglePasswordSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+                }
+            }
+            if (togglePasswordIcon) {
+                togglePasswordIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
             }
         });
     }
@@ -179,8 +295,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 feedbackEl.className = 'text-[11px] font-semibold text-rose-600 block';
             }
             if (badgeEl) {
-                badgeEl.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (isAr ? 'غير مسجل' : 'Not found');
-                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 block';
+                badgeEl.innerHTML = '<svg class="w-3 h-3 inline-block me-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' + (isAr ? 'غير مسجل' : 'Not found');
+                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 inline-flex items-center gap-1';
             }
         } else if (state === 'success') {
             input.classList.add('border-emerald-400', 'bg-emerald-50/40', 'focus:border-emerald-500', 'focus:ring-emerald-500/20');
@@ -189,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 feedbackEl.className = 'text-[11px] font-semibold text-emerald-600 block';
             }
             if (badgeEl) {
-                badgeEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' + (isAr ? 'حساب موجود' : 'Verified');
-                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 block';
+                badgeEl.innerHTML = '<svg class="w-3 h-3 inline-block me-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' + (isAr ? 'حساب موجود' : 'Verified');
+                badgeEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center gap-1';
             }
         } else {
             input.classList.add('border-slate-200', 'bg-slate-50');

@@ -29,8 +29,16 @@
         font-family: 'Cairo', sans-serif !important;
     }
     /* Trendk Standard 3.6: Cairo for Arabic */
-    [dir="rtl"], html[lang="ar"], :lang(ar) {
+    html[dir="rtl"], html[lang="ar"], body[dir="rtl"] {
         font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+    }
+
+    /* Preserve Font Awesome Icons */
+    .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands, i[class*="fa-"], span[class*="fa-"] {
+        font-family: "Font Awesome 6 Free" !important;
+    }
+    .fa-brands, .fab, i[class*="fa-brands"] {
+        font-family: "Font Awesome 6 Brands" !important;
     }
 
     /* --- Background & Overall Canvas --- */
@@ -2393,3 +2401,23 @@
         }, true);
     })();
 </script>
+
+@if(demo_enabled())
+<style>
+    /* Demo Dynamic Style Injection (Controlled by config/demo.php) */
+    :root {
+        --demo-primary: {{ config('demo.branding.primary_color', '#2563eb') }};
+        --demo-accent: {{ config('demo.branding.accent_color', '#f59e0b') }};
+    }
+    body.fi-simple-body {
+        @if(config('demo.login.background.type') === 'gradient')
+            background: linear-gradient(135deg, {{ config('demo.login.background.gradient.0', '#0f172a') }} 0%, {{ config('demo.login.background.gradient.1', '#2563eb') }} 100%) !important;
+        @elseif(config('demo.login.background.type') === 'color')
+            background-color: {{ config('demo.login.background.color', '#0f172a') }} !important;
+        @endif
+    }
+    .fi-simple-main {
+        border-radius: {{ config('demo.login.card.radius', '1rem') }} !important;
+    }
+</style>
+@endif

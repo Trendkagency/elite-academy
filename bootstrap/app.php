@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.admin' => \App\Http\Middleware\EnsureAdminRole::class,
             'permission' => \App\Http\Middleware\EnsureHasPermission::class,
             'redirect.teacher' => \App\Http\Middleware\RedirectTeacherToPortal::class,
+            'demo.only' => \App\Http\Middleware\EnsureDemoMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

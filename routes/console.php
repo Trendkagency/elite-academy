@@ -23,3 +23,11 @@ Schedule::command('collections:send-reminders')
     ->withoutOverlapping()
     ->runInBackground();
 
+if (function_exists('demo_enabled') && demo_enabled() && config('demo.reset.enabled', true)) {
+    Schedule::command('demo:reset --force')
+        ->dailyAt('03:00')
+        ->withoutOverlapping()
+        ->runInBackground();
+}
+
+
