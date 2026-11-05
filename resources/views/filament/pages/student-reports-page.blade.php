@@ -458,114 +458,233 @@
             }
 
             /* ================================================================
-               PROFESSIONAL PRINT STYLES — ELITE ACADEMY REPORT SYSTEM
+               EXECUTIVE PRINT STYLES — ZERO DARK MODE BLEED / CLEAN PAPER TRANSCRIPT
             ================================================================ */
             @media print {
-                /* --- Hide ALL admin UI chrome --- */
-                .no-print,
-                header, aside, nav,
-                .fi-sidebar, .fi-topbar, .fi-breadcrumbs,
-                .fi-header, .fi-pagination,
-                .rpt-topbar,
-                .rpt-tabs-nav,
-                [x-cloak] {
-                    display: none !important;
-                }
-
-                /* --- Reset page chrome --- */
+                /* 1. Universal Environment Reset: 100% White Paper & Deep Contrast */
                 *, *::before, *::after {
                     box-sizing: border-box !important;
+                    text-shadow: none !important;
+                    -webkit-filter: none !important;
+                    filter: none !important;
                 }
 
                 @page {
                     size: A4 portrait;
-                    margin: 18mm 16mm 20mm 16mm;
+                    margin: 12mm 14mm 16mm 14mm;
                 }
 
-                html, body {
-                    font-family: 'Cairo', sans-serif !important;
-                    font-size: 11pt !important;
-                    color: #0F172A !important;
+                :root, html, html.dark,
+                body, body.dark,
+                .fi-body, .fi-panel, .fi-panel-admin, .fi-layout, .fi-main, .fi-main-ctn, .fi-page, .fi-page-content,
+                .rpt-wrapper, .rpt-tabs-container, .rpt-tab-body {
                     background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    color: #0F172A !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+                    font-size: 9pt !important;
+                    line-height: 1.4 !important;
                     -webkit-print-color-adjust: exact !important;
                     print-color-adjust: exact !important;
                     color-adjust: exact !important;
                 }
 
-                /* --- Wrapper --- */
-                .rpt-wrapper {
-                    gap: 0 !important;
-                    animation: none !important;
-                    background: #FFFFFF !important;
+                /* 2. Hide ALL Screen UI Chrome & Navigation */
+                .no-print,
+                header, aside, nav,
+                .fi-sidebar, #fi-main-sidebar, .fi-topbar, .fi-breadcrumbs,
+                .fi-header, .fi-pagination, .fi-modal, .fi-dropdown,
+                .rpt-topbar,
+                .rpt-tabs-nav,
+                .rpt-btn,
+                .rpt-search-input,
+                .rpt-select,
+                .rpt-section-screen-title,
+                [x-cloak] {
+                    display: none !important;
+                    height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: hidden !important;
                 }
 
-                /* --- Show ALL tab sections when printing (not just active) --- */
-                .rpt-tab-body .rpt-print-section {
-                    display: block !important;
-                    page-break-inside: avoid;
-                }
-
-                /* --- Print Header --- */
+                /* 3. Executive Letterhead Header */
                 .rpt-print-header {
                     display: flex !important;
                     align-items: center;
                     justify-content: space-between;
-                    border-bottom: 3px solid #0D9488;
-                    padding-bottom: 12pt;
-                    margin-bottom: 14pt;
+                    border-bottom: 2.5pt solid #0D9488;
+                    padding-bottom: 8pt;
+                    margin-bottom: 12pt;
                 }
 
-                .rpt-print-logo-text {
-                    font-size: 20pt;
+                .rpt-print-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 8pt;
+                }
+
+                .rpt-print-logo-box {
+                    width: 32pt;
+                    height: 32pt;
+                    border-radius: 8pt;
+                    background: #0D9488 !important;
+                    color: #FFFFFF !important;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16pt;
                     font-weight: 900;
-                    color: #0D9488;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .rpt-print-brand-title {
+                    font-size: 16pt;
+                    font-weight: 900;
+                    color: #0F172A !important;
+                    line-height: 1.1;
                     letter-spacing: -0.02em;
                 }
 
-                .rpt-print-meta {
-                    font-size: 8.5pt;
-                    color: #64748B;
-                    text-align: right;
+                .rpt-print-brand-sub {
+                    font-size: 7.5pt;
+                    color: #64748B !important;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    margin-top: 2pt;
                 }
 
-                /* --- Hero Banner → print-friendly strip --- */
+                .rpt-print-meta {
+                    text-align: right;
+                    font-size: 7.5pt;
+                    color: #334155 !important;
+                    line-height: 1.45;
+                }
+                html[dir="rtl"] .rpt-print-meta {
+                    text-align: left;
+                }
+
+                /* 4. Student Demographics & Profile Strip */
                 .rpt-hero-banner {
-                    background: #0D9488 !important;
-                    color: #FFFFFF !important;
+                    background: #F8FAFC !important;
+                    background-color: #F8FAFC !important;
+                    border: 1.5pt solid #CBD5E1 !important;
                     border-radius: 8pt !important;
-                    padding: 12pt 14pt !important;
+                    padding: 10pt 12pt !important;
                     margin-bottom: 12pt !important;
                     box-shadow: none !important;
+                    color: #0F172A !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    page-break-inside: avoid;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
-                    color-adjust: exact;
                 }
 
-                /* --- KPI Grid --- */
+                .rpt-hero-title {
+                    font-size: 13pt !important;
+                    font-weight: 900 !important;
+                    color: #0F172A !important;
+                    margin: 0 !important;
+                }
+
+                .rpt-hero-meta {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 8pt !important;
+                    margin-top: 4pt !important;
+                    font-size: 7.5pt !important;
+                    color: #475569 !important;
+                }
+
+                .rpt-hero-meta span, .rpt-hero-meta i {
+                    color: #475569 !important;
+                }
+
+                .rpt-hero-badge {
+                    background: #FFFFFF !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    color: #0F172A !important;
+                    font-size: 7.5pt !important;
+                    padding: 2.5pt 6pt !important;
+                    border-radius: 4pt !important;
+                    font-weight: 700 !important;
+                }
+
+                .rpt-avatar {
+                    width: 40pt !important;
+                    height: 40pt !important;
+                    min-width: 40pt !important;
+                    border-radius: 8pt !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    box-shadow: none !important;
+                    background: #F1F5F9 !important;
+                }
+
+                .rpt-avatar img {
+                    width: 40pt !important;
+                    height: 40pt !important;
+                    border-radius: 7pt !important;
+                    object-fit: cover;
+                }
+
+                /* 5. Metric KPI Grid */
                 .rpt-grid-4 {
                     display: grid !important;
                     grid-template-columns: repeat(4, 1fr) !important;
                     gap: 8pt !important;
-                    margin-bottom: 12pt !important;
-                }
-
-                .rpt-kpi-card {
-                    border: 1px solid #E2E8F0 !important;
-                    border-radius: 6pt !important;
-                    padding: 8pt 10pt !important;
-                    box-shadow: none !important;
-                    background: #F8FAFC !important;
+                    margin-bottom: 14pt !important;
                     page-break-inside: avoid;
                 }
 
-                .rpt-kpi-value {
-                    font-size: 15pt !important;
+                .rpt-kpi-card, html.dark .rpt-kpi-card {
+                    background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    border-radius: 6pt !important;
+                    padding: 8pt 10pt !important;
+                    box-shadow: none !important;
+                    page-break-inside: avoid;
                 }
 
-                /* --- Tabs Content Section Box --- */
-                .rpt-tabs-container {
+                .rpt-kpi-label, html.dark .rpt-kpi-label {
+                    font-size: 7pt !important;
+                    font-weight: 800 !important;
+                    color: #64748B !important;
+                    text-transform: uppercase !important;
+                }
+
+                .rpt-kpi-value, html.dark .rpt-kpi-value {
+                    font-size: 14pt !important;
+                    font-weight: 900 !important;
+                    color: #0F172A !important;
+                    margin: 2pt 0 !important;
+                }
+
+                .rpt-kpi-desc, html.dark .rpt-kpi-desc {
+                    font-size: 7pt !important;
+                    color: #64748B !important;
+                }
+
+                .rpt-kpi-icon {
+                    display: none !important;
+                }
+
+                /* 6. Tabs & Sections Unhiding */
+                .rpt-tabs-container, html.dark .rpt-tabs-container {
                     border: none !important;
                     box-shadow: none !important;
+                    background: transparent !important;
                     border-radius: 0 !important;
                 }
 
@@ -573,113 +692,166 @@
                     padding: 0 !important;
                 }
 
-                /* --- Section headings in print --- */
+                .rpt-print-section {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    margin-bottom: 14pt !important;
+                    page-break-inside: auto;
+                }
+
                 .rpt-section-print-title {
                     display: flex !important;
                     align-items: center;
                     gap: 6pt;
-                    font-size: 12pt;
-                    font-weight: 900;
-                    color: #0F172A;
-                    border-left: 4pt solid #0D9488;
-                    padding-left: 8pt;
-                    margin: 16pt 0 8pt 0;
+                    font-size: 10.5pt !important;
+                    font-weight: 900 !important;
+                    color: #0F172A !important;
+                    border-bottom: 1.5pt solid #0D9488 !important;
+                    border-left: none !important;
+                    padding-bottom: 4pt !important;
+                    margin: 14pt 0 8pt 0 !important;
                     page-break-after: avoid;
                 }
 
-                /* --- Tables --- */
-                .rpt-table {
-                    font-size: 8.5pt !important;
-                    border-collapse: collapse !important;
-                }
-
-                .rpt-table th {
-                    background: #F1F5F9 !important;
-                    color: #0F172A !important;
-                    padding: 5pt 7pt !important;
-                    font-size: 8pt !important;
-                    border-bottom: 2px solid #E2E8F0 !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-
-                .rpt-table td {
-                    padding: 5pt 7pt !important;
-                    border-bottom: 1px solid #F1F5F9 !important;
-                    color: #1E293B !important;
-                }
-
-                .rpt-table-responsive {
-                    border: 1px solid #E2E8F0 !important;
-                    border-radius: 4pt !important;
-                    overflow: visible !important;
-                }
-
-                /* --- Item cards --- */
-                .rpt-item-card {
-                    border: 1px solid #E2E8F0 !important;
-                    background: #F8FAFC !important;
-                    border-radius: 5pt !important;
+                /* 7. Item Cards & Tables */
+                .rpt-item-card, html.dark .rpt-item-card {
+                    background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    border: 1pt solid #E2E8F0 !important;
+                    border-radius: 6pt !important;
                     padding: 8pt 10pt !important;
                     margin-bottom: 6pt !important;
                     box-shadow: none !important;
                     page-break-inside: avoid;
                 }
 
-                /* --- Badges / pills --- */
-                .rpt-pill, .rpt-badge {
-                    border: 1px solid #E2E8F0 !important;
-                    padding: 1pt 5pt !important;
+                .rpt-item-card h4 {
+                    color: #0F172A !important;
+                    font-size: 9pt !important;
+                    font-weight: 800 !important;
+                }
+
+                .rpt-table-responsive, html.dark .rpt-table-responsive {
+                    border: 1pt solid #CBD5E1 !important;
                     border-radius: 4pt !important;
+                    overflow: visible !important;
+                    margin-top: 6pt !important;
+                }
+
+                .rpt-table {
+                    width: 100% !important;
+                    border-collapse: collapse !important;
                     font-size: 7.5pt !important;
+                }
+
+                .rpt-table thead, html.dark .rpt-table thead {
+                    background: #F1F5F9 !important;
+                    background-color: #F1F5F9 !important;
+                    border-bottom: 1.5pt solid #CBD5E1 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                .rpt-pill-success { background: #DCFCE7 !important; color: #15803D !important; }
-                .rpt-pill-warning { background: #FEF3C7 !important; color: #B45309 !important; }
-                .rpt-pill-danger  { background: #FFE4E6 !important; color: #BE123C !important; }
-                .rpt-pill-info    { background: #CCFBF1 !important; color: #0F766E !important; }
 
-                /* --- Progress bar --- */
-                .rpt-progress-bg {
+                .rpt-table th, html.dark .rpt-table th {
+                    background: #F1F5F9 !important;
+                    color: #1E293B !important;
+                    padding: 5pt 6pt !important;
+                    font-size: 7.2pt !important;
+                    font-weight: 800 !important;
+                    border-bottom: 1.5pt solid #CBD5E1 !important;
+                    text-transform: uppercase !important;
+                }
+
+                .rpt-table td, html.dark .rpt-table td {
+                    padding: 4pt 6pt !important;
+                    border-bottom: 1pt solid #E2E8F0 !important;
+                    color: #0F172A !important;
+                    font-weight: 600 !important;
+                }
+
+                .rpt-table tbody tr {
+                    page-break-inside: avoid;
+                }
+
+                .rpt-table tbody tr:nth-child(even) {
+                    background: #F8FAFC !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                /* 8. Status Pills & Progress Bars */
+                .rpt-pill, .rpt-badge {
+                    padding: 1.5pt 5pt !important;
+                    border-radius: 3pt !important;
+                    font-size: 6.8pt !important;
+                    font-weight: 800 !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .rpt-pill-success { background: #DCFCE7 !important; color: #166534 !important; border-color: #86EFAC !important; }
+                .rpt-pill-warning { background: #FEF3C7 !important; color: #92400E !important; border-color: #FCD34D !important; }
+                .rpt-pill-danger  { background: #FEE2E2 !important; color: #991B1B !important; border-color: #FCA5A5 !important; }
+                .rpt-pill-info    { background: #E0F2FE !important; color: #075985 !important; border-color: #7DD3FC !important; }
+
+                .rpt-progress-bg, html.dark .rpt-progress-bg {
                     background: #E2E8F0 !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .rpt-progress-fill {
+                    height: 4pt !important;
+                    border-radius: 9999px !important;
+                    overflow: hidden !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
 
-                /* --- Print footer --- */
+                .rpt-progress-fill {
+                    background: #0D9488 !important;
+                    height: 100% !important;
+                    border-radius: 9999px !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                /* 9. Formal Institutional Sign-off Section */
+                .rpt-print-signatures {
+                    display: grid !important;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 15pt;
+                    margin-top: 18pt;
+                    padding-top: 14pt;
+                    border-top: 1pt solid #CBD5E1;
+                    page-break-inside: avoid;
+                }
+
+                .rpt-signature-box {
+                    text-align: center;
+                    font-size: 7.2pt;
+                    color: #475569;
+                }
+
+                .rpt-signature-line {
+                    margin-top: 24pt;
+                    border-bottom: 1pt solid #0F172A;
+                }
+
+                /* 10. Running Print Footer */
                 .rpt-print-footer {
                     display: block !important;
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
                     text-align: center;
-                    font-size: 7.5pt;
-                    color: #94A3B8;
-                    border-top: 1px solid #E2E8F0;
-                    padding-top: 5pt;
+                    font-size: 7pt;
+                    color: #94A3B8 !important;
+                    margin-top: 14pt;
+                    padding-top: 6pt;
+                    border-top: 0.5pt solid #E2E8F0;
+                    page-break-before: avoid;
                 }
 
-                /* --- Page breaks between sections --- */
                 .rpt-print-page-break {
                     display: block !important;
                     page-break-before: always !important;
                     height: 0 !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                }
-
-                /* --- Avatar in hero for print --- */
-                .rpt-avatar {
-                    background: rgba(255,255,255,0.25) !important;
-                    color: #FFFFFF !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
                 }
             }
         </style>
@@ -726,6 +898,25 @@
                 $metrics = $this->studentMetrics;
             @endphp
 
+            {{-- Print-only Executive Report Header (hidden on screen, displayed at very top of print) --}}
+            <div class="rpt-print-header" style="display: none;">
+                <div class="rpt-print-brand">
+                    <div class="rpt-print-logo-box">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div class="rpt-print-brand-title">{{ brand('app_name', 'EDU') }}</div>
+                        <div class="rpt-print-brand-sub">{{ __('Official Academic Transcript & Student Progress Dossier') }}</div>
+                    </div>
+                </div>
+                <div class="rpt-print-meta">
+                    <div><strong>{{ __('Student Name') }}:</strong> {{ $student->name }}</div>
+                    <div><strong>{{ __('Reference ID') }}:</strong> #STU-{{ str_pad($student->id, 5, '0', STR_PAD_LEFT) }}</div>
+                    <div><strong>{{ __('Grade Level') }}:</strong> {{ $student->studentProfile?->gradeLevel?->name ?? '-' }}</div>
+                    <div><strong>{{ __('Issue Date') }}:</strong> {{ now()->format('Y-m-d H:i') }}</div>
+                </div>
+            </div>
+
             {{-- Student Profile Hero Banner --}}
             <div class="rpt-hero-banner">
                 <div style="display: flex; align-items: center; gap: 1.25rem;">
@@ -745,7 +936,7 @@
                             @if($student->phone)
                                 <span><i class="fa-solid fa-phone" style="color: #5EEAD4; margin-right: 0.35rem;"></i> {{ $student->phone }}</span>
                             @endif
-                            <span><i class="fa-solid fa-school" style="color: #5EEAD4; margin-right: 0.35rem;"></i> {{ $student->studentProfile?->school_name ?: __('Elite Academy School') }}</span>
+                            <span><i class="fa-solid fa-school" style="color: #5EEAD4; margin-right: 0.35rem;"></i> {{ $student->studentProfile?->school_name ?: (brand('app_name', 'EDU') . ' ' . __('School')) }}</span>
                         </div>
                     </div>
                 </div>
@@ -859,18 +1050,7 @@
                     @endforeach
                 </div>
 
-                {{-- Print-only report header (hidden on screen) --}}
-                <div class="rpt-print-header" style="display: none;">
-                    <div>
-                        <div class="rpt-print-logo-text">&#9670; Elite Academy</div>
-                        <div style="font-size: 9pt; color: #64748B; margin-top: 2pt;">{{ __('Student Comprehensive Academic Report') }}</div>
-                    </div>
-                    <div class="rpt-print-meta">
-                        <div>{{ __('Student') }}: <strong>{{ $student->name }}</strong></div>
-                        <div>{{ __('Report Date') }}: {{ now()->format('Y-m-d H:i') }}</div>
-                        <div>{{ __('Grade Level') }}: {{ $student->studentProfile?->gradeLevel?->name ?? '-' }}</div>
-                    </div>
-                </div>
+
 
                 {{-- Tab Body --}}
                 <div class="rpt-tab-body">
@@ -1168,9 +1348,28 @@
                         </div>
                     </div>{{-- end section-exceptions --}}
 
-                    {{-- Print Footer (hidden on screen) --}}
+                    {{-- Formal Institutional Sign-off Section (Print Only) --}}
+                    <div class="rpt-print-signatures" style="display: none;">
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Academic Advisor / Counselor') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ __('Advisor Signature & Verification') }}</div>
+                        </div>
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Head of Academic Affairs') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ __('Registrar Signature') }}</div>
+                        </div>
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Official Institution Seal & Approval') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ brand('app_name', 'EDU') }} {{ __('Administration') }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Running Print Footer --}}
                     <div class="rpt-print-footer" style="display: none;">
-                        Elite Academy &mdash; {{ __('Confidential Student Report') }} &mdash; {{ now()->format('Y-m-d') }}
+                        {{ brand('app_name', 'EDU') }} &mdash; {{ __('Official Confidential Academic Progress Dossier') }} &mdash; {{ __('Issue Date') }}: {{ now()->format('Y-m-d H:i') }}
                     </div>
 
                 </div>{{-- end rpt-tab-body --}}
@@ -1187,34 +1386,29 @@
     {{-- Professional Print JavaScript --}}
     <script>
     function elitePrintReport() {
-        // Show all hidden sections
-        var sections = document.querySelectorAll('.rpt-print-section');
-        var sectionStates = [];
+        // Unhide all print sections and headers
+        const sections = document.querySelectorAll('.rpt-print-section');
+        const origDisplays = [];
         sections.forEach(function(sec) {
-            sectionStates.push(sec.style.display);
+            origDisplays.push(sec.style.display);
             sec.style.display = 'block';
         });
 
-        // Show print-only elements
-        var printEls = document.querySelectorAll('.rpt-print-header, .rpt-print-footer, .rpt-section-print-title');
-        var printElStates = [];
-        printEls.forEach(function(el) {
-            printElStates.push(el.style.display);
-            el.style.display = el.classList.contains('rpt-print-header') ? 'flex' : 'block';
+        const printHeaders = document.querySelectorAll('.rpt-print-header, .rpt-print-footer, .rpt-section-print-title, .rpt-print-signatures');
+        printHeaders.forEach(function(el) {
+            el.style.display = el.classList.contains('rpt-print-header') ? 'flex' : (el.classList.contains('rpt-print-signatures') ? 'grid' : 'block');
         });
 
-        // Trigger print
         window.print();
 
-        // Restore hidden state after print dialog
         setTimeout(function() {
             sections.forEach(function(sec, i) {
-                sec.style.display = sectionStates[i];
+                sec.style.display = origDisplays[i];
             });
-            printEls.forEach(function(el, i) {
-                el.style.display = printElStates[i];
+            printHeaders.forEach(function(el) {
+                el.style.display = 'none';
             });
-        }, 1000);
+        }, 1200);
     }
     </script>
 </x-filament-panels::page>

@@ -357,203 +357,325 @@
             html.dark .rpt-badge-danger { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
 
             /* ================================================================
-               PROFESSIONAL PRINT STYLES — ELITE ACADEMY TEACHER REPORT
+               EXECUTIVE PRINT STYLES — ZERO DARK MODE BLEED / CLEAN FACULTY DOSSIER
             ================================================================ */
             @media print {
-                /* --- Hide ALL admin UI chrome --- */
-                .no-print,
-                header, aside, nav,
-                .fi-sidebar, .fi-topbar, .fi-breadcrumbs,
-                .fi-header, .fi-pagination,
-                .rpt-topbar,
-                .rpt-tabs-header {
-                    display: none !important;
+                /* 1. Universal Environment Reset: 100% White Paper & Deep Contrast */
+                *, *::before, *::after {
+                    box-sizing: border-box !important;
+                    text-shadow: none !important;
+                    -webkit-filter: none !important;
+                    filter: none !important;
                 }
 
                 @page {
                     size: A4 portrait;
-                    margin: 18mm 16mm 20mm 16mm;
+                    margin: 12mm 14mm 16mm 14mm;
                 }
 
-                html, body {
-                    font-family: 'Cairo', sans-serif !important;
-                    font-size: 11pt !important;
-                    color: #0F172A !important;
+                :root, html, html.dark,
+                body, body.dark,
+                .fi-body, .fi-panel, .fi-panel-admin, .fi-layout, .fi-main, .fi-main-ctn, .fi-page, .fi-page-content,
+                .rpt-wrapper, .rpt-main-box {
                     background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    color: #0F172A !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+                    font-size: 9pt !important;
+                    line-height: 1.4 !important;
                     -webkit-print-color-adjust: exact !important;
                     print-color-adjust: exact !important;
                     color-adjust: exact !important;
                 }
 
-                .rpt-wrapper {
-                    gap: 0 !important;
-                    animation: none !important;
-                    background: #FFFFFF !important;
+                /* 2. Hide ALL Screen UI Chrome & Navigation */
+                .no-print,
+                header, aside, nav,
+                .fi-sidebar, #fi-main-sidebar, .fi-topbar, .fi-breadcrumbs,
+                .fi-header, .fi-pagination, .fi-modal, .fi-dropdown,
+                .rpt-topbar,
+                .rpt-tabs-header,
+                .rpt-btn,
+                .rpt-search-input,
+                .rpt-select,
+                [x-cloak] {
+                    display: none !important;
+                    height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: hidden !important;
                 }
 
-                /* --- Show ALL tab sections when printing --- */
-                .rpt-print-section {
-                    display: block !important;
-                    page-break-inside: avoid;
-                }
-
-                /* --- Print Header --- */
+                /* 3. Executive Letterhead Header */
                 .rpt-print-header {
                     display: flex !important;
                     align-items: center;
                     justify-content: space-between;
-                    border-bottom: 3px solid #4338CA;
-                    padding-bottom: 12pt;
-                    margin-bottom: 14pt;
-                }
-                .rpt-print-logo-text {
-                    font-size: 20pt;
-                    font-weight: 900;
-                    color: #4338CA;
-                    letter-spacing: -0.02em;
-                }
-                .rpt-print-meta {
-                    font-size: 8.5pt;
-                    color: #64748B;
-                    text-align: right;
+                    border-bottom: 2.5pt solid #4338CA;
+                    padding-bottom: 8pt;
+                    margin-bottom: 12pt;
                 }
 
-                /* --- Hero Banner → print strip --- */
-                .rpt-hero-teacher {
-                    background: #312E81 !important;
+                .rpt-print-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 8pt;
+                }
+
+                .rpt-print-logo-box {
+                    width: 32pt;
+                    height: 32pt;
+                    border-radius: 8pt;
+                    background: #4338CA !important;
                     color: #FFFFFF !important;
-                    border-radius: 8pt !important;
-                    padding: 12pt 14pt !important;
-                    margin-bottom: 12pt !important;
-                    box-shadow: none !important;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16pt;
+                    font-weight: 900;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
-                    color-adjust: exact;
                 }
 
-                /* --- KPI Grid --- */
+                .rpt-print-brand-title {
+                    font-size: 16pt;
+                    font-weight: 900;
+                    color: #0F172A !important;
+                    line-height: 1.1;
+                    letter-spacing: -0.02em;
+                }
+
+                .rpt-print-brand-sub {
+                    font-size: 7.5pt;
+                    color: #64748B !important;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    margin-top: 2pt;
+                }
+
+                .rpt-print-meta {
+                    text-align: right;
+                    font-size: 7.5pt;
+                    color: #334155 !important;
+                    line-height: 1.45;
+                }
+                html[dir="rtl"] .rpt-print-meta {
+                    text-align: left;
+                }
+
+                /* 4. Teacher Demographics & Profile Strip */
+                .rpt-hero-teacher {
+                    background: #F8FAFC !important;
+                    background-color: #F8FAFC !important;
+                    border: 1.5pt solid #CBD5E1 !important;
+                    border-radius: 8pt !important;
+                    padding: 10pt 12pt !important;
+                    margin-bottom: 12pt !important;
+                    box-shadow: none !important;
+                    color: #0F172A !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    page-break-inside: avoid;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .rpt-hero-teacher h2 {
+                    color: #0F172A !important;
+                    font-size: 13pt !important;
+                    font-weight: 900 !important;
+                }
+
+                .rpt-hero-teacher span, .rpt-hero-teacher i {
+                    color: #475569 !important;
+                }
+
+                .rpt-avatar {
+                    width: 40pt !important;
+                    height: 40pt !important;
+                    min-width: 40pt !important;
+                    border-radius: 8pt !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    box-shadow: none !important;
+                    background: #F1F5F9 !important;
+                }
+
+                .rpt-avatar img {
+                    width: 40pt !important;
+                    height: 40pt !important;
+                    border-radius: 7pt !important;
+                    object-fit: cover;
+                }
+
+                /* 5. Metric KPI Grid */
                 .rpt-grid-4 {
                     display: grid !important;
                     grid-template-columns: repeat(4, 1fr) !important;
                     gap: 8pt !important;
-                    margin-bottom: 12pt !important;
+                    margin-bottom: 14pt !important;
+                    page-break-inside: avoid;
                 }
-                .rpt-stat-card {
-                    border: 1px solid #E2E8F0 !important;
+
+                .rpt-stat-card, html.dark .rpt-stat-card {
+                    background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    border: 1pt solid #CBD5E1 !important;
                     border-radius: 6pt !important;
                     padding: 8pt 10pt !important;
                     box-shadow: none !important;
-                    background: #F8FAFC !important;
                     page-break-inside: avoid;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
                 }
 
-                /* --- Main box --- */
-                .rpt-main-box {
+                .rpt-stat-card p, html.dark .rpt-stat-card p {
+                    color: #64748B !important;
+                }
+
+                /* 6. Tabs & Sections Unhiding */
+                .rpt-main-box, html.dark .rpt-main-box {
                     border: none !important;
                     box-shadow: none !important;
+                    background: transparent !important;
                     border-radius: 0 !important;
                 }
 
-                /* --- Section headings in print --- */
+                .rpt-print-section {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    margin-bottom: 14pt !important;
+                    page-break-inside: auto;
+                }
+
                 .rpt-section-print-title {
                     display: flex !important;
                     align-items: center;
                     gap: 6pt;
-                    font-size: 12pt;
-                    font-weight: 900;
-                    color: #0F172A;
-                    border-left: 4pt solid #4338CA;
-                    padding-left: 8pt;
-                    margin: 14pt 0 8pt 0;
+                    font-size: 10.5pt !important;
+                    font-weight: 900 !important;
+                    color: #0F172A !important;
+                    border-bottom: 1.5pt solid #4338CA !important;
+                    border-left: none !important;
+                    padding-bottom: 4pt !important;
+                    margin: 14pt 0 8pt 0 !important;
                     page-break-after: avoid;
                 }
 
-                /* --- Tables --- */
-                .rpt-table {
-                    font-size: 8.5pt !important;
-                    border-collapse: collapse !important;
-                    width: 100% !important;
-                }
-                .rpt-table th {
-                    background: #F1F5F9 !important;
-                    color: #0F172A !important;
-                    padding: 5pt 7pt !important;
-                    font-size: 8pt !important;
-                    border-bottom: 2px solid #E2E8F0 !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-                .rpt-table td {
-                    padding: 5pt 7pt !important;
-                    border-bottom: 1px solid #F1F5F9 !important;
-                    color: #1E293B !important;
-                }
-                .rpt-table-container {
-                    border: 1px solid #E2E8F0 !important;
-                    border-radius: 4pt !important;
-                    overflow: visible !important;
-                }
-
-                /* --- Course cards --- */
-                .rpt-course-card {
-                    border: 1px solid #E2E8F0 !important;
-                    background: #F8FAFC !important;
-                    border-radius: 5pt !important;
+                /* 7. Cards & Tables */
+                .rpt-course-card, .rpt-note-card, html.dark .rpt-course-card, html.dark .rpt-note-card {
+                    background: #FFFFFF !important;
+                    background-color: #FFFFFF !important;
+                    border: 1pt solid #E2E8F0 !important;
+                    border-radius: 6pt !important;
                     padding: 8pt 10pt !important;
                     margin-bottom: 6pt !important;
                     box-shadow: none !important;
                     page-break-inside: avoid;
+                }
+
+                .rpt-table-container, html.dark .rpt-table-container {
+                    border: 1pt solid #CBD5E1 !important;
+                    border-radius: 4pt !important;
+                    overflow: visible !important;
+                    margin-top: 6pt !important;
+                }
+
+                .rpt-table {
+                    width: 100% !important;
+                    border-collapse: collapse !important;
+                    font-size: 7.5pt !important;
+                }
+
+                .rpt-table thead, html.dark .rpt-table thead {
+                    background: #F1F5F9 !important;
+                    background-color: #F1F5F9 !important;
+                    border-bottom: 1.5pt solid #CBD5E1 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
 
-                /* --- Note & exception cards --- */
-                .rpt-note-card {
-                    border: 1px solid #E2E8F0 !important;
-                    background: #F8FAFC !important;
-                    border-radius: 5pt !important;
-                    padding: 8pt 10pt !important;
-                    margin-bottom: 5pt !important;
-                    box-shadow: none !important;
+                .rpt-table th, html.dark .rpt-table th {
+                    background: #F1F5F9 !important;
+                    color: #1E293B !important;
+                    padding: 5pt 6pt !important;
+                    font-size: 7.2pt !important;
+                    font-weight: 800 !important;
+                    border-bottom: 1.5pt solid #CBD5E1 !important;
+                    text-transform: uppercase !important;
+                }
+
+                .rpt-table td, html.dark .rpt-table td {
+                    padding: 4pt 6pt !important;
+                    border-bottom: 1pt solid #E2E8F0 !important;
+                    color: #0F172A !important;
+                    font-weight: 600 !important;
+                }
+
+                .rpt-table tbody tr {
                     page-break-inside: avoid;
                 }
 
-                /* --- Badges --- */
+                .rpt-table tbody tr:nth-child(even) {
+                    background: #F8FAFC !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                /* 8. Status Badges */
                 .rpt-badge, .rpt-badge-success, .rpt-badge-info, .rpt-badge-warning, .rpt-badge-danger {
-                    border: 1px solid #E2E8F0 !important;
-                    padding: 1pt 5pt !important;
-                    border-radius: 4pt !important;
-                    font-size: 7.5pt !important;
+                    border: 1pt solid #CBD5E1 !important;
+                    padding: 1.5pt 5pt !important;
+                    border-radius: 3pt !important;
+                    font-size: 6.8pt !important;
+                    font-weight: 800 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                .rpt-badge-success { background: #DCFCE7 !important; color: #15803D !important; }
-                .rpt-badge-info    { background: #E0F2FE !important; color: #075985 !important; }
-                .rpt-badge-warning { background: #FEF3C7 !important; color: #92400E !important; }
-                .rpt-badge-danger  { background: #FEE2E2 !important; color: #991B1B !important; }
+                .rpt-badge-success { background: #DCFCE7 !important; color: #166534 !important; border-color: #86EFAC !important; }
+                .rpt-badge-info    { background: #E0F2FE !important; color: #075985 !important; border-color: #7DD3FC !important; }
+                .rpt-badge-warning { background: #FEF3C7 !important; color: #92400E !important; border-color: #FCD34D !important; }
+                .rpt-badge-danger  { background: #FEE2E2 !important; color: #991B1B !important; border-color: #FCA5A5 !important; }
 
-                /* --- Avatar --- */
-                .rpt-avatar {
-                    background: rgba(255,255,255,0.25) !important;
-                    color: #FFFFFF !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
+                /* 9. Sign-off Section */
+                .rpt-print-signatures {
+                    display: grid !important;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 15pt;
+                    margin-top: 18pt;
+                    padding-top: 14pt;
+                    border-top: 1pt solid #CBD5E1;
+                    page-break-inside: avoid;
                 }
 
-                /* --- Print footer --- */
+                .rpt-signature-box {
+                    text-align: center;
+                    font-size: 7.2pt;
+                    color: #475569;
+                }
+
+                .rpt-signature-line {
+                    margin-top: 24pt;
+                    border-bottom: 1pt solid #0F172A;
+                }
+
+                /* 10. Running Print Footer */
                 .rpt-print-footer {
                     display: block !important;
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
                     text-align: center;
-                    font-size: 7.5pt;
-                    color: #94A3B8;
-                    border-top: 1px solid #E2E8F0;
-                    padding-top: 5pt;
+                    font-size: 7pt;
+                    color: #94A3B8 !important;
+                    margin-top: 14pt;
+                    padding-top: 6pt;
+                    border-top: 0.5pt solid #E2E8F0;
+                    page-break-before: avoid;
                 }
             }
         </style>
@@ -602,6 +724,25 @@
                 $user = $teacher->user;
                 $metrics = $this->teacherMetrics;
             @endphp
+
+            {{-- Print-only Executive Faculty Dossier Header --}}
+            <div class="rpt-print-header" style="display: none;">
+                <div class="rpt-print-brand">
+                    <div class="rpt-print-logo-box">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <div class="rpt-print-brand-title">{{ brand('app_name', 'EDU') }}</div>
+                        <div class="rpt-print-brand-sub">{{ __('Official Faculty Instructor Comprehensive Dossier & Performance Record') }}</div>
+                    </div>
+                </div>
+                <div class="rpt-print-meta">
+                    <div><strong>{{ __('Faculty Member') }}:</strong> {{ $user?->name }}</div>
+                    <div><strong>{{ __('Faculty ID') }}:</strong> #FAC-{{ str_pad($teacher->id, 5, '0', STR_PAD_LEFT) }}</div>
+                    <div><strong>{{ __('Specialization') }}:</strong> {{ $teacher->specialization ?? $teacher->title ?? '-' }}</div>
+                    <div><strong>{{ __('Report Generated') }}:</strong> {{ now()->format('Y-m-d H:i') }}</div>
+                </div>
+            </div>
 
             {{-- Teacher Profile Banner Card --}}
             <div class="rpt-hero-teacher">
@@ -763,18 +904,7 @@
                 {{-- Tab Content Display --}}
                 <div style="padding: 1.5rem;">
 
-                    {{-- Print-only report header --}}
-                    <div class="rpt-print-header" style="display: none;">
-                        <div>
-                            <div class="rpt-print-logo-text">&#9670; Elite Academy</div>
-                            <div style="font-size: 9pt; color: #64748B; margin-top: 2pt;">{{ __('Teacher Comprehensive Faculty Report') }}</div>
-                        </div>
-                        <div class="rpt-print-meta">
-                            <div>{{ __('Teacher') }}: <strong>{{ $user?->name }}</strong></div>
-                            <div>{{ __('Report Date') }}: {{ now()->format('Y-m-d H:i') }}</div>
-                            <div>{{ __('Specialization') }}: {{ $teacher->specialization ?? $teacher->title ?? '-' }}</div>
-                        </div>
-                    </div>
+
 
                     {{-- 1. Assigned Courses Tab --}}
                     <div class="rpt-print-section" id="section-overview" style="{{ $activeTab !== 'overview' ? 'display:none;' : '' }}">
@@ -1092,6 +1222,29 @@
                             @endforelse
                         </div>
                     </div>{{-- end section-exceptions --}}
+                    {{-- Formal Institutional Sign-off Section (Print Only) --}}
+                    <div class="rpt-print-signatures" style="display: none;">
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Faculty Department Head') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ __('Department Chair Signature') }}</div>
+                        </div>
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Dean of Faculty & Academic Affairs') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ __('Academic Affairs Signature') }}</div>
+                        </div>
+                        <div class="rpt-signature-box">
+                            <div>{{ __('Official Institution Seal & Approval') }}</div>
+                            <div class="rpt-signature-line"></div>
+                            <div style="margin-top: 4pt; font-weight: 700;">{{ brand('app_name', 'EDU') }} {{ __('Administration') }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Running Print Footer --}}
+                    <div class="rpt-print-footer" style="display: none;">
+                        {{ brand('app_name', 'EDU') }} &mdash; {{ __('Official Confidential Faculty Performance Dossier') }} &mdash; {{ __('Issue Date') }}: {{ now()->format('Y-m-d H:i') }}
+                    </div>
                 </div>
             </div>
         @else
@@ -1102,4 +1255,32 @@
             </div>
         @endif
     </div>
+
+    {{-- Professional Print JavaScript --}}
+    <script>
+    function elitePrintReport() {
+        const sections = document.querySelectorAll('.rpt-print-section');
+        const origDisplays = [];
+        sections.forEach(function(sec) {
+            origDisplays.push(sec.style.display);
+            sec.style.display = 'block';
+        });
+
+        const printHeaders = document.querySelectorAll('.rpt-print-header, .rpt-print-footer, .rpt-section-print-title, .rpt-print-signatures');
+        printHeaders.forEach(function(el) {
+            el.style.display = el.classList.contains('rpt-print-header') ? 'flex' : (el.classList.contains('rpt-print-signatures') ? 'grid' : 'block');
+        });
+
+        window.print();
+
+        setTimeout(function() {
+            sections.forEach(function(sec, i) {
+                sec.style.display = origDisplays[i];
+            });
+            printHeaders.forEach(function(el) {
+                el.style.display = 'none';
+            });
+        }, 1200);
+    }
+    </script>
 </x-filament-panels::page>

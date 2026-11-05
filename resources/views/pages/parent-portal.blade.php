@@ -9,14 +9,17 @@
         display: none !important;
     }
     
-    body, html {
+    :root, html, html.dark, body, body.dark {
         background: #ffffff !important;
+        background-color: #ffffff !important;
         color: #0f172a !important;
         margin: 0 !important;
         padding: 0 !important;
         font-size: 11pt !important;
         font-family: 'Cairo', sans-serif !important;
         width: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     /* Print Container Styling */
@@ -365,7 +368,7 @@ async function loadStudentProgress(studentId) {
             {{-- Official Print Report Header --}}
             <div class="print-official-header hidden flex justify-between items-center pb-4 mb-4 border-b-2 border-teal-600">
                 <div class="space-y-1">
-                    <h2 class="font-heading font-black text-xl text-teal-950">أكاديمية إيليت — ELITE ACADEMY</h2>
+                    <h2 class="font-heading font-black text-xl text-teal-950">{{ brand('app_name', 'EDU') }}</h2>
                     <p class="text-xs font-mono text-slate-600">${isAr ? 'كشف تقرير الأداء الأكاديمي الرسمي والمتابعة الشاملة' : 'Official Student Academic Performance & Monitoring Report'}</p>
                 </div>
                 <div class="print-watermark-stamp text-xs font-mono font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-300">

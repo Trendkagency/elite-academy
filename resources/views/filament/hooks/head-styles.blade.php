@@ -2421,3 +2421,17 @@
     }
 </style>
 @endif
+
+<style>
+    /* Universal Filament Print Safety: Zero Dark Mode Bleed across all admin panels */
+    @media print {
+        :root, html, html.dark, body, body.dark,
+        .fi-body, .fi-panel, .fi-panel-admin, .fi-layout, .fi-main, .fi-main-ctn, .fi-page, .fi-page-content {
+            background: #FFFFFF !important;
+            background-color: #FFFFFF !important;
+            color: #0F172A !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+    }
+</style>
