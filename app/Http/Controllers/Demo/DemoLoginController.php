@@ -65,13 +65,7 @@ class DemoLoginController extends Controller
         $request->session()->regenerate();
 
         // 5. Determine destination redirect
-        $redirectUrl = match ($role) {
-            'admin' => url('/admin'),
-            'teacher' => route('teacher-portal'),
-            'student' => route('student-portal'),
-            'parent' => route('parent-portal'),
-            default => url((string) ($account['redirect'] ?? '/')),
-        };
+        $redirectUrl = url((string) ($account['redirect'] ?? '/'));
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -97,7 +91,7 @@ class DemoLoginController extends Controller
         $user = User::create([
             'name' => "Demo {$label}",
             'email' => $email,
-            'phone' => '+20109999000' . match ($role) {
+            'phone' => '+20109999000'.match ($role) {
                 'admin' => '1',
                 'teacher' => '2',
                 'student' => '3',
@@ -112,6 +106,7 @@ class DemoLoginController extends Controller
         match ($role) {
             'admin' => AdminProfile::firstOrCreate(['user_id' => $user->id]),
             'teacher' => TeacherProfile::firstOrCreate(['user_id' => $user->id], [
+                'slug' => 'demo-teacher-'.$user->id,
                 'specialization' => 'Mathematics & Science',
                 'bio' => 'Senior Instructor at Elite Academy Demo.',
             ]),

@@ -2415,9 +2415,39 @@
         @elseif(config('demo.login.background.type') === 'color')
             background-color: {{ config('demo.login.background.color', '#0f172a') }} !important;
         @endif
+        min-height: 100vh !important;
     }
-    .fi-simple-main {
+    
+    /* Login Container Dimensions — Executive Breathing Room for Role Cards */
+    body.fi-simple-body .fi-simple-main-ctn {
+        max-width: 32rem !important; /* 512px */
+        width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding: 1.5rem 1rem !important;
+    }
+    body.fi-simple-body .fi-simple-main {
+        max-width: 100% !important;
+        width: 100% !important;
         border-radius: {{ config('demo.login.card.radius', '1rem') }} !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+    }
+    html.dark body.fi-simple-body .fi-simple-main {
+        background-color: #0F172A !important;
+        border: 1px solid rgba(51, 65, 85, 0.7) !important;
+    }
+    html:not(.dark) body.fi-simple-body .fi-simple-main {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+
+    /* Universal SVG safety inside Filament login card */
+    body.fi-simple-body .demo-admin-login-hook svg,
+    body.fi-simple-body .demo-credentials-wrapper svg {
+        display: inline-block !important;
+        box-sizing: content-box !important;
+        vertical-align: middle !important;
+        flex-shrink: 0 !important;
     }
 </style>
 @endif
