@@ -45,10 +45,15 @@ class InfiniteScroll
         // The page size is the only thing that grows: the table stays one query, so selection,
         // grouping, summaries and actions behave exactly as on a normal page. The "all"
         // option and a remembered per-page choice would fight the growth.
-        return $table
+        $table
             ->paginated([$perPage])
             ->defaultPaginationPageOption($perPage)
-            ->paginationMode(PaginationMode::Default)
-            ->persistRecordsPerPageInSession(false);
+            ->paginationMode(PaginationMode::Default);
+
+        if (method_exists($table, 'persistRecordsPerPageInSession')) {
+            $table->persistRecordsPerPageInSession(false);
+        }
+
+        return $table;
     }
 }

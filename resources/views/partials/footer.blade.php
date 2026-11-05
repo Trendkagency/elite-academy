@@ -52,9 +52,9 @@
 
             {{-- Col 1: Brand & Tagline --}}
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
-                <a href="{{ route('home') }}" class="inline-block" aria-label="{{ brand('app_name', 'Elite Academy Homepage') }}">
-@if(demo_enabled())
-                    <img src="{{ brand_logo('dark') }}" alt="{{ brand('app_name', 'Elite Academy') }}" class="h-10 sm:h-12 w-auto object-contain mx-auto sm:mx-0" loading="lazy">
+                <a href="{{ route('home') }}" class="inline-block" aria-label="{{ brand('app_name', 'EDU') }}">
+                @if(demo_enabled())
+                    <x-demo.brand-logo size="md" theme="dark" :showPill="true" />
                 @else
                     <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="249" height="56"
                         class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">

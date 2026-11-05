@@ -87,7 +87,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <span>{{ $bannerText }}</span>
-            <span class="hidden sm:inline text-[11px] opacity-75 font-normal">({{ brand('app_name', 'Elite Academy Demo') }})</span>
+            <span class="hidden sm:inline text-[11px] opacity-75 font-normal">({{ brand('app_name', 'EDU') }})</span>
         </div>
     @endif
 
@@ -121,12 +121,7 @@
                 <div class="space-y-6 max-w-xl">
                     @if($showLogo)
                         <div class="mb-6">
-                            <img 
-                                src="{{ asset(brand_logo('dark')) }}" 
-                                alt="{{ brand('app_name') }}" 
-                                style="height: {{ $logoHeight }};"
-                                class="w-auto drop-shadow-md"
-                            />
+                            <x-demo.brand-logo size="lg" theme="dark" />
                         </div>
                     @endif
 
@@ -169,7 +164,7 @@
 
                 {{-- Footer info in side panel --}}
                 <div class="pt-8 border-t border-white/10 text-xs text-white/60 flex items-center justify-between">
-                    <span>{{ brand('footer_text', '© Elite Academy Demo') }}</span>
+                    <span>{{ brand('footer_text', '© ' . brand('app_name', 'EDU') . ' Demo') }}</span>
                     <span>{{ brand('support_email') }}</span>
                 </div>
             </div>
@@ -185,18 +180,7 @@
                 <div class="text-center space-y-2">
                     @if($showLogo && !$sideEnabled)
                         <div class="flex justify-center mb-4">
-                            <img 
-                                src="{{ asset(brand_logo('light')) }}" 
-                                alt="{{ brand('app_name') }}" 
-                                style="height: {{ $logoHeight }};"
-                                class="w-auto drop-shadow-sm dark:hidden"
-                            />
-                            <img 
-                                src="{{ asset(brand_logo('dark')) }}" 
-                                alt="{{ brand('app_name') }}" 
-                                style="height: {{ $logoHeight }};"
-                                class="w-auto drop-shadow-sm hidden dark:block"
-                            />
+                            <x-demo.brand-logo size="lg" theme="auto" />
                         </div>
                     @endif
 

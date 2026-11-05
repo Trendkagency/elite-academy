@@ -34,7 +34,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Elite Academy">
     <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
-    <title>{{ $pageTitle ?? 'Elite Academy Portal' }}</title>
+    <title>{{ $pageTitle ?? (demo_enabled() ? brand('app_name', 'EDU') . ' Portal' : 'Elite Academy Portal') }}</title>
 
     {{-- Enforce Pure Light Mode & Universal Modal Controller --}}
     <script>

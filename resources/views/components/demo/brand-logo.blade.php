@@ -5,7 +5,7 @@
 ])
 
 @php
-    $appName = brand('app_name', 'EDU');
+    $appName = config('demo.branding.app_name') ?: env('DEMO_APP_NAME', 'EDU');
     $sizeClasses = match($size) {
         'sm' => [
             'icon' => 'w-8 h-8 rounded-lg',

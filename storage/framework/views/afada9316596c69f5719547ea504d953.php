@@ -87,7 +87,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <span><?php echo e($bannerText); ?></span>
-            <span class="hidden sm:inline text-[11px] opacity-75 font-normal">(<?php echo e(brand('app_name', 'Elite Academy Demo')); ?>)</span>
+            <span class="hidden sm:inline text-[11px] opacity-75 font-normal">(<?php echo e(brand('app_name', 'EDU')); ?>)</span>
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -121,12 +121,28 @@
                 <div class="space-y-6 max-w-xl">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showLogo): ?>
                         <div class="mb-6">
-                            <img 
-                                src="<?php echo e(asset(brand_logo('dark'))); ?>" 
-                                alt="<?php echo e(brand('app_name')); ?>" 
-                                style="height: <?php echo e($logoHeight); ?>;"
-                                class="w-auto drop-shadow-md"
-                            />
+                            <?php if (isset($component)) { $__componentOriginal085934b43fd3da70e49af4c72aea18a0 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal085934b43fd3da70e49af4c72aea18a0 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.demo.brand-logo','data' => ['size' => 'lg','theme' => 'dark']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('demo.brand-logo'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['size' => 'lg','theme' => 'dark']); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $attributes = $__attributesOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $component = $__componentOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__componentOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -170,7 +186,7 @@
 
                 
                 <div class="pt-8 border-t border-white/10 text-xs text-white/60 flex items-center justify-between">
-                    <span><?php echo e(brand('footer_text', '© Elite Academy Demo')); ?></span>
+                    <span><?php echo e(brand('footer_text', '© ' . brand('app_name', 'EDU') . ' Demo')); ?></span>
                     <span><?php echo e(brand('support_email')); ?></span>
                 </div>
             </div>
@@ -186,18 +202,28 @@
                 <div class="text-center space-y-2">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showLogo && !$sideEnabled): ?>
                         <div class="flex justify-center mb-4">
-                            <img 
-                                src="<?php echo e(asset(brand_logo('light'))); ?>" 
-                                alt="<?php echo e(brand('app_name')); ?>" 
-                                style="height: <?php echo e($logoHeight); ?>;"
-                                class="w-auto drop-shadow-sm dark:hidden"
-                            />
-                            <img 
-                                src="<?php echo e(asset(brand_logo('dark'))); ?>" 
-                                alt="<?php echo e(brand('app_name')); ?>" 
-                                style="height: <?php echo e($logoHeight); ?>;"
-                                class="w-auto drop-shadow-sm hidden dark:block"
-                            />
+                            <?php if (isset($component)) { $__componentOriginal085934b43fd3da70e49af4c72aea18a0 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal085934b43fd3da70e49af4c72aea18a0 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.demo.brand-logo','data' => ['size' => 'lg','theme' => 'auto']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('demo.brand-logo'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['size' => 'lg','theme' => 'auto']); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $attributes = $__attributesOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $component = $__componentOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__componentOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 

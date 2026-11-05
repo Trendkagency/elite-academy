@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName(fn () => brand('app_name', 'Elite Academy'))
+            ->brandName(fn () => brand('app_name', 'EDU'))
             ->brandLogo(fn () => brand_logo('light', 'images/logo_500.webp'))
             ->darkModeBrandLogo(fn () => brand_logo('dark', 'images/logo_500.webp'))
             ->brandLogoHeight('2.6rem')
