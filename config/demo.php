@@ -15,7 +15,7 @@ return [
         'favicon' => 'demo/favicon.ico',
         'primary_color' => '#2563eb',
         'accent_color' => '#f59e0b',
-        'footer_text' => env('DEMO_FOOTER_TEXT', '© ' . env('DEMO_APP_NAME', 'EDU') . ' — for presentation only'),
+        'footer_text' => env('DEMO_FOOTER_TEXT', '© '.env('DEMO_APP_NAME', 'EDU').' — for presentation only'),
         'support_email' => 'demo@example.com',
         'support_phone' => '+20 100 000 0000',
         'currency' => ['code' => 'EGP', 'symbol_en' => 'EGP', 'symbol_ar' => 'ج.م'],
@@ -35,8 +35,8 @@ return [
     'login' => [
         'layout' => 'split',            // split | centered | card-left | card-right
         'heading' => [
-            'en' => 'Try ' . env('DEMO_APP_NAME', 'EDU'),
-            'ar' => 'جرّب ' . env('DEMO_APP_NAME_AR', env('DEMO_APP_NAME', 'EDU')),
+            'en' => 'Try '.env('DEMO_APP_NAME', 'EDU'),
+            'ar' => 'جرّب '.env('DEMO_APP_NAME_AR', env('DEMO_APP_NAME', 'EDU')),
         ],
         'subheading' => ['en' => 'Pick a role and sign in instantly.', 'ar' => 'اختر دورًا وسجّل الدخول فورًا.'],
         'show_logo' => true,
