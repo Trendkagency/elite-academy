@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class StudentProfile extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'user_id',
         'grade_level_id',
@@ -30,14 +33,13 @@ class StudentProfile extends Model
             if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
                 return $this->avatar;
             }
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
-                return asset('storage/' . $this->avatar);
+            if (Storage::disk('public')->exists($this->avatar)
+                || Storage::disk('local')->exists($this->avatar)) {
+                return asset('storage/'.$this->avatar);
             }
             if (file_exists(public_path($this->avatar))) {
                 return asset($this->avatar);
             }
-
-            return asset('storage/' . $this->avatar);
         }
 
         $name = urlencode($this->user?->name ?? 'Student');
@@ -65,7 +67,7 @@ class StudentProfile extends Model
         return $this->hasMany(CourseSessionProgress::class);
     }
 
-    public function subjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'student_subject', 'student_profile_id', 'subject_id');
     }

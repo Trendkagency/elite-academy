@@ -348,6 +348,12 @@ Route::get('/sitemap.xml', function () {
 
 // Resilient Storage Fallback Route: Serves files directly if public/storage symlink is not followed
 Route::get('storage/{path}', function (string $path) {
+    $path = ltrim($path, '/');
+
+    if ($path === '' || str_contains($path, '..') || str_starts_with(basename($path), '.')) {
+        abort(404, __('Resource not found'));
+    }
+
     // 1. Check if the file exists in storage/app/public/
     $publicPath = storage_path('app/public/' . $path);
     if (file_exists($publicPath) && !is_dir($publicPath)) {
@@ -359,18 +365,20 @@ Route::get('storage/{path}', function (string $path) {
     // 2. Check if the file was uploaded to storage/app/private/ (e.g. legacy uploads)
     $privatePath = storage_path('app/private/' . $path);
     if (file_exists($privatePath) && !is_dir($privatePath)) {
-        // Auto-migrate file to public storage folder for future direct web server serving
+        // Auto-migrate file to public storage folder with web-readable permissions
         @mkdir(dirname($publicPath), 0755, true);
+        @chmod(dirname($publicPath), 0755);
         @copy($privatePath, $publicPath);
+        @chmod($publicPath, 0644);
 
         return response()->file($privatePath, [
             'Cache-Control' => 'public, max-age=31536000',
         ]);
     }
 
-    // 3. Check directly under storage/app/
+    // 3. Check directly under storage/app/ (excluding private/ directory itself)
     $appPath = storage_path('app/' . $path);
-    if (file_exists($appPath) && !is_dir($appPath)) {
+    if (!str_starts_with($path, 'private/') && file_exists($appPath) && !is_dir($appPath)) {
         return response()->file($appPath, [
             'Cache-Control' => 'public, max-age=31536000',
         ]);

@@ -2,14 +2,17 @@
     RewriteEngine On
 
     # -------------------------------------------------------
-    # Security: Block direct access to sensitive files
+    # Security: Block direct access to sensitive internal files & storage internals
+    # (Allow public disk URLs under /storage/* to resolve via public/storage or Laravel)
     # -------------------------------------------------------
     RewriteRule ^\.env$ - [F,L,NC]
     RewriteRule ^\.env\..* - [F,L,NC]
     RewriteRule ^composer\.(json|lock)$ - [F,L,NC]
     RewriteRule ^package(-lock)?\.json$ - [F,L,NC]
     RewriteRule ^artisan$ - [F,L,NC]
-    RewriteRule ^(storage|bootstrap/cache)/ - [F,L,NC]
+    RewriteRule ^storage/?$ - [F,L,NC]
+    RewriteRule ^storage/(app|framework|logs|debugbar|clockwork)/ - [F,L,NC]
+    RewriteRule ^bootstrap/cache/ - [F,L,NC]
     RewriteRule ^(app|config|database|resources|routes|tests|vendor)/ - [F,L,NC]
 
     # -------------------------------------------------------
@@ -20,11 +23,12 @@
     RewriteCond %{REQUEST_URI} ^/public/ [NC]
     RewriteRule ^ - [L]
 
-    # Pass the real path to Apache so it can find files inside public/
+    # Pass real files inside public/ (e.g. /storage/avatars/..., /css/..., /js/...)
     RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
     RewriteRule ^(.*)$ public/$1 [L,QSA]
 
-    # Pass directories inside public/ (e.g. /storage symlink)
+    # Pass non-storage directories inside public/
+    RewriteCond %{REQUEST_URI} !^/storage(/|$) [NC]
     RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
     RewriteRule ^(.*)$ public/$1 [L,QSA]
 
