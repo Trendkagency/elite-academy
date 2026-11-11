@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\StudentProfiles\Pages;
 
+use App\Enums\AccountStatus;
 use App\Filament\Resources\StudentProfiles\StudentProfileResource;
-use App\Models\StudentProfile;
+use App\Services\Analytics\AdminDashboardMetricsService;
 use Filament\Actions\CreateAction;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class ListStudentProfiles extends ListRecords
 {
@@ -21,18 +22,23 @@ class ListStudentProfiles extends ListRecords
 
     public function getTabs(): array
     {
+        $metrics = app(AdminDashboardMetricsService::class);
+
         return [
             'all' => Tab::make(__('All Students'))
                 ->icon('heroicon-o-user-group')
-                ->badge(StudentProfile::count()),
+                ->badge($metrics->studentsQuery()->count())
+                ->modifyQueryUsing(fn ($query) => $metrics->applyUserStatusFilter($query)),
             'pending' => Tab::make(__('Pending Approval'))
                 ->icon('heroicon-o-clock')
-                ->badge(StudentProfile::whereHas('user', fn ($q) => $q->where('status', \App\Enums\AccountStatus::PENDING))->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('user', fn ($q) => $q->where('status', \App\Enums\AccountStatus::PENDING))),
+                ->badge($metrics->studentsQuery(AccountStatus::PENDING)->count())
+                ->badgeColor('warning')
+                ->modifyQueryUsing(fn ($query) => $metrics->applyUserStatusFilter($query, AccountStatus::PENDING)),
             'approved' => Tab::make(__('Approved'))
                 ->icon('heroicon-o-check-circle')
-                ->badge(StudentProfile::whereHas('user', fn ($q) => $q->where('status', \App\Enums\AccountStatus::APPROVED))->count())
-                ->modifyQueryUsing(fn ($query) => $query->whereHas('user', fn ($q) => $q->where('status', \App\Enums\AccountStatus::APPROVED))),
+                ->badge($metrics->studentsQuery(AccountStatus::APPROVED)->count())
+                ->badgeColor('success')
+                ->modifyQueryUsing(fn ($query) => $metrics->applyUserStatusFilter($query, AccountStatus::APPROVED)),
         ];
     }
 }

@@ -4,9 +4,10 @@ namespace App\Filament\Resources\StudentPackages\Pages;
 
 use App\Filament\Resources\StudentPackages\StudentPackageResource;
 use App\Models\StudentPackage;
+use App\Services\Analytics\AdminDashboardMetricsService;
 use Filament\Actions\CreateAction;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class ListStudentPackages extends ListRecords
 {
@@ -34,18 +35,31 @@ class ListStudentPackages extends ListRecords
 
     public function getTabs(): array
     {
+        $metrics = app(AdminDashboardMetricsService::class);
+
         return [
             'all' => Tab::make(__('All Packages'))
                 ->icon('heroicon-o-ticket')
                 ->badge(StudentPackage::count()),
+            'healthy' => Tab::make(app()->getLocale() === 'ar' ? 'باقات نشطة برصيد متاح' : 'Healthy Active Credits')
+                ->icon('heroicon-o-shield-check')
+                ->badge($metrics->packagesHealthyQuery()->count())
+                ->badgeColor('success')
+                ->modifyQueryUsing(fn ($query) => $metrics->applyPackagesHealthy($query)),
             'active' => Tab::make(__('Active Packages'))
                 ->icon('heroicon-o-check-circle')
-                ->badge(StudentPackage::where('status', 'active')->count())
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'active')),
+                ->badge($metrics->packagesActiveQuery()->count())
+                ->modifyQueryUsing(fn ($query) => $metrics->applyPackagesActive($query)),
             'pending' => Tab::make(__('Pending Payments'))
                 ->icon('heroicon-o-clock')
-                ->badge(StudentPackage::where('status', 'pending')->count())
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'pending')),
+                ->badge($metrics->packagesPendingQuery()->count())
+                ->badgeColor('warning')
+                ->modifyQueryUsing(fn ($query) => $metrics->applyPackagesPending($query)),
+            'exhausted' => Tab::make(app()->getLocale() === 'ar' ? 'مستنفدة / منتهية الرصيد' : 'Exhausted / Zero Credits')
+                ->icon('heroicon-o-exclamation-circle')
+                ->badge($metrics->packagesExhaustedQuery()->count())
+                ->badgeColor('danger')
+                ->modifyQueryUsing(fn ($query) => $metrics->applyPackagesExhausted($query)),
         ];
     }
 }

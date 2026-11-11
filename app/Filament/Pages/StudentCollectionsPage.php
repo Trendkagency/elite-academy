@@ -2,18 +2,20 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\PackageTemplate;
 use App\Models\RecurringSchedule;
 use App\Models\StudentPackage;
 use App\Models\User;
+use App\Services\Analytics\AdminDashboardMetricsService;
 use App\Services\Notification\FcmNotificationService;
 use App\Services\Session\RecurringScheduleService;
 use BackedEnum;
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Url;
 
 class StudentCollectionsPage extends Page
@@ -40,25 +42,39 @@ class StudentCollectionsPage extends Page
 
     // Modals
     public bool $showKpiDetailModal = false;
+
     public ?string $inspectedKpi = null;
 
     public bool $showRenewModal = false;
+
     public ?int $renewingPackageId = null;
+
     public int $newTotalSessions = 12;
+
     public ?int $newTemplateId = null;
+
     public ?string $newExpiresAt = null;
+
     public string $renewReason = 'تجديد الباقة وتحصيل الاشتراك';
 
     public bool $showAddCreditsModal = false;
+
     public ?int $addCreditsPackageId = null;
+
     public int $creditsToAdd = 5;
 
     public bool $showExtendScheduleModal = false;
+
     public ?int $extendingScheduleId = null;
+
     public string $newScheduleEndDate = '';
+
     public string $extendReason = 'تجديد الدورة الشهرية للجدول الدوري';
+
     public ?string $extendingScheduleTitle = null;
+
     public ?string $extendingScheduleStudentName = null;
+
     public ?string $extendingScheduleCurrentEndDate = null;
 
     public function mount(): void
@@ -91,21 +107,8 @@ class StudentCollectionsPage extends Page
 
     public static function getNavigationBadge(): ?string
     {
-        $pkgCount = StudentPackage::whereIn('status', ['active', 'exhausted'])
-            ->where(function ($q) {
-                $q->where('remaining_sessions', '<=', 3)
-                  ->orWhere(function ($eq) {
-                      $eq->whereNotNull('expires_at')->where('expires_at', '<=', now()->addDays(7));
-                  });
-            })
-            ->count();
+        $total = app(AdminDashboardMetricsService::class)->getCollectionsDueCount();
 
-        $schCount = RecurringSchedule::where('status', 'active')
-            ->whereNotNull('end_date')
-            ->where('end_date', '<=', now()->addDays(14))
-            ->count();
-
-        $total = $pkgCount + $schCount;
         return $total > 0 ? (string) $total : null;
     }
 
@@ -163,6 +166,7 @@ class StudentCollectionsPage extends Page
         if ($this->activeTab === 'schedules') {
             return in_array($this->scheduleFilter, ['ending_soon', 'ended'], true) ? $this->scheduleFilter : null;
         }
+
         return null;
     }
 
@@ -311,9 +315,9 @@ class StudentCollectionsPage extends Page
             ->whereIn('status', ['active', 'exhausted'])
             ->where(function ($q) use ($now) {
                 $q->where('remaining_sessions', '<=', 3)
-                  ->orWhere(function ($eq) use ($now) {
-                      $eq->whereNotNull('expires_at')->where('expires_at', '<=', $now->copy()->addDays(7));
-                  });
+                    ->orWhere(function ($eq) use ($now) {
+                        $eq->whereNotNull('expires_at')->where('expires_at', '<=', $now->copy()->addDays(7));
+                    });
             })
             ->with([
                 'studentUser.studentProfile.gradeLevel',
@@ -327,22 +331,22 @@ class StudentCollectionsPage extends Page
             $query->where(function ($q) use ($s) {
                 $q->whereHas('studentUser', function ($sq) use ($s) {
                     $sq->where('name', 'like', "%{$s}%")
-                       ->orWhere('phone', 'like', "%{$s}%")
-                       ->orWhere('email', 'like', "%{$s}%")
-                       ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
+                        ->orWhere('phone', 'like', "%{$s}%")
+                        ->orWhere('email', 'like', "%{$s}%")
+                        ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
                 })
-                ->orWhereHas('packageTemplate', fn ($pq) => $pq->where('name', 'like', "%{$s}%"))
-                ->orWhereHas('course', function ($cq) use ($s) {
-                    $cq->where('title', 'like', "%{$s}%")
-                       ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
-                })
-                ->orWhereIn('student_user_id', function ($sub) use ($s) {
-                    $sub->select('parent_student.student_user_id')
-                        ->from('parent_student')
-                        ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
-                        ->where('parent_users.name', 'like', "%{$s}%")
-                        ->orWhere('parent_users.phone', 'like', "%{$s}%");
-                });
+                    ->orWhereHas('packageTemplate', fn ($pq) => $pq->where('name', 'like', "%{$s}%"))
+                    ->orWhereHas('course', function ($cq) use ($s) {
+                        $cq->where('title', 'like', "%{$s}%")
+                            ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
+                    })
+                    ->orWhereIn('student_user_id', function ($sub) use ($s) {
+                        $sub->select('parent_student.student_user_id')
+                            ->from('parent_student')
+                            ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
+                            ->where('parent_users.name', 'like', "%{$s}%")
+                            ->orWhere('parent_users.phone', 'like', "%{$s}%");
+                    });
             });
         }
 
@@ -360,7 +364,7 @@ class StudentCollectionsPage extends Page
             ->get();
 
         // Enhance with Parent contacts and clean WhatsApp Links
-        return $results->map(function (StudentPackage $pkg) use ($now) {
+        return $results->map(function (StudentPackage $pkg) {
             $student = $pkg->studentUser;
             $parent = null;
             if ($student) {
@@ -378,10 +382,10 @@ class StudentCollectionsPage extends Page
             $pkgName = $pkg->packageTemplate?->name ?: ($pkg->course ? $pkg->course->title : 'الباقة التعليمية');
             $rem = $pkg->remaining_sessions;
 
-            $messageText = "مرحباً ولي أمر الطالب " . ($student?->name ?? '') . "، نود إحاطتكم بأن رصيد باقة ({$pkgName}) متبقي به {$rem} حصص فقط. نرجو التكرم بسداد الاشتراك وتجديد الباقة لمتابعة الحصص الدراسية بانتظام. أكاديمية إيليت.";
+            $messageText = 'مرحباً ولي أمر الطالب '.($student?->name ?? '')."، نود إحاطتكم بأن رصيد باقة ({$pkgName}) متبقي به {$rem} حصص فقط. نرجو التكرم بسداد الاشتراك وتجديد الباقة لمتابعة الحصص الدراسية بانتظام. أكاديمية إيليت.";
 
-            $studentWhatsAppUrl = $cleanStudentPhone ? "https://wa.me/{$cleanStudentPhone}?text=" . urlencode($messageText) : null;
-            $parentWhatsAppUrl = $cleanParentPhone ? "https://wa.me/{$cleanParentPhone}?text=" . urlencode($messageText) : null;
+            $studentWhatsAppUrl = $cleanStudentPhone ? "https://wa.me/{$cleanStudentPhone}?text=".urlencode($messageText) : null;
+            $parentWhatsAppUrl = $cleanParentPhone ? "https://wa.me/{$cleanParentPhone}?text=".urlencode($messageText) : null;
 
             // Expiry countdown text
             $expiryCountdown = null;
@@ -391,7 +395,7 @@ class StudentCollectionsPage extends Page
                     $expiryCountdown = 'منتهية الصلاحية';
                     $isExpired = true;
                 } else {
-                    $expiryCountdown = 'تنتهي ' . $pkg->expires_at->diffForHumans();
+                    $expiryCountdown = 'تنتهي '.$pkg->expires_at->diffForHumans();
                 }
             }
 
@@ -445,27 +449,27 @@ class StudentCollectionsPage extends Page
             $s = trim($this->searchQuery);
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
-                  ->orWhereHas('studentUser', function ($sq) use ($s) {
-                      $sq->where('name', 'like', "%{$s}%")
-                         ->orWhere('phone', 'like', "%{$s}%")
-                         ->orWhere('email', 'like', "%{$s}%")
-                         ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
-                  })
-                  ->orWhereHas('teacherProfile.user', function ($tq) use ($s) {
-                      $tq->where('name', 'like', "%{$s}%")
-                         ->orWhere('phone', 'like', "%{$s}%");
-                  })
-                  ->orWhereHas('course', function ($cq) use ($s) {
-                      $cq->where('title', 'like', "%{$s}%")
-                         ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
-                  })
-                  ->orWhereIn('student_user_id', function ($sub) use ($s) {
-                      $sub->select('parent_student.student_user_id')
-                          ->from('parent_student')
-                          ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
-                          ->where('parent_users.name', 'like', "%{$s}%")
-                          ->orWhere('parent_users.phone', 'like', "%{$s}%");
-                  });
+                    ->orWhereHas('studentUser', function ($sq) use ($s) {
+                        $sq->where('name', 'like', "%{$s}%")
+                            ->orWhere('phone', 'like', "%{$s}%")
+                            ->orWhere('email', 'like', "%{$s}%")
+                            ->orWhereHas('studentProfile.gradeLevel', fn ($gq) => $gq->where('name', 'like', "%{$s}%"));
+                    })
+                    ->orWhereHas('teacherProfile.user', function ($tq) use ($s) {
+                        $tq->where('name', 'like', "%{$s}%")
+                            ->orWhere('phone', 'like', "%{$s}%");
+                    })
+                    ->orWhereHas('course', function ($cq) use ($s) {
+                        $cq->where('title', 'like', "%{$s}%")
+                            ->orWhereHas('subject', fn ($sub) => $sub->where('name', 'like', "%{$s}%"));
+                    })
+                    ->orWhereIn('student_user_id', function ($sub) use ($s) {
+                        $sub->select('parent_student.student_user_id')
+                            ->from('parent_student')
+                            ->join('users as parent_users', 'parent_users.id', '=', 'parent_student.parent_user_id')
+                            ->where('parent_users.name', 'like', "%{$s}%")
+                            ->orWhere('parent_users.phone', 'like', "%{$s}%");
+                    });
             });
         }
 
@@ -509,7 +513,7 @@ class StudentCollectionsPage extends Page
             foreach ($sch->days_of_week ?? [] as $d) {
                 $daysList[] = $dayNamesMap[$d] ?? (string) $d;
             }
-            $daysFormatted = !empty($daysList) ? implode('، ', $daysList) : 'أسبوعي';
+            $daysFormatted = ! empty($daysList) ? implode('، ', $daysList) : 'أسبوعي';
 
             // WhatsApp link for Schedule Cycle Extension
             $cleanStudentPhone = $this->formatWhatsAppPhone($student?->phone);
@@ -517,10 +521,10 @@ class StudentCollectionsPage extends Page
             $endDateFormatted = $sch->end_date ? $sch->end_date->format('Y/m/d') : '';
             $courseTitle = $sch->course?->title ?: $sch->title;
 
-            $messageText = "مرحباً ولي أمر الطالب " . ($student?->name ?? '') . "، نود تذكيركم بأن دورة الجدول الأسبوعي لمقرر ({$courseTitle}) ستنتهي بتاريخ {$endDateFormatted} (متبقي {$remainingSessionsCount} حصص). نرجو التكرم بتأكيد الرغبة في تجديد الجدول للشهر القادم وسداد الاشتراك. أكاديمية إيليت.";
+            $messageText = 'مرحباً ولي أمر الطالب '.($student?->name ?? '')."، نود تذكيركم بأن دورة الجدول الأسبوعي لمقرر ({$courseTitle}) ستنتهي بتاريخ {$endDateFormatted} (متبقي {$remainingSessionsCount} حصص). نرجو التكرم بتأكيد الرغبة في تجديد الجدول للشهر القادم وسداد الاشتراك. أكاديمية إيليت.";
 
-            $studentWhatsAppUrl = $cleanStudentPhone ? "https://wa.me/{$cleanStudentPhone}?text=" . urlencode($messageText) : null;
-            $parentWhatsAppUrl = $cleanParentPhone ? "https://wa.me/{$cleanParentPhone}?text=" . urlencode($messageText) : null;
+            $studentWhatsAppUrl = $cleanStudentPhone ? "https://wa.me/{$cleanStudentPhone}?text=".urlencode($messageText) : null;
+            $parentWhatsAppUrl = $cleanParentPhone ? "https://wa.me/{$cleanParentPhone}?text=".urlencode($messageText) : null;
 
             // Countdown Status
             $isPast = $sch->end_date->isPast();
@@ -528,10 +532,10 @@ class StudentCollectionsPage extends Page
                 $statusBadge = 'الدورة انتهت وتحتاج تمديداً';
                 $statusColor = 'danger';
             } elseif ($sch->end_date->diffInDays($now) <= 3) {
-                $statusBadge = 'متبقي ' . $sch->end_date->diffForHumans();
+                $statusBadge = 'متبقي '.$sch->end_date->diffForHumans();
                 $statusColor = 'danger';
             } else {
-                $statusBadge = 'تنتهي ' . $sch->end_date->diffForHumans();
+                $statusBadge = 'تنتهي '.$sch->end_date->diffForHumans();
                 $statusColor = 'warning';
             }
 
@@ -561,7 +565,9 @@ class StudentCollectionsPage extends Page
     public function openRenewPackageModal(int $packageId): void
     {
         $pkg = StudentPackage::find($packageId);
-        if (! $pkg) return;
+        if (! $pkg) {
+            return;
+        }
 
         $this->renewingPackageId = $pkg->id;
         $this->newTotalSessions = $pkg->total_sessions ?: 12;
@@ -576,12 +582,16 @@ class StudentCollectionsPage extends Page
      */
     public function submitRenewPackage(): void
     {
-        if (! $this->renewingPackageId) return;
+        if (! $this->renewingPackageId) {
+            return;
+        }
 
         $pkg = StudentPackage::find($this->renewingPackageId);
-        if (! $pkg) return;
+        if (! $pkg) {
+            return;
+        }
 
-        $newExpiry = !empty($this->newExpiresAt) ? Carbon::parse($this->newExpiresAt) : null;
+        $newExpiry = ! empty($this->newExpiresAt) ? Carbon::parse($this->newExpiresAt) : null;
 
         $pkg->renewPackage(
             newTotalSessions: (int) $this->newTotalSessions,
@@ -617,13 +627,19 @@ class StudentCollectionsPage extends Page
      */
     public function submitAddCredits(): void
     {
-        if (! $this->addCreditsPackageId) return;
+        if (! $this->addCreditsPackageId) {
+            return;
+        }
 
         $pkg = StudentPackage::find($this->addCreditsPackageId);
-        if (! $pkg) return;
+        if (! $pkg) {
+            return;
+        }
 
         $n = (int) $this->creditsToAdd;
-        if ($n <= 0) return;
+        if ($n <= 0) {
+            return;
+        }
 
         $pkg->increment('remaining_sessions', $n);
         $pkg->increment('total_sessions', $n);
@@ -646,7 +662,9 @@ class StudentCollectionsPage extends Page
     public function sendPaymentReminder(int $packageId, FcmNotificationService $fcmService): void
     {
         $pkg = StudentPackage::find($packageId);
-        if (! $pkg || ! $pkg->studentUser) return;
+        if (! $pkg || ! $pkg->studentUser) {
+            return;
+        }
 
         $student = $pkg->studentUser;
         $title = 'تنبيه: تجديد رصيد الباقة التعليمية';
@@ -681,7 +699,9 @@ class StudentCollectionsPage extends Page
     public function openExtendScheduleModal(int $scheduleId): void
     {
         $sch = RecurringSchedule::with(['studentUser', 'course'])->find($scheduleId);
-        if (! $sch) return;
+        if (! $sch) {
+            return;
+        }
 
         $this->extendingScheduleId = $sch->id;
         $this->extendingScheduleTitle = $sch->title ?: ($sch->course?->title ?? 'جدول دوري');
@@ -702,16 +722,18 @@ class StudentCollectionsPage extends Page
     {
         if (! $this->extendingScheduleId || empty($this->newScheduleEndDate)) {
             Notification::make()->title(__('يرجى تحديد تاريخ نهاية الدورة الجديد'))->warning()->send();
+
             return;
         }
 
         $sch = RecurringSchedule::find($this->extendingScheduleId);
         if (! $sch) {
             $this->showExtendScheduleModal = false;
+
             return;
         }
 
-        $user = auth()->user() ?: \Filament\Facades\Filament::auth()->user() ?: User::whereHas('adminProfile')->first();
+        $user = auth()->user() ?: Filament::auth()->user() ?: User::whereHas('adminProfile')->first();
 
         try {
             $generated = $service->extendScheduleCycle(
@@ -732,7 +754,7 @@ class StudentCollectionsPage extends Page
                 ]))
                 ->success()
                 ->send();
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $firstMsg = collect($e->errors())->flatten()->first() ?: $e->getMessage();
             Notification::make()
                 ->title(__('تنبيه في تاريخ التمديد'))
@@ -754,12 +776,14 @@ class StudentCollectionsPage extends Page
     public function sendScheduleRenewalReminder(int $scheduleId, FcmNotificationService $fcmService): void
     {
         $sch = RecurringSchedule::with(['student', 'course', 'subject'])->find($scheduleId);
-        if (! $sch) return;
+        if (! $sch) {
+            return;
+        }
 
         $student = $sch->student;
         $title = 'تنبيه: اقتراب انتهاء دورة الجدول الدراسي';
         $endDateStr = $sch->end_date ? Carbon::parse($sch->end_date)->format('Y-m-d') : '';
-        $body = "مرحباً" . ($student ? " {$student->name}" : '') . "، نود تذكيركم باقتراب موعد انتهاء الدورة الشهرية الحالية للجدول الدراسي ({$sch->title}) في تاريخ {$endDateStr}. يرجى مراجعة إدارة الأكاديمية لتأكيد تجديد الاشتراك واستمرار الحصص.";
+        $body = 'مرحباً'.($student ? " {$student->name}" : '')."، نود تذكيركم باقتراب موعد انتهاء الدورة الشهرية الحالية للجدول الدراسي ({$sch->title}) في تاريخ {$endDateStr}. يرجى مراجعة إدارة الأكاديمية لتأكيد تجديد الاشتراك واستمرار الحصص.";
 
         if ($student) {
             $fcmService->sendNotification($student, 'schedule_reminder', $title, $body, '/student-portal');
@@ -791,13 +815,17 @@ class StudentCollectionsPage extends Page
      */
     private function formatWhatsAppPhone(?string $phone): ?string
     {
-        if (! $phone) return null;
+        if (! $phone) {
+            return null;
+        }
         $clean = preg_replace('/[^0-9]/', '', $phone);
-        if (empty($clean)) return null;
+        if (empty($clean)) {
+            return null;
+        }
 
         // If local Egyptian phone 01XXXXXXXXX -> 201XXXXXXXXX
         if (str_starts_with($clean, '01') && strlen($clean) === 11) {
-            $clean = '2' . $clean;
+            $clean = '2'.$clean;
         }
 
         return $clean;

@@ -4,9 +4,10 @@ namespace App\Filament\Resources\LiveSessions\Pages;
 
 use App\Filament\Resources\LiveSessions\LiveSessionResource;
 use App\Models\LiveSession;
+use App\Services\Analytics\AdminDashboardMetricsService;
 use Filament\Actions\CreateAction;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class ListLiveSessions extends ListRecords
 {
@@ -22,44 +23,43 @@ class ListLiveSessions extends ListRecords
 
     public function getTabs(): array
     {
+        $metrics = app(AdminDashboardMetricsService::class);
+
         return [
             'all' => Tab::make(app()->getLocale() === 'ar' ? 'جميع الحصص' : 'All Sessions')
                 ->badge(LiveSession::count()),
 
             'today' => Tab::make(app()->getLocale() === 'ar' ? '📅 حصص اليوم' : '📅 Today')
-                ->badge(LiveSession::where(function ($q) {
-                    $q->whereDate('scheduled_at', today())->orWhereDate('start_at', today());
-                })->count())
-                ->modifyQueryUsing(fn ($query) => $query->where(function ($q) {
-                    $q->whereDate('scheduled_at', today())->orWhereDate('start_at', today());
-                })),
+                ->badge($metrics->sessionsTodayQuery()->count())
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsToday($query)),
 
             'live' => Tab::make(app()->getLocale() === 'ar' ? '🔴 جارية الآن / البث المباشر' : '🔴 In Progress / Live')
-                ->badge(LiveSession::whereIn('status', ['in_progress', 'live', 'link_visible'])->count())
+                ->badge($metrics->sessionsLiveNowQuery()->count())
                 ->badgeColor('success')
-                ->modifyQueryUsing(fn ($query) => $query->whereIn('status', ['in_progress', 'live', 'link_visible'])),
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsLiveNow($query)),
 
             'upcoming' => Tab::make(app()->getLocale() === 'ar' ? '⏳ الحصص القادمة' : '⏳ Upcoming')
-                ->badge(LiveSession::where(function ($q) {
-                    $q->where('scheduled_at', '>', now())->orWhere('start_at', '>', now());
-                })->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])->count())
-                ->modifyQueryUsing(fn ($query) => $query->where(function ($q) {
-                    $q->where('scheduled_at', '>', now())->orWhere('start_at', '>', now());
-                })->whereNotIn('status', ['completed', 'cancelled', 'cancelled_by_teacher'])),
+                ->badge($metrics->sessionsUpcomingQuery()->count())
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsUpcoming($query)),
 
             'free_demo' => Tab::make(app()->getLocale() === 'ar' ? '🎓 تجريبية مجانية' : '🎓 Free Demo')
-                ->badge(LiveSession::where('is_free_demo', true)->count())
+                ->badge($metrics->sessionsFreeDemoQuery()->count())
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn ($query) => $query->where('is_free_demo', true)),
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsFreeDemo($query)),
+
+            'regular' => Tab::make(app()->getLocale() === 'ar' ? '📘 حصص المنهج الأساسية' : '📘 Regular Curriculum')
+                ->badge($metrics->sessionsRegularQuery()->count())
+                ->badgeColor('info')
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsRegular($query)),
 
             'completed' => Tab::make(app()->getLocale() === 'ar' ? '✅ المكتملة' : '✅ Completed')
-                ->badge(LiveSession::where('status', 'completed')->count())
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'completed')),
+                ->badge($metrics->sessionsCompletedQuery()->count())
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsCompleted($query)),
 
             'cancelled' => Tab::make(app()->getLocale() === 'ar' ? '❌ الملغاة' : '❌ Cancelled')
-                ->badge(LiveSession::whereIn('status', ['cancelled', 'cancelled_by_teacher'])->count())
+                ->badge($metrics->sessionsCancelledQuery()->count())
                 ->badgeColor('danger')
-                ->modifyQueryUsing(fn ($query) => $query->whereIn('status', ['cancelled', 'cancelled_by_teacher'])),
+                ->modifyQueryUsing(fn ($query) => $metrics->applySessionsCancelled($query)),
         ];
     }
 }

@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use App\Enums\LiveSessionState;
+use App\Services\Notification\FcmNotificationService;
 use App\Services\Session\LiveSessionService;
+use App\Services\Session\SessionAttendanceDeductionService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class LiveSession extends Model
 {
@@ -59,7 +65,7 @@ class LiveSession extends Model
             static $columns = null;
             if ($columns === null) {
                 try {
-                    $columns = \Illuminate\Support\Facades\Schema::getColumnListing('live_sessions');
+                    $columns = Schema::getColumnListing('live_sessions');
                 } catch (\Throwable $e) {
                     $columns = null;
                 }
@@ -126,29 +132,37 @@ class LiveSession extends Model
         });
 
         static::created(function (LiveSession $session) {
-            $service = app(\App\Services\Notification\FcmNotificationService::class);
+            $service = app(FcmNotificationService::class);
             try {
                 $service->notifyTeacherSessionAssigned($session);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('[FCM] notifyTeacherSessionAssigned failed: ' . $e->getMessage());
+                Log::error('[FCM] notifyTeacherSessionAssigned failed: '.$e->getMessage());
             }
 
             // Notify admins about new session creation (wrapped to not break session creation on failure)
             try {
                 $service->notifyAdminSessionCreated($session);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionCreated failed: ' . $e->getMessage());
+                Log::error('[FCM] notifyAdminSessionCreated failed: '.$e->getMessage());
             }
 
             // Ensure StudentSession record exists if 1-to-1 session
             if ($session->student_user_id) {
-                \App\Models\StudentSession::firstOrCreate(
+                $mappedSessionStatus = match ($session->status) {
+                    'completed' => 'completed',
+                    'cancelled', 'cancelled_by_teacher' => 'cancelled',
+                    'in_progress', 'live', 'link_visible', 'active' => 'active',
+                    'closed' => 'closed',
+                    default => 'scheduled',
+                };
+
+                StudentSession::firstOrCreate(
                     [
                         'live_session_id' => $session->id,
                         'student_user_id' => $session->student_user_id,
                     ],
                     [
-                        'session_status' => $session->status ?: 'scheduled',
+                        'session_status' => $mappedSessionStatus,
                     ]
                 );
             }
@@ -168,7 +182,7 @@ class LiveSession extends Model
                     ]);
                     $session->updateQuietly(['course_session_id' => $courseSession->id]);
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('[LiveSession] CourseSession auto-sync skipped: ' . $e->getMessage());
+                    Log::warning('[LiveSession] CourseSession auto-sync skipped: '.$e->getMessage());
                 }
             }
         });
@@ -186,7 +200,7 @@ class LiveSession extends Model
         });
 
         static::updated(function (LiveSession $session) {
-            $service = app(\App\Services\Notification\FcmNotificationService::class);
+            $service = app(FcmNotificationService::class);
 
             // A. Status change handlers
             if ($session->wasChanged('status')) {
@@ -198,7 +212,7 @@ class LiveSession extends Model
                     'closed' => 'closed',
                     default => 'scheduled',
                 };
-                \App\Models\StudentSession::where('live_session_id', $session->id)
+                StudentSession::where('live_session_id', $session->id)
                     ->update(['session_status' => $studentSessionStatus]);
 
                 match ($session->status) {
@@ -213,18 +227,18 @@ class LiveSession extends Model
                         try {
                             $service->notifyAdminSessionCancelled($session);
                         } catch (\Throwable $e) {
-                            \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionCancelled failed: ' . $e->getMessage());
+                            Log::error('[FCM] notifyAdminSessionCancelled failed: '.$e->getMessage());
                         }
 
                         // Auto-refund package credits if student was previously deducted
                         try {
-                            $deductionService = app(\App\Services\Session\SessionAttendanceDeductionService::class);
+                            $deductionService = app(SessionAttendanceDeductionService::class);
                             $studentIds = $deductionService->getStudentIdsForSession($session);
                             foreach ($studentIds as $sId) {
                                 $deductionService->refundIfPreviouslyDeducted($session, (int) $sId, auth()->user(), 'Auto-refund on session cancellation');
                             }
                         } catch (\Throwable $e) {
-                            \Illuminate\Support\Facades\Log::error('[LiveSession] Refund on cancellation failed: ' . $e->getMessage());
+                            Log::error('[LiveSession] Refund on cancellation failed: '.$e->getMessage());
                         }
                     })(),
                     'rescheduled' => (function () use ($service, $session) {
@@ -233,7 +247,7 @@ class LiveSession extends Model
                         try {
                             $service->notifyAdminSessionRescheduled($session);
                         } catch (\Throwable $e) {
-                            \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionRescheduled failed: ' . $e->getMessage());
+                            Log::error('[FCM] notifyAdminSessionRescheduled failed: '.$e->getMessage());
                         }
                     })(),
                     default => null,
@@ -257,7 +271,7 @@ class LiveSession extends Model
                 // Synchronize associated assignments due dates (due 24h before session start)
                 $effectiveStart = $session->effective_start_at;
                 if ($effectiveStart) {
-                    \App\Models\Assignment::where('live_session_id', $session->id)
+                    Assignment::where('live_session_id', $session->id)
                         ->update(['due_at' => $effectiveStart->copy()->subDay()]);
                 }
 
@@ -268,7 +282,7 @@ class LiveSession extends Model
                     try {
                         $service->notifyAdminSessionRescheduled($session);
                     } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('[FCM] notifyAdminSessionRescheduled failed: ' . $e->getMessage());
+                        Log::error('[FCM] notifyAdminSessionRescheduled failed: '.$e->getMessage());
                     }
                 }
             }
@@ -277,12 +291,12 @@ class LiveSession extends Model
             if ($session->wasChanged('student_user_id')) {
                 $oldStudentId = $session->getOriginal('student_user_id');
                 if ($oldStudentId && (int) $oldStudentId !== (int) $session->student_user_id) {
-                    \App\Models\StudentSession::where('live_session_id', $session->id)
+                    StudentSession::where('live_session_id', $session->id)
                         ->where('student_user_id', $oldStudentId)
                         ->delete();
                 }
                 if ($session->student_user_id) {
-                    \App\Models\StudentSession::updateOrCreate(
+                    StudentSession::updateOrCreate(
                         [
                             'live_session_id' => $session->id,
                             'student_user_id' => $session->student_user_id,
@@ -370,7 +384,7 @@ class LiveSession extends Model
         return $this->belongsTo(RecurringSchedule::class, 'recurring_schedule_id');
     }
 
-    public function auditLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function auditLogs(): HasMany
     {
         return $this->hasMany(SessionAuditLog::class, 'live_session_id');
     }
@@ -380,7 +394,7 @@ class LiveSession extends Model
         return $this->belongsTo(User::class, 'student_user_id');
     }
 
-    public function assignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class, 'live_session_id');
     }
@@ -400,22 +414,22 @@ class LiveSession extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function sessionMeeting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function sessionMeeting(): HasOne
     {
         return $this->hasOne(SessionMeeting::class, 'live_session_id');
     }
 
-    public function studentSessions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function studentSessions(): HasMany
     {
         return $this->hasMany(StudentSession::class, 'live_session_id');
     }
 
-    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function attendances(): HasMany
     {
         return $this->hasMany(MeetingAttendance::class, 'live_session_id');
     }
 
-    public function securityEvents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function securityEvents(): HasMany
     {
         return $this->hasMany(MeetingSecurityEvent::class, 'live_session_id');
     }
@@ -426,6 +440,7 @@ class LiveSession extends Model
             if (in_array($this->status, ['in_progress', 'completed'], true) && $this->start_at) {
                 return $this->start_at;
             }
+
             return $this->scheduled_at ?: $this->start_at;
         }
 
@@ -473,6 +488,7 @@ class LiveSession extends Model
     public function getJoinableAtAttribute(): ?Carbon
     {
         $start = $this->effective_start_at;
+
         return $start ? $start->copy()->subMinutes(30) : null;
     }
 
