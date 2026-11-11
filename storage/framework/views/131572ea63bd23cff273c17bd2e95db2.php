@@ -35,7 +35,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Elite Academy">
     <link rel="apple-touch-icon" href="<?php echo e(asset('images/icon-192.png')); ?>">
-    <title><?php echo e($pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt'); ?></title>
+    <title><?php echo e($pageTitle ?? (demo_enabled() ? brand('app_name', 'EDU') . ' - LMS Platform' : 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt')); ?></title>
     <meta name="description"
         content="<?php echo e($pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.'); ?>">
     <meta name="keywords"

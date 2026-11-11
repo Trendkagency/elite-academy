@@ -206,7 +206,7 @@ class LiveSession extends Model
             if ($session->wasChanged('status')) {
                 // Sync status to associated student_sessions respecting enum: ['scheduled', 'active', 'completed', 'cancelled', 'closed']
                 $studentSessionStatus = match ($session->status) {
-                    'in_progress', 'link_visible' => 'active',
+                    'in_progress', 'live', 'link_visible', 'active' => 'active',
                     'completed' => 'completed',
                     'cancelled', 'cancelled_by_teacher' => 'cancelled',
                     'closed' => 'closed',
@@ -296,13 +296,21 @@ class LiveSession extends Model
                         ->delete();
                 }
                 if ($session->student_user_id) {
+                    $mappedStatus = match ($session->status) {
+                        'completed' => 'completed',
+                        'cancelled', 'cancelled_by_teacher' => 'cancelled',
+                        'in_progress', 'live', 'link_visible', 'active' => 'active',
+                        'closed' => 'closed',
+                        default => 'scheduled',
+                    };
+
                     StudentSession::updateOrCreate(
                         [
                             'live_session_id' => $session->id,
                             'student_user_id' => $session->student_user_id,
                         ],
                         [
-                            'session_status' => $session->status ?: 'scheduled',
+                            'session_status' => $mappedStatus,
                         ]
                     );
                 }

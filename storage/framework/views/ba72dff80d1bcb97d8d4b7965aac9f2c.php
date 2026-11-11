@@ -52,9 +52,30 @@
 
             
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
-                <a href="<?php echo e(route('home')); ?>" class="inline-block" aria-label="<?php echo e(brand('app_name', 'Elite Academy Homepage')); ?>">
-<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
-                    <img src="<?php echo e(brand_logo('dark')); ?>" alt="<?php echo e(brand('app_name', 'Elite Academy')); ?>" class="h-10 sm:h-12 w-auto object-contain mx-auto sm:mx-0" loading="lazy">
+                <a href="<?php echo e(route('home')); ?>" class="inline-block" aria-label="<?php echo e(brand('app_name', 'EDU')); ?>">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(demo_enabled()): ?>
+                    <?php if (isset($component)) { $__componentOriginal085934b43fd3da70e49af4c72aea18a0 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal085934b43fd3da70e49af4c72aea18a0 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.demo.brand-logo','data' => ['size' => 'md','theme' => 'dark','showPill' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('demo.brand-logo'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['size' => 'md','theme' => 'dark','showPill' => true]); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $attributes = $__attributesOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__attributesOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal085934b43fd3da70e49af4c72aea18a0)): ?>
+<?php $component = $__componentOriginal085934b43fd3da70e49af4c72aea18a0; ?>
+<?php unset($__componentOriginal085934b43fd3da70e49af4c72aea18a0); ?>
+<?php endif; ?>
                 <?php else: ?>
                     <img src="<?php echo e(asset('images/logo_500.webp')); ?>" alt="Elite Academy Logo" width="249" height="56"
                         class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">

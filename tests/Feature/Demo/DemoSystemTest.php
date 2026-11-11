@@ -34,7 +34,7 @@ class DemoSystemTest extends TestCase
             $response->assertStatus(302);
             $response->assertRedirect($expectedRedirect);
             $this->assertAuthenticated();
-            $this->assertEquals("{$role}@demo.test", auth()->user()->email);
+            $this->assertEquals("{$role}@trendk.com", auth()->user()->email);
             auth()->logout();
         }
     }
