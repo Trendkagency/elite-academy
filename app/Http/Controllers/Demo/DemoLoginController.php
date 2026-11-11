@@ -44,7 +44,7 @@ class DemoLoginController extends Controller
         $targetEmail = strtolower(trim((string) $account['email']));
 
         // Security rule: Never allow support@trendk.com to be logged in via direct login
-        if ($targetEmail === 'support@trendk.com' || str_contains($targetEmail, 'trendk.com')) {
+        if ($targetEmail === 'support@trendk.com') {
             abort(403, 'Direct login for this account is prohibited.');
         }
 

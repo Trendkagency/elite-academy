@@ -81,10 +81,10 @@ class DemoInstallCommand extends Command
         $this->table(
             ['Role', 'Email', 'Password', 'Target Redirect'],
             [
-                ['Admin', 'admin@demo.test', config('demo.credentials.password', 'Demo@12345'), '/admin'],
-                ['Teacher', 'teacher@demo.test', config('demo.credentials.password', 'Demo@12345'), '/teacher (teacher-portal)'],
-                ['Student', 'student@demo.test', config('demo.credentials.password', 'Demo@12345'), '/student (student-portal)'],
-                ['Parent', 'parent@demo.test', config('demo.credentials.password', 'Demo@12345'), '/parent (parent-portal)'],
+                ['Admin', 'admin@trendk.com', config('demo.credentials.password', 'password'), '/admin'],
+                ['Teacher', 'teacher@trendk.com', config('demo.credentials.password', 'password'), '/teacher (teacher-portal)'],
+                ['Student', 'student@trendk.com', config('demo.credentials.password', 'password'), '/student (student-portal)'],
+                ['Parent', 'parent@trendk.com', config('demo.credentials.password', 'password'), '/parent (parent-portal)'],
                 ['Support (Hidden)', 'support@trendk.com', 'password', 'Gate::before bypass (Super Admin)'],
             ]
         );

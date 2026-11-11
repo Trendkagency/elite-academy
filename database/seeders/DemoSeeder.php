@@ -3,6 +3,12 @@
 namespace Database\Seeders;
 
 use App\Enums\AccountStatus;
+use App\Enums\CourseStatus;
+use App\Enums\LiveSessionState;
+use App\Enums\MeetingAttendanceStatus;
+use App\Enums\MeetingProviderSlug;
+use App\Enums\PackageTransactionType;
+use App\Enums\PaymentStatus;
 use App\Enums\SessionProgressStatus;
 use App\Enums\SubmissionStatus;
 use App\Models\AdminProfile;
@@ -16,20 +22,27 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSession;
 use App\Models\CourseSessionProgress;
+use App\Models\ExceptionRequest;
 use App\Models\GradeLevel;
 use App\Models\HeroSlide;
 use App\Models\LiveSession;
+use App\Models\MeetingAttendance;
+use App\Models\MeetingProvider;
 use App\Models\PackageTemplate;
 use App\Models\PackageTransaction;
 use App\Models\ParentProfile;
+use App\Models\SessionMeeting;
+use App\Models\SiteSetting;
+use App\Models\StudentEducationalNote;
 use App\Models\StudentPackage;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\TeacherProfile;
+use App\Models\Testimonial;
 use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
@@ -45,21 +58,10 @@ class DemoSeeder extends Seeder
             return;
         }
 
-        $this->command?->info('🌱 Starting Elite Academy Demo Seeder (V2 Config-Driven)...');
+        $this->command?->info('🌱 Starting Elite Academy Master Demo Seeder (Trendk Standard)...');
 
-        $demoPassword = config('demo.credentials.password', 'Demo@12345');
+        $demoPassword = config('demo.credentials.password', 'password');
         $hashedDemoPassword = Hash::make($demoPassword);
-        $seedVolume = config('demo.seed', [
-            'teachers' => 6,
-            'students' => 30,
-            'parents' => 20,
-            'courses' => 8,
-            'sessions_per_course' => 12,
-            'assignments_per_course' => 3,
-            'packages' => 10,
-            'articles' => 6,
-            'hero_slides' => 3,
-        ]);
 
         // -------------------------------------------------------------
         // 0. Ensure Spatie RBAC Roles Exist
@@ -73,28 +75,28 @@ class DemoSeeder extends Seeder
         // -------------------------------------------------------------
         // 1. Trendk Standard 3.1: Hidden Super Admin
         // -------------------------------------------------------------
-        $supportUser = User::firstOrCreate(
+        $supportUser = User::updateOrCreate(
             ['email' => 'support@trendk.com'],
             [
-                'name' => 'Trendk Support',
+                'name' => 'Trendk Support — الإدارة الفنية والتقنية',
                 'phone' => '+201000000000',
-                'password' => Hash::make('password'),
+                'password' => $hashedDemoPassword,
                 'status' => AccountStatus::APPROVED,
                 'email_verified_at' => now(),
             ]
         );
         AdminProfile::firstOrCreate(['user_id' => $supportUser->id]);
-        $supportUser->assignRole($roleSuperAdmin);
+        $supportUser->syncRoles([$roleSuperAdmin]);
 
         // -------------------------------------------------------------
-        // 2. Demo Target Accounts (Admin, Teacher, Student, Parent)
+        // 2. Demo Target Accounts (@trendk.com)
         // -------------------------------------------------------------
-        // Admin
+        // Admin (Principal)
         $demoAdmin = User::updateOrCreate(
-            ['email' => 'admin@demo.test'],
+            ['email' => 'admin@trendk.com'],
             [
-                'name' => 'Demo Administrator — المدير التجريبي',
-                'phone' => '+201000000099',
+                'name' => 'د. عبد الرحمن شاهين — المدير العام الأكاديمي',
+                'phone' => '+201000000001',
                 'password' => $hashedDemoPassword,
                 'status' => AccountStatus::APPROVED,
                 'email_verified_at' => now(),
@@ -103,12 +105,12 @@ class DemoSeeder extends Seeder
         AdminProfile::firstOrCreate(['user_id' => $demoAdmin->id]);
         $demoAdmin->syncRoles([$roleSuperAdmin, $roleAdmin]);
 
-        // Teacher
+        // Teacher (Senior Physics Lead)
         $demoTeacherUser = User::updateOrCreate(
-            ['email' => 'teacher@demo.test'],
+            ['email' => 'teacher@trendk.com'],
             [
-                'name' => 'Demo Teacher — د. طارق الشناوي',
-                'phone' => '+201000000098',
+                'name' => 'د. طارق الشناوي — كبير معلمي الفيزياء',
+                'phone' => '+201000000002',
                 'password' => $hashedDemoPassword,
                 'status' => AccountStatus::APPROVED,
                 'email_verified_at' => now(),
@@ -116,27 +118,27 @@ class DemoSeeder extends Seeder
         );
         $demoTeacherUser->syncRoles([$roleTeacher]);
         $demoTeacherProfile = TeacherProfile::updateOrCreate(
-            ['user_id' => $demoTeacherUser->id],
+            ['slug' => 'demo-teacher-tarek'],
             [
-                'slug' => 'demo-teacher-tarek',
+                'user_id' => $demoTeacherUser->id,
                 'title' => 'كبير معلمي الفيزياء والفيزياء الحديثة للثانوية العامة',
                 'specialization' => 'Physics',
-                'bio' => 'معلم تجريبي معتمد لأكاديمية إيليت. حاصل على دكتوراه في الفيزياء التطبيقية مع أكثر من 16 عاماً من الخبرة في تبسيط المفاهيم المعقدة وتأهيل أوائل الجمهورية.',
-                'years_experience' => 16,
-                'rating_avg' => 4.95,
-                'students_count' => 1850,
+                'bio' => 'معلم أول معتمد لدى أكاديمية النخبة التعليمية، حاصل على دكتوراه في الفيزياء التطبيقية مع أكثر من 18 عاماً في تأهيل أوائل الجمهورية ومدارس المتفوقين STEM.',
+                'years_experience' => 18,
+                'rating_avg' => 4.98,
+                'students_count' => 3850,
                 'photo' => 'images/instructor_portrait.png',
                 'is_featured' => true,
                 'is_public' => true,
             ]
         );
 
-        // Student
+        // Student (Top STEM Student)
         $demoStudentUser = User::updateOrCreate(
-            ['email' => 'student@demo.test'],
+            ['email' => 'student@trendk.com'],
             [
-                'name' => 'Demo Student — يوسف إبراهيم',
-                'phone' => '+201000000097',
+                'name' => 'عمر شريف إبراهيم — طالب متفوق (STEM)',
+                'phone' => '+201000000003',
                 'password' => $hashedDemoPassword,
                 'status' => AccountStatus::APPROVED,
                 'email_verified_at' => now(),
@@ -144,12 +146,12 @@ class DemoSeeder extends Seeder
         );
         $demoStudentUser->syncRoles([$roleStudent]);
 
-        // Parent
+        // Parent (Active Guardian)
         $demoParentUser = User::updateOrCreate(
-            ['email' => 'parent@demo.test'],
+            ['email' => 'parent@trendk.com'],
             [
-                'name' => 'Demo Parent — أ. إبراهيم يوسف',
-                'phone' => '+201000000096',
+                'name' => 'م. شريف إبراهيم غالي — ولي أمر الطالب',
+                'phone' => '+201000000004',
                 'password' => $hashedDemoPassword,
                 'status' => AccountStatus::APPROVED,
                 'email_verified_at' => now(),
@@ -160,11 +162,11 @@ class DemoSeeder extends Seeder
 
         // Link Demo Parent to Demo Student
         $demoParentProfile->students()->syncWithoutDetaching([
-            $demoStudentUser->id => ['relationship' => 'Son'],
+            $demoStudentUser->id => ['relationship' => 'Father'],
         ]);
 
         // -------------------------------------------------------------
-        // 3. Egyptian Grade Levels (الصفوف الدراسية المصرية)
+        // 3. Grade Levels (المراحل والصفوف الدراسية المصرية)
         // -------------------------------------------------------------
         $g12 = GradeLevel::updateOrCreate(
             ['slug' => 'grade-12'],
@@ -172,7 +174,7 @@ class DemoSeeder extends Seeder
         );
         $g11 = GradeLevel::updateOrCreate(
             ['slug' => 'grade-11'],
-            ['name' => 'الصف الثاني الثانوي', 'sort_order' => 2]
+            ['name' => 'الصف الثاني الثانوي (علمي وأدبي)', 'sort_order' => 2]
         );
         $g10 = GradeLevel::updateOrCreate(
             ['slug' => 'grade-10'],
@@ -182,29 +184,21 @@ class DemoSeeder extends Seeder
             ['slug' => 'grade-9'],
             ['name' => 'الصف الثالث الإعدادي (الشهادة الإعدادية)', 'sort_order' => 4]
         );
-        $g8 = GradeLevel::updateOrCreate(
-            ['slug' => 'grade-8'],
-            ['name' => 'الصف الثاني الإعدادي', 'sort_order' => 5]
-        );
-        $g7 = GradeLevel::updateOrCreate(
-            ['slug' => 'grade-7'],
-            ['name' => 'الصف الأول الإعدادي', 'sort_order' => 6]
-        );
 
-        $allGrades = collect([$g12, $g11, $g10, $g9, $g8, $g7]);
+        $allGrades = collect([$g12, $g11, $g10, $g9]);
 
-        // Complete Student Profile for demo student
+        // Student Profile for demo student
         StudentProfile::updateOrCreate(
             ['user_id' => $demoStudentUser->id],
             [
                 'grade_level_id' => $g12->id,
-                'school_name' => 'مدرسة المتفوقين للعلوم والتكنولوجيا (STEM Cairo)',
+                'school_name' => 'مدرسة المتفوقين للعلوم والتكنولوجيا (STEM October)',
                 'has_used_free_session' => true,
             ]
         );
 
         // -------------------------------------------------------------
-        // 4. Categories & Subjects (الأقسام والمواد)
+        // 4. Categories & Subjects (الأقسام والمواد الدراسية)
         // -------------------------------------------------------------
         $catScience = Category::updateOrCreate(
             ['slug' => 'natural-sciences'],
@@ -216,111 +210,122 @@ class DemoSeeder extends Seeder
         );
         $catLanguages = Category::updateOrCreate(
             ['slug' => 'languages-and-literature'],
-            ['name' => 'اللغات والآداب', 'color_theme' => '#EA580C']
+            ['name' => 'اللغات والعلوم الإنسانية', 'color_theme' => '#EA580C']
         );
 
         $subPhysics = Subject::updateOrCreate(
             ['slug' => 'physics'],
-            ['category_id' => $catScience->id, 'name' => 'الفيزياء العامة والحديثة', 'description' => 'شرح الكهربية وقوانين كيرشوف والفيزياء الذرية للمرحلة الثانوية.', 'sort_order' => 1]
+            ['category_id' => $catScience->id, 'name' => 'الفيزياء الكهربية والحديثة', 'description' => 'قوانين كيرشوف، الحث الكهرومغناطيسي، الدوائر المهتزة وفيزياء الكم.', 'sort_order' => 1]
         );
         $subChem = Subject::updateOrCreate(
             ['slug' => 'chemistry'],
-            ['category_id' => $catScience->id, 'name' => 'الكيمياء العضوية والتحليلية', 'description' => 'دراسة الهيدروكربونات والاتزان الكيميائي والتحليل الكهربي.', 'sort_order' => 2]
+            ['category_id' => $catScience->id, 'name' => 'الكيمياء العضوية والتحليلية', 'description' => 'الهيدروكربونات، الاتزان الأيوني والكيميائي، والكيمياء الكهربية والتحليلية.', 'sort_order' => 2]
         );
         $subBio = Subject::updateOrCreate(
             ['slug' => 'biology'],
-            ['category_id' => $catScience->id, 'name' => 'الأحياء وعلم الوراثة', 'description' => 'دراسة الخلية، DNA، والتكاثر والمناعة في الإنسان.', 'sort_order' => 3]
+            ['category_id' => $catScience->id, 'name' => 'الأحياء وعلم الوراثة الجزيئية', 'description' => 'المناعة في الكائنات الحية، DNA وRNA، وتخليق البروتين والتكاثر.', 'sort_order' => 3]
         );
         $subMath = Subject::updateOrCreate(
             ['slug' => 'mathematics'],
-            ['category_id' => $catMathTech->id, 'name' => 'الرياضيات البحتة والتطبيقية', 'description' => 'التفاضل والتكامل والجبر والهندسة الفراغية والاستاتيكا.', 'sort_order' => 4]
+            ['category_id' => $catMathTech->id, 'name' => 'الرياضيات البحتة (تفاضل وتكامل وجبر)', 'description' => 'اشتقاق وتكامل الدوال الأسية واللوغاريتمية، المصفوفات والهندسة الفراغية.', 'sort_order' => 4]
+        );
+        $subAppMath = Subject::updateOrCreate(
+            ['slug' => 'applied-math'],
+            ['category_id' => $catMathTech->id, 'name' => 'الرياضيات التطبيقية (استاتيكا وديناميكا)', 'description' => 'عزوم القوى، الازدواج، قوانين نيوتن، الدفع والتصادم وتعيين طاقة الحركة.', 'sort_order' => 5]
         );
         $subProg = Subject::updateOrCreate(
             ['slug' => 'programming-ai'],
-            ['category_id' => $catMathTech->id, 'name' => 'البرمجة والذكاء الاصطناعي', 'description' => 'بايثون وتطوير تطبيقات الويب وخوارزميات تعلم الآلة.', 'sort_order' => 5]
-        );
-        $subEnglish = Subject::updateOrCreate(
-            ['slug' => 'english'],
-            ['category_id' => $catLanguages->id, 'name' => 'اللغة الإنجليزية المتقدمة', 'description' => 'إتقان القواعد، مهارات الكتابة الأكاديمية والمحادثة.', 'sort_order' => 6]
+            ['category_id' => $catMathTech->id, 'name' => 'البرمجة وهندسة الذكاء الاصطناعي', 'description' => 'Python للمبتدئين، خوارزميات تعلم الآلة وتطوير تطبيقات الويب الحديثة.', 'sort_order' => 6]
         );
         $subArabic = Subject::updateOrCreate(
             ['slug' => 'arabic'],
-            ['category_id' => $catLanguages->id, 'name' => 'اللغة العربية والبلاغة والنحو', 'description' => 'تطبيقات النحو والصرف، البلاغة، ونصوص الأدب العربي.', 'sort_order' => 7]
+            ['category_id' => $catLanguages->id, 'name' => 'اللغة العربية والبلاغة والنقد', 'description' => 'النحو والصرف التفاعلي، مهارات البلاغة الثلاث، والأدب وقراءة النصوص المحررة.', 'sort_order' => 7]
+        );
+        $subEnglish = Subject::updateOrCreate(
+            ['slug' => 'english'],
+            ['category_id' => $catLanguages->id, 'name' => 'اللغة الإنجليزية المتقدمة وIELTS', 'description' => 'إتقان القواعد، مهارات المقال الأكاديمي، والمفردات اللغوية واختبارات القبول.', 'sort_order' => 8]
         );
 
-        $subjectsPool = collect([$subPhysics, $subChem, $subBio, $subMath, $subProg, $subEnglish, $subArabic]);
-
         // -------------------------------------------------------------
-        // 5. Teachers Pool (Target count from config)
+        // 5. Teachers Pool (All with @trendk.com)
         // -------------------------------------------------------------
-        $targetTeachersCount = (int) ($seedVolume['teachers'] ?? 6);
         $teachersData = [
             [
-                'email' => 'teacher@demo.test', // already created above
-                'name' => 'Demo Teacher — د. طارق الشناوي',
-                'title' => 'كبير معلمي الفيزياء والفيزياء الحديثة للثانوية العامة',
+                'email' => 'teacher@trendk.com',
+                'name' => 'د. طارق الشناوي',
+                'title' => 'كبير معلمي الفيزياء والكهرومغناطيسية للثانوية العامة',
                 'spec' => 'Physics',
-                'bio' => 'معلم تجريبي معتمد لأكاديمية إيليت، دكتوراه في الفيزياء وتأهيل أوائل الجمهورية.',
+                'bio' => 'دكتوراه في الفيزياء التطبيقية. 18 عاماً من الخبرة في تبسيط المفاهيم المعقدة وتأهيل أوائل الجمهورية.',
                 'photo' => 'images/instructor_portrait.png',
+                'exp' => 18,
+                'rating' => 4.98,
+                'students' => 3850,
             ],
             [
-                'email' => 'teacher.sarah@demo.test',
+                'email' => 'teacher.sarah@trendk.com',
                 'name' => 'أ. سارة عبد المنعم',
-                'title' => 'كبير معلمي الكيمياء العضوية والتحليلية',
+                'title' => 'أستاذة الكيمياء العضوية والتحليلية',
                 'spec' => 'Chemistry',
-                'bio' => 'خبرة 13 عاماً في تبسيط الكيمياء وربط المعادلات بالتجارب المعملية التفاعلية.',
+                'bio' => 'ماجستير الكيمياء الحيوية. خبرة 14 عاماً في تدريس كيمياء الثانوية العامة واللغات وربطها بالتجارب التفاعلية.',
                 'photo' => 'images/instructor_female.png',
+                'exp' => 14,
+                'rating' => 4.92,
+                'students' => 2950,
             ],
             [
-                'email' => 'teacher.omar@demo.test',
+                'email' => 'teacher.omar@trendk.com',
                 'name' => 'د. عمر عبد العزيز',
                 'title' => 'أستاذ الرياضيات البحتة والتطبيقية',
                 'spec' => 'Mathematics',
-                'bio' => 'متخصص في التفاضل والتكامل والجبر والهندسة الفراغية، مدرب أولمبياد الرياضيات.',
+                'bio' => 'دكتوراه في التحليل الرياضي. درّب أوائل الجمهورية في الثانوية العامة وحاصل على جائزة التميز التربوي.',
                 'photo' => 'images/instructor_male.png',
+                'exp' => 19,
+                'rating' => 4.96,
+                'students' => 4200,
             ],
             [
-                'email' => 'teacher.kareem@demo.test',
+                'email' => 'teacher.kareem@trendk.com',
                 'name' => 'م. كريم زكي',
                 'title' => 'خبير هندسة البرمجيات والذكاء الاصطناعي',
                 'spec' => 'Programming',
-                'bio' => 'مهندس برمجيات ومحاضر دولي في Python وتطبيقات الذكاء الاصطناعي للشباب.',
+                'bio' => 'مهندس برمجيات أول ومحاضر دولي معتمد في Python وتطبيقات تعلم الآلة وتدريب الشباب على التقنيات الحديثة.',
                 'photo' => 'images/instructor_male.png',
+                'exp' => 11,
+                'rating' => 4.95,
+                'students' => 3100,
             ],
             [
-                'email' => 'teacher.mona@demo.test',
-                'name' => 'أ. منى رضوان',
-                'title' => 'معلم أول الأحياء والجيولوجيا',
+                'email' => 'teacher.mona@trendk.com',
+                'name' => 'د. منى رضوان',
+                'title' => 'استشارية الأحياء وعلم الوراثة الجزيئية',
                 'spec' => 'Biology',
-                'bio' => 'شرح تفاعلي لعلم الوراثة والمناعة والجيولوجيا بأسلوب الخرائط الذهنية.',
+                'bio' => 'دكتوراه في البيولوجيا الجزيئية. شرح تفاعلي بنماذج ثلاثية الأبعاد وخرائط ذهنية مبسطة لـ DNA والمناعة.',
                 'photo' => 'images/instructor_female.png',
+                'exp' => 15,
+                'rating' => 4.90,
+                'students' => 2600,
             ],
             [
-                'email' => 'teacher.hassan@demo.test',
+                'email' => 'teacher.hassan@trendk.com',
                 'name' => 'د. حسام الشريف',
                 'title' => 'كبير معلمي اللغة الإنجليزية وآدابها',
                 'spec' => 'English',
-                'bio' => 'حاصل على شهادات تدريس دولية من كامبريدج، إعداد لاختبارات الثانوية والآيلتس.',
+                'bio' => 'حاصل على شهادات تدريس كامبريدج DELTA. متخصص في تدريب مهارات الكتابة والمحادثة والتحضير لاختبارات القبول.',
                 'photo' => 'images/instructor_portrait.png',
+                'exp' => 16,
+                'rating' => 4.88,
+                'students' => 2400,
             ],
         ];
 
         $teacherProfiles = collect([$demoTeacherProfile]);
 
-        for ($i = 1; $i < $targetTeachersCount; $i++) {
-            $data = $teachersData[$i] ?? [
-                'email' => "teacher{$i}@demo.test",
-                'name' => "أ. معلم تجريبي {$i}",
-                'title' => 'معلم أول معتمد',
-                'spec' => 'Science',
-                'bio' => 'معلم متميز في منصة إيليت أكاديمي مع سنوات طويلة من العطاء الأكاديمي.',
-                'photo' => 'images/instructor_portrait.png',
-            ];
-
+        for ($i = 1; $i < count($teachersData); $i++) {
+            $tData = $teachersData[$i];
             $tUser = User::updateOrCreate(
-                ['email' => $data['email']],
+                ['email' => $tData['email']],
                 [
-                    'name' => $data['name'],
+                    'name' => $tData['name'],
                     'phone' => '+2010' . str_pad((string)(20000000 + $i), 8, '0', STR_PAD_LEFT),
                     'password' => $hashedDemoPassword,
                     'status' => AccountStatus::APPROVED,
@@ -329,18 +334,19 @@ class DemoSeeder extends Seeder
             );
             $tUser->syncRoles([$roleTeacher]);
 
+            $slug = Str::slug($tData['email']);
             $tProfile = TeacherProfile::updateOrCreate(
-                ['user_id' => $tUser->id],
+                ['slug' => $slug],
                 [
-                    'slug' => Str::slug($data['email']),
-                    'title' => $data['title'],
-                    'specialization' => $data['spec'],
-                    'bio' => $data['bio'],
-                    'years_experience' => 10 + ($i % 8),
-                    'rating_avg' => 4.8 + (($i % 3) * 0.05),
-                    'students_count' => 800 + ($i * 150),
-                    'photo' => $data['photo'],
-                    'is_featured' => $i < 4,
+                    'user_id' => $tUser->id,
+                    'title' => $tData['title'],
+                    'specialization' => $tData['spec'],
+                    'bio' => $tData['bio'],
+                    'years_experience' => $tData['exp'],
+                    'rating_avg' => $tData['rating'],
+                    'students_count' => $tData['students'],
+                    'photo' => $tData['photo'],
+                    'is_featured' => true,
                     'is_public' => true,
                 ]
             );
@@ -349,171 +355,335 @@ class DemoSeeder extends Seeder
         }
 
         // -------------------------------------------------------------
-        // 6. Courses & Sessions (Target volume from config)
+        // 6. Realistic Package Templates (Accounting & Pricing Model)
         // -------------------------------------------------------------
-        $targetCoursesCount = (int) ($seedVolume['courses'] ?? 8);
-        $sessionsPerCourse = (int) ($seedVolume['sessions_per_course'] ?? 12);
-        $assignmentsPerCourse = (int) ($seedVolume['assignments_per_course'] ?? 3);
+        $packagesDefinitions = [
+            [
+                'name' => 'باقة المراجعة المركزة (4 حصص تفاعلية)',
+                'sessions_count' => 4,
+                'price' => 450.00,
+                'description' => 'باقة مكثفة مخصصة للمراجعات النهائية قبل الامتحانات الشهرية وحل بنوك الأسئلة الوزارية.',
+            ],
+            [
+                'name' => 'باقة الشهر الدراسي الأساسية (8 حصص تفاعلية)',
+                'sessions_count' => 8,
+                'price' => 850.00,
+                'description' => 'تغطي الحصص الأسبوعية المباشرة للمادة مع التقييم التلقائي للواجبات ومتابعة ولي الأمر اللحظية.',
+            ],
+            [
+                'name' => 'باقة الفصل الدراسي المتكاملة (16 حصة + نماذج الامتحانات)',
+                'sessions_count' => 16,
+                'price' => 1600.00,
+                'description' => 'الباقة الأكثر طلباً لطلاب الثانوية العامة تشمل المحاضرات والمذكرات التفاعلية وورش العمل الدورية.',
+            ],
+            [
+                'name' => 'باقة النخبة السنوية الشاملة (32 حصة + المراجعات النهائية)',
+                'sessions_count' => 32,
+                'price' => 3000.00,
+                'description' => 'تأهيل كامل للعام الدراسي حتى ليلة الامتحان مع متابعة أسبوعية خاصة وتقارير أداء دورية لولي الأمر.',
+            ],
+            [
+                'name' => 'مسار هندسة البرمجيات والذكاء الاصطناعي (16 حصة عملية)',
+                'sessions_count' => 16,
+                'price' => 1200.00,
+                'description' => 'تطوير مشاريع حقيقية بلغة Python وتطبيقات الذكاء الاصطناعي مع إشراف مهندسين معتمدين.',
+            ],
+            [
+                'name' => 'باقة الدعم الفردي VIP 1-on-1 (6 حصص خاصة)',
+                'sessions_count' => 6,
+                'price' => 1500.00,
+                'description' => 'جلسات خصوصية فردية مباشرة عبر الفيديو مع كبير المعلمين للإجابة عن أدق التساؤلات وسد الفجوات التعليمية.',
+            ],
+        ];
 
-        $coursesDefinitions = [
+        $createdPackages = collect();
+        foreach ($packagesDefinitions as $pDef) {
+            $pkg = PackageTemplate::updateOrCreate(
+                ['name' => $pDef['name']],
+                [
+                    'sessions_count' => $pDef['sessions_count'],
+                    'price' => $pDef['price'],
+                    'description' => $pDef['description'],
+                    'is_active' => true,
+                ]
+            );
+            $createdPackages->push($pkg);
+        }
+
+        // -------------------------------------------------------------
+        // 7. Student Packages & Realistic Accounting Ledgers
+        // -------------------------------------------------------------
+        $termPackage = $createdPackages->where('sessions_count', 16)->first() ?? $createdPackages->first();
+        $studentPkg = StudentPackage::updateOrCreate(
+            ['student_user_id' => $demoStudentUser->id],
             [
-                'slug' => 'demo-comprehensive-physics',
-                'subject' => $subPhysics,
-                'grade' => $g12,
-                'teacher' => $demoTeacherProfile,
-                'title' => 'كورس الفيزياء الكهربية والمغناطيسية والحديثة (ثانوية عامة)',
-                'description' => 'شرح تفصيلي شامل لكافة وحدات الفيزياء الكهربية، قوانين كيرشوف، الحث الكهرومغناطيسي، والفيزياء الحديثة مع نماذج حلول أفكار الامتحانات الوزارية السابقة.',
+                'package_template_id' => $termPackage->id,
+                'total_sessions' => 16,
+                'used_sessions' => 3,
+                'remaining_sessions' => 13,
+                'status' => 'active',
+                'activated_at' => now()->subDays(14),
+                'expires_at' => now()->addDays(45),
+            ]
+        );
+
+        // Clean slate for demo transactions to avoid duplication
+        PackageTransaction::where('student_package_id', $studentPkg->id)->delete();
+
+        $ledgerEntries = [
+            [
+                'type' => 'payment_activation',
+                'sessions_delta' => 16,
+                'balance_before' => 0,
+                'balance_after' => 16,
+                'reason' => 'شحن وتفعيل باقة الفصل الدراسي المتكاملة (16 حصة) عبر InstaPay (مرجع: IPN-9842104)',
+                'created_at' => now()->subDays(14),
             ],
             [
-                'slug' => 'demo-organic-chemistry',
+                'type' => 'session_deduct',
+                'sessions_delta' => -1,
+                'balance_before' => 16,
+                'balance_after' => 15,
+                'reason' => 'خصم حصة: فيزياء — التيار الكهربي وقانون أوم وتطبيقات كيرشوف',
+                'created_at' => now()->subDays(11),
+            ],
+            [
+                'type' => 'session_deduct',
+                'sessions_delta' => -1,
+                'balance_before' => 15,
+                'balance_after' => 14,
+                'reason' => 'خصم حصة: كيمياء — تسمية وتفاعلات الهيدروكربونات العضوية',
+                'created_at' => now()->subDays(8),
+            ],
+            [
+                'type' => 'session_deduct',
+                'sessions_delta' => -1,
+                'balance_before' => 14,
+                'balance_after' => 13,
+                'reason' => 'خصم حصة: رياضيات — نهايات الدوال والاتصال وحساب التفاضل',
+                'created_at' => now()->subDays(6),
+            ],
+            [
+                'type' => 'session_refund',
+                'sessions_delta' => 1,
+                'balance_before' => 13,
+                'balance_after' => 14,
+                'reason' => 'استرداد رصيد حصة: اعتماد عذر غياب رسمي معتمد من إدارة الأكاديمية',
+                'created_at' => now()->subDays(4),
+            ],
+            [
+                'type' => 'session_deduct',
+                'sessions_delta' => -1,
+                'balance_before' => 14,
+                'balance_after' => 13,
+                'reason' => 'خصم حصة: فيزياء — الحث الكهرومغناطيسي وقاعدة لنز والمحول الكهربي',
+                'created_at' => now()->subDays(2),
+            ],
+        ];
+
+        foreach ($ledgerEntries as $entry) {
+            PackageTransaction::create(array_merge($entry, [
+                'student_package_id' => $studentPkg->id,
+                'performed_by' => $demoAdmin->id,
+            ]));
+        }
+
+        // -------------------------------------------------------------
+        // 8. Meeting Provider
+        // -------------------------------------------------------------
+        $zoomProvider = MeetingProvider::updateOrCreate(
+            ['slug' => 'zoom'],
+            [
+                'name' => 'Zoom Meetings Pro',
+                'is_active' => true,
+                'supports_embedding' => true,
+                'encrypted_settings' => ['encrypted' => true, 'watermark' => true],
+            ]
+        );
+
+        // -------------------------------------------------------------
+        // 9. Comprehensive Courses & Sessions
+        // -------------------------------------------------------------
+        $coursesCatalog = [
+            [
+                'slug' => 'physics-electricity-magnetism-g12',
+                'title' => 'الفيزياء الكهربية والمغناطيسية والفيزياء الحديثة — الثانوية العامة',
+                'subject' => $subPhysics,
+                'teacher' => $demoTeacherProfile,
+                'grade' => $g12,
+                'description' => 'شرح تفصيلي معتمد لكافة وحدات الفيزياء الكهربية، قوانين كيرشوف، الحث الكهرومغناطيسي، الدوائر المترددة والفيزياء النووية مع حل نماذج الامتحانات الوزارية السابقة.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: شدة التيار، فرق الجهد، والمقاومة وقانون أوم للدائرة المغلقة', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: توصيل المقاومات على التوالي والتوازي وقوانين كيرشوف المعقدة', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: التأثير المغناطيسي للتيار الكهربي والقوة وعزم الازدواج المغناطيسي', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 4: الحث الكهرومغناطيسي، قانون فاراداي، وقاعدة لنز والمولد الكهربي', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 5: المحول الكهربي والمحرك، ودوائر التيار المتردد والرنين', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 6: مقدمة الفيزياء الحديثة: إشعاع الجسم الأسود والتأثير الكهروضوئي', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
+            ],
+            [
+                'slug' => 'organic-chemistry-mastery-g12',
+                'title' => 'الكيمياء العضوية والتحليلية التفاعلية — الثانوية العامة',
                 'subject' => $subChem,
-                'grade' => $g12,
                 'teacher' => $teacherProfiles->get(1) ?? $demoTeacherProfile,
-                'title' => 'كورس الكيمياء العضوية والتحليلية المتقدم (ثانوية عامة)',
-                'description' => 'تغطية تفاعلات الألكانات، الألكينات، المركبات الحلقية ومشتقات الهيدروكربونات مع خرائط ذهنية تفاعلية وحل مسائل الاتزان والتحليل الكمي.',
+                'grade' => $g12,
+                'description' => 'دراسة الهيدروكربونات الأليفاتية والأروماتية، مشتقات الهيدروكربونات، الكحولات والفينولات، مع خرائط مفاهيمية وحل مسائل الاتزان والأكسدة والاختزال.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: مدخل الكيمياء العضوية، الألكانات وتسمية IUPAC', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: الألكينات والألكاينات وتفاعلات الإضافة وقاعدة ماركونيكوف', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: البنزين العطري والتفاعلات الأروماتية وتوجيه المجموعات', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 4: الكحولات والفينولات واستخداماتها الصناعية والتفاعلات المميزة', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
             ],
             [
-                'slug' => 'demo-calculus-algebra-mastery',
+                'slug' => 'calculus-algebra-excellence-g12',
+                'title' => 'التفاضل والتكامل والجبر والهندسة الفراغية — الثانوية العامة',
                 'subject' => $subMath,
-                'grade' => $g12,
                 'teacher' => $teacherProfiles->get(2) ?? $demoTeacherProfile,
-                'title' => 'كورس التفاضل والتكامل والجبر والهندسة الفراغية',
-                'description' => 'شرح عميق للنهايات، اشتقاق وتكامل الدوال الأسية والمثلثية، المصفوفات، والمحددات والمعادلات الخطية.',
-            ],
-            [
-                'slug' => 'demo-fullstack-python-ai',
-                'subject' => $subProg,
-                'grade' => $g11,
-                'teacher' => $teacherProfiles->get(3) ?? $demoTeacherProfile,
-                'title' => 'كورس بايثون وهندسة تطبيقات الذكاء الاصطناعي',
-                'description' => 'من الصفر إلى الاحتراف: البرمجة بلغة Python، هياكل البيانات، بناء واجهات برمجية REST APIs، وتطبيقات Machine Learning عملية.',
-            ],
-            [
-                'slug' => 'demo-biology-genetics',
-                'subject' => $subBio,
                 'grade' => $g12,
-                'teacher' => $teacherProfiles->get(4) ?? $demoTeacherProfile,
-                'title' => 'كورس الأحياء: علم الوراثة والجزيئات والمناعة',
-                'description' => 'فهم أسرار الحمض النووي DNA وتخليق البروتين وآليات عمل الجهاز المناعي في الإنسان بأسلوب بصري تفاعلي ثلاثي الأبعاد.',
+                'description' => 'اشتقاق الدوال المثلثية والأسية، تطبيقات القيم العظمى والصغرى، التكامل بالتجزيء والتعويض، والمحددات والمصفوفات ومعادلة الكرة والمستقيم في الفراغ.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: اشتقاق الدوال المثلثية والبارامترية والاشتقاق الضمني', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: نهايات الدوال المرتبطة بالعدد الطبيعي e والمشتقات العليا', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: طرق التكامل المتقدمة (التجزيء والكسور الجزئية)', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 4: الجبر الخطي: المصفوفات والمحددات ونظرية كرامر', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
             ],
             [
-                'slug' => 'demo-english-advanced-skills',
-                'subject' => $subEnglish,
+                'slug' => 'python-ai-future-engineers',
+                'title' => 'مسار هندسة البرمجيات والذكاء الاصطناعي العملي',
+                'subject' => $subProg,
+                'teacher' => $teacherProfiles->get(3) ?? $demoTeacherProfile,
                 'grade' => $g11,
+                'description' => 'بناء مشاريع عملية بلغة Python، أساسيات الخوارزميات، هياكل البيانات، ومقدمة تطبيقية لنماذج تعلم الآلة ومعالجة اللغات الطبيعية.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: بيئة العمل في Python، المتغيرات، والجمل الشرطية والحلقات', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: الدوال، البرمجة كائنية التوجه (OOP)، والتعامل مع الملفات', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: تحليل البيانات باستخدام NumPy وPandas وتصور البيانات', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 4: بناء أول نموذج ذكاء اصطناعي تصنيفي باستخدام Scikit-Learn', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
+            ],
+            [
+                'slug' => 'molecular-biology-genetics-g12',
+                'title' => 'الأحياء وعلم الوراثة الجزيئية والمناعة — الثانوية العامة',
+                'subject' => $subBio,
+                'teacher' => $teacherProfiles->get(4) ?? $demoTeacherProfile,
+                'grade' => $g12,
+                'description' => 'دراسة شاملة للجهاز المناعي في الإنسان، تركيب DNA وتضاعفه، تخليق البروتين والهندسة الوراثية وتطبيقات التكنولوجيا الحيوية.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: تركيب الجهاز المناعي والخلايا الليمفاوية والأجسام المضادة', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: آليات عمل الجهاز المناعي والاستجابة المناعية الخلوية والخلطية', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: التركيب الجزيئي لـ DNA وتضاعفه وإصلاح عيوب المادة الوراثية', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 4: أنواع RNA وتخليق البروتين وطفرات الجينات والهندسة الوراثية', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
+            ],
+            [
+                'slug' => 'advanced-english-academic-writing',
+                'title' => 'اللغة الإنجليزية المتقدمة ومهارات الكتابة الأكاديمية للثانوية',
+                'subject' => $subEnglish,
                 'teacher' => $teacherProfiles->get(5) ?? $demoTeacherProfile,
-                'title' => 'كورس مهارات اللغة الإنجليزية الأكاديمية والتعبير',
-                'description' => 'القواعد المتقدمة، القراءة النقدية للنصوص، إتقان مهارات المقال المقنع، والمصطلحات الشائعة في الامتحانات التنافسية.',
-            ],
-            [
-                'slug' => 'demo-arabic-grammar-rhetoric',
-                'subject' => $subArabic,
-                'grade' => $g10,
-                'teacher' => $demoTeacherProfile,
-                'title' => 'كورس النحو الشامل والبلاغة والأدب للمرحلة الثانوية',
-                'description' => 'إتقان قواعد الإعراب والصرف وفنون التشبيه والاستعارة وتذوق النصوص الأدبية المقررة.',
-            ],
-            [
-                'slug' => 'demo-prep-science-fundamentals',
-                'subject' => $subPhysics,
-                'grade' => $g9,
-                'teacher' => $demoTeacherProfile,
-                'title' => 'كورس العلوم المتكامل للشهادة الإعدادية',
-                'description' => 'مراجعة المنهج الدراسي للشهادة الإعدادية مع التدريب على أنماط أسئلة الامتحانات المحافظاتية والتجارب العلمية.',
+                'grade' => $g12,
+                'description' => 'تطوير المفردات المتقدمة والقواعد المركبة، احتراف كتابة المقال الأكاديمي، وحل قطع الفهم المحررة ومواكبة أحدث مواصفات الورقة الامتحانية.',
+                'sessions' => [
+                    ['title' => 'المحاضرة 1: Advanced Inversion, Conditionals, and Complex Syntax', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 2: Academic Essay Structure & Argumentative Writing Mastery', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                    ['title' => 'المحاضرة 3: Reading Comprehension Strategies & Contextual Vocabulary Clues', 'video' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4'],
+                ],
             ],
         ];
 
         $createdCourses = collect();
 
-        foreach (array_slice($coursesDefinitions, 0, $targetCoursesCount) as $idx => $def) {
+        foreach ($coursesCatalog as $cData) {
             $course = Course::updateOrCreate(
-                ['slug' => $def['slug']],
+                ['slug' => $cData['slug']],
                 [
-                    'subject_id' => $def['subject']->id,
-                    'teacher_id' => $def['teacher']->id,
-                    'grade_level_id' => $def['grade']->id,
-                    'title' => $def['title'],
-                    'description' => $def['description'],
+                    'subject_id' => $cData['subject']->id,
+                    'teacher_id' => $cData['teacher']->id,
+                    'grade_level_id' => $cData['grade']->id,
+                    'title' => $cData['title'],
+                    'description' => $cData['description'],
+                    'demo_video_url' => 'https://digitability.com/wp-content/uploads/appropriate-sharing.mp4',
                     'is_active' => true,
+                    'has_free_demo' => true,
+                    'is_accredited' => true,
+                    'sessions_count' => count($cData['sessions']),
+                    'session_duration_minutes' => 60,
                 ]
             );
-
             $createdCourses->push($course);
 
-            // Generate Sessions for this Course
-            for ($s = 1; $s <= $sessionsPerCourse; $s++) {
-                $isFree = ($s <= 2);
-                $duration = 45 + (($s % 4) * 15);
-
-                $session = CourseSession::updateOrCreate(
-                    ['course_id' => $course->id, 'sort_order' => $s],
+            foreach ($cData['sessions'] as $idx => $sInfo) {
+                $cSession = CourseSession::updateOrCreate(
+                    ['course_id' => $course->id, 'sort_order' => $idx + 1],
                     [
-                        'title' => "الجلسة رقم {$s}: المحاضرة التفاعلية والتطبيقات العملية",
-                        'description' => "محتوى الجلسة الأكاديمية رقم {$s}، يشمل فيديو الشرح، الملاحظات الإثرائية، ومسائل التدريب المرفقة.",
-                        'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                        'duration_minutes' => $duration,
-                        'is_free_demo' => $isFree,
+                        'title' => $sInfo['title'],
+                        'description' => "محتوى وشرح تفصيلي مع تدريبات تطبيقية للمحاضرة رقم " . ($idx + 1),
+                        'video_url' => $sInfo['video'],
+                        'duration_minutes' => 60,
+                        'is_free_demo' => ($idx === 0),
                     ]
                 );
 
-                // Add Assignments for first few sessions
-                if ($s <= $assignmentsPerCourse) {
-                    $assignment = Assignment::updateOrCreate(
-                        ['course_session_id' => $session->id],
-                        [
-                            'course_id' => $course->id,
-                            'title' => "واجب الجلسة رقم {$s} — اختبار التقييم والفهم",
-                            'description' => 'اختبار يقيس استيعاب المفاهيم المشروحة في الجلسة. الإجابة الإجبارية لفتح الجلسات اللاحقة.',
-                            'passing_grade' => 70,
-                            'passing_score' => 70,
-                            'duration_minutes' => 30,
-                            'status' => 'published',
-                        ]
-                    );
+                // Add Assignment for every session
+                $assignment = Assignment::updateOrCreate(
+                    ['course_session_id' => $cSession->id],
+                    [
+                        'course_id' => $course->id,
+                        'teacher_profile_id' => $course->teacher_id,
+                        'title' => 'واجب تفاعلي واختبار تقييمي: ' . $sInfo['title'],
+                        'description' => 'اختبار إلكتروني لقياس استيعاب المفاهيم الأساسية ومهارات التفكير العليا.',
+                        'total_questions' => 2,
+                        'passing_score' => 70,
+                        'duration_minutes' => 45,
+                        'due_at' => now()->addDays(7),
+                        'status' => 'published',
+                    ]
+                );
 
-                    // Add questions to assignment
-                    $q1 = AssignmentQuestion::updateOrCreate(
-                        ['assignment_id' => $assignment->id, 'sort_order' => 1],
-                        [
-                            'question_text' => 'وفقاً للمفاهيم الأساسية المشروحة بالجلسة، أي البدائل الآتية يمثل الاستنتاج الصحيح؟',
-                            'question_type' => 'text',
-                            'points' => 5.00,
-                            'is_multiple_choice' => true,
-                        ]
-                    );
+                // Add 2 realistic questions
+                $q1 = AssignmentQuestion::updateOrCreate(
+                    ['assignment_id' => $assignment->id, 'sort_order' => 1],
+                    [
+                        'question_text' => 'وفقاً للمبادئ والقوانين الفيزيائية المشروحة، ما العلاقة التي تربط المتغيرات الأساسية عند ثبوت درجة الحرارة؟',
+                        'question_type' => 'mcq',
+                        'points' => 10.00,
+                        'is_multiple_choice' => true,
+                    ]
+                );
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'sort_order' => 1], ['option_text' => 'يتناسب طردياً مع القوة الدافعة الكهربية وعكسياً مع المقاومة الكلية (قانون أوم)', 'is_correct' => true]);
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'sort_order' => 2], ['option_text' => 'يتناسب عكسياً مع التردد وطردياً مع السعة الكهربية', 'is_correct' => false]);
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'sort_order' => 3], ['option_text' => 'يظل ثابتاً ولا يتأثر بتغير المقاومة الخارجية للدائرة', 'is_correct' => false]);
 
-                    AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'option_text' => 'الاختيار الأول: يتناسب طردياً مع المتغير الأساسي'], ['sort_order' => 1, 'is_correct' => true]);
-                    AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'option_text' => 'الاختيار الثاني: يتناسب عكسياً وفقاً للقانون'], ['sort_order' => 2, 'is_correct' => false]);
-                    AssignmentQuestionOption::updateOrCreate(['question_id' => $q1->id, 'option_text' => 'الاختيار الثالث: يظل ثابتاً مهما تغيرت العوامل'], ['sort_order' => 3, 'is_correct' => false]);
-
-                    $q2 = AssignmentQuestion::updateOrCreate(
-                        ['assignment_id' => $assignment->id, 'sort_order' => 2],
-                        [
-                            'question_text' => 'ما هي وحدة القياس الدولية المعيارية المعتمدة في النظام المتري للكمية المدروسة؟',
-                            'question_type' => 'text',
-                            'points' => 5.00,
-                            'is_multiple_choice' => true,
-                        ]
-                    );
-
-                    AssignmentQuestionOption::updateOrCreate(['question_id' => $q2->id, 'option_text' => 'الوحدة الدولية القياسية (SI Standard Unit)'], ['sort_order' => 1, 'is_correct' => true]);
-                    AssignmentQuestionOption::updateOrCreate(['question_id' => $q2->id, 'option_text' => 'الوحدة المشتقة التقديرية'], ['sort_order' => 2, 'is_correct' => false]);
-                }
+                $q2 = AssignmentQuestion::updateOrCreate(
+                    ['assignment_id' => $assignment->id, 'sort_order' => 2],
+                    [
+                        'question_text' => 'ما هي وحدة القياس الدولية المعيارية (SI) المعتمدة للكمية الفيزيائية المستنتجة من القانون؟',
+                        'question_type' => 'mcq',
+                        'points' => 10.00,
+                        'is_multiple_choice' => true,
+                    ]
+                );
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q2->id, 'sort_order' => 1], ['option_text' => 'فولت / أمبير (أوم Ω المعياري)', 'is_correct' => true]);
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q2->id, 'sort_order' => 2], ['option_text' => 'تسلا . متر مربع (ويبر Wb)', 'is_correct' => false]);
+                AssignmentQuestionOption::updateOrCreate(['question_id' => $q2->id, 'sort_order' => 3], ['option_text' => 'هنري / متر (معامل النفاذية)', 'is_correct' => false]);
             }
         }
 
         // -------------------------------------------------------------
-        // 7. Live Sessions (حصة حالية، حصص قادمة، حصة منتهية)
+        // 10. Live Sessions (Live Now, Upcoming, Completed)
         // -------------------------------------------------------------
         $primaryCourse = $createdCourses->first();
         if ($primaryCourse) {
             $sess1 = $primaryCourse->sessions()->first();
             $sess2 = $primaryCourse->sessions()->skip(1)->first();
+            $sess3 = $primaryCourse->sessions()->skip(2)->first();
 
-            // Ongoing Live Session (Now)
-            LiveSession::updateOrCreate(
+            // 1) Live Session happening RIGHT NOW
+            $liveNow = LiveSession::updateOrCreate(
                 ['title' => 'بث مباشر تفاعلي: حل تدريبات ومسائل الفيزياء المتقدمة (مباشر الآن)'],
                 [
-                    'course_session_id' => $sess1?->id,
+                    'course_session_id' => $sess2?->id,
                     'student_user_id' => $demoStudentUser->id,
                     'teacher_profile_id' => $demoTeacherProfile->id,
                     'subject_id' => $subPhysics->id,
@@ -523,16 +693,27 @@ class DemoSeeder extends Seeder
                     'end_at' => now()->addMinutes(45),
                     'duration_minutes' => 60,
                     'meeting_link' => 'https://zoom.us/j/84920481928?pwd=elite-demo',
-                    'status' => 'scheduled',
-                    'is_free_demo' => true,
+                    'status' => 'live',
+                    'lifecycle_state' => LiveSessionState::LIVE->value,
+                    'is_free_demo' => false,
                 ]
             );
 
-            // Upcoming Live Session (Tomorrow)
-            LiveSession::updateOrCreate(
-                ['title' => 'ورشة المراجعة النهائية والاختبار التجريبي الشامل'],
+            MeetingAttendance::updateOrCreate(
+                ['live_session_id' => $liveNow->id, 'student_user_id' => $demoStudentUser->id],
                 [
-                    'course_session_id' => $sess2?->id,
+                    'status' => 'present',
+                    'joined_at' => now()->subMinutes(12),
+                    'duration_seconds' => 720,
+                    'provider_slug' => 'zoom',
+                ]
+            );
+
+            // 2) Upcoming Live Session (Tomorrow)
+            LiveSession::updateOrCreate(
+                ['title' => 'ورشة المراجعة الشاملة ومسائل التفكير العليا (الحث الكهرومغناطيسي)'],
+                [
+                    'course_session_id' => $sess3?->id,
                     'student_user_id' => $demoStudentUser->id,
                     'teacher_profile_id' => $demoTeacherProfile->id,
                     'subject_id' => $subPhysics->id,
@@ -541,93 +722,46 @@ class DemoSeeder extends Seeder
                     'start_at' => now()->addDay()->setHour(18)->setMinute(0),
                     'end_at' => now()->addDay()->setHour(19)->setMinute(30),
                     'duration_minutes' => 90,
-                    'meeting_link' => 'https://meet.google.com/demo-elite-future',
+                    'meeting_link' => 'https://meet.google.com/elite-live-session',
                     'status' => 'scheduled',
+                    'lifecycle_state' => LiveSessionState::BEFORE_JOINABLE->value,
                     'is_free_demo' => false,
                 ]
             );
 
-            // Completed Live Session
-            LiveSession::updateOrCreate(
-                ['title' => 'جلسة التوجيه الأكاديمي والرد على استفسارات الطلاب (مسجلة)'],
+            // 3) Completed Live Session
+            $completedSession = LiveSession::updateOrCreate(
+                ['title' => 'محاضرة تأسيسية: قوانين كيرشوف وقواعد حل الدوائر المتفرعة (مسجلة)'],
                 [
                     'course_session_id' => $sess1?->id,
                     'student_user_id' => $demoStudentUser->id,
                     'teacher_profile_id' => $demoTeacherProfile->id,
                     'subject_id' => $subPhysics->id,
                     'course_id' => $primaryCourse->id,
-                    'scheduled_at' => now()->subDays(2),
-                    'start_at' => now()->subDays(2),
-                    'end_at' => now()->subDays(2)->addMinutes(60),
+                    'scheduled_at' => now()->subDays(3),
+                    'start_at' => now()->subDays(3),
+                    'end_at' => now()->subDays(3)->addMinutes(60),
                     'duration_minutes' => 60,
-                    'meeting_link' => 'https://meet.google.com/demo-elite-completed',
+                    'meeting_link' => 'https://meet.google.com/elite-completed-archive',
                     'status' => 'completed',
+                    'lifecycle_state' => LiveSessionState::ENDED->value,
                     'is_free_demo' => true,
                 ]
             );
-        }
 
-        // -------------------------------------------------------------
-        // 8. Package Templates (Target count from config)
-        // -------------------------------------------------------------
-        $targetPackagesCount = (int) ($seedVolume['packages'] ?? 10);
-        $packagesData = [
-            ['name' => 'باقة التميز الشهري (12 حصة تفاعلية)', 'sessions' => 12, 'price' => 550.00, 'desc' => 'تغطي 12 حصة مباشرة مع المعلمين والواجبات والمتابعة المستمرة.'],
-            ['name' => 'باقة الثانوية العامة الفائقة (24 حصة + المراجعات)', 'sessions' => 24, 'price' => 950.00, 'desc' => 'الباقة الأكثر طلباً لطلاب الثانوية العامة تشمل جميع المواد وبنوك الأسئلة.'],
-            ['name' => 'باقة المادة المنفردة (4 حصص شهرية)', 'sessions' => 4, 'price' => 220.00, 'desc' => 'باقة مرنة لدعم الطالب في مادة واحدة محددة.'],
-            ['name' => 'باقة الفصل الدراسي الأول الكاملة (48 حصة)', 'sessions' => 48, 'price' => 1800.00, 'desc' => 'اشتراك فصلي شامل مع تقارير أداء دورية لولي الأمر.'],
-            ['name' => 'باقة التفوق في البرمجة والذكاء الاصطناعي (16 حصة)', 'sessions' => 16, 'price' => 750.00, 'desc' => 'مسار عملي لمشاريع البرمجة بلغة Python وتطبيقات الذكاء الاصطناعي.'],
-            ['name' => 'باقة الشهادة الإعدادية الذهبية (18 حصة)', 'sessions' => 18, 'price' => 650.00, 'desc' => 'تأهيل شامل للشهادة الإعدادية في العلوم والرياضيات واللغة الإنجليزية.'],
-            ['name' => 'باقة المعسكر المكثف للمراجعة النهائية (8 حصص)', 'sessions' => 8, 'price' => 400.00, 'desc' => 'معسكر مكثف قبل امتحانات نصف ونهاية العام.'],
-            ['name' => 'باقة الدعم الفردي 1-on-1 (6 حصص خاصة)', 'sessions' => 6, 'price' => 600.00, 'desc' => 'حصص خصوصية تفاعلية مع نخبة المعلمين.'],
-            ['name' => 'باقة الكيمياء والأحياء للغات (10 حصص)', 'sessions' => 10, 'price' => 480.00, 'desc' => 'شرح وافٍ لمنهج اللغات باللغة الإنجليزية والمصطلحات العلمية.'],
-            ['name' => 'باقة الاستعداد لأولمبياد العلوم والرياضيات (14 حصة)', 'sessions' => 14, 'price' => 700.00, 'desc' => 'مسائل التفكير الإبداعي وحل المشكلات المتقدمة للطلاب المتفوقين.'],
-        ];
-
-        $packageTemplates = collect();
-        foreach (array_slice($packagesData, 0, $targetPackagesCount) as $pkg) {
-            $createdPkg = PackageTemplate::updateOrCreate(
-                ['name' => $pkg['name']],
+            MeetingAttendance::updateOrCreate(
+                ['live_session_id' => $completedSession->id, 'student_user_id' => $demoStudentUser->id],
                 [
-                    'sessions_count' => $pkg['sessions'],
-                    'price' => $pkg['price'],
-                    'description' => $pkg['desc'],
-                    'is_active' => true,
+                    'status' => 'present',
+                    'joined_at' => now()->subDays(3)->addMinutes(2),
+                    'duration_seconds' => 3480,
+                    'provider_slug' => 'zoom',
                 ]
             );
-            $packageTemplates->push($createdPkg);
-        }
-
-        // Assign active package to demo student
-        $primaryPackageTemplate = $packageTemplates->first();
-        if ($primaryPackageTemplate) {
-            $studentPkg = StudentPackage::updateOrCreate(
-                ['student_user_id' => $demoStudentUser->id],
-                [
-                    'package_template_id' => $primaryPackageTemplate->id,
-                    'total_sessions' => $primaryPackageTemplate->sessions_count,
-                    'used_sessions' => 4,
-                    'remaining_sessions' => $primaryPackageTemplate->sessions_count - 4,
-                    'status' => 'active',
-                    'activated_at' => now()->subDays(10),
-                    'expires_at' => now()->addDays(20),
-                ]
-            );
-
-            PackageTransaction::firstOrCreate([
-                'student_package_id' => $studentPkg->id,
-                'type' => 'payment_activation',
-            ], [
-                'sessions_delta' => $primaryPackageTemplate->sessions_count,
-                'balance_before' => 0,
-                'balance_after' => $primaryPackageTemplate->sessions_count,
-                'reason' => 'Demo package activation credit',
-                'created_at' => now()->subDays(10),
-            ]);
         }
 
         // -------------------------------------------------------------
-        // 9. Enrollments, Progress & Submissions for Demo Student
+        // 11. Enrollments, Progress & Graded Submissions for Demo Student
         // -------------------------------------------------------------
         foreach ($createdCourses->take(3) as $cIdx => $enrolledCourse) {
             $enrollment = CourseEnrollment::updateOrCreate(
@@ -635,38 +769,54 @@ class DemoSeeder extends Seeder
                 ['status' => 'active', 'enrolled_at' => now()->subDays(15 - ($cIdx * 3))]
             );
 
-            // Set progress on first 3 sessions
             $cSessions = $enrolledCourse->sessions()->orderBy('sort_order')->take(3)->get();
             foreach ($cSessions as $sIdx => $cSess) {
                 if ($sIdx === 0) {
-                    // Completed
                     CourseSessionProgress::updateOrCreate(
                         ['course_enrollment_id' => $enrollment->id, 'course_session_id' => $cSess->id],
-                        ['status' => SessionProgressStatus::COMPLETED, 'unlocked_at' => now()->subDays(7), 'completed_at' => now()->subDays(6)]
+                        ['status' => SessionProgressStatus::COMPLETED, 'unlocked_at' => now()->subDays(10), 'completed_at' => now()->subDays(8)]
                     );
 
-                    // Add completed assignment submission
-                    $assignment = $cSess->assignments()->first();
-                    if ($assignment) {
+                    $assign = $cSess->assignments()->first();
+                    if ($assign) {
                         AssignmentSubmission::updateOrCreate(
-                            ['assignment_id' => $assignment->id, 'student_user_id' => $demoStudentUser->id],
+                            ['assignment_id' => $assign->id, 'student_user_id' => $demoStudentUser->id],
                             [
                                 'course_enrollment_id' => $enrollment->id,
                                 'status' => SubmissionStatus::COMPLETED,
-                                'grade' => 96,
-                                'teacher_notes' => 'إجابة نموذجية ممتازة، التزام رائع بخطوات الحل النموذجية.',
-                                'submitted_at' => now()->subDays(6),
+                                'score' => 20,
+                                'grade' => 98,
+                                'percentage' => 98.0,
+                                'total_points' => 20,
+                                'passing_score' => 70,
+                                'teacher_notes' => 'إجابة نموذجية ممتازة وتطبيق رائع لقوانين الدوائر الكهربية. استمر في هذا المستوى المتميز.',
+                                'submitted_at' => now()->subDays(8),
                             ]
                         );
                     }
                 } elseif ($sIdx === 1) {
-                    // In Progress / Unlocked
                     CourseSessionProgress::updateOrCreate(
                         ['course_enrollment_id' => $enrollment->id, 'course_session_id' => $cSess->id],
-                        ['status' => SessionProgressStatus::UNLOCKED, 'unlocked_at' => now()->subDays(2)]
+                        ['status' => SessionProgressStatus::UNLOCKED, 'unlocked_at' => now()->subDays(3)]
                     );
+
+                    $assign = $cSess->assignments()->first();
+                    if ($assign) {
+                        AssignmentSubmission::updateOrCreate(
+                            ['assignment_id' => $assign->id, 'student_user_id' => $demoStudentUser->id],
+                            [
+                                'course_enrollment_id' => $enrollment->id,
+                                'status' => SubmissionStatus::SUBMITTED,
+                                'grade' => null,
+                                'score' => null,
+                                'total_points' => 20,
+                                'passing_score' => 70,
+                                'teacher_notes' => null,
+                                'submitted_at' => now()->subHours(4),
+                            ]
+                        );
+                    }
                 } else {
-                    // Locked
                     CourseSessionProgress::updateOrCreate(
                         ['course_enrollment_id' => $enrollment->id, 'course_session_id' => $cSess->id],
                         ['status' => SessionProgressStatus::LOCKED]
@@ -675,43 +825,57 @@ class DemoSeeder extends Seeder
             }
         }
 
-        // -------------------------------------------------------------
-        // 10. Students & Parents Population (Target volume from config)
-        // -------------------------------------------------------------
-        $targetStudentsCount = (int) ($seedVolume['students'] ?? 30);
-        $targetParentsCount = (int) ($seedVolume['parents'] ?? 20);
+        // Add Educational Note from Teacher
+        StudentEducationalNote::flushEventListeners();
+        StudentEducationalNote::updateOrCreate(
+            ['student_user_id' => $demoStudentUser->id, 'teacher_profile_id' => $demoTeacherProfile->id],
+            [
+                'category' => 'academic_excellence',
+                'note' => 'الطالب عمر يظهر شغفاً وتفوقاً استثنائياً في حل مسائل كيرشوف والدوائر المعقدة. تم ترشيحه للمشاركة في تصفيات أولمبياد الفيزياء الوطني.',
+                'created_at' => now()->subDays(2),
+            ]
+        );
 
+        // Add Approved Exception Request (Absence excuse)
+        ExceptionRequest::flushEventListeners();
+        ExceptionRequest::updateOrCreate(
+            ['student_user_id' => $demoStudentUser->id, 'reason' => 'عذر طبي رسمي: وعكة صحية طارئة مع تقرير معتمد'],
+            [
+                'status' => 'approved',
+                'admin_notes' => 'تمت الموافقة من الإدارة وإعادة رصيد الحصة لمحفظة الطالب تلقائياً.',
+                'reviewed_by' => $demoAdmin->id,
+                'reviewed_at' => now()->subDays(4),
+                'created_at' => now()->subDays(4),
+                'updated_at' => now()->subDays(4),
+            ]
+        );
+
+        // -------------------------------------------------------------
+        // 12. Additional Students & Parents (@trendk.com)
+        // -------------------------------------------------------------
         $studentNames = [
             'كريم حسام الدين', 'نور الهدى أحمد', 'زياد طارق الشناوي', 'هنا مصطفى كامل',
             'عمر عبد الرحمن محمود', 'سلمى شريف إبراهيم', 'مروان خالد عبد الله', 'فرح ياسر جلال',
             'حمزة وائل توفيق', 'لينا أشرف عبد الفتاح', 'يحيى ماجد الصاوي', 'جنى تامر رضوان',
             'أحمد باسم عبد الخالق', 'رنا هاني سراج', 'مصطفى علاء الديب', 'ملك أسامة الشامي',
             'بلال رامي عاشور', 'ندى سمير فهمي', 'حازم شادي قنديل', 'مايا وليد زكريا',
-            'سيف الدين أيمن', 'بسملة إيهاب الباز', 'عبد الله مدحت غنيم', 'حنين عصام بركات',
-            'علي شريف الفقي', 'حبيبة طه العوضي', 'معاذ أشرف الغزالي', 'روان مجدي نصر',
-            'يوسف أحمد غانم', 'شهد ممدوح البدري',
         ];
 
         $parentNames = [
             'أ. حسام الدين عبد السلام', 'أ. أحمد علي بركات', 'أ. طارق الشناوي', 'أ. مصطفى كامل عبد الهادي',
             'أ. عبد الرحمن محمود فريد', 'أ. شريف إبراهيم غالي', 'أ. خالد عبد الله سويلم', 'أ. ياسر جلال العزازي',
             'أ. وائل توفيق هلال', 'أ. أشرف عبد الفتاح رضوان', 'أ. ماجد الصاوي الدسوقي', 'أ. تامر رضوان شلبي',
-            'أ. باسم عبد الخالق شاهين', 'أ. هاني سراج البحيري', 'أ. علاء الديب زهران', 'أ. أسامة الشامي علام',
-            'أ. رامي عاشور الدالي', 'أ. سمير فهمي حجازي', 'أ. شادي قنديل عوف', 'أ. وليد زكريا الشنواني',
         ];
 
-        // Seed additional students
         $createdStudents = collect([$demoStudentUser]);
-        for ($i = 1; $i < $targetStudentsCount; $i++) {
-            $sName = $studentNames[$i] ?? "طالب تجريبي {$i}";
-            $sEmail = "student{$i}@demo.test";
-            $sPhone = '+2011' . str_pad((string)(30000000 + $i), 8, '0', STR_PAD_LEFT);
-
+        foreach ($studentNames as $i => $sName) {
+            $num = $i + 1;
+            $sEmail = "student{$num}@trendk.com";
             $stUser = User::updateOrCreate(
                 ['email' => $sEmail],
                 [
                     'name' => $sName,
-                    'phone' => $sPhone,
+                    'phone' => '+2011' . str_pad((string)(30000000 + $num), 8, '0', STR_PAD_LEFT),
                     'password' => $hashedDemoPassword,
                     'status' => AccountStatus::APPROVED,
                     'email_verified_at' => now(),
@@ -724,7 +888,7 @@ class DemoSeeder extends Seeder
                 ['user_id' => $stUser->id],
                 [
                     'grade_level_id' => $grade->id,
-                    'school_name' => 'مدرسة النيل النموذجية التجريبية',
+                    'school_name' => 'مدرسة النيل الدولية للغات',
                     'has_used_free_session' => ($i % 2 === 0),
                 ]
             );
@@ -732,17 +896,14 @@ class DemoSeeder extends Seeder
             $createdStudents->push($stUser);
         }
 
-        // Seed additional parents and link to students
-        for ($j = 1; $j < $targetParentsCount; $j++) {
-            $pName = $parentNames[$j] ?? "ولي أمر تجريبي {$j}";
-            $pEmail = "parent{$j}@demo.test";
-            $pPhone = '+2012' . str_pad((string)(40000000 + $j), 8, '0', STR_PAD_LEFT);
-
+        foreach ($parentNames as $j => $pName) {
+            $pNum = $j + 1;
+            $pEmail = "parent{$pNum}@trendk.com";
             $pUser = User::updateOrCreate(
                 ['email' => $pEmail],
                 [
                     'name' => $pName,
-                    'phone' => $pPhone,
+                    'phone' => '+2012' . str_pad((string)(40000000 + $pNum), 8, '0', STR_PAD_LEFT),
                     'password' => $hashedDemoPassword,
                     'status' => AccountStatus::APPROVED,
                     'email_verified_at' => now(),
@@ -752,77 +913,55 @@ class DemoSeeder extends Seeder
 
             $pProfile = ParentProfile::firstOrCreate(['user_id' => $pUser->id]);
 
-            // Link to 1 or 2 students
-            $childStudent = $createdStudents->get($j % $createdStudents->count());
-            if ($childStudent && $childStudent->id !== $demoStudentUser->id) {
+            $child = $createdStudents->get($pNum % $createdStudents->count());
+            if ($child && $child->id !== $demoStudentUser->id) {
                 $pProfile->students()->syncWithoutDetaching([
-                    $childStudent->id => ['relationship' => ($j % 2 === 0 ? 'Son' : 'Daughter')],
+                    $child->id => ['relationship' => ($j % 2 === 0 ? 'Father' : 'Mother')],
                 ]);
             }
         }
 
         // -------------------------------------------------------------
-        // 11. Articles (Target volume from config + Spatie MediaLibrary)
+        // 13. Articles & Academic Insights
         // -------------------------------------------------------------
-        $targetArticlesCount = (int) ($seedVolume['articles'] ?? 6);
-        $articlesData = [
+        $articles = [
             [
-                'title' => 'كيفية تنظيم جدول المذاكرة اليومي لطلاب الثانوية العامة دون إرهاق',
-                'category' => 'نصائح دراسية',
-                'excerpt' => 'دليلك الشامل لتقسيم جلسات الاستذكار وفقاً لتقنية البومودورو، وتحديد الأولويات لتحقيق أعلى تحصيل وأفضل تركيز ذهني.',
-                'content' => "تعتبر مرحلة الثانوية العامة مرحلة حاسمة تتطلب استراتيجية ذكية بدلاً من مجرد قضاء ساعات طويلة دون إنتاجية حقيقية.\n\nأهم النصائح العملية:\n1. التكرار المتباعد بدلاً من الحفظ السريع ليلة الاختبار.\n2. حل نماذج امتحانات السنوات السابقة وتحليل أخطاء التفكير.\n3. الحفاظ على فترات نوم منتظمة وكافية لتثبيت الذاكرة طويلة المدى.",
+                'title' => 'استراتيجيات التفوق في امتحانات الثانوية العامة وفق النظام الحديث',
+                'category' => 'إرشادات أكاديمية',
+                'excerpt' => 'دليلك المتكامل لإدارة الوقت في المذاكرة والتعامل مع أسئلة مهارات التفكير العليا في الفيزياء والرياضيات.',
+                'content' => "النجاح في الثانوية العامة لم يعد معتمداً على الحفظ المجرد، بل على الفهم العميق وربط المفاهيم الفيزيائية والرياضية بنماذج تطبيقية.\n\nخطوات عملية للتفوق:\n1. التكرار المتباعد للمفاهيم الأساسية.\n2. حل نماذج بنوك الأسئلة الوزارية وتوثيق الأخطاء في كراس خاص.\n3. حضور الحلقات التفاعلية المباشرة ومناقشة المعلم في خطوات التفكير.",
                 'read_time' => 5,
             ],
             [
-                'title' => 'أهم 10 مشاريع بايثون برمجية ينبغي لكل طالب مبتدئ بناؤها في 2026',
-                'category' => 'البرمجة والتكنولوجيا',
-                'excerpt' => 'بناء المشاريع الحقيقية هو أقصر الطرق لترسيخ المفاهيم البرمجية. تعرف على أهم الأفكار المناسبة لملفك الأكاديمي.',
-                'content' => "البرمجة مهارة تطبيقية لا تكتمل بالقراءة النظرية فقط. في هذا الدليل نستعرض 10 تطبيقات سهلة ومتدرجة تساعدك في إتقان بايثون.\n\nمن بين المشاريع:\n- روبوت تيليجرام للرد الآلي\n- خوارزمية تحليل درجات الطلاب وعرض رسوم بيانية\n- تطبيق تتبع المهام اليومية مع قاعدة بيانات محلية.",
-                'read_time' => 8,
-            ],
-            [
-                'title' => 'مستقبل الذكاء الاصطناعي في التعليم: كيف توظف أدوات AI لمضاعفة تعلمك؟',
-                'category' => 'الذكاء الاصطناعي',
-                'excerpt' => 'استكشف كيف يمكنك استخدام نماذج الذكاء الاصطناعي كمساعد شخصي لشرح المسائل المعقدة واستخراج الملخصات.',
-                'content' => "الذكاء الاصطناعي التوليدي ليس مجرد أداة للإجابة عن الأسئلة، بل معلم شخصي متاح على مدار الساعة يوضح لك خطوات الحل ويدربك على التفكير التحليلي.",
-                'read_time' => 6,
-            ],
-            [
-                'title' => 'أسرار التفوق في مادة الكيمياء العضوية والتغلب على شبكة التفاعلات',
-                'category' => 'العلوم الطبيعية',
-                'excerpt' => 'استراتيجيات فعالة لربط مجموعات الهيدروكربونات والتمييز العملي بين المشتقات العضوية بطرق منطقية مبسطة.',
-                'content' => "الكيمياء العضوية مادة ممتعة عندما يتم التعامل معها كقصة منطقية مترابطة. ابدأ دائماً برسم شبكة العلاقات بين المجموعات الوظيفية وميكانيكية الإضافة والاستبدال.",
+                'title' => 'أهمية تعلم لغة بايثون ومفاهيم الذكاء الاصطناعي لطلاب المدارس',
+                'category' => 'تكنولوجيا المستقبل',
+                'excerpt' => 'كيف تؤهل أبناءك لسوق العمل الحديث من خلال البرمجة التفاعلية والتفكير الخوارزمي المنطقي.',
+                'content' => "البرمجة أصبحت مهارة أساسية كالقراءة والكتابة. تعلم لغة Python يفتح آفاقاً واسعة للطلاب لبناء تطبيقات حقيقية ونماذج ذكاء اصطناعي تفيدهم في دراستهم الجامعية ومستقبلهم المهني.",
                 'read_time' => 7,
             ],
             [
-                'title' => 'دليل ولي الأمر: كيف تدعم ابنك نفسياً وأكاديمياً أثناء فترات الامتحانات؟',
-                'category' => 'أولياء الأمور',
-                'excerpt' => 'نصائح وإرشادات للأمهات والآباء لتوفير بيئة منزلية هادئة تشجع الطالب على العطاء وتحميه من القلق والتوتر السلبي.',
-                'content' => "الدعم النفسي الإيجابي هو الركيزة الأساسية لثقة الطالب في قدراته. شجع طفلك على المجهود المبذول وابتعد تماماً عن المقارنات المحبطة مع الآخرين.",
+                'title' => 'دليل ولي الأمر: المتابعة الإيجابية للتحصيل الدراسي دون ضغط نفسي',
+                'category' => 'إرشاد أولياء الأمور',
+                'excerpt' => 'نصائح عملية للأمهات والآباء لمتابعة تقارير الحضور والدرجات عبر البوابة ودعم الطالب نفسياً.',
+                'content' => "الدعم النفسي الإيجابي هو الركيزة الأساسية لثقة الطالب في قدراته. من خلال بوابة ولي الأمر، يمكنك الاطلاع على درجات الواجبات ونسبة الحضور لحظياً وتقديم التشجيع المناسب.",
                 'read_time' => 4,
             ],
             [
-                'title' => 'إعلان بدء التسجيل في دورات الفصل الدراسي الجديد وجدول البث المباشر',
-                'category' => 'إعلانات الأكاديمية',
-                'excerpt' => 'تعلن منصة إيليت أكاديمي عن فتح باب الالتحاق بالحلقات النقاشية التفاعلية وجدول المحاضرات المباشرة لجميع المراحل.',
-                'content' => "يسر إدارة أكاديمية إيليت أن تعلن عن انطلاق برامج التميز الأكاديمي مع نخبة من كبار معلمي الجمهورية والمتابعة الفورية للواجبات عبر بوابات الطالب وولي الأمر.",
-                'read_time' => 3,
+                'title' => 'أسرار إتقان الكيمياء العضوية وتخطي عقبة شبكة التفاعلات',
+                'category' => 'العلوم التطبيقية',
+                'excerpt' => 'طرق مبتكرة لربط المجموعات الوظيفية والهيدروكربونات باستخدام الخرائط الذهنية التفاعلية.',
+                'content' => "الكيمياء العضوية مادة ممتعة عندما يتم التعامل معها كقصة منطقية مترابطة. ابدأ دائماً برسم شبكة العلاقات بين المجموعات الوظيفية وميكانيكية الإضافة والاستبدال.",
+                'read_time' => 6,
             ],
         ];
 
-        $demoAssetArticle = database_path('seeders/demo-assets/article.png');
-        foreach (array_slice($articlesData, 0, $targetArticlesCount) as $aIdx => $aData) {
-            $slug = Str::slug($aData['title']);
-            if (empty($slug)) {
-                $slug = 'demo-article-' . ($aIdx + 1);
-            }
-
-            $article = Article::updateOrCreate(
+        foreach ($articles as $aIdx => $aData) {
+            $slug = 'elite-article-' . ($aIdx + 1);
+            Article::updateOrCreate(
                 ['slug' => $slug],
                 [
                     'author_user_id' => $demoAdmin->id,
                     'title' => $aData['title'],
-                    'slug' => $slug,
                     'category' => $aData['category'],
                     'excerpt' => $aData['excerpt'],
                     'content' => $aData['content'],
@@ -832,51 +971,39 @@ class DemoSeeder extends Seeder
                     'published_at' => now()->subDays($aIdx * 2 + 1),
                 ]
             );
-
-            // Trendk Standard 3.4: Spatie MediaLibrary
-            if (file_exists($demoAssetArticle) && method_exists($article, 'addMedia')) {
-                try {
-                    if ($article->getFirstMedia('featured_image') === null) {
-                        $article->copyMedia($demoAssetArticle)->toMediaCollection('featured_image');
-                    }
-                } catch (\Throwable $e) {
-                    // Fallback to static column gracefully if media storage not ready
-                }
-            }
         }
 
         // -------------------------------------------------------------
-        // 12. Hero Slides (Target volume from config)
+        // 14. Hero Slides (Elite Academy Prestige Brand)
         // -------------------------------------------------------------
-        $targetSlidesCount = (int) ($seedVolume['hero_slides'] ?? 3);
-        $slidesData = [
+        $slides = [
             [
-                'title' => 'أكاديمية إيليت: تعلّم بذكاء وتفوّق مع كبار معلمي الجمهورية',
-                'subtitle' => 'منصة تعليمية ذكية تجمع بين الحصص المباشرة، التقييم الآلي للواجبات، ومتابعة ولي الأمر اللحظية.',
-                'track' => '🚀 المنصة التعليمية الرائدة في مصر',
+                'title' => 'أكاديمية النخبة التعليمية: استثمر في تفوقك الدراسي مع كبار معلمي الجمهورية',
+                'subtitle' => 'منظومة تعليمية تفاعلية معتمدة تجمع بين الحصص المباشرة عالية الدقة، والتقييم الآلي للواجبات، ومتابعة ولي الأمر اللحظية.',
+                'track' => '🏛️ الصرح التعليمي الرقمي الأقوى في مصر',
                 'image' => 'images/hero_student.png',
                 'cta1' => '/subjects',
                 'cta2' => '/register',
             ],
             [
-                'title' => 'مسارات البرمجة والذكاء الاصطناعي لطلاب المستقبل',
+                'title' => 'مسارات البرمجة والذكاء الاصطناعي وبناء مهندسي الغد',
                 'subtitle' => 'اكتسب مهارات العصر الرقمي وابنِ مشاريعك الأولى بلغة بايثون وتطبيقات تعلم الآلة تحت إشراف مهندسين معتمدين.',
-                'track' => '🧠 مسار هندسة البرمجيات والذكاء الاصطناعي',
+                'track' => '🧠 مسار البرمجة والتكنولوجيا المتقدمة',
                 'image' => 'images/course_ai.png',
                 'cta1' => '/courses',
                 'cta2' => '/subjects',
             ],
             [
-                'title' => 'فصول افتراضية تفاعلية ودعم شامل لكل طالب',
-                'subtitle' => 'اسأل معلمك مباشرة وتفاعل في بث حي عالي الجودة مع توفير تسجيلات الحصص وبنوك الأسئلة للمراجعة.',
-                'track' => '🎯 تجربة تعليمية فريدة ومتكاملة',
+                'title' => 'فصول افتراضية تفاعلية ودعم أكاديمي مباشر وشامل',
+                'subtitle' => 'تفاعل صوتاً وصورة مع أفضل معلمي مصر مع تسجيلات دائمة ومذكرات بصيغة PDF واختبارات قياس مستوى دورية.',
+                'track' => '🎯 تجربة تعليمية رائدة لأوائل الجمهورية',
                 'image' => 'images/academy_campus.png',
                 'cta1' => '/login',
                 'cta2' => '/register',
             ],
         ];
 
-        foreach (array_slice($slidesData, 0, $targetSlidesCount) as $sIdx => $sData) {
+        foreach ($slides as $sIdx => $sData) {
             HeroSlide::updateOrCreate(
                 ['sort_order' => $sIdx + 1],
                 [
@@ -891,15 +1018,98 @@ class DemoSeeder extends Seeder
             );
         }
 
-        $this->command?->info('✅ Elite Academy Demo Seeder completed successfully!');
+        // -------------------------------------------------------------
+        // 15. Site Settings (Prestigious Educational Institution)
+        // -------------------------------------------------------------
+        $settings = [
+            'site_name' => 'أكاديمية النخبة التعليمية',
+            'site_tagline' => 'نحو تفوق دراسي حقيقي ومستقبل تعليمي رائد',
+            'contact_hero_badge' => 'خدمة الطلاب وأولياء الأمور 24/7',
+            'contact_hero_title' => 'نحن هنا دائماً لدعم مسيرتك التعليمية',
+            'contact_hero_subtitle' => 'فريق الاستشارات الأكاديمية وخدمة العملاء جاهز للرد على استفساراتكم بخصوص باقات الاشتراك وجدول الحصص.',
+            'contact_phone' => '+20 100 000 0000',
+            'contact_whatsapp' => '+20 100 000 0000',
+            'owner_whatsapp' => '+20 100 000 0000',
+            'contact_email' => 'support@trendk.com',
+            'contact_address' => 'مجمع الصروح التعليمية، التجمع الخامس، القاهرة، جمهورية مصر العربية',
+            'about_hero_badge' => 'ريادة تعليمية معتمدة • منذ 2020',
+            'about_hero_title' => 'إعادة صياغة التعليم التفاعلي وبناء أجيال من المتفوقين',
+            'about_hero_subtitle' => 'تجمع أكاديمية النخبة بين أحدث تقنيات التعليم الرقمي ونخبة من ألمع الأساتذة لتقديم تجربة تعليمية رائدة.',
+            'about_mission_title' => 'رسالتنا الأكاديمية',
+            'about_mission_text' => 'تمكين كل طالب من استثمار كامل قدراته الفكرية وتحقيق أعلى المراتب في الشهادات الثانوية والجامعية.',
+            'about_vision_title' => 'رؤيتنا المستقبلية',
+            'about_vision_text' => 'أن نكون المنصة التعليمية الأكثر موثوقية وجودة في العالم العربي لبناء رواد الغد.',
+            'about_stat_students' => '25,000+',
+            'about_stat_courses' => '120+',
+            'about_stat_teachers' => '45+',
+            'about_stat_pass_rate' => '99.2%',
+            'landing_stats_counters' => json_encode([
+                ['count' => '25,000+', 'label_ar' => 'طالب متفوق ومسجل', 'label_en' => 'Active High Achievers', 'color' => 'teal'],
+                ['count' => '120+', 'label_ar' => 'كورس ومنهج معتمد', 'label_en' => 'Accredited Courses', 'color' => 'teal'],
+                ['count' => '45+', 'label_ar' => 'من كبار معلمي الجمهورية', 'label_en' => 'Renowned Master Teachers', 'color' => 'teal'],
+                ['count' => '99.2%', 'label_ar' => 'نسبة النجاح والتفوق', 'label_en' => 'Success & Excellence Rate', 'color' => 'orange'],
+                ['count' => '100%', 'label_ar' => 'اعتماد وتدريس تفاعلي', 'label_en' => 'Live Interactive Accreditation', 'color' => 'teal'],
+            ], JSON_UNESCAPED_UNICODE),
+        ];
+
+        foreach ($settings as $key => $value) {
+            SiteSetting::set($key, $value, str_starts_with($key, 'contact_') ? 'contact' : (str_starts_with($key, 'about_') ? 'about' : 'general'));
+        }
+
+        // -------------------------------------------------------------
+        // 16. Testimonials
+        // -------------------------------------------------------------
+        Testimonial::updateOrCreate(
+            ['name' => 'عمر شريف إبراهيم'],
+            [
+                'avatar' => 'images/hero_student.png',
+                'content' => 'بفضل الله ثم شرح د. طارق الشناوي في أكاديمية النخبة استطعت فهم أدق تفاصيل قوانين كيرشوف والفيزياء الحديثة والحصول على الدرجة النهائية.',
+                'course_name' => 'الفيزياء الكهربية والحديثة (ثانوية عامة)',
+                'rating' => 5,
+                'reviewer_type' => 'student',
+                'is_verified' => true,
+                'is_featured' => true,
+                'sort_order' => 1,
+            ]
+        );
+
+        Testimonial::updateOrCreate(
+            ['name' => 'م. شريف إبراهيم غالي'],
+            [
+                'avatar' => 'images/instructor_male.png',
+                'content' => 'بوابة ولي الأمر أحدثت فارقاً حقيقياً في متابعة ابني؛ إشعارات الحضور الفورية، تقارير الواجبات، ووضوح المعاملات المالية يمنح راحة بال تامة.',
+                'course_name' => 'بوابة ولي الأمر الأكاديمية',
+                'rating' => 5,
+                'reviewer_type' => 'parent',
+                'is_verified' => true,
+                'is_featured' => true,
+                'sort_order' => 2,
+            ]
+        );
+
+        Testimonial::updateOrCreate(
+            ['name' => 'سلمى عبد الرحمن'],
+            [
+                'avatar' => 'images/instructor_female.png',
+                'content' => 'كورس الكيمياء العضوية مع أ. سارة فاق كل توقعاتي، الخرائط الذهنية سهلت حفظ وفهم التفاعلات المعقدة بدون أي عناء.',
+                'course_name' => 'الكيمياء العضوية والتحليلية',
+                'rating' => 5,
+                'reviewer_type' => 'student',
+                'is_verified' => true,
+                'is_featured' => true,
+                'sort_order' => 3,
+            ]
+        );
+
+        $this->command?->info('🎉 Elite Academy Master Demo Seeder completed successfully!');
         $this->command?->table(
             ['Role', 'Email', 'Password', 'Target Portal'],
             [
-                ['Admin', 'admin@demo.test', $demoPassword, '/admin'],
-                ['Teacher', 'teacher@demo.test', $demoPassword, '/teacher (teacher-portal)'],
-                ['Student', 'student@demo.test', $demoPassword, '/student (student-portal)'],
-                ['Parent', 'parent@demo.test', $demoPassword, '/parent (parent-portal)'],
-                ['Support (Hidden)', 'support@trendk.com', 'password', 'Bypasses all gates (Super Admin)'],
+                ['Admin (Principal)', 'admin@trendk.com', $demoPassword, '/admin (Filament Admin)'],
+                ['Senior Teacher', 'teacher@trendk.com', $demoPassword, '/teacher (teacher-portal)'],
+                ['Top Student', 'student@trendk.com', $demoPassword, '/student (student-portal)'],
+                ['Active Parent', 'parent@trendk.com', $demoPassword, '/parent (parent-portal)'],
+                ['Support (Hidden)', 'support@trendk.com', $demoPassword, 'Gate::before Super Admin'],
             ]
         );
     }

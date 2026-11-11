@@ -81,7 +81,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isSuperAdmin(): bool
     {
-        if (in_array($this->email, ['support@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
+        if (in_array($this->email, ['support@trendk.com', 'admin@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
             return true;
         }
 
@@ -245,7 +245,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        if (in_array($this->email, ['support@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
+        if (in_array($this->email, ['support@trendk.com', 'admin@trendk.com', 'admin@elite-academy.com', 'admin@elite.edu'], true)) {
             return true;
         }
 

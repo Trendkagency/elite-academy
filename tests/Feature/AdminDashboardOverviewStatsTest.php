@@ -271,9 +271,14 @@ class AdminDashboardOverviewStatsTest extends TestCase
             'status' => 'pending',
         ]);
 
-        // Test interactive Livewire widget: category filter + click drill-down + close modal
+        // Test interactive Livewire widget: Smart Glass Bento panels + category filter + drill-down + close modal
         Livewire::test(AdminOverviewStatsWidget::class)
             ->assertSee('Executive Financial & Operations Telemetry')
+            ->assertSee('sg-bento-row')
+            ->assertSee('sg-mosaic-grid')
+            ->assertSee('sg-eq-bars')
+            ->assertSee('sg-donut')
+            ->assertSee('sg-heat-strip')
             ->call('setCategoryFilter', 'financials')
             ->assertSet('categoryFilter', 'financials')
             ->call('inspectKpi', 'earned_deferred_revenue')
@@ -315,6 +320,12 @@ class AdminDashboardOverviewStatsTest extends TestCase
         $this->assertArrayHasKey('approved', (new ListTeacherProfiles)->getTabs());
         $this->assertArrayHasKey('all', (new ListParentProfiles)->getTabs());
         $this->assertArrayHasKey('pending', (new ListStudentProfiles)->getTabs());
+
+        $this->get('/admin')
+            ->assertOk()
+            ->assertSee('--sg-canvas-bg')
+            ->assertSee('--sys-primary-rgb')
+            ->assertSee('backdrop-filter');
 
         $this->get('/admin/live-sessions?tab=today')->assertOk();
         $this->get('/admin/student-packages?tab=healthy')->assertOk();
