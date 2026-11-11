@@ -14,6 +14,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Role;
 
 class DemoLoginController extends Controller
 {
@@ -53,6 +55,15 @@ class DemoLoginController extends Controller
 
         if (! $user) {
             $user = $this->createDemoUserFallback($role, $targetEmail, (array) $account);
+        }
+
+        if ($role === 'admin') {
+            AdminProfile::firstOrCreate(['user_id' => $user->id]);
+
+            if (Schema::hasTable('roles') && class_exists(Role::class) && ! $user->hasRole('Super Admin')) {
+                $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+                $user->assignRole($superAdminRole);
+            }
         }
 
         // Ensure user is approved

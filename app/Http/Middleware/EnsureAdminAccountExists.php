@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureAdminAccountExists
@@ -54,6 +55,18 @@ class EnsureAdminAccountExists
                     }
 
                     AdminProfile::firstOrCreate(['user_id' => $user->id]);
+
+                    if (
+                        Schema::hasTable('roles')
+                        && class_exists(Role::class)
+                        && $user->roles()->count() === 0
+                    ) {
+                        $superAdminRole = Role::firstOrCreate([
+                            'name' => 'Super Admin',
+                            'guard_name' => 'web',
+                        ]);
+                        $user->assignRole($superAdminRole);
+                    }
                 }
             }
         } catch (\Throwable $e) {

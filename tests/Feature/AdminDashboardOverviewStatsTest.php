@@ -334,4 +334,41 @@ class AdminDashboardOverviewStatsTest extends TestCase
         $this->get('/admin/teacher-profiles?tab=approved')->assertOk();
         $this->get('/admin/parent-profiles?tab=all')->assertOk();
     }
+
+    public function test_demo_admin_and_unroled_admins_can_open_every_kpi_resource_url_while_non_admins_get_403(): void
+    {
+        // Demo Principal Admin (without manually assigned Spatie roles)
+        $demoAdmin = User::factory()->create([
+            'email' => 'admin@trendk.com',
+            'status' => AccountStatus::APPROVED,
+        ]);
+        AdminProfile::create(['user_id' => $demoAdmin->id]);
+
+        $this->actingAs($demoAdmin);
+
+        $overview = (new AdminOverviewStatsWidget)->getKpiData();
+        foreach ($overview['kpis'] as $kpi) {
+            $path = parse_url($kpi['target_url'], PHP_URL_PATH);
+            $query = parse_url($kpi['target_url'], PHP_URL_QUERY);
+            $relativeUrl = $path.($query ? '?'.$query : '');
+            $this->get($relativeUrl)->assertOk();
+        }
+
+        // Legacy/custom AdminProfile with explicit restricted Shield role (e.g. Auditor with zero permissions) stays forbidden on StudentPackage
+        $restrictedAdmin = User::factory()->create(['status' => AccountStatus::APPROVED]);
+        AdminProfile::create(['user_id' => $restrictedAdmin->id]);
+        $auditorRole = Role::firstOrCreate(['name' => 'Auditor', 'guard_name' => 'web']);
+        $restrictedAdmin->assignRole($auditorRole);
+
+        $this->actingAs($restrictedAdmin)
+            ->get('/admin/student-packages?tab=healthy')
+            ->assertStatus(403);
+
+        // Students must still receive 403
+        $student = User::factory()->create(['status' => AccountStatus::APPROVED]);
+        StudentProfile::create(['user_id' => $student->id]);
+        $this->actingAs($student)
+            ->get('/admin/student-packages?tab=healthy')
+            ->assertStatus(403);
+    }
 }
