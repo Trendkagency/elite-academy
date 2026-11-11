@@ -6,10 +6,41 @@
 
 <style>
     .linked-children-container {
+        /* Light Theme Tokens */
+        --ch-bg-card: #FFFFFF;
+        --ch-bg-subtle: #F8FAFC;
+        --ch-bg-elevated: #F1F5F9;
+        --ch-border: #E2E8F0;
+        --ch-text-primary: #0F172A;
+        --ch-text-secondary: #334155;
+        --ch-text-muted: #64748B;
+        --ch-teal: #0D9488;
+        --ch-sky: #0284C7;
+        --ch-shadow: 0 6px 20px -4px rgba(15, 23, 42, 0.08);
+        --ch-shadow-hover: 0 16px 32px -8px rgba(13, 148, 136, 0.18);
+
         width: 100%;
         margin-top: 8px;
         margin-bottom: 8px;
     }
+
+    html.dark .linked-children-container,
+    .dark .linked-children-container,
+    [data-theme="dark"] .linked-children-container {
+        /* Dark Theme Tokens */
+        --ch-bg-card: #1E293B;
+        --ch-bg-subtle: #0F172A;
+        --ch-bg-elevated: #334155;
+        --ch-border: #334155;
+        --ch-text-primary: #F8FAFC;
+        --ch-text-secondary: #CBD5E1;
+        --ch-text-muted: #94A3B8;
+        --ch-teal: #2DD4BF;
+        --ch-sky: #38BDF8;
+        --ch-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+        --ch-shadow-hover: 0 20px 40px -10px rgba(20, 184, 166, 0.3);
+    }
+
     .child-card-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -19,10 +50,10 @@
         position: relative;
         overflow: hidden;
         border-radius: 24px;
-        background: #1e293b;
-        border: 1px solid #334155;
+        background: var(--ch-bg-card);
+        border: 1.5px solid var(--ch-border);
         padding: 22px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--ch-shadow);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
@@ -31,7 +62,7 @@
     .child-card:hover {
         transform: translateY(-5px);
         border-color: #14b8a6;
-        box-shadow: 0 20px 40px -10px rgba(20, 184, 166, 0.3);
+        box-shadow: var(--ch-shadow-hover);
     }
     .child-card-top-bar {
         position: absolute;
@@ -47,7 +78,7 @@
         justify-content: space-between;
         padding-bottom: 14px;
         margin-bottom: 12px;
-        border-bottom: 1px solid #334155;
+        border-bottom: 1px solid var(--ch-border);
     }
     .child-info {
         display: flex;
@@ -56,18 +87,19 @@
         text-decoration: none;
     }
     .child-info:hover .child-name {
-        color: #2dd4bf;
+        color: var(--ch-teal);
     }
     .child-avatar {
         width: 46px;
         height: 46px;
         border-radius: 16px;
-        background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(16, 185, 129, 0.25));
-        border: 1px solid rgba(20, 184, 166, 0.4);
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(16, 185, 129, 0.18));
+        border: 1px solid rgba(20, 184, 166, 0.35);
+        color: var(--ch-teal);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
         flex-shrink: 0;
         transition: transform 0.3s ease;
     }
@@ -77,7 +109,7 @@
     .child-name {
         font-size: 16px;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--ch-text-primary);
         margin: 0;
         line-height: 1.3;
         transition: color 0.2s ease;
@@ -86,16 +118,16 @@
         display: inline-block;
         font-size: 10px;
         font-weight: 700;
-        background: #334155;
-        color: #cbd5e1;
+        background: var(--ch-bg-elevated);
+        color: var(--ch-text-secondary);
         padding: 2px 8px;
         border-radius: 6px;
         margin-top: 3px;
     }
     .badge-approved {
         background: rgba(16, 185, 129, 0.15);
-        color: #34d399;
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.35);
         padding: 5px 12px;
         border-radius: 20px;
         font-size: 11px;
@@ -104,13 +136,16 @@
     }
     .badge-pending {
         background: rgba(245, 158, 11, 0.15);
-        color: #fbbf24;
-        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.35);
         padding: 5px 12px;
         border-radius: 20px;
         font-size: 11px;
         font-weight: 800;
         white-space: nowrap;
+    }
+    html.dark .badge-pending {
+        color: #fbbf24;
     }
     .quick-stats-row {
         display: grid;
@@ -119,8 +154,8 @@
         margin-bottom: 12px;
     }
     .stat-chip {
-        background: #0f172a;
-        border: 1px solid #334155;
+        background: var(--ch-bg-subtle);
+        border: 1px solid var(--ch-border);
         border-radius: 12px;
         padding: 8px;
         text-align: center;
@@ -128,12 +163,12 @@
     .stat-chip-num {
         font-size: 14px;
         font-weight: 900;
-        color: #38bdf8;
+        color: var(--ch-sky);
     }
     .stat-chip-lbl {
         font-size: 9px;
         font-weight: 700;
-        color: #94a3b8;
+        color: var(--ch-text-muted);
         text-transform: uppercase;
     }
     .detail-grid {
@@ -142,8 +177,8 @@
         gap: 10px;
     }
     .detail-item {
-        background: #0f172a;
-        border: 1px solid #1e293b;
+        background: var(--ch-bg-subtle);
+        border: 1px solid var(--ch-border);
         border-radius: 12px;
         padding: 10px 12px;
     }
@@ -151,7 +186,7 @@
         display: block;
         font-size: 10px;
         font-weight: 800;
-        color: #94a3b8;
+        color: var(--ch-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 4px;
@@ -160,18 +195,18 @@
         display: block;
         font-size: 12px;
         font-weight: 700;
-        color: #f1f5f9;
+        color: var(--ch-text-primary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     .detail-value-teal {
-        color: #2dd4bf;
+        color: var(--ch-teal);
     }
     .progress-footer {
         margin-top: 14px;
         padding-top: 12px;
-        border-top: 1px solid #334155;
+        border-top: 1px solid var(--ch-border);
     }
     .progress-header {
         display: flex;
@@ -179,12 +214,12 @@
         align-items: center;
         font-size: 11px;
         font-weight: 700;
-        color: #cbd5e1;
+        color: var(--ch-text-secondary);
         margin-bottom: 8px;
     }
     .progress-pill {
         background: rgba(20, 184, 166, 0.15);
-        color: #2dd4bf;
+        color: var(--ch-teal);
         border: 1px solid rgba(20, 184, 166, 0.3);
         padding: 3px 10px;
         border-radius: 12px;
@@ -193,7 +228,7 @@
     }
     .progress-pill-none {
         background: rgba(148, 163, 184, 0.15);
-        color: #94a3b8;
+        color: var(--ch-text-muted);
         border: 1px solid rgba(148, 163, 184, 0.3);
         padding: 3px 10px;
         border-radius: 12px;
@@ -203,10 +238,10 @@
     .progress-bar-bg {
         width: 100%;
         height: 8px;
-        background: #0f172a;
+        background: var(--ch-bg-subtle);
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #334155;
+        border: 1px solid var(--ch-border);
     }
     .progress-bar-fill {
         height: 100%;
@@ -247,27 +282,29 @@
         gap: 6px;
         padding: 8px 12px;
         border-radius: 12px;
-        background: #0f172a;
-        color: #cbd5e1;
-        border: 1px solid #334155;
+        background: var(--ch-bg-subtle);
+        color: var(--ch-text-secondary);
+        border: 1px solid var(--ch-border);
         font-size: 11px;
         font-weight: 800;
         text-decoration: none;
         transition: all 0.2s ease;
     }
     .action-btn-secondary:hover {
-        background: #334155;
-        color: #ffffff;
+        background: var(--ch-bg-elevated);
+        color: var(--ch-text-primary);
     }
     /* Real-Time Pagination Bar Styles */
     .pagination-toolbar {
         display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
         align-items: center;
         justify-content: space-between;
         margin-top: 20px;
         padding: 12px 18px;
-        background: #0f172a;
-        border: 1px solid #334155;
+        background: var(--ch-bg-card);
+        border: 1px solid var(--ch-border);
         border-radius: 16px;
     }
     .pagination-btn {
@@ -278,8 +315,8 @@
         border-radius: 12px;
         font-size: 12px;
         font-weight: 800;
-        background: #1e293b;
-        color: #14b8a6;
+        background: var(--ch-bg-subtle);
+        color: var(--ch-teal);
         border: 1px solid rgba(20, 184, 166, 0.4);
         cursor: pointer;
         transition: all 0.2s ease;
@@ -292,8 +329,8 @@
     .pagination-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
-        border-color: #334155;
-        color: #64748b;
+        border-color: var(--ch-border);
+        color: var(--ch-text-muted);
     }
     .pagination-numbers {
         display: flex;
@@ -309,15 +346,15 @@
         justify-content: center;
         font-size: 12px;
         font-weight: 800;
-        background: #1e293b;
-        color: #cbd5e1;
-        border: 1px solid #334155;
+        background: var(--ch-bg-subtle);
+        color: var(--ch-text-secondary);
+        border: 1px solid var(--ch-border);
         cursor: pointer;
         transition: all 0.2s ease;
     }
     .page-number-pill:hover {
         border-color: #14b8a6;
-        color: #14b8a6;
+        color: var(--ch-teal);
     }
     .page-number-pill.active {
         background: #14b8a6;
@@ -328,11 +365,18 @@
     .pagination-info {
         font-size: 12px;
         font-weight: 700;
-        color: #94a3b8;
+        color: var(--ch-text-muted);
+    }
+    .pagination-accent {
+        color: var(--ch-teal);
+    }
+    .pagination-strong {
+        color: var(--ch-text-primary);
+        font-weight: 800;
     }
     .per-page-select {
-        background: #1e293b;
-        color: #14b8a6;
+        background: var(--ch-bg-subtle);
+        color: var(--ch-teal);
         border: 1px solid rgba(20, 184, 166, 0.4);
         border-radius: 10px;
         padding: 4px 8px;
@@ -344,23 +388,24 @@
     .empty-state {
         padding: 40px 20px;
         text-align: center;
-        background: #1e293b;
+        background: var(--ch-bg-subtle);
         border-radius: 20px;
-        border: 2px dashed #334155;
+        border: 2px dashed var(--ch-border);
     }
     .empty-icon {
         font-size: 36px;
         margin-bottom: 8px;
+        color: var(--ch-text-muted);
     }
     .empty-title {
         font-size: 15px;
         font-weight: 800;
-        color: #f8fafc;
+        color: var(--ch-text-primary);
         margin: 0;
     }
     .empty-desc {
         font-size: 12px;
-        color: #94a3b8;
+        color: var(--ch-text-muted);
         margin-top: 4px;
     }
 </style>
@@ -528,9 +573,9 @@
                     <span>السابق (Prev)</span>
                 </button>
 
-                <div class="flex items-center gap-3">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
                     <span class="pagination-info">
-                        صفحة <strong x-text="page" class="text-teal-400"></strong> من <strong x-text="totalPages" class="text-teal-400"></strong> (إجمالي <span class="text-white font-extrabold">{{ $totalCount }}</span> أبناء)
+                        صفحة <strong x-text="page" class="pagination-accent"></strong> من <strong x-text="totalPages" class="pagination-accent"></strong> (إجمالي <span class="pagination-strong">{{ $totalCount }}</span> أبناء)
                     </span>
 
                     <!-- Page Number Pills -->
@@ -544,8 +589,8 @@
                     </div>
 
                     <!-- Cards Per Page Selector -->
-                    <div class="flex items-center gap-1.5 ml-2">
-                        <span class="text-[11px] font-bold text-slate-400">العرض:</span>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-inline-start: 8px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--ch-text-muted);">العرض:</span>
                         <select class="per-page-select" x-model.number="perPage" @change="page = 1">
                             <option value="2">2 كروت / صفحة</option>
                             <option value="4">4 كروت / صفحة</option>

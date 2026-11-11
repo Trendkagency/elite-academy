@@ -36,27 +36,85 @@
 
 <style>
     .submission-modal-container {
+        /* Light Theme Tokens */
+        --sub-bg-card: #FFFFFF;
+        --sub-bg-subtle: #F8FAFC;
+        --sub-bg-hero: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        --sub-bg-option: #FFFFFF;
+        --sub-border: #E2E8F0;
+        --sub-border-subtle: #F1F5F9;
+        --sub-text-primary: #0F172A;
+        --sub-text-secondary: #334155;
+        --sub-text-muted: #64748B;
+        --sub-teal: #0D9488;
+        --sub-sky: #0284C7;
+        --sub-badge-q-bg: #F1F5F9;
+        --sub-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+        --sub-opt-correct-text: #065F46;
+        --sub-opt-incorrect-text: #991B1B;
+
         font-family: inherit;
-        color: #f8fafc;
+        color: var(--sub-text-primary);
         display: flex;
         flex-direction: column;
         gap: 20px;
         padding: 4px 0;
     }
+
+    html.dark .submission-modal-container,
+    .dark .submission-modal-container,
+    [data-theme="dark"] .submission-modal-container {
+        /* Dark Theme Tokens */
+        --sub-bg-card: #1E293B;
+        --sub-bg-subtle: #0F172A;
+        --sub-bg-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        --sub-bg-option: #1E293B;
+        --sub-border: #334155;
+        --sub-border-subtle: #1E293B;
+        --sub-text-primary: #F8FAFC;
+        --sub-text-secondary: #E2E8F0;
+        --sub-text-muted: #94A3B8;
+        --sub-teal: #2DD4BF;
+        --sub-sky: #38BDF8;
+        --sub-badge-q-bg: #1E293B;
+        --sub-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        --sub-opt-correct-text: #86EFAC;
+        --sub-opt-incorrect-text: #FCA5A5;
+    }
+
     .submission-card {
-        background: #1e293b;
-        border: 1px solid #334155;
+        background: var(--sub-bg-card);
+        border: 1px solid var(--sub-border);
         border-radius: 18px;
         padding: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--sub-shadow);
     }
     .submission-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        border: 1px solid #334155;
+        background: var(--sub-bg-hero);
+        border: 1px solid var(--sub-border);
         border-radius: 20px;
         padding: 24px;
         position: relative;
         overflow: hidden;
+    }
+    .submission-hero-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--sub-text-primary);
+        margin: 0 0 6px 0;
+        line-height: 1.4;
+    }
+    .submission-hero-desc {
+        font-size: 13px;
+        color: var(--sub-text-muted);
+        margin: 0;
+    }
+    .submission-grade-box {
+        background: var(--sub-bg-card);
+        border-radius: 18px;
+        padding: 16px 24px;
+        text-align: center;
+        min-width: 150px;
     }
     .hero-grid {
         display: grid;
@@ -75,8 +133,8 @@
         gap: 14px;
     }
     .stat-pill {
-        background: #0f172a;
-        border: 1px solid #334155;
+        background: var(--sub-bg-subtle);
+        border: 1px solid var(--sub-border);
         border-radius: 14px;
         padding: 14px 18px;
         display: flex;
@@ -99,8 +157,8 @@
         gap: 16px;
     }
     .info-group {
-        background: #0f172a;
-        border: 1px solid #334155;
+        background: var(--sub-bg-subtle);
+        border: 1px solid var(--sub-border);
         border-radius: 14px;
         padding: 14px 16px;
     }
@@ -109,27 +167,27 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: #94a3b8;
+        color: var(--sub-text-muted);
         margin-bottom: 4px;
     }
     .info-value {
         font-size: 13px;
         font-weight: 700;
-        color: #f1f5f9;
+        color: var(--sub-text-primary);
     }
     .question-card {
-        background: #0f172a;
-        border: 1px solid #334155;
+        background: var(--sub-bg-subtle);
+        border: 1px solid var(--sub-border);
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 16px;
         transition: all 0.2s ease;
     }
     .question-card.correct-border {
-        border-right: 4px solid #10b981;
+        border-inline-start: 4px solid #10b981;
     }
     .question-card.incorrect-border {
-        border-right: 4px solid #ef4444;
+        border-inline-start: 4px solid #ef4444;
     }
     .question-header {
         display: flex;
@@ -137,12 +195,28 @@
         align-items: flex-start;
         margin-bottom: 12px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #1e293b;
+        border-bottom: 1px solid var(--sub-border);
         gap: 10px;
     }
+    .question-num-pill {
+        background: var(--sub-badge-q-bg);
+        color: var(--sub-sky);
+        font-weight: 800;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--sub-border);
+    }
+    .question-prompt {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--sub-text-primary);
+        line-height: 1.6;
+        margin-bottom: 14px;
+    }
     .option-row {
-        background: #1e293b;
-        border: 1px solid #334155;
+        background: var(--sub-bg-option);
+        border: 1px solid var(--sub-border);
         border-radius: 12px;
         padding: 12px 16px;
         margin-bottom: 8px;
@@ -158,13 +232,28 @@
     }
     .option-row.student-picked-correct {
         border-color: #10b981;
-        background: rgba(16, 185, 129, 0.18);
+        background: rgba(16, 185, 129, 0.16);
         box-shadow: 0 0 0 1px #10b981;
     }
     .option-row.student-picked-incorrect {
         border-color: #ef4444;
-        background: rgba(239, 68, 68, 0.15);
+        background: rgba(239, 68, 68, 0.14);
         box-shadow: 0 0 0 1px #ef4444;
+    }
+    .opt-text-correct { color: var(--sub-opt-correct-text); font-weight: 700; }
+    .opt-text-incorrect { color: var(--sub-opt-incorrect-text); font-weight: 700; }
+    .opt-text-default { color: var(--sub-text-secondary); font-weight: 500; }
+    .submission-notes-box {
+        background: var(--sub-bg-subtle);
+        border-inline-start: 4px solid var(--sub-sky);
+    }
+    .submission-empty-box {
+        text-align: center;
+        padding: 30px;
+        background: var(--sub-bg-subtle);
+        border-radius: 14px;
+        border: 1px dashed var(--sub-border);
+        color: var(--sub-text-muted);
     }
     .badge-custom {
         display: inline-flex;
@@ -221,24 +310,24 @@
                     @endif
                 </div>
 
-                <h2 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0; line-height: 1.4;">
+                <h2 class="submission-hero-title">
                     {{ $assignment?->title ?? 'Assignment Submission' }}
                 </h2>
 
-                <p style="font-size: 13px; color: #94a3b8; margin: 0;">
+                <p class="submission-hero-desc">
                     {{ $assignment?->description ?? 'No assignment description provided.' }}
                 </p>
             </div>
 
             {{-- Big Grade Banner --}}
-            <div style="background: #0f172a; border: 2px solid {{ $isPassed ? '#10b981' : '#ef4444' }}; border-radius: 18px; padding: 16px 24px; text-align: center; min-width: 150px;">
-                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">
+            <div class="submission-grade-box" style="border: 2px solid {{ $isPassed ? '#10b981' : '#ef4444' }};">
+                <div class="info-label" style="margin-bottom: 2px;">
                     Final Grade
                 </div>
-                <div style="font-size: 32px; font-weight: 900; color: {{ $isPassed ? '#34d399' : '#f87171' }}; line-height: 1;">
+                <div style="font-size: 32px; font-weight: 900; color: {{ $isPassed ? '#10b981' : '#ef4444' }}; line-height: 1;">
                     {{ round($effectiveScore, 1) }}%
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 4px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--sub-text-muted); margin-top: 4px;">
                     Pass Threshold: {{ round($passingScore, 1) }}%
                 </div>
             </div>
@@ -249,27 +338,27 @@
     <div class="stats-strip">
         {{-- Student Info --}}
         <div class="stat-pill">
-            <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+            <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--sub-sky);">
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div>
                 <div class="info-label">Student Name / الطالب</div>
                 <div class="info-value">{{ $student?->name ?? 'Student #' . $submission->student_user_id }}</div>
-                <div style="font-size: 11px; color: #64748b;">{{ $student?->email ?? 'No email' }}</div>
+                <div style="font-size: 11px; color: var(--sub-text-muted);">{{ $student?->email ?? 'No email' }}</div>
             </div>
         </div>
 
         {{-- Points & Questions Breakdown --}}
         <div class="stat-pill">
-            <div class="stat-icon" style="background: rgba(20, 184, 166, 0.15); color: #2dd4bf;">
+            <div class="stat-icon" style="background: rgba(20, 184, 166, 0.15); color: var(--sub-teal);">
                 <i class="fa-solid fa-clipboard-check"></i>
             </div>
             <div>
                 <div class="info-label">Correct Answers / الأسئلة الصحيحة</div>
-                <div class="info-value" style="color: #2dd4bf;">
+                <div class="info-value" style="color: var(--sub-teal);">
                     {{ $correctAnswersCount }} / {{ $totalQuestions }} Questions
                 </div>
-                <div style="font-size: 11px; color: #64748b;">
+                <div style="font-size: 11px; color: var(--sub-text-muted);">
                     Score: {{ $submission->score ?? $submission->grade ?? 0 }} / {{ $submission->total_points ?? 100 }} pts
                 </div>
             </div>
@@ -277,7 +366,7 @@
 
         {{-- Timing & Duration --}}
         <div class="stat-pill">
-            <div class="stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+            <div class="stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">
                 <i class="fa-solid fa-stopwatch"></i>
             </div>
             <div>
@@ -285,7 +374,7 @@
                 <div class="info-value">
                     {{ $submission->submitted_at ? $submission->submitted_at->format('d M Y, h:i A') : 'Pending' }}
                 </div>
-                <div style="font-size: 11px; color: #64748b;">
+                <div style="font-size: 11px; color: var(--sub-text-muted);">
                     {{ $timeSpentText ? "Time Taken: {$timeSpentText}" : ($submission->started_at ? 'Started: ' . $submission->started_at->format('h:i A') : 'Attempt #1') }}
                 </div>
             </div>
@@ -297,7 +386,7 @@
         <div class="info-group">
             <div class="info-label"><i class="fa-solid fa-graduation-cap"></i> Course & Subject</div>
             <div class="info-value">{{ $assignment?->course?->title ?? 'N/A' }}</div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+            <div style="font-size: 11px; color: var(--sub-text-muted); margin-top: 2px;">
                 Subject: {{ $assignment?->course?->subject?->name ?? 'General' }} | Session: {{ $assignment?->liveSession?->title ?? $assignment?->session?->title ?? 'Main Session' }}
             </div>
         </div>
@@ -307,7 +396,7 @@
             <div class="info-value">
                 {{ $assignment?->teacherProfile?->user?->name ?? $assignment?->course?->teacher?->name ?? 'Academy Instructor' }}
             </div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+            <div style="font-size: 11px; color: var(--sub-text-muted); margin-top: 2px;">
                 Enrollment ID: #{{ $submission->course_enrollment_id ?? 'N/A' }}
             </div>
         </div>
@@ -317,7 +406,7 @@
             <div class="info-value">
                 {{ $assignment?->effective_due_at ? $assignment->effective_due_at->format('d M Y, h:i A') : 'No strict deadline' }}
             </div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+            <div style="font-size: 11px; color: var(--sub-text-muted); margin-top: 2px;">
                 Duration: {{ $assignment?->duration_minutes ? $assignment->duration_minutes . ' mins' : 'Untimed' }} | Mandatory: {{ $assignment?->is_mandatory ? 'Yes (إلزامي)' : 'Optional' }}
             </div>
         </div>
@@ -325,24 +414,24 @@
 
     {{-- Teacher & Evaluation Notes --}}
     @if($submission->teacher_notes || $submission->evaluation_notes || $submission->reviewed_by)
-        <div class="submission-card" style="background: #0f172a; border-left: 4px solid #38bdf8;">
+        <div class="submission-card submission-notes-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px; font-weight: 800; color: var(--sub-sky); display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-comment-dots"></i> Teacher Feedback & Evaluation Notes / ملاحظات وتوجيهات التقييم
                 </span>
                 @if($submission->reviewer)
-                    <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">
+                    <span style="font-size: 11px; color: var(--sub-text-muted); font-weight: 700;">
                         Reviewed by: {{ $submission->reviewer->name }} {{ $submission->reviewed_at ? '(' . $submission->reviewed_at->format('d M Y, h:i A') . ')' : '' }}
                     </span>
                 @endif
             </div>
             @if($submission->teacher_notes)
-                <div style="font-size: 13px; color: #e2e8f0; line-height: 1.6; margin-bottom: 6px;">
+                <div style="font-size: 13px; color: var(--sub-text-secondary); line-height: 1.6; margin-bottom: 6px;">
                     <strong>ملاحظات المعلم:</strong> {{ $submission->teacher_notes }}
                 </div>
             @endif
             @if($submission->evaluation_notes && $submission->evaluation_notes !== $submission->teacher_notes)
-                <div style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+                <div style="font-size: 12px; color: var(--sub-text-muted); line-height: 1.5;">
                     <strong>ملاحظات النظام:</strong> {{ $submission->evaluation_notes }}
                 </div>
             @endif
@@ -351,17 +440,17 @@
 
     {{-- Question-by-Question Breakdown --}}
     <div class="submission-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #334155;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--sub-border);">
             <div>
-                <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-list-check" style="color: #2dd4bf;"></i>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--sub-text-primary); margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-list-check" style="color: var(--sub-teal);"></i>
                     Detailed Questions & Answers Breakdown / تفاصيل الأسئلة والإجابات
                 </h3>
-                <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                <p style="font-size: 12px; color: var(--sub-text-muted); margin: 0;">
                     Review student answers compared against the official answer keys.
                 </p>
             </div>
-            <span class="badge-custom" style="background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.3);">
+            <span class="badge-custom" style="background: rgba(20, 184, 166, 0.15); color: var(--sub-teal); border: 1px solid rgba(20, 184, 166, 0.3);">
                 {{ $questions->count() }} Total Questions
             </span>
         </div>
@@ -380,25 +469,25 @@
                 <div class="question-card {{ $isCorrect ? 'correct-border' : ($hasAnswered ? 'incorrect-border' : '') }}">
                     <div class="question-header">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: #1e293b; color: #38bdf8; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 8px; border: 1px solid #334155;">
+                            <span class="question-num-pill">
                                 Q{{ $index + 1 }}
                             </span>
-                            <span style="font-size: 12px; color: #94a3b8; font-weight: 700;">
+                            <span style="font-size: 12px; color: var(--sub-text-muted); font-weight: 700;">
                                 {{ $question->is_multiple_choice ? 'Multiple Choice (MSQ)' : 'Single Choice' }}
                             </span>
                         </div>
 
                         <div>
                             @if($isCorrect)
-                                <span class="badge-custom" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">
+                                <span class="badge-custom" style="background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
                                     <i class="fa-solid fa-check-circle"></i> Correct (+{{ $pointsEarned }} / {{ $questionPoints }} pts)
                                 </span>
                             @elseif($hasAnswered)
-                                <span class="badge-custom" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">
+                                <span class="badge-custom" style="background: rgba(239, 68, 68, 0.16); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">
                                     <i class="fa-solid fa-times-circle"></i> Incorrect (0 / {{ $questionPoints }} pts)
                                 </span>
                             @else
-                                <span class="badge-custom" style="background: rgba(148, 163, 184, 0.2); color: #94a3b8; border: 1px solid #64748b;">
+                                <span class="badge-custom" style="background: rgba(148, 163, 184, 0.16); color: var(--sub-text-muted); border: 1px solid var(--sub-border);">
                                     <i class="fa-solid fa-minus-circle"></i> Not Answered (0 / {{ $questionPoints }} pts)
                                 </span>
                             @endif
@@ -406,13 +495,13 @@
                     </div>
 
                     {{-- Question Prompt --}}
-                    <div style="font-size: 14px; font-weight: 700; color: #f8fafc; line-height: 1.6; margin-bottom: 14px;">
+                    <div class="question-prompt">
                         {{ $question->question_text }}
                     </div>
 
                     @if($question->image_path)
                         <div style="margin-bottom: 14px; text-align: center;">
-                            <img src="{{ asset('storage/' . $question->image_path) }}" alt="Question Attachment" style="max-height: 240px; border-radius: 12px; border: 1px solid #334155; margin: 0 auto;">
+                            <img src="{{ asset('storage/' . $question->image_path) }}" alt="Question Attachment" style="max-height: 240px; border-radius: 12px; border: 1px solid var(--sub-border); margin: 0 auto;">
                         </div>
                     @endif
 
@@ -424,42 +513,46 @@
                                 $isPickedByStudent = in_array((int)$option->id, array_map('intval', $selectedIds), true);
                                 
                                 $optionClass = '';
+                                $textClass = 'opt-text-default';
                                 if ($isPickedByStudent && $isOfficialCorrect) {
                                     $optionClass = 'student-picked-correct';
+                                    $textClass = 'opt-text-correct';
                                 } elseif ($isPickedByStudent && !$isOfficialCorrect) {
                                     $optionClass = 'student-picked-incorrect';
+                                    $textClass = 'opt-text-incorrect';
                                 } elseif (!$isPickedByStudent && $isOfficialCorrect) {
                                     $optionClass = 'is-correct-key';
+                                    $textClass = 'opt-text-correct';
                                 }
                             @endphp
 
                             <div class="option-row {{ $optionClass }}">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     @if($isPickedByStudent && $isOfficialCorrect)
-                                        <i class="fa-solid fa-square-check text-emerald-400 text-lg"></i>
+                                        <i class="fa-solid fa-square-check" style="color: #10b981; font-size: 16px;"></i>
                                     @elseif($isPickedByStudent && !$isOfficialCorrect)
-                                        <i class="fa-solid fa-square-xmark text-rose-400 text-lg"></i>
+                                        <i class="fa-solid fa-square-xmark" style="color: #ef4444; font-size: 16px;"></i>
                                     @elseif($isOfficialCorrect)
-                                        <i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i>
+                                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 16px;"></i>
                                     @else
-                                        <i class="fa-regular fa-square text-slate-500 text-lg"></i>
+                                        <i class="fa-regular fa-square" style="color: var(--sub-text-muted); font-size: 16px;"></i>
                                     @endif
 
-                                    <span style="font-weight: {{ $isOfficialCorrect || $isPickedByStudent ? '700' : '500' }}; color: {{ $isPickedByStudent && !$isOfficialCorrect ? '#fca5a5' : ($isOfficialCorrect ? '#86efac' : '#e2e8f0') }};">
+                                    <span class="{{ $textClass }}">
                                         {{ $option->option_text }}
                                     </span>
                                 </div>
 
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     @if($isPickedByStudent)
-                                        <span class="badge-custom" style="background: {{ $isOfficialCorrect ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)' }}; color: {{ $isOfficialCorrect ? '#34d399' : '#f87171' }}; border: 1px solid {{ $isOfficialCorrect ? '#10b981' : '#ef4444' }};">
+                                        <span class="badge-custom" style="background: {{ $isOfficialCorrect ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}; color: {{ $isOfficialCorrect ? '#10b981' : '#ef4444' }}; border: 1px solid {{ $isOfficialCorrect ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)' }};">
                                             <i class="fa-solid fa-user"></i> Student Selection / اختيار الطالب
                                         </span>
                                     @endif
 
                                     @if($isOfficialCorrect)
-                                        <span class="badge-custom" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
-                                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Correct Answer / الإجابة النموذجية
+                                        <span class="badge-custom" style="background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                            <i class="fa-solid fa-circle-check"></i> Correct Answer / الإجابة النموذجية
                                         </span>
                                     @endif
                                 </div>
@@ -469,9 +562,9 @@
                 </div>
             @endforeach
         @else
-            <div style="text-align: center; padding: 30px; background: #0f172a; border-radius: 14px; border: 1px dashed #334155; color: #94a3b8;">
-                <i class="fa-solid fa-file-lines" style="font-size: 32px; color: #64748b; margin-bottom: 10px;"></i>
-                <div style="font-size: 14px; font-weight: 700; color: #cbd5e1;">Manual Assignment / Homework Task</div>
+            <div class="submission-empty-box">
+                <i class="fa-solid fa-file-lines" style="font-size: 32px; color: var(--sub-text-muted); margin-bottom: 10px;"></i>
+                <div style="font-size: 14px; font-weight: 700; color: var(--sub-text-primary);">Manual Assignment / Homework Task</div>
                 <div style="font-size: 12px; margin-top: 4px;">This assignment was evaluated directly or as a file upload task without automated MSQ question breakdown.</div>
             </div>
         @endif

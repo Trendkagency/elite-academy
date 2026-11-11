@@ -420,6 +420,17 @@
                 border-color: rgba(153, 246, 228, 0.3);
             }
 
+            .rpt-pill-neutral {
+                background: #F1F5F9;
+                color: #334155;
+                border: 1px solid #CBD5E1;
+            }
+            html.dark .rpt-pill-neutral {
+                background: #1E293B;
+                color: #CBD5E1;
+                border: 1px solid #334155;
+            }
+
             /* --- Progress Bar --- */
             .rpt-progress-bg {
                 background: #E2E8F0;
@@ -448,13 +459,65 @@
                 transition: all 0.2s ease;
             }
             html.dark .rpt-item-card {
-                background: #1E293B;
-                border-color: rgba(51, 65, 85, 0.8);
+                background: #162033;
+                border-color: rgba(51, 65, 85, 0.85);
             }
             .rpt-item-card:hover {
                 border-color: #0D9488;
                 transform: translateY(-2px);
                 box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+            }
+            .rpt-item-card h4,
+            .rpt-item-card strong {
+                color: #0F172A;
+            }
+            html.dark .rpt-item-card h4,
+            html.dark .rpt-item-card strong {
+                color: #F8FAFC;
+            }
+            .rpt-item-meta {
+                color: #64748B;
+            }
+            html.dark .rpt-item-meta {
+                color: #94A3B8;
+            }
+            .rpt-note-body {
+                font-size: 0.8rem;
+                color: #475569;
+                margin: 0;
+                padding-inline-start: 2.25rem;
+                line-height: 1.6;
+            }
+            html.dark .rpt-note-body {
+                color: #CBD5E1;
+            }
+            .rpt-empty-card {
+                text-align: center;
+                padding: 4rem 2rem;
+                background: #FFFFFF;
+                border-radius: 1.5rem;
+                border: 1.5px solid #E2E8F0;
+            }
+            html.dark .rpt-empty-card {
+                background: #0F172A;
+                border-color: rgba(51, 65, 85, 0.8);
+            }
+            .rpt-empty-card h3 {
+                font-size: 1.15rem;
+                font-weight: 800;
+                color: #0F172A;
+                margin: 0 0 0.35rem 0;
+            }
+            html.dark .rpt-empty-card h3 {
+                color: #F8FAFC;
+            }
+            .rpt-empty-card p {
+                font-size: 0.85rem;
+                color: #64748B;
+                margin: 0;
+            }
+            html.dark .rpt-empty-card p {
+                color: #94A3B8;
             }
 
             /* ================================================================
@@ -860,7 +923,7 @@
         <div class="rpt-topbar no-print">
             <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; min-width: 300px;">
                 <div style="position: relative; flex: 1; min-width: 220px;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; top: 50%; transform: translateY(-50%); left: 0.9rem; color: #94A3B8; font-size: 0.85rem;"></i>
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; top: 50%; transform: translateY(-50%); inset-inline-start: 0.9rem; color: #94A3B8; font-size: 0.85rem; pointer-events: none;"></i>
                     <input 
                         wire:model.live.debounce.300ms="searchQuery"
                         type="text" 
@@ -1123,7 +1186,7 @@
                                         </div>
                                         <div style="display: flex; gap: 0.5rem;">
                                             <span class="rpt-pill rpt-pill-success">{{ $pkg->remaining_sessions }} {{ __('Remaining') }}</span>
-                                            <span class="rpt-pill" style="background: #F1F5F9; color: #334155;">{{ $pkg->used_sessions }} / {{ $pkg->total_sessions }} {{ __('Used') }}</span>
+                                            <span class="rpt-pill rpt-pill-neutral">{{ $pkg->used_sessions }} / {{ $pkg->total_sessions }} {{ __('Used') }}</span>
                                         </div>
                                     </div>
 
@@ -1305,7 +1368,7 @@
                                         </div>
                                         <span style="font-size: 0.75rem; color: #94A3B8; font-family: monospace;">{{ $note->created_at->format('Y-m-d H:i') }}</span>
                                     </div>
-                                    <p style="font-size: 0.8rem; color: #475569; margin: 0; padding-left: 2.25rem;">{{ $note->note }}</p>
+                                    <p class="rpt-note-body">{{ $note->note }}</p>
                                 </div>
                             @empty
                                 <div style="text-align: center; padding: 2.5rem; color: #94A3B8;">
@@ -1335,7 +1398,7 @@
                                                 {{ __(ucfirst($exc->status)) }}
                                             </span>
                                         </div>
-                                        <p style="font-size: 0.75rem; color: #64748B; margin: 0.25rem 0 0 0;">{{ __('Reason') }}: {{ $exc->reason ?: '-' }}</p>
+                                        <p class="rpt-item-meta" style="font-size: 0.75rem; margin: 0.25rem 0 0 0;">{{ __('Reason') }}: {{ $exc->reason ?: '-' }}</p>
                                     </div>
                                     <span style="font-size: 0.75rem; color: #94A3B8; font-family: monospace;">{{ $exc->created_at->format('Y-m-d H:i') }}</span>
                                 </div>
@@ -1375,10 +1438,10 @@
                 </div>{{-- end rpt-tab-body --}}
             </div>{{-- end rpt-tabs-container --}}
         @else
-            <div style="text-align: center; padding: 4rem 2rem; background: #FFFFFF; border-radius: 1.5rem; border: 1.5px solid #E2E8F0;">
+            <div class="rpt-empty-card">
                 <i class="fa-solid fa-user-slash" style="font-size: 3rem; color: #94A3B8; margin-bottom: 0.75rem;"></i>
-                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A;">{{ __('No student selected') }}</h3>
-                <p style="font-size: 0.85rem; color: #64748B;">{{ __('Please pick a student from the dropdown above to view their comprehensive academic report.') }}</p>
+                <h3>{{ __('No student selected') }}</h3>
+                <p>{{ __('Please pick a student from the dropdown above to view their comprehensive academic report.') }}</p>
             </div>
         @endif
     </div>

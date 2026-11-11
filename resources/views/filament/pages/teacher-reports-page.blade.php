@@ -1,14 +1,72 @@
 <x-filament-panels::page>
     <div class="rpt-wrapper">
-        {{-- Comprehensive Embedded Styles for Reporting Views --}}
+        {{-- Comprehensive Embedded Styles for Reporting Views (Dual Light & Dark Mode) --}}
         <style>
             .rpt-wrapper {
+                /* Light Mode Design Tokens */
+                --rpt-bg-surface: #FFFFFF;
+                --rpt-bg-subtle: #F8FAFC;
+                --rpt-bg-elevated: #FFFFFF;
+                --rpt-bg-hover: rgba(241, 245, 249, 0.75);
+                --rpt-border: #E2E8F0;
+                --rpt-border-subtle: #F1F5F9;
+                --rpt-text-primary: #0F172A;
+                --rpt-text-secondary: #334155;
+                --rpt-text-muted: #64748B;
+                --rpt-text-dim: #94A3B8;
+
+                --rpt-indigo: #4338CA;
+                --rpt-indigo-bg: #EEF2FF;
+                --rpt-indigo-border: rgba(99, 102, 241, 0.25);
+                --rpt-teal: #0D9488;
+                --rpt-teal-bg: #CCFBF1;
+                --rpt-teal-border: rgba(13, 148, 136, 0.25);
+                --rpt-rose: #E11D48;
+                --rpt-rose-bg: #FFE4E6;
+                --rpt-rose-border: rgba(225, 29, 72, 0.25);
+                --rpt-purple: #9333EA;
+                --rpt-purple-bg: #F3E8FF;
+                --rpt-purple-border: rgba(147, 51, 234, 0.25);
+                --rpt-sky: #0284C7;
+
                 font-family: 'Cairo', sans-serif !important;
                 display: flex;
                 flex-direction: column;
                 gap: 1.5rem;
+                color: var(--rpt-text-primary);
                 animation: rptFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
+
+            html.dark .rpt-wrapper,
+            .dark .rpt-wrapper,
+            [data-theme="dark"] .rpt-wrapper {
+                /* Dark Mode Design Tokens */
+                --rpt-bg-surface: #0F172A;
+                --rpt-bg-subtle: #162033;
+                --rpt-bg-elevated: #0B1120;
+                --rpt-bg-hover: rgba(30, 41, 59, 0.6);
+                --rpt-border: rgba(51, 65, 85, 0.85);
+                --rpt-border-subtle: rgba(30, 41, 59, 0.85);
+                --rpt-text-primary: #F8FAFC;
+                --rpt-text-secondary: #CBD5E1;
+                --rpt-text-muted: #94A3B8;
+                --rpt-text-dim: #64748B;
+
+                --rpt-indigo: #818CF8;
+                --rpt-indigo-bg: rgba(99, 102, 241, 0.16);
+                --rpt-indigo-border: rgba(129, 140, 248, 0.3);
+                --rpt-teal: #2DD4BF;
+                --rpt-teal-bg: rgba(20, 184, 166, 0.16);
+                --rpt-teal-border: rgba(45, 212, 191, 0.3);
+                --rpt-rose: #FB7185;
+                --rpt-rose-bg: rgba(244, 63, 94, 0.16);
+                --rpt-rose-border: rgba(251, 113, 133, 0.3);
+                --rpt-purple: #C084FC;
+                --rpt-purple-bg: rgba(168, 85, 247, 0.16);
+                --rpt-purple-border: rgba(192, 132, 252, 0.3);
+                --rpt-sky: #38BDF8;
+            }
+
             @keyframes rptFadeIn {
                 from { opacity: 0; transform: translateY(10px); }
                 to { opacity: 1; transform: translateY(0); }
@@ -16,8 +74,8 @@
 
             /* --- Control Topbar --- */
             .rpt-topbar {
-                background: #FFFFFF;
-                border: 1.5px solid #E2E8F0;
+                background: var(--rpt-bg-surface);
+                border: 1.5px solid var(--rpt-border);
                 border-radius: 1.25rem;
                 padding: 1rem 1.25rem;
                 display: flex;
@@ -29,30 +87,35 @@
                 transition: all 0.2s ease;
             }
             html.dark .rpt-topbar {
-                background: #0F172A;
-                border-color: rgba(51, 65, 85, 0.8);
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .rpt-search-icon {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                inset-inline-start: 0.9rem;
+                color: var(--rpt-text-muted);
+                pointer-events: none;
             }
 
             .rpt-search-input {
                 width: 100%;
-                background: #F8FAFC;
-                border: 1.5px solid #CBD5E1;
+                background: var(--rpt-bg-subtle);
+                border: 1.5px solid var(--rpt-border);
                 border-radius: 0.875rem;
-                padding: 0.65rem 1rem 0.65rem 2.5rem;
+                padding-block: 0.65rem;
+                padding-inline-start: 2.5rem;
+                padding-inline-end: 1rem;
                 font-size: 0.85rem;
                 font-weight: 600;
-                color: #0F172A;
+                color: var(--rpt-text-primary);
                 outline: none;
                 transition: all 0.2s ease;
+                box-sizing: border-box;
             }
-            html[dir="rtl"] .rpt-search-input {
-                padding: 0.65rem 2.5rem 0.65rem 1rem;
-            }
-            html.dark .rpt-search-input {
-                background: #1E293B;
-                border-color: #334155;
-                color: #F8FAFC;
+            .rpt-search-input::placeholder {
+                color: var(--rpt-text-muted);
             }
             .rpt-search-input:focus {
                 border-color: #6366F1;
@@ -60,22 +123,17 @@
             }
 
             .rpt-select {
-                background: #F8FAFC;
-                border: 1.5px solid #CBD5E1;
+                background: var(--rpt-bg-subtle);
+                border: 1.5px solid var(--rpt-border);
                 border-radius: 0.875rem;
                 padding: 0.65rem 1rem;
                 font-size: 0.85rem;
                 font-weight: 700;
-                color: #0F172A;
+                color: var(--rpt-text-primary);
                 cursor: pointer;
                 outline: none;
                 transition: all 0.2s ease;
                 min-width: 260px;
-            }
-            html.dark .rpt-select {
-                background: #1E293B;
-                border-color: #334155;
-                color: #F8FAFC;
             }
             .rpt-select:focus {
                 border-color: #6366F1;
@@ -83,9 +141,9 @@
             }
 
             .rpt-btn {
-                background: #F1F5F9;
-                color: #334155;
-                border: 1px solid #CBD5E1;
+                background: var(--rpt-bg-subtle);
+                color: var(--rpt-text-secondary);
+                border: 1px solid var(--rpt-border);
                 border-radius: 0.875rem;
                 padding: 0.65rem 1.25rem;
                 font-size: 0.825rem;
@@ -96,17 +154,10 @@
                 cursor: pointer;
                 transition: all 0.2s ease;
             }
-            html.dark .rpt-btn {
-                background: #1E293B;
-                color: #E2E8F0;
-                border-color: #334155;
-            }
             .rpt-btn:hover {
-                background: #E2E8F0;
+                background: var(--rpt-bg-hover);
+                color: var(--rpt-text-primary);
                 transform: translateY(-1px);
-            }
-            html.dark .rpt-btn:hover {
-                background: #334155;
             }
 
             /* --- Hero Teacher Banner Card --- */
@@ -171,27 +222,34 @@
             }
 
             .rpt-stat-card {
-                background: #FFFFFF;
-                border: 1.5px solid #E2E8F0;
+                background: var(--rpt-bg-surface);
+                border: 1.5px solid var(--rpt-border);
                 border-radius: 1.25rem;
                 padding: 1.25rem 1.5rem;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             }
             html.dark .rpt-stat-card {
-                background: #0F172A;
-                border-color: rgba(51, 65, 85, 0.8);
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
             }
             .rpt-stat-card:hover {
                 transform: translateY(-3px);
                 box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08);
+                border-color: var(--rpt-indigo-border);
             }
             html.dark .rpt-stat-card:hover {
                 box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.4);
+            }
+
+            .rpt-stat-label {
+                font-size: 0.75rem;
+                font-weight: 800;
+                color: var(--rpt-text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
             }
 
             .rpt-stat-icon {
@@ -201,20 +259,44 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.25rem;
+                font-size: 1.2rem;
+                flex-shrink: 0;
+            }
+            .rpt-stat-icon-indigo { background: var(--rpt-indigo-bg); color: var(--rpt-indigo); border: 1px solid var(--rpt-indigo-border); }
+            .rpt-stat-icon-teal   { background: var(--rpt-teal-bg);   color: var(--rpt-teal);   border: 1px solid var(--rpt-teal-border); }
+            .rpt-stat-icon-rose   { background: var(--rpt-rose-bg);   color: var(--rpt-rose);   border: 1px solid var(--rpt-rose-border); }
+            .rpt-stat-icon-purple { background: var(--rpt-purple-bg); color: var(--rpt-purple); border: 1px solid var(--rpt-purple-border); }
+
+            .rpt-kpi-val {
+                font-size: 1.85rem;
+                font-weight: 900;
+                line-height: 1;
+            }
+            .rpt-kpi-val-indigo { color: var(--rpt-indigo); }
+            .rpt-kpi-val-teal   { color: var(--rpt-teal); }
+            .rpt-kpi-val-rose   { color: var(--rpt-rose); }
+            .rpt-kpi-val-purple { color: var(--rpt-purple); }
+
+            .rpt-kpi-sub {
+                font-size: 0.775rem;
+                color: var(--rpt-text-muted);
+                margin: 0.5rem 0 0 0;
+                font-weight: 600;
+            }
+            .rpt-kpi-sub strong {
+                color: var(--rpt-text-primary);
+                font-weight: 800;
             }
 
             /* --- Content Box & Tabs --- */
             .rpt-main-box {
-                background: #FFFFFF;
-                border: 1.5px solid #E2E8F0;
+                background: var(--rpt-bg-surface);
+                border: 1.5px solid var(--rpt-border);
                 border-radius: 1.5rem;
                 overflow: hidden;
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
             }
             html.dark .rpt-main-box {
-                background: #0F172A;
-                border-color: rgba(51, 65, 85, 0.8);
                 box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
             }
 
@@ -223,12 +305,9 @@
                 align-items: center;
                 gap: 0.5rem;
                 padding: 0.75rem 1.25rem 0;
-                border-bottom: 1.5px solid #E2E8F0;
+                border-bottom: 1.5px solid var(--rpt-border);
                 overflow-x: auto;
                 scrollbar-width: none;
-            }
-            html.dark .rpt-tabs-header {
-                border-color: #1E293B;
             }
             .rpt-tabs-header::-webkit-scrollbar {
                 display: none;
@@ -246,22 +325,15 @@
                 gap: 0.5rem;
                 white-space: nowrap;
                 border-bottom: 3px solid transparent;
-                color: #64748B;
+                color: var(--rpt-text-muted);
                 transition: all 0.2s ease;
             }
-            html.dark .rpt-tab-btn {
-                color: #94A3B8;
-            }
             .rpt-tab-btn:hover {
-                color: #6366F1;
+                color: var(--rpt-indigo);
             }
             .rpt-tab-btn.active {
-                color: #6366F1;
-                border-bottom-color: #6366F1;
-            }
-            html.dark .rpt-tab-btn.active {
-                color: #818CF8;
-                border-bottom-color: #818CF8;
+                color: var(--rpt-indigo);
+                border-bottom-color: var(--rpt-indigo);
             }
 
             .rpt-tab-count {
@@ -269,30 +341,140 @@
                 font-weight: 800;
                 padding: 0.15rem 0.6rem;
                 border-radius: 9999px;
-                background: #F1F5F9;
-                color: #475569;
-            }
-            html.dark .rpt-tab-count {
-                background: #1E293B;
-                color: #94A3B8;
+                background: var(--rpt-bg-subtle);
+                color: var(--rpt-text-muted);
+                border: 1px solid var(--rpt-border);
             }
             .rpt-tab-btn.active .rpt-tab-count {
-                background: #EEF2FF;
-                color: #4338CA;
+                background: var(--rpt-indigo-bg);
+                color: var(--rpt-indigo);
+                border-color: var(--rpt-indigo-border);
             }
-            html.dark .rpt-tab-btn.active .rpt-tab-count {
-                background: #312E81;
-                color: #C7D2FE;
+
+            /* --- Section Headings & Cards (100% Dual Theme) --- */
+            .rpt-section-heading {
+                font-size: 0.925rem;
+                font-weight: 800;
+                color: var(--rpt-text-primary);
+                text-transform: uppercase;
+                letter-spacing: 0.02em;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .rpt-courses-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+                gap: 1rem;
+            }
+
+            .rpt-course-card {
+                background: var(--rpt-bg-subtle);
+                border: 1.5px solid var(--rpt-border);
+                border-radius: 1.15rem;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 0.85rem;
+                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .rpt-course-card:hover {
+                transform: translateY(-2px);
+                border-color: var(--rpt-indigo);
+                box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.15);
+            }
+
+            .rpt-course-title {
+                font-size: 0.975rem;
+                font-weight: 800;
+                color: var(--rpt-text-primary);
+                margin: 0;
+                line-height: 1.35;
+            }
+
+            .rpt-course-metrics {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.65rem;
+                text-align: center;
+                padding-top: 0.75rem;
+                border-top: 1px solid var(--rpt-border);
+            }
+
+            .rpt-course-metric-box {
+                background: var(--rpt-bg-elevated);
+                padding: 0.55rem 0.75rem;
+                border-radius: 0.75rem;
+                border: 1px solid var(--rpt-border);
+            }
+
+            .rpt-course-metric-label {
+                color: var(--rpt-text-muted);
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+
+            .rpt-course-metric-val {
+                font-weight: 900;
+                font-size: 1rem;
+                margin-top: 0.15rem;
+                color: var(--rpt-text-primary);
+            }
+
+            .rpt-note-card,
+            .rpt-exception-card {
+                background: var(--rpt-bg-subtle);
+                border: 1.5px solid var(--rpt-border);
+                border-radius: 1rem;
+                padding: 1.15rem;
+                transition: border-color 0.2s ease;
+            }
+            .rpt-note-card:hover,
+            .rpt-exception-card:hover {
+                border-color: var(--rpt-indigo-border);
+            }
+
+            .rpt-card-title {
+                font-size: 0.875rem;
+                font-weight: 800;
+                color: var(--rpt-text-primary);
+                margin: 0;
+            }
+
+            .rpt-card-body {
+                font-size: 0.825rem;
+                color: var(--rpt-text-secondary);
+                margin: 0;
+                line-height: 1.6;
+            }
+
+            .rpt-muted-text {
+                color: var(--rpt-text-muted);
+            }
+
+            .rpt-strong-text {
+                font-weight: 800;
+                color: var(--rpt-text-primary);
+            }
+
+            .rpt-empty-card {
+                padding: 3.5rem 1.5rem;
+                text-align: center;
+                background: var(--rpt-bg-surface);
+                border-radius: 1.5rem;
+                border: 1.5px solid var(--rpt-border);
             }
 
             /* --- Table Styles --- */
             .rpt-table-container {
                 overflow-x: auto;
                 border-radius: 1rem;
-                border: 1px solid #E2E8F0;
-            }
-            html.dark .rpt-table-container {
-                border-color: #1E293B;
+                border: 1px solid var(--rpt-border);
             }
 
             .rpt-table {
@@ -305,34 +487,22 @@
                 text-align: right;
             }
             .rpt-table th {
-                background: #F8FAFC;
+                background: var(--rpt-bg-subtle);
                 padding: 0.85rem 1rem;
                 font-weight: 800;
                 font-size: 0.75rem;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
-                color: #475569;
-                border-bottom: 1.5px solid #E2E8F0;
-            }
-            html.dark .rpt-table th {
-                background: #1E293B;
-                color: #94A3B8;
-                border-bottom-color: #334155;
+                color: var(--rpt-text-muted);
+                border-bottom: 1.5px solid var(--rpt-border);
             }
             .rpt-table td {
                 padding: 0.85rem 1rem;
-                border-bottom: 1px solid #F1F5F9;
-                color: #334155;
-            }
-            html.dark .rpt-table td {
-                border-bottom-color: #1E293B;
-                color: #CBD5E1;
+                border-bottom: 1px solid var(--rpt-border-subtle);
+                color: var(--rpt-text-secondary);
             }
             .rpt-table tr:hover td {
-                background: rgba(248, 250, 252, 0.6);
-            }
-            html.dark .rpt-table tr:hover td {
-                background: rgba(30, 41, 59, 0.4);
+                background: var(--rpt-bg-hover);
             }
 
             /* --- Badges --- */
@@ -348,13 +518,13 @@
                 letter-spacing: 0.025em;
             }
             .rpt-badge-success { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
-            html.dark .rpt-badge-success { background: #052e16; color: #86efac; border-color: #14532d; }
+            html.dark .rpt-badge-success { background: rgba(22, 101, 52, 0.35); color: #86efac; border-color: rgba(134, 239, 172, 0.3); }
             .rpt-badge-info { background: #E0F2FE; color: #075985; border: 1px solid #BAE6FD; }
-            html.dark .rpt-badge-info { background: #082f49; color: #7dd3fc; border-color: #0369a1; }
+            html.dark .rpt-badge-info { background: rgba(7, 89, 133, 0.35); color: #7dd3fc; border-color: rgba(125, 211, 252, 0.3); }
             .rpt-badge-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-            html.dark .rpt-badge-warning { background: #451a03; color: #fcd34d; border-color: #78350f; }
+            html.dark .rpt-badge-warning { background: rgba(146, 64, 14, 0.35); color: #fcd34d; border-color: rgba(252, 211, 77, 0.3); }
             .rpt-badge-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-            html.dark .rpt-badge-danger { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
+            html.dark .rpt-badge-danger { background: rgba(153, 27, 27, 0.35); color: #fca5a5; border-color: rgba(252, 165, 165, 0.3); }
 
             /* ================================================================
                EXECUTIVE PRINT STYLES — ZERO DARK MODE BLEED / CLEAN FACULTY DOSSIER
@@ -570,7 +740,18 @@
                 }
 
                 /* 7. Cards & Tables */
-                .rpt-course-card, .rpt-note-card, html.dark .rpt-course-card, html.dark .rpt-note-card {
+                .rpt-wrapper, html.dark .rpt-wrapper, .dark .rpt-wrapper {
+                    --rpt-bg-surface: #FFFFFF !important;
+                    --rpt-bg-subtle: #FFFFFF !important;
+                    --rpt-bg-elevated: #F8FAFC !important;
+                    --rpt-border: #CBD5E1 !important;
+                    --rpt-text-primary: #0F172A !important;
+                    --rpt-text-secondary: #334155 !important;
+                    --rpt-text-muted: #64748B !important;
+                }
+
+                .rpt-course-card, .rpt-note-card, .rpt-exception-card,
+                html.dark .rpt-course-card, html.dark .rpt-note-card, html.dark .rpt-exception-card {
                     background: #FFFFFF !important;
                     background-color: #FFFFFF !important;
                     border: 1pt solid #E2E8F0 !important;
@@ -579,6 +760,19 @@
                     margin-bottom: 6pt !important;
                     box-shadow: none !important;
                     page-break-inside: avoid;
+                }
+
+                .rpt-course-metric-box, html.dark .rpt-course-metric-box {
+                    background: #F8FAFC !important;
+                    border: 1pt solid #E2E8F0 !important;
+                }
+
+                .rpt-course-title, .rpt-card-title, .rpt-section-heading, .rpt-course-metric-val, .rpt-strong-text {
+                    color: #0F172A !important;
+                }
+
+                .rpt-card-body {
+                    color: #334155 !important;
                 }
 
                 .rpt-table-container, html.dark .rpt-table-container {
@@ -681,10 +875,10 @@
         </style>
 
         {{-- Top Control Bar: Search & Quick Picker --}}
-        <div class="rpt-topbar">
+        <div class="rpt-topbar no-print">
             <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;">
                 <div style="position: relative; flex: 1; min-width: 240px;">
-                    <span style="position: absolute; top: 50%; transform: translateY(-50%); left: 0.85rem; color: #94A3B8; pointer-events: none;">
+                    <span class="rpt-search-icon">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
                     <input 
@@ -711,7 +905,7 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <button onclick="elitePrintReport()" type="button" class="rpt-btn">
+                <button onclick="elitePrintReport()" type="button" class="rpt-btn">
                     <i class="fa-solid fa-print"></i>
                     <span>{{ __('Print Report') }}</span>
                 </button>
@@ -756,7 +950,7 @@
                                 <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0; color: #FFFFFF;">
                                     {{ $user?->name ?? __('Teacher Name') }}
                                 </h2>
-                                <span style="background: rgba(255, 255, 255, 0.2); padding: 0.2rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255, 255, 255, 0.3);">
+                                <span style="background: rgba(255, 255, 255, 0.2); padding: 0.2rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF;">
                                     <i class="fa-solid fa-graduation-cap" style="margin-inline-end: 0.25rem;"></i>
                                     {{ $teacher->title ?: __('Faculty Instructor') }}
                                 </span>
@@ -804,16 +998,16 @@
                 {{-- Courses Taught --}}
                 <div class="rpt-stat-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase;">{{ __('Courses Taught') }}</span>
-                        <div class="rpt-stat-icon" style="background: #EEF2FF; color: #4F46E5;">
+                        <span class="rpt-stat-label">{{ __('Courses Taught') }}</span>
+                        <div class="rpt-stat-icon rpt-stat-icon-indigo">
                             <i class="fa-solid fa-book-bookmark"></i>
                         </div>
                     </div>
-                    <div style="font-size: 1.85rem; font-weight: 900; color: #1E1B4B; line-height: 1;">
-                        <span style="color: inherit;" class="dark:text-white">{{ $metrics['courses_count'] }}</span>
+                    <div class="rpt-kpi-val rpt-kpi-val-indigo">
+                        {{ $metrics['courses_count'] }}
                     </div>
-                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.5rem 0 0 0;">
-                        <i class="fa-solid fa-layer-group" style="color: #6366F1;"></i>
+                    <p class="rpt-kpi-sub">
+                        <i class="fa-solid fa-layer-group" style="color: var(--rpt-indigo);"></i>
                         {{ __('Active published courses') }}
                     </p>
                 </div>
@@ -821,15 +1015,15 @@
                 {{-- Enrolled Students --}}
                 <div class="rpt-stat-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase;">{{ __('Enrolled Students') }}</span>
-                        <div class="rpt-stat-icon" style="background: #CCFBF1; color: #0D9488;">
+                        <span class="rpt-stat-label">{{ __('Enrolled Students') }}</span>
+                        <div class="rpt-stat-icon rpt-stat-icon-teal">
                             <i class="fa-solid fa-users"></i>
                         </div>
                     </div>
-                    <div style="font-size: 1.85rem; font-weight: 900; color: #0D9488; line-height: 1;">
+                    <div class="rpt-kpi-val rpt-kpi-val-teal">
                         {{ $metrics['total_students_enrolled'] }}
                     </div>
-                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.5rem 0 0 0;">
+                    <p class="rpt-kpi-sub">
                         {{ __('Unique active learners') }}
                     </p>
                 </div>
@@ -837,38 +1031,38 @@
                 {{-- Live Sessions --}}
                 <div class="rpt-stat-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase;">{{ __('Live Sessions') }}</span>
-                        <div class="rpt-stat-icon" style="background: #FFE4E6; color: #E11D48;">
+                        <span class="rpt-stat-label">{{ __('Live Sessions') }}</span>
+                        <div class="rpt-stat-icon rpt-stat-icon-rose">
                             <i class="fa-solid fa-video"></i>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; gap: 0.35rem;">
-                        <span style="font-size: 1.85rem; font-weight: 900; color: #E11D48; line-height: 1;">
+                        <span class="rpt-kpi-val rpt-kpi-val-rose">
                             {{ $metrics['completed_sessions_count'] }}
                         </span>
-                        <span style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">/ {{ $metrics['live_sessions_count'] }} {{ __('Total') }}</span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--rpt-text-muted);">/ {{ $metrics['live_sessions_count'] }} {{ __('Total') }}</span>
                     </div>
-                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.5rem 0 0 0;">
-                        {{ __('Taught') }}: <strong style="color: #0F172A;" class="dark:text-slate-200">{{ $metrics['total_hours_taught'] }}</strong> {{ __('hours') }}
+                    <p class="rpt-kpi-sub">
+                        {{ __('Taught') }}: <strong>{{ $metrics['total_hours_taught'] }}</strong> {{ __('hours') }}
                     </p>
                 </div>
 
                 {{-- Assignments & Grading --}}
                 <div class="rpt-stat-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase;">{{ __('Assignments & Grading') }}</span>
-                        <div class="rpt-stat-icon" style="background: #F3E8FF; color: #9333EA;">
+                        <span class="rpt-stat-label">{{ __('Assignments & Grading') }}</span>
+                        <div class="rpt-stat-icon rpt-stat-icon-purple">
                             <i class="fa-solid fa-check-to-slot"></i>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; gap: 0.35rem;">
-                        <span style="font-size: 1.85rem; font-weight: 900; color: #9333EA; line-height: 1;">
+                        <span class="rpt-kpi-val rpt-kpi-val-purple">
                             {{ $metrics['graded_submissions_count'] }}
                         </span>
-                        <span style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">{{ __('Graded') }}</span>
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--rpt-text-muted);">{{ __('Graded') }}</span>
                     </div>
-                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.5rem 0 0 0;">
-                        {{ __('Created assignments') }}: <strong style="color: #0F172A;" class="dark:text-slate-200">{{ $metrics['assignments_count'] }}</strong>
+                    <p class="rpt-kpi-sub">
+                        {{ __('Created assignments') }}: <strong>{{ $metrics['assignments_count'] }}</strong>
                     </p>
                 </div>
             </div>
@@ -876,7 +1070,7 @@
             {{-- Main Tabbed Detail Box --}}
             <div class="rpt-main-box">
                 {{-- Tabs Navigation --}}
-                <div class="rpt-tabs-header">
+                <div class="rpt-tabs-header no-print">
                     @php
                         $tabs = [
                             'overview'    => ['icon' => 'fa-book-open',         'label' => __('Assigned Courses'),            'count' => $this->courses->count()],
@@ -904,25 +1098,24 @@
                 {{-- Tab Content Display --}}
                 <div style="padding: 1.5rem;">
 
-
-
                     {{-- 1. Assigned Courses Tab --}}
                     <div class="rpt-print-section" id="section-overview" style="{{ $activeTab !== 'overview' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-book-bookmark"></i> {{ __('Assigned Courses & Curriculum Delivery') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; color:#6366F1; text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-book-bookmark" style="color: #6366F1;"></i>
-                                {{ __('Assigned Courses & Curriculum Delivery') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-book-bookmark" style="color: var(--rpt-indigo);"></i>
+                                <span>{{ __('Assigned Courses & Curriculum Delivery') }}</span>
                             </h3>
 
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                            <div class="rpt-courses-grid">
                                 @forelse($this->courses as $c)
-                                    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;" class="dark:bg-slate-950/60 dark:border-slate-800">
+                                    <div class="rpt-course-card">
                                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;">
                                             <div>
-                                                <h4 style="font-size: 0.95rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">{{ $c->title }}</h4>
-                                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+                                                <h4 class="rpt-course-title">{{ $c->title }}</h4>
+                                                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.45rem;">
                                                     <span class="rpt-badge rpt-badge-info">{{ $c->subject?->name ?? __('General') }}</span>
-                                                    <span style="font-size: 0.75rem; color: #94A3B8;">{{ $c->gradeLevel?->name ?? __('All Grades') }}</span>
+                                                    <span style="font-size: 0.75rem; font-weight: 600;" class="rpt-muted-text">{{ $c->gradeLevel?->name ?? __('All Grades') }}</span>
                                                 </div>
                                             </div>
                                             <span class="rpt-badge {{ $c->is_active ? 'rpt-badge-success' : 'rpt-badge-danger' }}">
@@ -930,19 +1123,19 @@
                                             </span>
                                         </div>
 
-                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;" class="dark:border-slate-800">
-                                            <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
-                                                <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Sessions') }}</div>
-                                                <div style="font-weight: 800; color: #0D9488; margin-top: 0.15rem;">{{ $c->sessions_count ?: $c->sessions->count() }}</div>
+                                        <div class="rpt-course-metrics">
+                                            <div class="rpt-course-metric-box">
+                                                <div class="rpt-course-metric-label">{{ __('Sessions') }}</div>
+                                                <div class="rpt-course-metric-val" style="color: var(--rpt-teal);">{{ $c->sessions_count ?: $c->sessions->count() }}</div>
                                             </div>
-                                            <div style="background: #FFFFFF; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
-                                                <div style="color: #94A3B8; font-size: 0.7rem;">{{ __('Students') }}</div>
-                                                <div style="font-weight: 800; dark:color:white color:#0F172A margin-top: 0.15rem;" class="dark:text-white">{{ $c->enrollments->count() }}</div>
+                                            <div class="rpt-course-metric-box">
+                                                <div class="rpt-course-metric-label">{{ __('Students') }}</div>
+                                                <div class="rpt-course-metric-val">{{ $c->enrollments->count() }}</div>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                    <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                         <i class="fa-solid fa-book-open" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
                                         <p style="font-size: 0.875rem; font-weight: 600; margin: 0;">{{ __('No courses currently assigned to this teacher.') }}</p>
                                     </div>
@@ -954,10 +1147,11 @@
 
                     {{-- 2. Live Sessions Tab --}}
                     <div class="rpt-print-section" id="section-sessions" style="{{ $activeTab !== 'sessions' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-video"></i> {{ __('Conducted & Scheduled Live Sessions') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-video" style="color: #E11D48;"></i>
-                                {{ __('Conducted & Scheduled Live Sessions') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-video" style="color: var(--rpt-rose);"></i>
+                                <span>{{ __('Conducted & Scheduled Live Sessions') }}</span>
                             </h3>
 
                             <div class="rpt-table-container">
@@ -975,17 +1169,17 @@
                                     <tbody>
                                         @forelse($this->liveSessions as $sess)
                                             <tr>
-                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
+                                                <td class="rpt-strong-text">
                                                     {{ $sess->title }}
                                                 </td>
                                                 <td>{{ $sess->course?->title ?? $sess->subject?->name ?? '-' }}</td>
                                                 <td>
                                                     @if($sess->studentUser)
                                                         <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                                            <img src="{{ $sess->studentUser->avatar_url }}" alt="{{ $sess->studentUser->name }}" style="width: 2rem; height: 2rem; min-width: 2rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0D9488;" />
+                                                            <img src="{{ $sess->studentUser->avatar_url }}" alt="{{ $sess->studentUser->name }}" style="width: 2rem; height: 2rem; min-width: 2rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid var(--rpt-teal);" />
                                                             <div>
-                                                                <div style="font-weight: 700; color: #0F172A; line-height: 1.2;" class="dark:text-white">{{ $sess->studentUser->name }}</div>
-                                                                <div style="font-size: 0.7rem; color: #94A3B8;">{{ $sess->studentUser->email }}</div>
+                                                                <div class="rpt-strong-text" style="line-height: 1.2;">{{ $sess->studentUser->name }}</div>
+                                                                <div style="font-size: 0.7rem;" class="rpt-muted-text">{{ $sess->studentUser->email }}</div>
                                                             </div>
                                                         </div>
                                                     @else
@@ -997,7 +1191,7 @@
                                                 </td>
                                                 <td>
                                                     <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
-                                                        <i class="fa-solid fa-clock" style="color: #94A3B8;"></i>
+                                                        <i class="fa-solid fa-clock" style="color: var(--rpt-text-muted);"></i>
                                                         {{ $sess->duration_minutes }}m ({{ __(ucfirst($sess->meeting_platform ?: 'online')) }})
                                                     </span>
                                                 </td>
@@ -1009,7 +1203,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" style="padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                                <td colspan="6" style="padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                                     {{ __('No live sessions recorded for this instructor.') }}
                                                 </td>
                                             </tr>
@@ -1023,10 +1217,11 @@
 
                     {{-- 3. Enrolled Students Roster Tab --}}
                     <div class="rpt-print-section" id="section-students" style="{{ $activeTab !== 'students' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-user-group"></i> {{ __('Enrolled Students Roster') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-user-group" style="color: #0D9488;"></i>
-                                {{ __('Enrolled Students Roster') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-user-group" style="color: var(--rpt-teal);"></i>
+                                <span>{{ __('Enrolled Students Roster') }}</span>
                             </h3>
 
                             <div class="rpt-table-container">
@@ -1046,37 +1241,37 @@
                                             <tr>
                                                 <td>
                                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                        <img src="{{ $enr->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff' }}" alt="{{ $enr->studentUser?->name }}" style="width: 2.35rem; height: 2.35rem; min-width: 2.35rem; border-radius: 9999px; object-fit: cover; border: 2px solid #0D9488; flex-shrink: 0;" />
+                                                        <img src="{{ $enr->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff' }}" alt="{{ $enr->studentUser?->name }}" style="width: 2.35rem; height: 2.35rem; min-width: 2.35rem; border-radius: 9999px; object-fit: cover; border: 2px solid var(--rpt-teal); flex-shrink: 0;" />
                                                         <div>
-                                                            <div style="font-weight: 800; dark:color:white color:#0F172A line-height: 1.2;" class="dark:text-white">
+                                                            <div class="rpt-strong-text" style="line-height: 1.2;">
                                                                 {{ $enr->studentUser?->name ?? __('Student') }}
                                                             </div>
-                                                            <div style="font-size: 0.7rem; color: #64748B;" class="dark:text-slate-400">
-                                                                {{ $enr->studentUser?->studentProfile?->school_name ?: __('Elite Academy') }}
+                                                            <div style="font-size: 0.7rem;" class="rpt-muted-text">
+                                                                {{ $enr->studentUser?->studentProfile?->school_name ?: brand('app_name', 'EDU') }}
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td style="font-size: 0.75rem;">
                                                     <div>{{ $enr->studentUser?->email }}</div>
-                                                    <div style="color: #94A3B8; font-family: monospace;">{{ $enr->studentUser?->phone }}</div>
+                                                    <div style="font-family: monospace;" class="rpt-muted-text">{{ $enr->studentUser?->phone }}</div>
                                                 </td>
                                                 <td>
                                                     {{ $enr->studentUser?->studentProfile?->gradeLevel?->name ?? '-' }}
                                                 </td>
-                                                <td style="font-weight: 700; color: #6366F1;" class="dark:text-indigo-400">
+                                                <td style="font-weight: 700; color: var(--rpt-indigo);">
                                                     {{ $enr->course?->title ?? '-' }}
                                                 </td>
                                                 <td style="font-family: monospace;">
                                                     {{ $enr->enrolled_at ? $enr->enrolled_at->format('Y-m-d') : '-' }}
                                                 </td>
                                                 <td>
-                                                    <span style="font-weight: 800; color: #0D9488;">{{ $enr->progress_percent }}%</span>
+                                                    <span style="font-weight: 800; color: var(--rpt-teal);">{{ $enr->progress_percent }}%</span>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" style="padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                                <td colspan="6" style="padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                                     {{ __('No students currently enrolled in this teacher\'s courses.') }}
                                                 </td>
                                             </tr>
@@ -1090,10 +1285,11 @@
 
                     {{-- 4. Assignments & Grading Tab --}}
                     <div class="rpt-print-section" id="section-assignments" style="{{ $activeTab !== 'assignments' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-file-pen"></i> {{ __('Assignments Created & Grading Log') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-file-pen" style="color: #9333EA;"></i>
-                                {{ __('Assignments Created & Grading Log') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-file-pen" style="color: var(--rpt-purple);"></i>
+                                <span>{{ __('Assignments Created & Grading Log') }}</span>
                             </h3>
 
                             <div class="rpt-table-container">
@@ -1115,14 +1311,14 @@
                                                 $totalSubs = $a->submissions->count();
                                             @endphp
                                             <tr>
-                                                <td style="font-weight: 800; dark:color:white color:#0F172A" class="dark:text-white">
+                                                <td class="rpt-strong-text">
                                                     {{ $a->title }}
                                                 </td>
                                                 <td>{{ $a->course?->title ?? '-' }}</td>
                                                 <td style="font-family: monospace; font-weight: 800;">
                                                     {{ $a->passing_grade ?: 60 }}%
                                                 </td>
-                                                <td style="font-weight: 700; color: #9333EA;">
+                                                <td style="font-weight: 700; color: var(--rpt-purple);">
                                                     {{ $totalSubs }} {{ __('Submissions') }}
                                                 </td>
                                                 <td>
@@ -1138,7 +1334,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" style="padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                                <td colspan="6" style="padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                                     {{ __('No assignments created by this teacher.') }}
                                                 </td>
                                             </tr>
@@ -1152,32 +1348,33 @@
 
                     {{-- 5. Educational Notes Authored Tab --}}
                     <div class="rpt-print-section" id="section-notes" style="{{ $activeTab !== 'notes' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-clipboard-user"></i> {{ __('Educational Notes Authored for Students') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-clipboard-user" style="color: #0284C7;"></i>
-                                {{ __('Educational Notes Authored for Students') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-clipboard-user" style="color: var(--rpt-sky);"></i>
+                                <span>{{ __('Educational Notes Authored for Students') }}</span>
                             </h3>
 
                             @forelse($this->notes as $note)
-                                <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 1rem; padding: 1.15rem; display: flex; flex-direction: column; gap: 0.65rem;" class="dark:bg-slate-950/60 dark:border-slate-800">
+                                <div class="rpt-note-card" style="display: flex; flex-direction: column; gap: 0.65rem;">
                                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="{{ $note->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0284C7&color=fff' }}" alt="{{ $note->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0284C7; flex-shrink: 0;" />
+                                            <img src="{{ $note->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=0284C7&color=fff' }}" alt="{{ $note->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid var(--rpt-sky); flex-shrink: 0;" />
                                             <div>
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
+                                                <h4 class="rpt-card-title">
                                                     {{ __('For Student') }}: {{ $note->studentUser?->name ?? __('Student') }}
                                                 </h4>
-                                                <div style="font-size: 0.7rem; color: #94A3B8;">{{ $note->studentUser?->email }}</div>
+                                                <div style="font-size: 0.7rem;" class="rpt-muted-text">{{ $note->studentUser?->email }}</div>
                                             </div>
                                         </div>
-                                        <span style="font-size: 0.75rem; font-family: monospace; color: #94A3B8;">{{ $note->created_at->format('Y-m-d H:i') }}</span>
+                                        <span style="font-size: 0.75rem; font-family: monospace;" class="rpt-muted-text">{{ $note->created_at->format('Y-m-d H:i') }}</span>
                                     </div>
-                                    <p style="font-size: 0.825rem; color: #475569; margin: 0; line-height: 1.6; padding-inline-start: 3rem;" class="dark:text-slate-300">
+                                    <p class="rpt-card-body" style="padding-inline-start: 3rem;">
                                         {{ $note->note }}
                                     </p>
                                 </div>
                             @empty
-                                <div style="padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                <div style="padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                     <i class="fa-solid fa-clipboard-check" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
                                     <p style="font-size: 0.875rem; font-weight: 600; margin: 0;">{{ __('No educational notes authored by this teacher.') }}</p>
                                 </div>
@@ -1187,19 +1384,20 @@
 
                     {{-- 6. Exception Requests Handled Tab --}}
                     <div class="rpt-print-section" id="section-exceptions" style="{{ $activeTab !== 'exceptions' ? 'display:none;' : '' }}">
+                        <div class="rpt-section-print-title" style="display: none;"><i class="fa-solid fa-envelope-open-text"></i> {{ __('Student Absence & Exception Requests Handled') }}</div>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <h3 style="font-size: 0.9rem; font-weight: 800; dark:color:white color:#0F172A text-transform: uppercase; margin: 0; display: flex; align-items: center; gap: 0.5rem;" class="dark:text-white">
-                                <i class="fa-solid fa-envelope-open-text" style="color: #9333EA;"></i>
-                                {{ __('Student Absence & Exception Requests Handled') }}
+                            <h3 class="rpt-section-heading no-print">
+                                <i class="fa-solid fa-envelope-open-text" style="color: var(--rpt-purple);"></i>
+                                <span>{{ __('Student Absence & Exception Requests Handled') }}</span>
                             </h3>
 
                             @forelse($this->exceptions as $exc)
-                                <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 1rem; padding: 1.15rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;" class="dark:bg-slate-950/60 dark:border-slate-800">
+                                <div class="rpt-exception-card" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                        <img src="{{ $exc->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=9333EA&color=fff' }}" alt="{{ $exc->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid #9333EA; flex-shrink: 0;" />
+                                        <img src="{{ $exc->studentUser?->avatar_url ?? 'https://ui-avatars.com/api/?name=Student&background=9333EA&color=fff' }}" alt="{{ $exc->studentUser?->name }}" style="width: 2.25rem; height: 2.25rem; min-width: 2.25rem; border-radius: 9999px; object-fit: cover; border: 1.5px solid var(--rpt-purple); flex-shrink: 0;" />
                                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                                             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                                <h4 style="font-size: 0.85rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">
+                                                <h4 class="rpt-card-title">
                                                     {{ $exc->studentUser?->name ?? __('Student') }}
                                                 </h4>
                                                 <span class="rpt-badge rpt-badge-info">{{ $exc->liveSession?->title ?? $exc->course?->title ?? __('Session Request') }}</span>
@@ -1207,21 +1405,22 @@
                                                     {{ __(ucfirst($exc->status)) }}
                                                 </span>
                                             </div>
-                                            <p style="font-size: 0.775rem; color: #64748B; margin: 0;" class="dark:text-slate-400">
+                                            <p class="rpt-card-body" style="font-size: 0.775rem; color: var(--rpt-text-muted);">
                                                 {{ __('Reason') }}: {{ $exc->reason ?: '-' }}
                                             </p>
                                         </div>
                                     </div>
-                                    <span style="font-size: 0.75rem; font-family: monospace; color: #94A3B8;">{{ $exc->created_at->format('Y-m-d H:i') }}</span>
+                                    <span style="font-size: 0.75rem; font-family: monospace;" class="rpt-muted-text">{{ $exc->created_at->format('Y-m-d H:i') }}</span>
                                 </div>
                             @empty
-                                <div style="padding: 2.5rem; text-align: center; color: #94A3B8;">
+                                <div style="padding: 2.5rem; text-align: center;" class="rpt-muted-text">
                                     <i class="fa-solid fa-envelope-circle-check" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
                                     <p style="font-size: 0.875rem; font-weight: 600; margin: 0;">{{ __('No exception requests for this teacher\'s classes.') }}</p>
                                 </div>
                             @endforelse
                         </div>
                     </div>{{-- end section-exceptions --}}
+
                     {{-- Formal Institutional Sign-off Section (Print Only) --}}
                     <div class="rpt-print-signatures" style="display: none;">
                         <div class="rpt-signature-box">
@@ -1248,10 +1447,10 @@
                 </div>
             </div>
         @else
-            <div style="padding: 3.5rem 1.5rem; text-align: center; background: #FFFFFF; border-radius: 1.5rem; border: 1.5px solid #E2E8F0;" class="dark:bg-slate-900 dark:border-slate-800">
-                <i class="fa-solid fa-user-slash" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 0.75rem; display: block;"></i>
-                <h3 style="font-size: 1rem; font-weight: 800; dark:color:white color:#0F172A margin: 0;" class="dark:text-white">{{ __('No teacher selected') }}</h3>
-                <p style="font-size: 0.825rem; color: #64748B; margin: 0.35rem 0 0 0;">{{ __('Please pick a teacher from the dropdown above to view their comprehensive faculty report.') }}</p>
+            <div class="rpt-empty-card">
+                <i class="fa-solid fa-user-slash" style="font-size: 2.5rem; color: var(--rpt-text-muted); margin-bottom: 0.75rem; display: block;"></i>
+                <h3 class="rpt-card-title" style="font-size: 1.05rem;">{{ __('No teacher selected') }}</h3>
+                <p class="rpt-muted-text" style="font-size: 0.825rem; margin: 0.35rem 0 0 0;">{{ __('Please pick a teacher from the dropdown above to view their comprehensive faculty report.') }}</p>
             </div>
         @endif
     </div>
