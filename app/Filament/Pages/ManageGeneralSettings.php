@@ -227,18 +227,6 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'قم برفع الشعارات المعتمدة بصيغ PNG أو SVG أو WEBP عالية الدقة وبخلفية شفافة. التغييرات تنعكس فورياً في كامل المنظومة.'
                                         : 'Upload approved brand logos in high-resolution PNG, SVG or WEBP with transparent background. Changes sync system-wide.')
                                     ->schema([
-                                        Html::make(new HtmlString(
-                                            '<div class="flex items-center gap-3 p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs flex-wrap">'
-                                            . '<span class="font-bold text-slate-600 dark:text-slate-300"><i class="fa-solid fa-eye text-teal-500 me-1"></i> ' . ($isAr ? 'الشعارات النشطة بالمنظومة:' : 'Active System Logos:') . '</span>'
-                                            . '<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-xs">'
-                                            . '<span class="text-slate-500 text-[10px] font-bold">Light Mode:</span><img src="' . brand_logo('light') . '" alt="Light Logo" class="h-6 w-auto max-w-[90px] object-contain">'
-                                            . '</div>'
-                                            . '<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-950 border border-teal-500/30 text-white shadow-xs">'
-                                            . '<span class="text-teal-400 text-[10px] font-bold">Dark / Glass:</span><img src="' . brand_logo('dark') . '" alt="Dark Logo" class="h-6 w-auto max-w-[90px] object-contain">'
-                                            . '</div>'
-                                            . '</div>'
-                                        ))->columnSpanFull(),
-
                                         Grid::make(['default' => 1, 'md' => 2])->schema([
                                             FileUpload::make('site_logo_light')
                                                 ->label($isAr ? 'شعار الوضع الفاتح (Light Surface Logo)' : 'Light Mode Logo')
@@ -247,7 +235,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
-                                                ->imagePreviewHeight('100')
+                                                ->imagePreviewHeight('70')
                                                 ->downloadable()
                                                 ->openable()
                                                 ->maxSize(5120),
@@ -259,7 +247,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
-                                                ->imagePreviewHeight('100')
+                                                ->imagePreviewHeight('70')
                                                 ->downloadable()
                                                 ->openable()
                                                 ->maxSize(5120),
@@ -282,7 +270,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
-                                                ->imagePreviewHeight('100')
+                                                ->imagePreviewHeight('70')
                                                 ->downloadable()
                                                 ->openable()
                                                 ->maxSize(3072),

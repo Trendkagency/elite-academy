@@ -10,8 +10,10 @@ use App\Policies\RolePolicy;
 use App\Services\Translation\DatabaseFileTranslationLoader;
 use App\Services\WindowsSafeFilesystem;
 use Asignua\FilamentInfiniteScroll\InfiniteScrollMode;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -166,7 +168,17 @@ class AppServiceProvider extends ServiceProvider
                 ->deferLoading()
                 ->infiniteScroll(mode: InfiniteScrollMode::Scroll)
                 ->paginated([10, 25, 50, 100, 'all'])
-                ->defaultPaginationPageOption(10);
+                ->defaultPaginationPageOption(10)
+                ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+                ->filtersFormColumns(['default' => 1, 'sm' => 2, 'md' => 3, 'xl' => 4])
+                ->filtersTriggerAction(function (Action $action): Action {
+                    return $action
+                        ->button()
+                        ->label(fn () => app()->getLocale() === 'ar' ? 'تصفية وبحث متقدم' : 'Filter & Search')
+                        ->icon('heroicon-m-funnel')
+                        ->color('primary')
+                        ->size('sm');
+                });
         });
 
         if (! $this->app->runningInConsole() && $this->app->bound('request')) {
