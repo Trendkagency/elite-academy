@@ -38,7 +38,17 @@ class ManageTranslationSystem extends Page implements HasForms, HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return app()->getLocale() === 'ar' ? 'الإعدادات العامة' : 'Settings';
+        return app()->getLocale() === 'ar' ? 'إعدادات النظام العامة' : 'System Settings';
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->isAdmin() || $user->hasRole('Super Admin') || $user->hasPermission(\App\Permissions\PermissionsRegistry::TRANSLATIONS_VIEW);
     }
 
     public static function getNavigationLabel(): string

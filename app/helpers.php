@@ -44,12 +44,15 @@ if (! function_exists('app_currency')) {
      */
     function app_currency(): string
     {
-        if (function_exists('demo_enabled') && demo_enabled()) {
-            return (string) config('demo.branding.currency.code', 'EGP');
+        if (class_exists(SiteSetting::class)) {
+            $val = SiteSetting::get('currency_code');
+            if (! empty($val)) {
+                return (string) $val;
+            }
         }
 
-        if (class_exists(SiteSetting::class)) {
-            return SiteSetting::get('currency_code', 'EGP') ?: 'EGP';
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            return (string) config('demo.branding.currency.code', 'EGP');
         }
 
         return 'EGP';
@@ -66,16 +69,16 @@ if (! function_exists('currency_symbol')) {
     {
         $loc = $locale ?: app()->getLocale();
 
-        if (function_exists('demo_enabled') && demo_enabled()) {
-            return (string) config('demo.branding.currency.symbol_'.$loc, config('demo.branding.currency.symbol_en', 'EGP'));
+        if (class_exists(SiteSetting::class)) {
+            $key = $loc === 'ar' ? 'currency_symbol_ar' : 'currency_symbol_en';
+            $val = SiteSetting::get($key) ?: SiteSetting::get('currency_symbol');
+            if (! empty($val)) {
+                return (string) $val;
+            }
         }
 
-        if (class_exists(SiteSetting::class)) {
-            if ($loc === 'ar') {
-                return SiteSetting::get('currency_symbol_ar', 'ج.م') ?: 'ج.م';
-            }
-
-            return SiteSetting::get('currency_symbol_en', 'EGP') ?: 'EGP';
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            return (string) config('demo.branding.currency.symbol_'.$loc, config('demo.branding.currency.symbol_en', 'EGP'));
         }
 
         return $loc === 'ar' ? 'ج.م' : 'EGP';
@@ -181,26 +184,42 @@ if (! function_exists('demo_config')) {
 
 if (! function_exists('brand')) {
     /**
-     * Get a brand value from demo config, with locale awareness (_ar fallback) and production fallback.
+     * Get a brand value with Database-First Precedence, then demo config, then fallback.
      */
     function brand(string $key, mixed $fallback = null, ?string $locale = null): mixed
     {
-        if (! demo_enabled()) {
-            return $fallback;
-        }
-
         $loc = $locale ?: app()->getLocale();
 
-        if ($loc === 'ar') {
-            $arVal = config('demo.branding.'.$key.'_ar');
-            if ($arVal !== null && $arVal !== '') {
-                return $arVal;
+        if (class_exists(SiteSetting::class)) {
+            if ($loc === 'ar') {
+                $dbVal = SiteSetting::get('site_'.$key.'_ar')
+                    ?: SiteSetting::get($key.'_ar')
+                    ?: SiteSetting::get('site_'.$key)
+                    ?: SiteSetting::get($key);
+            } else {
+                $dbVal = SiteSetting::get('site_'.$key.'_en')
+                    ?: SiteSetting::get($key.'_en')
+                    ?: SiteSetting::get('site_'.$key)
+                    ?: SiteSetting::get($key);
+            }
+
+            if ($dbVal !== null && $dbVal !== '') {
+                return $dbVal;
             }
         }
 
-        $val = config('demo.branding.'.$key);
-        if ($val !== null && $val !== '') {
-            return $val;
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            if ($loc === 'ar') {
+                $arVal = config('demo.branding.'.$key.'_ar');
+                if ($arVal !== null && $arVal !== '') {
+                    return $arVal;
+                }
+            }
+
+            $val = config('demo.branding.'.$key);
+            if ($val !== null && $val !== '') {
+                return $val;
+            }
         }
 
         return $fallback;
@@ -209,19 +228,89 @@ if (! function_exists('brand')) {
 
 if (! function_exists('brand_logo')) {
     /**
-     * Get the brand logo URL for the given theme (light or dark).
+     * Get the brand logo URL with Database-First Precedence for light, dark, or favicon.
      */
     function brand_logo(string $theme = 'light', string $fallback = 'images/logo_500.webp'): string
     {
-        if (! demo_enabled()) {
-            return asset($fallback);
+        if (class_exists(SiteSetting::class)) {
+            $dbKey = match ($theme) {
+                'dark' => 'site_logo_dark',
+                'favicon' => 'site_favicon',
+                'app_icon', 'icon' => 'site_app_icon',
+                default => 'site_logo_light',
+            };
+
+            $val = SiteSetting::get($dbKey);
+            if (empty($val) && in_array($theme, ['light', 'dark', 'auto'])) {
+                $val = SiteSetting::get('site_logo');
+            }
+
+            if (! empty($val)) {
+                return media_url($val, $fallback);
+            }
         }
 
-        $logoPath = $theme === 'dark'
-            ? config('demo.branding.logo_dark', 'demo/logo-dark.svg')
-            : config('demo.branding.logo', 'demo/logo.svg');
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            $logoPath = match ($theme) {
+                'dark' => config('demo.branding.logo_dark', 'demo/logo-dark.svg'),
+                'favicon' => config('demo.branding.favicon', 'demo/favicon.ico'),
+                default => config('demo.branding.logo', 'demo/logo.svg'),
+            };
 
-        return asset($logoPath ?: $fallback);
+            return asset($logoPath ?: $fallback);
+        }
+
+        return asset($fallback);
+    }
+}
+
+if (! function_exists('brand_custom_logo_url')) {
+    /**
+     * Return custom uploaded logo URL if configured in database, or null if using demo/default vector.
+     */
+    function brand_custom_logo_url(string $theme = 'light'): ?string
+    {
+        if (! class_exists(SiteSetting::class)) {
+            return null;
+        }
+
+        $dbKey = match ($theme) {
+            'dark' => 'site_logo_dark',
+            'favicon' => 'site_favicon',
+            'app_icon', 'icon' => 'site_app_icon',
+            default => 'site_logo_light',
+        };
+
+        $val = SiteSetting::get($dbKey);
+        if (empty($val) && in_array($theme, ['light', 'dark', 'auto'])) {
+            $val = SiteSetting::get('site_logo') ?: SiteSetting::get('site_logo_light');
+        }
+
+        return ! empty($val) ? media_url($val) : null;
+    }
+}
+
+if (! function_exists('brand_color')) {
+    /**
+     * Get dynamic brand color from SiteSetting, demo config, or default fallback.
+     */
+    function brand_color(string $type = 'primary', string $default = '#0d9488'): string
+    {
+        if (class_exists(SiteSetting::class)) {
+            $val = SiteSetting::get('theme_'.$type.'_color') ?: SiteSetting::get($type.'_color');
+            if (! empty($val)) {
+                return (string) $val;
+            }
+        }
+
+        if (function_exists('demo_enabled') && demo_enabled()) {
+            $val = config('demo.branding.'.$type.'_color');
+            if (! empty($val)) {
+                return (string) $val;
+            }
+        }
+
+        return $default;
     }
 }
 

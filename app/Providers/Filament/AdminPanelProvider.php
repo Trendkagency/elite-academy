@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\ManageGeneralSettings;
 use App\Filament\Pages\ManageTranslationSystem;
 use App\Filament\Widgets\AdminOverviewStatsWidget;
 use App\Filament\Widgets\SessionsAnalyticsChartWidget;
@@ -44,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => brand_logo('light', 'images/logo_500.webp'))
             ->darkModeBrandLogo(fn () => brand_logo('dark', 'images/logo_500.webp'))
             ->brandLogoHeight('2.6rem')
-            ->favicon(fn () => brand_logo('light', 'images/logo_500.webp'))
+            ->favicon(fn () => brand_logo('favicon', 'demo/favicon.ico'))
             ->maxContentWidth(Width::Full)
             ->font(
                 family: fn (): string => app()->getLocale() === 'ar' ? 'Cairo' : 'Inter',
@@ -56,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop()
             ->colors([
-                'primary' => demo_enabled() && config('demo.branding.primary_color') ? Color::hex(config('demo.branding.primary_color')) : Color::Teal,
+                'primary' => Color::hex(brand_color('primary', (demo_enabled() && config('demo.branding.primary_color')) ? config('demo.branding.primary_color') : '#0D9488')),
                 'gray' => Color::Slate,
                 'amber' => Color::Amber,
                 'success' => Color::Emerald,
@@ -107,14 +108,14 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
 
                 NavigationGroup::make()
-                    ->label(fn () => app()->getLocale() === 'ar' ? 'الإعدادات العامة' : 'Settings')
-                    ->icon('heroicon-o-cog-6-tooth')
-                    ->collapsed(),
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'إعدادات النظام العامة' : 'System Settings')
+                    ->icon('heroicon-o-cog-6-tooth'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
+                ManageGeneralSettings::class,
                 ManageTranslationSystem::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')

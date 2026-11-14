@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#0F172A">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ demo_enabled() ? asset(config('demo.branding.favicon', 'demo/favicon.ico')) : asset('images/logo_500.webp') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ demo_enabled() ? asset(config('demo.branding.favicon', 'demo/favicon.ico')) : asset('images/logo_500.webp') }}" type="image/x-icon">
+    <link rel="icon" href="{{ brand_logo('favicon', 'demo/favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ brand_logo('favicon', 'demo/favicon.ico') }}" type="image/x-icon">
 
     {{-- Defensive protection against buggy browser extensions calling removeChild on mismatched parents --}}
     <script>
@@ -35,7 +35,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Elite Academy">
     <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
-    <title>{{ $pageTitle ?? (demo_enabled() ? brand('app_name', 'EDU') . ' - LMS Platform' : 'Elite Academy | أكاديمية إيليت - Leading Educational Platform in Egypt') }}</title>
+    <title>{{ $pageTitle ?? (brand('app_name', 'Elite Academy') . ' | ' . brand('tagline', 'LMS Platform')) }}</title>
     <meta name="description"
         content="{{ $pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.' }}">
     <meta name="keywords"

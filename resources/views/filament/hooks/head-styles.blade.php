@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 @php
-    $sysPrimaryHex = (function_exists('demo_enabled') && demo_enabled() && config('demo.branding.primary_color'))
-        ? config('demo.branding.primary_color')
+    $sysPrimaryHex = function_exists('brand_color')
+        ? brand_color('primary', (function_exists('demo_enabled') && demo_enabled() && config('demo.branding.primary_color')) ? config('demo.branding.primary_color') : '#0D9488')
         : '#0D9488';
     $cleanPrimaryHex = ltrim((string) $sysPrimaryHex, '#');
     if (strlen($cleanPrimaryHex) === 3) {
@@ -17,8 +17,8 @@
         ? hexdec(substr($cleanPrimaryHex, 0, 2)) . ', ' . hexdec(substr($cleanPrimaryHex, 2, 2)) . ', ' . hexdec(substr($cleanPrimaryHex, 4, 2))
         : '13, 148, 136';
 
-    $sysAccentHex = (function_exists('demo_enabled') && demo_enabled() && config('demo.branding.accent_color'))
-        ? config('demo.branding.accent_color')
+    $sysAccentHex = function_exists('brand_color')
+        ? brand_color('accent', (function_exists('demo_enabled') && demo_enabled() && config('demo.branding.accent_color')) ? config('demo.branding.accent_color') : '#10B981')
         : '#10B981';
     $cleanAccentHex = ltrim((string) $sysAccentHex, '#');
     if (strlen($cleanAccentHex) === 3) {
