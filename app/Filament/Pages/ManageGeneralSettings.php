@@ -44,8 +44,42 @@ class ManageGeneralSettings extends Page implements HasForms
     public function getTitle(): string
     {
         return app()->getLocale() === 'ar'
-            ? 'مركز إعدادات النظام والهوية البصرية الشاملة'
-            : 'Central System Settings & Visual Identity Hub';
+            ? 'إعدادات المنظومة والهوية البصرية'
+            : 'System & Brand Settings';
+    }
+
+    public function getHeading(): string
+    {
+        return app()->getLocale() === 'ar'
+            ? 'إعدادات المنظومة والهوية البصرية'
+            : 'System & Brand Settings';
+    }
+
+    public function getSubheading(): ?string
+    {
+        return app()->getLocale() === 'ar'
+            ? 'إدارة مركزية شاملة لأصول العلامة التجارية، الشعارات، العملات، وألوان المنظومة بمزامنة فورية كاملة.'
+            : 'Central configuration for brand assets, logos, active currency, and system visual tokens with instant full-system synchronization.';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        $isAr = app()->getLocale() === 'ar';
+
+        return [
+            \Filament\Actions\Action::make('preview_home')
+                ->label($isAr ? 'معاينة الموقع' : 'Preview Site')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(route('home'))
+                ->openUrlInNewTab(),
+
+            \Filament\Actions\Action::make('save')
+                ->label($isAr ? 'حفظ ومزامنة النظام' : 'Save & Sync Settings')
+                ->icon('heroicon-o-check-circle')
+                ->color('primary')
+                ->action('save'),
+        ];
     }
 
     public static function canAccess(): bool
@@ -167,7 +201,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'يتم تطبيق اسم وشعار المنصة تلقائياً عبر لوحة التحكم، صفحات تسجيل الدخول، رأس وتذييل الموقع، وبوابات الطلاب والمعلمين وأولياء الأمور.'
                                         : 'Official platform names and slogans sync instantly across Admin header, Auth login cards, Navbar, Footer, and Portals.')
                                     ->schema([
-                                        Grid::make(2)->schema([
+                                        Grid::make(['default' => 1, 'md' => 2])->schema([
                                             TextInput::make('app_name_ar')
                                                 ->label($isAr ? 'اسم المنصة / الأكاديمية (بالعربية)' : 'Platform Name (Arabic)')
                                                 ->placeholder('أكاديمية إيليت التعليمية')
@@ -193,7 +227,19 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'قم برفع الشعارات المعتمدة بصيغ PNG أو SVG أو WEBP عالية الدقة وبخلفية شفافة. التغييرات تنعكس فورياً في كامل المنظومة.'
                                         : 'Upload approved brand logos in high-resolution PNG, SVG or WEBP with transparent background. Changes sync system-wide.')
                                     ->schema([
-                                        Grid::make(2)->schema([
+                                        Html::make(new HtmlString(
+                                            '<div class="flex items-center gap-3 p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs flex-wrap">'
+                                            . '<span class="font-bold text-slate-600 dark:text-slate-300"><i class="fa-solid fa-eye text-teal-500 me-1"></i> ' . ($isAr ? 'الشعارات النشطة بالمنظومة:' : 'Active System Logos:') . '</span>'
+                                            . '<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-xs">'
+                                            . '<span class="text-slate-500 text-[10px] font-bold">Light Mode:</span><img src="' . brand_logo('light') . '" alt="Light Logo" class="h-6 w-auto max-w-[90px] object-contain">'
+                                            . '</div>'
+                                            . '<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-950 border border-teal-500/30 text-white shadow-xs">'
+                                            . '<span class="text-teal-400 text-[10px] font-bold">Dark / Glass:</span><img src="' . brand_logo('dark') . '" alt="Dark Logo" class="h-6 w-auto max-w-[90px] object-contain">'
+                                            . '</div>'
+                                            . '</div>'
+                                        ))->columnSpanFull(),
+
+                                        Grid::make(['default' => 1, 'md' => 2])->schema([
                                             FileUpload::make('site_logo_light')
                                                 ->label($isAr ? 'شعار الوضع الفاتح (Light Surface Logo)' : 'Light Mode Logo')
                                                 ->helperText($isAr ? 'يظهر على الخلفيات البيضاء والفاتحة في الهيدر والشهادات والتقارير.' : 'Used on white/light backgrounds in headers, certificates, and printable reports.')
@@ -201,6 +247,9 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
+                                                ->imagePreviewHeight('100')
+                                                ->downloadable()
+                                                ->openable()
                                                 ->maxSize(5120),
 
                                             FileUpload::make('site_logo_dark')
@@ -210,6 +259,9 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
+                                                ->imagePreviewHeight('100')
+                                                ->downloadable()
+                                                ->openable()
                                                 ->maxSize(5120),
 
                                             FileUpload::make('site_favicon')
@@ -219,6 +271,8 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->acceptedFileTypes(['image/x-icon', 'image/vnd.microsoft.icon', 'image/png', 'image/svg+xml', 'image/webp'])
+                                                ->downloadable()
+                                                ->openable()
                                                 ->maxSize(2048),
 
                                             FileUpload::make('site_app_icon')
@@ -228,6 +282,9 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->directory('branding')
                                                 ->visibility('public')
                                                 ->image()
+                                                ->imagePreviewHeight('100')
+                                                ->downloadable()
+                                                ->openable()
                                                 ->maxSize(3072),
                                         ]),
                                     ]),
@@ -243,7 +300,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'تحكم في ألوان الهوية البصرية. هذه الألوان تغذي نظام Glassmorphism الذكي وأزرار الإجراءات والرسوم البيانية.'
                                         : 'Control brand identity colors. Dynamically drives the Smart Glassmorphism theme, action buttons, and telemetry.')
                                     ->schema([
-                                        Grid::make(3)->schema([
+                                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                             ColorPicker::make('theme_primary_color')
                                                 ->label($isAr ? 'اللون الأساسي (Primary Color)' : 'Primary Brand Color')
                                                 ->default('#0d9488')
@@ -260,7 +317,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->required(),
                                         ]),
 
-                                        Grid::make(3)->schema([
+                                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                             Select::make('theme_surface_mode')
                                                 ->label($isAr ? 'النمط البصري العام للواجهات' : 'Global Surface Aesthetic')
                                                 ->options([
@@ -306,7 +363,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'يتم تطبيق العملة ورموزها في كل أنحاء النظام: أسعار الكورسات، الباقات، التقارير المالية، والفواتير.'
                                         : 'Active currency settings applied across packages, pricing, financials, and invoice receipts.')
                                     ->schema([
-                                        Grid::make(3)->schema([
+                                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                             Select::make('currency_code')
                                                 ->label($isAr ? 'كود العملة الدولي (ISO Code)' : 'Currency Code (ISO)')
                                                 ->options([
@@ -334,7 +391,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->required(),
                                         ]),
 
-                                        Grid::make(3)->schema([
+                                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                             Select::make('currency_position')
                                                 ->label($isAr ? 'موضع رمز العملة' : 'Symbol Position')
                                                 ->options([
@@ -376,7 +433,7 @@ class ManageGeneralSettings extends Page implements HasForms
                             ->schema([
                                 Section::make(new HtmlString('<i class="fa-solid fa-headset text-teal-400 me-2"></i>' . ($isAr ? 'بيانات الاتصال ومواعيد العمل وحقوق الملكية' : 'Contact, Hours & Copyright Details')))
                                     ->schema([
-                                        Grid::make(3)->schema([
+                                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                             TextInput::make('contact_email')
                                                 ->label($isAr ? 'البريد الإلكتروني الرسمي' : 'Official Contact Email')
                                                 ->email()
@@ -392,7 +449,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                                 ->placeholder('https://wa.me/201000000000'),
                                         ]),
 
-                                        Grid::make(2)->schema([
+                                        Grid::make(['default' => 1, 'md' => 2])->schema([
                                             TextInput::make('contact_address_ar')
                                                 ->label($isAr ? 'العنوان الجغرافي (بالعربية)' : 'Address (Arabic)'),
 
@@ -424,7 +481,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         ? 'يتم ربط هذه الحسابات تلقائياً بالأيقونات التفاعلية في الفوتر ورأس الصفحة ومراسلات الدعم الفني.'
                                         : 'These links dynamically power social icons across footer, contact pages, and support communications.')
                                     ->schema([
-                                        Grid::make(2)->schema([
+                                        Grid::make(['default' => 1, 'md' => 2])->schema([
                                             TextInput::make('social_facebook')
                                                 ->label(new HtmlString('<i class="fa-brands fa-facebook-f text-[#1877F2] me-1"></i> ' . ($isAr ? 'فيسبوك (Facebook URL)' : 'Facebook URL')))
                                                 ->placeholder('https://facebook.com/your-page')
@@ -475,7 +532,7 @@ class ManageGeneralSettings extends Page implements HasForms
                             ->schema([
                                 Section::make(new HtmlString('<i class="fa-solid fa-pen-to-square text-teal-400 me-2"></i>' . ($isAr ? 'نصوص وعناوين أعمدة الفوتر' : 'Footer Column Titles & Description')))
                                     ->schema([
-                                        Grid::make(2)->schema([
+                                        Grid::make(['default' => 1, 'md' => 2])->schema([
                                             Textarea::make('footer_tagline_ar')
                                                 ->label($isAr ? 'وصف المنصة في الفوتر (بالعربية)' : 'Footer Tagline (Arabic)')
                                                 ->rows(2),
@@ -509,7 +566,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         Repeater::make('footer_quick_links')
                                             ->label($isAr ? 'الروابط السريعة' : 'Quick Navigation Links')
                                             ->schema([
-                                                Grid::make(3)->schema([
+                                                Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                                     TextInput::make('label_ar')->label($isAr ? 'اسم الرابط (عربي)' : 'Label (Arabic)')->required(),
                                                     TextInput::make('label_en')->label($isAr ? 'اسم الرابط (إنجليزي)' : 'Label (English)')->required(),
                                                     TextInput::make('url')->label($isAr ? 'الرابط الموجه إليه' : 'Target URL')->required(),
@@ -525,7 +582,7 @@ class ManageGeneralSettings extends Page implements HasForms
                                         Repeater::make('footer_subjects_links')
                                             ->label($isAr ? 'روابط المسارات والمقررات' : 'Tracks Links')
                                             ->schema([
-                                                Grid::make(3)->schema([
+                                                Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])->schema([
                                                     TextInput::make('label_ar')->label($isAr ? 'اسم المسار (عربي)' : 'Label (Arabic)')->required(),
                                                     TextInput::make('label_en')->label($isAr ? 'اسم المسار (إنجليزي)' : 'Label (English)')->required(),
                                                     TextInput::make('url')->label($isAr ? 'الرابط الموجه إليه' : 'Target URL')->required(),

@@ -230,8 +230,10 @@ if (! function_exists('brand_logo')) {
     /**
      * Get the brand logo URL with Database-First Precedence for light, dark, or favicon.
      */
-    function brand_logo(string $theme = 'light', string $fallback = 'images/logo_500.webp'): string
+    function brand_logo(string $theme = 'light', ?string $fallback = null): string
     {
+        $defaultFallback = $theme === 'favicon' ? 'demo/favicon.ico' : 'images/logo_500.webp';
+        $fallback = $fallback ?: $defaultFallback;
         if (class_exists(SiteSetting::class)) {
             $dbKey = match ($theme) {
                 'dark' => 'site_logo_dark',
