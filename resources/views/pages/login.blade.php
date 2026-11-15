@@ -146,7 +146,7 @@
                         name="email" 
                         required 
                         autocomplete="email"
-                        placeholder="student@eliteacademy.edu.eg" 
+                        placeholder="student@{{ request()->getHost() ?: 'domain.com' }}" 
                         class="form-input w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none"
                     >
                     <div id="email-spinner" class="hidden absolute top-1/2 -translate-y-1/2 end-3 text-teal-600 dark:text-teal-400">

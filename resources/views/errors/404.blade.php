@@ -58,9 +58,9 @@
 
             {{-- Header Showcase: Elite Academy Logo + Sad Emotional Mascot Badge --}}
             <div class="flex items-center justify-center gap-4 mx-auto py-2">
-                {{-- Elite Academy Logo Badge --}}
+                {{-- Brand Logo Badge --}}
                 <div class="relative w-24 h-24 bg-white dark:bg-slate-800 rounded-3xl p-3 shadow-xl border border-slate-200/90 dark:border-slate-700 flex items-center justify-center anim-mascot">
-                    <img src="{{ asset('images/logo.webp') }}" alt="Elite Academy" class="w-full h-full object-contain">
+                    <img src="{{ brand_logo('light') }}" alt="{{ brand_name() }}" class="w-full h-full object-contain">
                 </div>
 
                 {{-- Expressive Sad Emotion Mascot Badge --}}
@@ -118,7 +118,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400 dark:text-slate-500">
-            {{ __('Elite Academy Platform — Intelligent Error Handling & Navigation') }}
+            {{ brand_name() . ' — ' . __('Intelligent Error Handling & Navigation') }}
         </p>
     </div>
 

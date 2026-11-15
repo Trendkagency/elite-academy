@@ -57,7 +57,7 @@ class TeacherController extends Controller
         }
 
         return view('pages.teachers', [
-            'pageTitle' => 'Teachers & Faculty Directory — Elite Academy',
+            'pageTitle' => __('Teachers & Faculty Directory') . ' — ' . brand_name(),
             'activeNav' => 'teachers',
             'teachers' => $teachers,
             'subjects' => $subjects,
@@ -77,7 +77,7 @@ class TeacherController extends Controller
         }
 
         return view('pages.teacher-profile', [
-            'pageTitle' => $teacher ? "{$teacher->user?->name} — Teacher Profile" : 'Teacher Profile — Elite Academy',
+            'pageTitle' => ($teacher ? "{$teacher->user?->name} — " . __('Teacher Profile') : __('Teacher Profile')) . ' — ' . brand_name(),
             'activeNav' => 'teachers',
             'teacher' => $teacher,
         ]);

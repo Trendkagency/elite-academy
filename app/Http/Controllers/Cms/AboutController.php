@@ -13,7 +13,7 @@ class AboutController extends Controller
         $aboutSettings = [
             'hero_badge' => SiteSetting::get('about_hero_badge', 'ACCREDITED EXCELLENCE • EST. 2020'),
             'hero_title' => SiteSetting::get('about_hero_title', 'Transforming Academic Education For Future Leaders'),
-            'hero_subtitle' => SiteSetting::get('about_hero_subtitle', 'Elite Academy combines accredited national curricula with interactive video sessions, real-time mentor Q&A, and parent progress tracking.'),
+            'hero_subtitle' => brand_interpolate(SiteSetting::get('about_hero_subtitle', brand_name() . ' combines accredited national curricula with interactive video sessions, real-time mentor Q&A, and parent progress tracking.')),
             'mission_title' => SiteSetting::get('about_mission_title', 'Our Core Educational Mission'),
             'mission_text' => SiteSetting::get('about_mission_text', 'To deliver accessible, high-quality, and interactive learning experiences that empower secondary students to excel in national and international examinations.'),
             'vision_title' => SiteSetting::get('about_vision_title', 'Our Vision For Tomorrow'),
@@ -25,7 +25,7 @@ class AboutController extends Controller
         ];
 
         return view('pages.about', [
-            'pageTitle' => __('About Us — Elite Academy'),
+            'pageTitle' => __('About Us') . ' — ' . brand_name(),
             'activeNav' => 'about',
             'aboutSettings' => $aboutSettings,
         ]);

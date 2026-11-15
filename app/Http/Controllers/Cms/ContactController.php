@@ -23,7 +23,7 @@ class ContactController extends Controller
             'card_icon' => SiteSetting::get('contact_card_icon', '🎧'),
             'phone' => SiteSetting::get('contact_phone', '+20 100 123 4567'),
             'whatsapp' => SiteSetting::get('contact_whatsapp', '+20 100 123 4568'),
-            'email' => SiteSetting::get('contact_email', 'support@elite-academy.edu.eg'),
+            'email' => SiteSetting::get('contact_email', 'support@' . (request()->getHost() ?: 'domain.com')),
             'address' => SiteSetting::get('contact_address', 'New Cairo Hub, Egypt'),
             'form_title' => SiteSetting::get('contact_form_title', 'Send Us a Message'),
             'form_subtitle' => SiteSetting::get('contact_form_subtitle', 'Our student advisors will respond within 24 hours.'),
@@ -31,7 +31,7 @@ class ContactController extends Controller
         ];
 
         return view('pages.contact', [
-            'pageTitle' => __('Contact Us — Elite Academy'),
+            'pageTitle' => __('Contact Us') . ' — ' . brand_name(),
             'activeNav' => 'contact',
             'contactSettings' => $contactSettings,
         ]);

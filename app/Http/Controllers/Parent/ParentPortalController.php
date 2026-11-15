@@ -341,7 +341,7 @@ class ParentPortalController extends Controller
                 'email' => $studentProfile->user->email ?? '',
                 'phone' => $studentProfile->user->phone ?? '',
                 'grade' => $studentProfile->gradeLevel->name ?? __('Third Year Secondary'),
-                'school' => $studentProfile->school_name ?? __('Elite STEM Academy'),
+                'school' => $studentProfile->school_name ?? (brand_name() . ' ' . __('STEM Academy')),
             ],
             'courses' => $coursesDetail,
             'package' => [
@@ -463,7 +463,7 @@ class ParentPortalController extends Controller
                 'name' => $studentUser->name,
                 'email' => $studentUser->email,
                 'grade' => $studentProfile?->gradeLevel?->name ?? __('Secondary Level'),
-                'school' => $studentProfile?->school_name ?? __('Elite STEM Academy'),
+                'school' => $studentProfile?->school_name ?? (brand_name() . ' ' . __('STEM Academy')),
             ],
         ]);
     }

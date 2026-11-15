@@ -41,6 +41,12 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile(\App\Filament\Pages\Auth\EditProfile::class, isSimple: false)
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label(fn () => app()->getLocale() === 'ar' ? 'الملف الشخصي' : 'My Profile')
+                    ->icon('heroicon-o-user-circle'),
+            ])
             ->brandName(fn () => brand('app_name', 'EDU'))
             ->brandLogo(fn () => brand_logo('light', 'images/logo_500.webp'))
             ->darkModeBrandLogo(fn () => brand_logo('dark', 'images/logo_500.webp'))

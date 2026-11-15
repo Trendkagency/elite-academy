@@ -338,24 +338,357 @@
         box-shadow: 0 0 0 3px rgba(var(--sys-primary-rgb), 0.18) !important;
     }
 
-    /* --- Page Headers & Breadcrumbs --- */
-    .fi-header-heading {
-        font-family: 'Cairo', sans-serif !important;
-        font-weight: 900 !important;
-        font-size: 1.65rem !important;
-        color: var(--sg-text) !important;
-        letter-spacing: -0.02em !important;
+    /* -------------------------------------------------------------
+       EXECUTIVE PAGE HEADER & TITLE DESIGN SYSTEM (UNIVERSAL RESPONSIVE)
+       Smart Glassmorphism + Dynamic System Accent + Dark/Light Synergy
+       ------------------------------------------------------------- */
+    .fi-header {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.25rem !important;
+        width: 100% !important;
+        background: var(--sg-surface) !important;
+        backdrop-filter: var(--sg-blur) !important;
+        -webkit-backdrop-filter: var(--sg-blur) !important;
+        border: 1px solid var(--sg-border) !important;
+        border-radius: 1.25rem !important;
+        padding: 1.25rem 1.6rem !important;
+        box-shadow: var(--sg-shadow) !important;
+        margin-bottom: 1.75rem !important;
+        overflow: hidden !important;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
     }
 
-    .fi-header-subheading {
-        font-size: 0.875rem !important;
-        font-weight: 600 !important;
-        color: var(--sg-text-dim) !important;
+    /* Specular Light Horizon on Header Top */
+    .fi-header::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 5% !important;
+        right: 5% !important;
+        height: 1.5px !important;
+        background: linear-gradient(90deg, transparent, rgba(var(--sys-primary-rgb), 0.75), rgba(var(--sys-accent-rgb), 0.55), transparent) !important;
+        pointer-events: none !important;
+    }
+
+    /* Subtle Atmospheric Corner Glow */
+    .fi-header::after {
+        content: '' !important;
+        position: absolute !important;
+        top: -55px !important;
+        right: -35px !important;
+        width: 220px !important;
+        height: 170px !important;
+        background: radial-gradient(circle, rgba(var(--sys-primary-rgb), 0.14) 0%, transparent 70%) !important;
+        pointer-events: none !important;
+        border-radius: 9999px !important;
+    }
+    html[dir="rtl"] .fi-header::after,
+    html[lang="ar"] .fi-header::after,
+    body[dir="rtl"] .fi-header::after {
+        right: auto !important;
+        left: -35px !important;
+    }
+
+    .fi-header:hover {
+        border-color: var(--sg-border-strong) !important;
+        box-shadow: var(--sg-shadow-hover) !important;
+    }
+
+    /* Header Content Structure (Desktop / Tablet Breakpoint) */
+    @media (min-width: 900px) {
+        .fi-header {
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+        }
+    }
+
+    /* Title & Breadcrumbs Section: Guaranteed Non-Squish Minimum Width */
+    .fi-header > div:first-child {
+        flex: 1 1 auto !important;
+        min-width: min(100%, 340px) !important;
+        max-width: 100% !important;
+    }
+
+    /* Breadcrumbs Navigation (Dual Mode Modern Pill Trail) */
+    .fi-breadcrumbs {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        margin-bottom: 0.45rem !important;
+    }
+
+    .fi-breadcrumbs-list {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 0.35rem !important;
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .fi-breadcrumbs-item {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        white-space: nowrap !important;
     }
 
     .fi-breadcrumbs-item-label {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.785rem !important;
         font-weight: 700 !important;
-        font-size: 0.8rem !important;
+        padding: 0.18rem 0.58rem !important;
+        border-radius: 0.5rem !important;
+        text-decoration: none !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        color: var(--sg-text-dim) !important;
+        background: rgba(100, 116, 139, 0.08) !important;
+        border: 1px solid transparent !important;
+    }
+
+    html.dark .fi-breadcrumbs-item-label {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: var(--sg-text-dim) !important;
+    }
+
+    .fi-breadcrumbs-item-label:hover {
+        color: var(--sys-primary) !important;
+        background: rgba(var(--sys-primary-rgb), 0.12) !important;
+        transform: translateY(-1px) !important;
+        border-color: rgba(var(--sys-primary-rgb), 0.25) !important;
+    }
+
+    html.dark .fi-breadcrumbs-item-label:hover {
+        color: var(--sys-primary-light) !important;
+        background: rgba(var(--sys-primary-rgb), 0.22) !important;
+        border-color: rgba(var(--sys-primary-rgb), 0.45) !important;
+    }
+
+    .fi-breadcrumbs-item-label[aria-current="page"],
+    .fi-breadcrumbs-item:last-child .fi-breadcrumbs-item-label {
+        font-weight: 800 !important;
+        color: var(--sys-primary-dark) !important;
+        background: rgba(var(--sys-primary-rgb), 0.10) !important;
+        border: 1px solid rgba(var(--sys-primary-rgb), 0.22) !important;
+    }
+
+    html.dark .fi-breadcrumbs-item-label[aria-current="page"],
+    html.dark .fi-breadcrumbs-item:last-child .fi-breadcrumbs-item-label {
+        color: #FFFFFF !important;
+        background: rgba(var(--sys-primary-rgb), 0.22) !important;
+        border: 1px solid rgba(var(--sys-primary-rgb), 0.40) !important;
+    }
+
+    .fi-breadcrumbs-item-separator {
+        width: 0.85rem !important;
+        height: 0.85rem !important;
+        color: var(--sg-text-dim) !important;
+        opacity: 0.55 !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Page Title Heading (Universal Executive Typography) */
+    .fi-header-heading {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 900 !important;
+        font-size: clamp(1.4rem, 2.1vw, 1.85rem) !important;
+        line-height: 1.35 !important;
+        letter-spacing: -0.02em !important;
+        color: var(--sg-text) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        margin: 0 !important;
+        word-break: keep-all !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* Executive Luminous Vertical Pill Indicator */
+    .fi-header-heading::before {
+        content: '' !important;
+        display: inline-block !important;
+        width: 5px !important;
+        height: 1.3em !important;
+        border-radius: 9999px !important;
+        background: linear-gradient(180deg, var(--sys-primary) 0%, var(--sys-accent) 100%) !important;
+        box-shadow: 0 0 12px rgba(var(--sys-primary-rgb), 0.65) !important;
+        flex-shrink: 0 !important;
+    }
+
+    html.dark .fi-header-heading {
+        color: #FFFFFF !important;
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    html:not(.dark) .fi-header-heading {
+        color: #0F172A !important;
+    }
+
+    /* Page Subheading */
+    .fi-header-subheading {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        color: var(--sg-text-dim) !important;
+        margin-top: 0.35rem !important;
+        line-height: 1.55 !important;
+    }
+
+    /* Page Header Actions Toolbar */
+    .fi-header-actions-ctn {
+        flex: 0 1 auto !important;
+        max-width: 100% !important;
+    }
+
+    .fi-header-actions-ctn .fi-ac,
+    .fi-header-actions-ctn > div {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+        justify-content: flex-start !important;
+    }
+
+    @media (min-width: 900px) {
+        .fi-header-actions-ctn .fi-ac,
+        .fi-header-actions-ctn > div {
+            justify-content: flex-end !important;
+        }
+    }
+
+    /* Professional Glass Action Buttons in Page Header */
+    .fi-header-actions-ctn .fi-btn {
+        border-radius: 0.85rem !important;
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 0.8125rem !important;
+        font-weight: 700 !important;
+        padding: 0.52rem 1rem !important;
+        min-height: 2.45rem !important;
+        backdrop-filter: var(--sg-blur-sm) !important;
+        -webkit-backdrop-filter: var(--sg-blur-sm) !important;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        white-space: nowrap !important;
+        border: 1px solid transparent !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.45rem !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn:hover {
+        transform: translateY(-1.5px) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn:active {
+        transform: translateY(0) !important;
+    }
+
+    /* Action Buttons: System Primary & Default */
+    .fi-header-actions-ctn .fi-btn:not(.fi-color-gray):not(.fi-color-danger):not(.fi-color-warning):not(.fi-color-success):not(.fi-color-info),
+    .fi-header-actions-ctn .fi-btn.fi-color-primary {
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.95) 0%, var(--sys-primary-dark) 100%) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(255, 255, 255, 0.22) !important;
+        box-shadow: 0 4px 14px -3px rgba(var(--sys-primary-rgb), 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn:not(.fi-color-gray):not(.fi-color-danger):not(.fi-color-warning):not(.fi-color-success):not(.fi-color-info):hover,
+    .fi-header-actions-ctn .fi-btn.fi-color-primary:hover {
+        box-shadow: 0 8px 22px -4px rgba(var(--sys-primary-rgb), 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Action Buttons: Info (Cyan / Sky) */
+    .fi-header-actions-ctn .fi-btn.fi-color-info {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(56, 189, 248, 0.45) !important;
+        box-shadow: 0 4px 14px -3px rgba(2, 132, 199, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn.fi-color-info:hover {
+        box-shadow: 0 8px 22px -4px rgba(2, 132, 199, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Action Buttons: Success (Emerald) */
+    .fi-header-actions-ctn .fi-btn.fi-color-success {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(52, 211, 153, 0.45) !important;
+        box-shadow: 0 4px 14px -3px rgba(5, 150, 105, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn.fi-color-success:hover {
+        box-shadow: 0 8px 22px -4px rgba(5, 150, 105, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Action Buttons: Danger (Rose / Red) */
+    .fi-header-actions-ctn .fi-btn.fi-color-danger {
+        background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(251, 113, 133, 0.45) !important;
+        box-shadow: 0 4px 14px -3px rgba(225, 29, 72, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn.fi-color-danger:hover {
+        box-shadow: 0 8px 22px -4px rgba(225, 29, 72, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Action Buttons: Warning (Amber) */
+    .fi-header-actions-ctn .fi-btn.fi-color-warning {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(251, 191, 36, 0.45) !important;
+        box-shadow: 0 4px 14px -3px rgba(217, 119, 6, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn.fi-color-warning:hover {
+        box-shadow: 0 8px 22px -4px rgba(217, 119, 6, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Action Buttons: Gray / Secondary */
+    .fi-header-actions-ctn .fi-btn.fi-color-gray {
+        background: var(--sg-surface) !important;
+        color: var(--sg-text) !important;
+        border: 1px solid var(--sg-border) !important;
+        box-shadow: var(--sg-shadow) !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn.fi-color-gray:hover {
+        border-color: var(--sg-border-strong) !important;
+        color: var(--sys-primary) !important;
+    }
+
+    html.dark .fi-header-actions-ctn .fi-btn.fi-color-gray:hover {
+        color: var(--sys-primary-light) !important;
+    }
+
+    /* Mobile Responsiveness for Header (< 640px) */
+    @media (max-width: 640px) {
+        .fi-header {
+            padding: 1rem 1.15rem !important;
+            margin-bottom: 1.25rem !important;
+            border-radius: 1rem !important;
+            gap: 1rem !important;
+        }
+
+        .fi-header-heading {
+            font-size: 1.35rem !important;
+        }
+
+        .fi-header-actions-ctn,
+        .fi-header-actions-ctn .fi-ac,
+        .fi-header-actions-ctn > div {
+            width: 100% !important;
+        }
+
+        .fi-header-actions-ctn .fi-btn {
+            flex: 1 1 auto !important;
+            justify-content: center !important;
+        }
     }
 
     /* --- Smart Glass Tabs (ListRecords & Resource Filters) --- */
@@ -635,6 +968,367 @@
         justify-content: flex-end !important;
     }
 
+    /* =============================================================
+       TABLE FILTERS & SEARCH SYSTEM — SMART GLASSMORPHISM
+       Ultra-Clear, High-Contrast, Dual-Mode (Light & Dark)
+       ============================================================= */
+
+    /* 1. Above-Content Filter Container */
+    .fi-ta-filters-above-content-ctn {
+        position: relative;
+        margin-bottom: 1.25rem;
+        padding: 1.15rem 1.35rem;
+        border-radius: 1.15rem;
+        background: var(--sg-surface);
+        border: 1px solid var(--sg-border-strong);
+        backdrop-filter: var(--sg-blur);
+        -webkit-backdrop-filter: var(--sg-blur);
+        box-shadow: var(--sg-shadow);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html.dark .fi-ta-filters-above-content-ctn {
+        background: rgba(13, 21, 41, 0.75);
+        border-color: rgba(var(--sys-primary-rgb), 0.32);
+        box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .fi-ta-filters-above-content-ctn:hover {
+        border-color: rgba(var(--sys-primary-rgb), 0.5);
+    }
+
+    /* 2. Filter Trigger Button Container & Button */
+    .fi-ta-filters-trigger-action-ctn,
+    .fi-ta-filter-trigger-action-ctn {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 0.65rem;
+    }
+
+    .fi-ta-filters-trigger-action-ctn .fi-btn,
+    .fi-ta-filter-trigger-action-ctn .fi-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        padding: 0.55rem 1.15rem !important;
+        border-radius: 0.85rem !important;
+        font-family: var(--font-family) !important;
+        font-weight: 800 !important;
+        font-size: 0.825rem !important;
+        letter-spacing: 0.01em !important;
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.22), rgba(var(--sys-primary-rgb), 0.10)) !important;
+        color: var(--sys-primary) !important;
+        border: 1px solid rgba(var(--sys-primary-rgb), 0.40) !important;
+        backdrop-filter: var(--sg-blur-sm) !important;
+        -webkit-backdrop-filter: var(--sg-blur-sm) !important;
+        box-shadow: 0 4px 14px -3px rgba(var(--sys-primary-rgb), 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        cursor: pointer !important;
+    }
+
+    html.dark .fi-ta-filters-trigger-action-ctn .fi-btn,
+    html.dark .fi-ta-filter-trigger-action-ctn .fi-btn {
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.32), rgba(var(--sys-primary-rgb), 0.14)) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(var(--sys-primary-rgb), 0.55) !important;
+        box-shadow: 0 6px 20px -2px rgba(var(--sys-primary-rgb), 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    }
+
+    .fi-ta-filters-trigger-action-ctn .fi-btn:hover,
+    .fi-ta-filter-trigger-action-ctn .fi-btn:hover {
+        transform: translateY(-1.5px) scale(1.02) !important;
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.35), rgba(var(--sys-primary-rgb), 0.22)) !important;
+        border-color: var(--sys-primary) !important;
+        box-shadow: 0 8px 24px -2px rgba(var(--sys-primary-rgb), 0.55) !important;
+    }
+
+    /* Funnel Icon glow & animation */
+    .fi-ta-filters-trigger-action-ctn .fi-btn svg,
+    .fi-ta-filter-trigger-action-ctn .fi-btn svg {
+        width: 1.15rem !important;
+        height: 1.15rem !important;
+        color: var(--sys-primary) !important;
+        filter: drop-shadow(0 0 5px rgba(var(--sys-primary-rgb), 0.55));
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html.dark .fi-ta-filters-trigger-action-ctn .fi-btn svg,
+    html.dark .fi-ta-filter-trigger-action-ctn .fi-btn svg {
+        color: var(--sys-primary-light) !important;
+    }
+
+    .fi-ta-filters-trigger-action-ctn .fi-btn:hover svg,
+    .fi-ta-filter-trigger-action-ctn .fi-btn:hover svg {
+        transform: rotate(-12deg) scale(1.12);
+    }
+
+    /* Active filter count badge on trigger */
+    .fi-ta-filters-trigger-action-ctn .fi-badge,
+    .fi-ta-filter-trigger-action-ctn .fi-badge {
+        background: linear-gradient(135deg, #10B981, #059669) !important;
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 0.75rem !important;
+        padding: 0.15rem 0.5rem !important;
+        border-radius: 9999px !important;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.45) !important;
+    }
+
+    /* 3. Filter Form Section & Header */
+    .fi-ta-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 1.15rem;
+        padding: 0.5rem 0;
+    }
+
+    .fi-ta-filters-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 0.85rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--sg-border);
+    }
+
+    html.dark .fi-ta-filters-header {
+        border-bottom-color: rgba(var(--sys-primary-rgb), 0.22);
+    }
+
+    .fi-ta-filters-heading {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: var(--font-family) !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: var(--sg-text) !important;
+        letter-spacing: -0.01em;
+    }
+
+    html.dark .fi-ta-filters-heading {
+        color: #F8FAFC !important;
+    }
+
+    .fi-ta-filters-heading::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 9999px;
+        background: var(--sys-primary);
+        box-shadow: 0 0 10px var(--sys-primary);
+    }
+
+    /* Reset / Clear Filters Link in Header */
+    .fi-ta-filters-header a,
+    .fi-ta-filters-header button,
+    .fi-ta-filters-header .fi-link {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        padding: 0.35rem 0.85rem !important;
+        border-radius: 0.6rem !important;
+        background: rgba(239, 68, 68, 0.12) !important;
+        color: #DC2626 !important;
+        border: 1px solid rgba(239, 68, 68, 0.28) !important;
+        transition: all 0.2s ease !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+    }
+
+    .fi-ta-filters-header a:hover,
+    .fi-ta-filters-header button:hover,
+    .fi-ta-filters-header .fi-link:hover {
+        background: rgba(239, 68, 68, 0.22) !important;
+        color: #B91C1C !important;
+        border-color: rgba(239, 68, 68, 0.5) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    html.dark .fi-ta-filters-header a,
+    html.dark .fi-ta-filters-header button,
+    html.dark .fi-ta-filters-header .fi-link {
+        background: rgba(244, 63, 94, 0.16) !important;
+        color: #FDA4AF !important;
+        border-color: rgba(244, 63, 94, 0.38) !important;
+    }
+
+    html.dark .fi-ta-filters-header a:hover,
+    html.dark .fi-ta-filters-header button:hover,
+    html.dark .fi-ta-filters-header .fi-link:hover {
+        background: rgba(244, 63, 94, 0.28) !important;
+        color: #FFF1F2 !important;
+        border-color: rgba(244, 63, 94, 0.65) !important;
+    }
+
+    /* 4. Filter Input Fields, Selects & Toggles inside Table Filters */
+    .fi-ta-filters .fi-fo-field-wrp {
+        margin-bottom: 0 !important;
+    }
+
+    .fi-ta-filters label,
+    .fi-ta-filters .fi-fo-field-wrp-label span {
+        font-family: var(--font-family) !important;
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        color: var(--sg-text-muted) !important;
+        letter-spacing: 0.01em !important;
+    }
+
+    html.dark .fi-ta-filters label,
+    html.dark .fi-ta-filters .fi-fo-field-wrp-label span {
+        color: #CBD5E1 !important;
+    }
+
+    .fi-ta-filters .fi-input-wrp {
+        background: var(--sg-input-bg) !important;
+        border: 1px solid var(--sg-border) !important;
+        border-radius: 0.75rem !important;
+        backdrop-filter: var(--sg-blur-sm) !important;
+        -webkit-backdrop-filter: var(--sg-blur-sm) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    html.dark .fi-ta-filters .fi-input-wrp {
+        background: rgba(8, 14, 28, 0.82) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .fi-ta-filters .fi-input-wrp:focus-within {
+        border-color: var(--sys-primary) !important;
+        box-shadow: 0 0 0 2px rgba(var(--sys-primary-rgb), 0.32) !important;
+    }
+
+    /* 5. Active Filter Indicators Bar (Chips above Table) */
+    .fi-ta-filter-indicators {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 1.15rem;
+        margin-bottom: 1.15rem;
+        border-radius: 0.85rem;
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.10), rgba(var(--sys-primary-rgb), 0.03));
+        border: 1px solid rgba(var(--sys-primary-rgb), 0.28);
+        backdrop-filter: var(--sg-blur-sm);
+        -webkit-backdrop-filter: var(--sg-blur-sm);
+    }
+
+    html.dark .fi-ta-filter-indicators {
+        background: linear-gradient(135deg, rgba(var(--sys-primary-rgb), 0.18), rgba(8, 14, 28, 0.65));
+        border-color: rgba(var(--sys-primary-rgb), 0.38);
+        box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.35);
+    }
+
+    .fi-ta-filter-indicators-label {
+        font-family: var(--font-family) !important;
+        font-size: 0.775rem !important;
+        font-weight: 800 !important;
+        color: var(--sys-primary) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.03em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important;
+        margin-right: 0.5rem !important;
+    }
+
+    html.dark .fi-ta-filter-indicators-label {
+        color: var(--sys-primary-light) !important;
+    }
+
+    .fi-ta-filter-indicators-badges-ctn {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .fi-ta-filter-indicators .fi-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important;
+        padding: 0.3rem 0.75rem !important;
+        border-radius: 9999px !important;
+        font-size: 0.775rem !important;
+        font-weight: 700 !important;
+        background: rgba(var(--sys-primary-rgb), 0.16) !important;
+        color: var(--sg-text) !important;
+        border: 1px solid rgba(var(--sys-primary-rgb), 0.38) !important;
+        box-shadow: 0 2px 6px -1px rgba(var(--sys-primary-rgb), 0.22) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    html.dark .fi-ta-filter-indicators .fi-badge {
+        background: rgba(var(--sys-primary-rgb), 0.26) !important;
+        color: #FFFFFF !important;
+        border-color: rgba(var(--sys-primary-rgb), 0.55) !important;
+        box-shadow: 0 2px 10px -1px rgba(var(--sys-primary-rgb), 0.40) !important;
+    }
+
+    .fi-ta-filter-indicators .fi-badge:hover {
+        transform: translateY(-1px) !important;
+        border-color: var(--sys-primary) !important;
+    }
+
+    /* Delete (x) button on badge */
+    .fi-ta-filter-indicators .fi-badge-delete-btn,
+    .fi-ta-filter-indicators .fi-badge button {
+        opacity: 0.8;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        cursor: pointer;
+    }
+
+    .fi-ta-filter-indicators .fi-badge-delete-btn:hover,
+    .fi-ta-filter-indicators .fi-badge button:hover {
+        opacity: 1;
+        transform: scale(1.2);
+        color: #EF4444 !important;
+    }
+
+    /* Remove all filters action button */
+    .fi-ta-filter-indicators > button,
+    .fi-ta-filter-indicators > a,
+    .fi-ta-filter-indicators .fi-link {
+        font-size: 0.775rem !important;
+        font-weight: 700 !important;
+        color: #EF4444 !important;
+        text-decoration: underline !important;
+        cursor: pointer !important;
+        padding: 0.25rem 0.55rem !important;
+        border-radius: 0.45rem !important;
+        transition: background 0.15s ease !important;
+    }
+
+    .fi-ta-filter-indicators > button:hover,
+    .fi-ta-filter-indicators > a:hover,
+    .fi-ta-filter-indicators .fi-link:hover {
+        background: rgba(239, 68, 68, 0.12) !important;
+    }
+
+    html.dark .fi-ta-filter-indicators > button,
+    html.dark .fi-ta-filter-indicators > a,
+    html.dark .fi-ta-filter-indicators .fi-link {
+        color: #FDA4AF !important;
+    }
+
+    /* 6. Strict FileUpload Logo Constraints (Eliminates Giant Logo Blowup) */
+    .fi-fo-file-upload img,
+    .fi-fo-file-upload svg,
+    .fi-fo-file-upload-preview img,
+    .filepond--image-preview img,
+    .filepond--file-info,
+    .filepond--image-preview-wrapper img,
+    .filepond--root .filepond--image-preview-wrapper img {
+        max-height: 70px !important;
+        width: auto !important;
+        max-width: 200px !important;
+        object-fit: contain !important;
+    }
+
     /* --- Smart Glass Form Sections & Cards --- */
     .fi-section {
         border-radius: 1.25rem !important;
@@ -758,6 +1452,7 @@
     }
 
     /* --- Smart Glass Harmonization for Reports, Collections & CMS Previews --- */
+    .ec-profile-hero,
     .ec-header-card,
     .ec-kpi-card,
     .ec-table-card,
@@ -770,6 +1465,18 @@
         box-shadow: var(--sg-shadow) !important;
         backdrop-filter: var(--sg-blur) !important;
         -webkit-backdrop-filter: var(--sg-blur) !important;
+    }
+
+    .ec-profile-hero:hover {
+        border-color: var(--sg-border-strong) !important;
+        box-shadow: var(--sg-shadow-hover) !important;
+    }
+
+    /* Executive Avatar Upload Round Styling */
+    .fi-fo-file-upload .filepond--root[data-style-panel-layout="compact circle"] {
+        margin-inline: auto !important;
+        border-radius: 9999px !important;
+        box-shadow: 0 8px 24px -4px rgba(var(--sys-primary-rgb), 0.3) !important;
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
@@ -1225,18 +1932,40 @@
     .fi-section-header-heading {
         font-family: 'Cairo', sans-serif !important;
         font-weight: 800 !important;
-        font-size: 1.05rem !important;
+        font-size: 1.1rem !important;
         display: flex !important;
         align-items: center !important;
-        gap: 0.5rem !important;
+        gap: 0.65rem !important;
+        color: var(--sg-text) !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    .fi-section-header-heading svg {
+        color: var(--sys-primary) !important;
+        flex-shrink: 0 !important;
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+        filter: drop-shadow(0 2px 6px rgba(var(--sys-primary-rgb), 0.35)) !important;
+    }
+
+    .fi-section-header-heading:not(:has(svg))::before {
+        content: '' !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 1.15em !important;
+        border-radius: 9999px !important;
+        background: linear-gradient(180deg, var(--sys-primary) 0%, var(--sys-accent) 100%) !important;
+        box-shadow: 0 0 8px rgba(var(--sys-primary-rgb), 0.5) !important;
+        flex-shrink: 0 !important;
     }
 
     .fi-section-header-description {
         font-family: 'Cairo', sans-serif !important;
-        font-size: 0.775rem !important;
-        color: #94A3B8 !important;
-        margin-top: 0.2rem !important;
-        line-height: 1.5 !important;
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        color: var(--sg-text-dim) !important;
+        margin-top: 0.25rem !important;
+        line-height: 1.55 !important;
     }
 
     html:not(.dark) .fi-section-header-description {

@@ -1,7 +1,7 @@
 @php
     $locale = app()->getLocale();
 
-    $tagline = \App\Models\SiteSetting::get('footer_tagline_' . $locale, __('footer.tagline'));
+    $tagline = brand_interpolate(\App\Models\SiteSetting::get('footer_tagline_' . $locale, __('footer.tagline')));
     $quickTitle = \App\Models\SiteSetting::get('footer_quick_links_title_' . $locale, __('footer.quick_links'));
     $subjectsTitle = \App\Models\SiteSetting::get('footer_subjects_title_' . $locale, __('footer.subjects'));
     $contactTitle = \App\Models\SiteSetting::get('footer_contact_title_' . $locale, __('footer.contact'));
@@ -11,7 +11,7 @@
         \App\Models\SiteSetting::get('contact_address_en', __('footer.address')),
     );
     $phone = \App\Models\SiteSetting::get('contact_phone', '+20 100 000 0000');
-    $email = \App\Models\SiteSetting::get('contact_email', 'info@eliteacademy.edu.eg');
+    $email = \App\Models\SiteSetting::get('contact_email', brand('support_email', 'support@trendk.com'));
     $hours = \App\Models\SiteSetting::get('footer_working_hours_' . $locale, __('footer.hours'));
 
     $rights = \App\Models\SiteSetting::get('footer_rights_' . $locale, __('footer.rights'));
@@ -52,11 +52,11 @@
 
             {{-- Col 1: Brand & Tagline --}}
             <div class="sm:col-span-2 space-y-4 flex flex-col items-center rtl:sm:items-start ltr:sm:items-start">
-                <a href="{{ route('home') }}" class="inline-block" aria-label="{{ brand('app_name', 'EDU') }}">
+                <a href="{{ route('home') }}" class="inline-block" aria-label="{{ brand_name() }}">
                 @if(demo_enabled())
                     <x-demo.brand-logo size="md" theme="dark" :showPill="true" />
                 @else
-                    <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="249" height="56"
+                    <img src="{{ brand_logo('dark', 'images/logo_500.webp') }}" alt="{{ brand_name() }} Logo" width="249" height="56"
                         class="h-20 sm:h-24 lg:h-28 w-auto max-h-28 object-contain mx-auto sm:mx-0" loading="lazy">
                 @endif
                 </a>
@@ -155,7 +155,7 @@
                     @endif
                 @endforeach
             </div>
-            <p>{{ brand('footer_text', $rights) }}</p>
+            <p>{{ brand_interpolate(brand('footer_text', $rights)) }}</p>
         </div>
     </div>
 </footer>

@@ -78,8 +78,8 @@ class ReviewController extends Controller
         }
 
         return view('pages.reviews', [
-            'pageTitle'      => __('Ratings & Student Reviews — Elite Academy'),
-            'pageDescription'=> __('Explore honest ratings and reviews from students, parents, and teachers at Elite Academy.'),
+            'pageTitle'      => __('Ratings & Student Reviews') . ' — ' . brand_name(),
+            'pageDescription'=> __('Explore honest ratings and reviews from students, parents, and teachers at :app.', ['app' => brand_name()]),
             'activeNav'      => 'reviews',
             'reviews'        => $reviews,
             'totalReviews'   => $totalReviews,

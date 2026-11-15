@@ -4,7 +4,7 @@
 @php
     $heroBadge = $aboutSettings['hero_badge'] ?? 'ACCREDITED EXCELLENCE • EST. 2020';
     $heroTitle = $aboutSettings['hero_title'] ?? 'Transforming Academic Education For Future Leaders';
-    $heroSubtitle = $aboutSettings['hero_subtitle'] ?? 'Elite Academy combines accredited national curricula with interactive video sessions, real-time mentor Q&A, and parent progress tracking.';
+    $heroSubtitle = brand_interpolate($aboutSettings['hero_subtitle'] ?? (brand_name() . ' combines accredited national curricula with interactive video sessions, real-time mentor Q&A, and parent progress tracking.'));
     $missionTitle = $aboutSettings['mission_title'] ?? 'Our Core Educational Mission';
     $missionText = $aboutSettings['mission_text'] ?? 'To deliver accessible, high-quality, and interactive learning experiences that empower secondary students to excel in national and international examinations.';
     $visionTitle = $aboutSettings['vision_title'] ?? 'Our Vision For Tomorrow';
@@ -20,7 +20,7 @@
         @include('components.breadcrumb', [
             'items' => [
                 ['label' => __('navbar.home'), 'route' => 'home'],
-                ['label' => __('About Elite Academy')],
+                ['label' => __('About :app', ['app' => brand_name()])],
             ]
         ])
 
@@ -61,7 +61,7 @@
 
             <div class="lg:col-span-5 relative">
                 <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white h-[420px] bg-slate-950">
-                    <img src="{{ asset('images/academy_campus.webp') }}" alt="Elite Academy Campus" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/academy_campus.webp') }}" alt="{{ brand_name() }} Campus" class="w-full h-full object-cover">
                 </div>
                 <div class="absolute -bottom-6 -left-6 bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-2xl">
                     <p class="font-heading font-black text-xl text-teal-400">ACCREDITED ACADEMY</p>
@@ -111,17 +111,17 @@
                     The Complete Architecture of Modern Secondary Tutoring & E-Learning in Egypt
                 </h2>
                 <p class="text-slate-600 text-base leading-relaxed">
-                    An in-depth whitepaper on Elite Academy’s pedagogical framework, encrypted stream security, automated grading engines, and real-time parental integration.
+                    {{ brand_interpolate("An in-depth whitepaper on Elite Academy’s pedagogical framework, encrypted stream security, automated grading engines, and real-time parental integration.") }}
                 </p>
             </header>
 
             <section class="space-y-4">
                 <h3 class="font-heading font-bold text-2xl text-slate-900">1. Thanawya Amma & Secondary Curriculum Alignment</h3>
                 <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    Elite Academy is engineered specifically to address the rigorous academic requirements of Egypt’s Thanawya Amma national secondary exams and language school curricula. Our courses cover critical academic tracks including Advanced Physics, Artificial Intelligence & Computer Science, Organic & Analytical Chemistry, Pure Mathematics (Calculus, Algebra, Dynamics), and Business Administration. Each curriculum is constructed by senior Egyptian educators with over 15 years of national exam preparation experience.
+                    {{ brand_interpolate("Elite Academy is engineered specifically to address the rigorous academic requirements of Egypt’s Thanawya Amma national secondary exams and language school curricula. Our courses cover critical academic tracks including Advanced Physics, Artificial Intelligence & Computer Science, Organic & Analytical Chemistry, Pure Mathematics (Calculus, Algebra, Dynamics), and Business Administration. Each curriculum is constructed by senior Egyptian educators with over 15 years of national exam preparation experience.") }}
                 </p>
                 <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    Instead of relying solely on passive video lectures, Elite Academy utilizes a dual-engine learning system: real-time interactive live sessions paired with step-by-step homework assignments that mirror official ministry exam formats. This ensures students build deep conceptual understanding alongside timed problem-solving endurance.
+                    {{ brand_interpolate("Instead of relying solely on passive video lectures, Elite Academy utilizes a dual-engine learning system: real-time interactive live sessions paired with step-by-step homework assignments that mirror official ministry exam formats. This ensures students build deep conceptual understanding alongside timed problem-solving endurance.") }}
                 </p>
             </section>
 
@@ -148,7 +148,7 @@
             <section class="space-y-4">
                 <h3 class="font-heading font-bold text-2xl text-slate-900">4. Real-Time Parent Portal & Attendance Tracking</h3>
                 <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    Parental involvement is directly linked to higher student pass rates. The Elite Academy Parent Portal allows guardians to link student accounts using verified phone numbers. Parents receive real-time visibility into attendance logs recorded by our minute-by-minute meeting heartbeat engine.
+                    {{ brand_interpolate("Parental involvement is directly linked to higher student pass rates. The Elite Academy Parent Portal allows guardians to link student accounts using verified phone numbers. Parents receive real-time visibility into attendance logs recorded by our minute-by-minute meeting heartbeat engine.") }}
                 </p>
                 <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
                     When a student joins a live session, attends a review lab, or misses an assignment deadline, instant Firebase Cloud Messaging (FCM) push alerts and optional WhatsApp notifications are dispatched to parents. This transparent feedback loop ensures accountability throughout the semester.
@@ -158,7 +158,7 @@
             <section class="space-y-4">
                 <h3 class="font-heading font-bold text-2xl text-slate-900">5. Faculty Accreditation & Institutional Certification</h3>
                 <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    Every instructor on Elite Academy undergoes rigorous verification of academic credentials and teaching credentials. Upon successful completion of a course track and final capstone evaluation, students earn an officially verified digital certificate of achievement featuring a unique QR code and serial number for institutional validation.
+                    {{ brand_interpolate("Every instructor on Elite Academy undergoes rigorous verification of academic credentials and teaching credentials. Upon successful completion of a course track and final capstone evaluation, students earn an officially verified digital certificate of achievement featuring a unique QR code and serial number for institutional validation.") }}
                 </p>
             </section>
         </article>

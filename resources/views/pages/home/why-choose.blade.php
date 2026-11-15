@@ -1,9 +1,9 @@
 @use('App\Models\SiteSetting')
 @php
     $locale = app()->getLocale();
-    $badge = SiteSetting::getLocalized('why_badge', __('home.why_badge'));
-    $title = SiteSetting::getLocalized('why_title', __('Why Students Choose Elite Academy'));
-    $subtitle = SiteSetting::getLocalized('why_subtitle', __('Elite Academy blends academic rigour with real-world application to give students the edge they need.'));
+    $badge = brand_interpolate(SiteSetting::getLocalized('why_badge', __('home.why_badge')));
+    $title = brand_interpolate(SiteSetting::getLocalized('why_title', __('Why Students Choose :app', ['app' => brand_name()])));
+    $subtitle = brand_interpolate(SiteSetting::getLocalized('why_subtitle', brand_name() . ' ' . __('blends academic rigour with real-world application to give students the edge they need.')));
     
     $rawItems = SiteSetting::get('landing_why_items');
     $customItems = $rawItems ? json_decode($rawItems, true) : null;
@@ -39,7 +39,7 @@
                 <div class="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-24 h-24 sm:w-48 sm:h-48 bg-orange-400/15 rounded-full blur-xl pointer-events-none -z-10"></div>
 
                 <div class="relative w-full aspect-[4/5] rounded-[20px] sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-xl sm:shadow-2xl shadow-slate-900/15 border-2 sm:border-4 border-white dark:border-slate-800 animate-float">
-                    <img src="{{ asset('images/hero_student.webp') }}" alt="Why Students Choose Elite Academy" width="500" height="625" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+                    <img src="{{ asset('images/hero_student.webp') }}" alt="{{ $title }}" width="500" height="625" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             </div>

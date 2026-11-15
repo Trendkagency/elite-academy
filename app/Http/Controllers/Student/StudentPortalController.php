@@ -829,7 +829,7 @@ class StudentPortalController extends Controller
             $primaryTeacher = $teachers->first() ?: [
                 'name' => __('Academic Teacher'),
                 'avatar' => 'T',
-                'role' => __('Elite Faculty'),
+                'role' => brand_name() . ' ' . __('Faculty'),
             ];
 
             // Attended / completed sessions for this subject

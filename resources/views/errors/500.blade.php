@@ -72,7 +72,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400">
-            {{ __('Elite Academy Platform — High Availability Architecture') }}
+            {{ brand_name() . ' — ' . __('High Availability Architecture') }}
         </p>
     </div>
 

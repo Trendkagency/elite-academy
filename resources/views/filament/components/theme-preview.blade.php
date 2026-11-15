@@ -260,9 +260,9 @@
                 {{-- Brand --}}
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div style="width:24px; height:24px; border-radius:6px; background:var(--pv-primary); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; color:#041017;">
-                        E
+                        {{ mb_substr(brand_name(), 0, 1) }}
                     </div>
-                    <span style="font-weight:800; font-size:13px; color:#ffffff;">ELITE <span style="color:var(--pv-primary);">ACADEMY</span></span>
+                    <span style="font-weight:800; font-size:13px; color:#ffffff;">{{ strtoupper(brand_name()) }}</span>
                 </div>
 
                 {{-- Nav Links --}}

@@ -643,7 +643,7 @@
                                     <div class="text-xs font-mono text-slate-600 space-y-1 pt-1">
                                         <p class="truncate flex items-center gap-1.5">
                                             <span><i class="fa-solid fa-school"></i></span>
-                                            {{ $st->school_name ?: __('Elite Academy') }}
+                                            {{ $st->school_name ?: brand_name() }}
                                         </p>
                                         <p class="truncate flex items-center gap-1.5 text-slate-500">
                                             <span><i class="fa-solid fa-graduation-cap"></i></span>
@@ -8333,7 +8333,7 @@
                 document.getElementById('spModalName').textContent = st.name || i18n.studentProfile;
                 document.getElementById('spModalCode').textContent = '#' + (st.student_code || 'STU-' + studentUserId);
                 document.getElementById('spModalMeta').textContent =
-                    `${st.school || 'Elite Academy'} • ${st.grade || 'Secondary'} • <i class="fa-solid fa-envelope"></i> ${st.email || ''}`;
+                    `${st.school || @json(brand_name())} • ${st.grade || 'Secondary'} • <i class="fa-solid fa-envelope"></i> ${st.email || ''}`;
 
                 // 2. Populate Overview KPIs
                 document.getElementById('spOverviewAttRate').textContent = `${metrics.attendance_rate || 100}%`;
@@ -9401,7 +9401,7 @@
                                 ${pkgBadge}
                             </div>
                             <p class="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1.5 flex-wrap">
-                                <span>${escapeHtml(st.school || 'Elite Academy')}</span>
+                                <span>${escapeHtml(st.school || @json(brand_name()))}</span>
                                 ${st.grade ? `<span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span><span>${escapeHtml(st.grade)}</span>` : ''}
                                 ${(st.code || st.student_code) ? `<span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span><span class="text-slate-400">#${escapeHtml(st.code || st.student_code)}</span>` : ''}
                             </p>

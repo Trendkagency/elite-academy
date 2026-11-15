@@ -624,6 +624,9 @@ class ManageGeneralSettings extends Page implements HasForms
         // Invalidate settings caches across runtime & memory
         Cache::forget('site_settings_dict');
 
+        // Automatically re-generate dynamic PWA manifest on disk
+        static::syncManifest();
+
         Notification::make()
             ->title(app()->getLocale() === 'ar' ? 'تم حفظ كافة إعدادات المنظومة بنجاح!' : 'System Settings Saved Successfully!')
             ->body(app()->getLocale() === 'ar'
@@ -631,5 +634,62 @@ class ManageGeneralSettings extends Page implements HasForms
                 : 'Brand identity, logos, system colors, currency, and configurations synced system-wide.')
             ->success()
             ->send();
+    }
+
+    /**
+     * Dynamically synchronize public/manifest.json with active system brand identity.
+     */
+    public static function syncManifest(): void
+    {
+        try {
+            $appNameEn = brand_name('en');
+            $appNameAr = brand_name('ar');
+            $tagline = brand('tagline', 'منصة تعليمية رائدة');
+            $primaryColor = brand_color('primary', '#0D9488');
+            $appIcon = brand_logo('app_icon', 'images/icon-192.png');
+
+            $manifest = [
+                'name' => "{$appNameEn} — {$appNameAr}",
+                'short_name' => brand_name(),
+                'description' => "{$appNameAr} - {$appNameEn} LMS Platform",
+                'start_url' => './',
+                'scope' => './',
+                'display' => 'standalone',
+                'orientation' => 'portrait',
+                'background_color' => '#0F172A',
+                'theme_color' => $primaryColor,
+                'lang' => app()->getLocale(),
+                'icons' => [
+                    [
+                        'src' => $appIcon,
+                        'sizes' => '192x192',
+                        'type' => 'image/png',
+                        'purpose' => 'any',
+                    ],
+                    [
+                        'src' => 'images/icon-maskable-192.png',
+                        'sizes' => '192x192',
+                        'type' => 'image/png',
+                        'purpose' => 'maskable',
+                    ],
+                    [
+                        'src' => $appIcon,
+                        'sizes' => '512x512',
+                        'type' => 'image/png',
+                        'purpose' => 'any',
+                    ],
+                    [
+                        'src' => 'images/icon-maskable-512.png',
+                        'sizes' => '512x512',
+                        'type' => 'image/png',
+                        'purpose' => 'maskable',
+                    ],
+                ],
+            ];
+
+            @file_put_contents(public_path('manifest.json'), json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        } catch (\Throwable) {
+            // Silently ignore if filesystem is read-only
+        }
     }
 }

@@ -55,7 +55,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400 dark:text-slate-500">
-            {{ __('Elite Academy Security System — Strict Role-Based Authorization Enforced') }}
+            {{ brand_name() . ' — ' . __('Security System — Strict Role-Based Authorization Enforced') }}
         </p>
 
     </div>

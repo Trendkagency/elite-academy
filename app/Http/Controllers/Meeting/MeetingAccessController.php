@@ -50,7 +50,7 @@ class MeetingAccessController extends Controller
         return view('pages.student-meeting', [
             'session' => $session,
             'user' => $user,
-            'pageTitle' => ($session->title ?: 'Live Stream Session') . ' — Elite Academy',
+            'pageTitle' => ($session->title ?: __('Live Stream Session')) . ' — ' . brand_name(),
         ]);
     }
 

@@ -130,7 +130,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">2</span>
-                    <span>{{ app()->getLocale() === 'ar' ? 'اضغط على "الإشعارات" (Notifications) ثم اختر "Elite Academy".' : 'Tap "Notifications" and select "Elite Academy".' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? ('اضغط على "الإشعارات" (Notifications) ثم اختر "' . brand_name() . '".') : ('Tap "Notifications" and select "' . brand_name() . '".') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[11px]">3</span>
@@ -231,7 +231,7 @@
                             </span>
                         </div>
                         <p class="text-slate-400 text-[11.5px] leading-relaxed">
-                            {{ app()->getLocale() === 'ar' ? 'افتح تطبيق Elite Academy من شاشتك الرئيسية، وسيطلب منك السماح بالإشعارات بنقرة واحدة لتصلك تنبيهات الحصص والمواعيد فوراً!' : 'Launch Elite Academy from your home screen and tap "Allow" to receive instant alerts even when the device is locked!' }}
+                            {{ app()->getLocale() === 'ar' ? ('افتح تطبيق ' . brand_name() . ' من شاشتك الرئيسية، وسيطلب منك السماح بالإشعارات بنقرة واحدة لتصلك تنبيهات الحصص والمواعيد فوراً!') : ('Launch ' . brand_name() . ' from your home screen and tap "Allow" to receive instant alerts even when the device is locked!') }}
                         </p>
                     </div>
                 </div>
@@ -444,9 +444,9 @@
                     return;
                 }
 
-                const rawTitle = n.title || 'أكاديمية النخبة | Elite Academy';
+                const rawTitle = n.title || @json(brand_name('ar') . ' | ' . brand_name('en'));
                 const rawBody = n.body || '';
-                const cleanTitle = stripHtmlAndEntities(rawTitle) || 'أكاديمية النخبة | Elite Academy';
+                const cleanTitle = stripHtmlAndEntities(rawTitle) || @json(brand_name('ar') . ' | ' . brand_name('en'));
                 const cleanBody = stripHtmlAndEntities(rawBody);
 
                 // Detect Arabic for direction & language

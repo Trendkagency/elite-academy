@@ -24,7 +24,7 @@
         </h2>
 
         <p class="text-slate-300 text-base sm:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-            {{ \App\Models\SiteSetting::getLocalized('cta_subtitle', "Join Elite Academy today and gain unlimited access to top teachers, interactive live streams, and accredited courses.") }}
+            {{ brand_interpolate(\App\Models\SiteSetting::getLocalized('cta_subtitle', "Join " . brand_name() . " today and gain unlimited access to top teachers, interactive live streams, and accredited courses.")) }}
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">

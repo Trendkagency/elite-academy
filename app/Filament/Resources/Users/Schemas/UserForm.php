@@ -6,6 +6,7 @@ use App\Models\GradeLevel;
 use App\Models\Subject;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -24,6 +25,18 @@ class UserForm
                     ->columns(2)
                     ->columnSpanFull()
                     ->components([
+                        FileUpload::make('avatar_url')
+                            ->label(__('Profile Picture / الصورة الشخصية'))
+                            ->avatar()
+                            ->image()
+                            ->disk('public')
+                            ->directory('avatars')
+                            ->visibility('public')
+                            ->maxSize(3072)
+                            ->imageEditor()
+                            ->circleCropper()
+                            ->columnSpanFull(),
+
                         TextInput::make('name')
                             ->label(__('Full Name'))
                             ->placeholder('e.g. Ahmed Ali')

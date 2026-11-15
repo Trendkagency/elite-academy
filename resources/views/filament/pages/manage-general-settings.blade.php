@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     @php
         $isAr = app()->getLocale() === 'ar';
-        $currentAppName = brand('app_name', 'Elite Academy');
+        $currentAppName = brand_name();
         $currentPrimary = brand_color('primary', '#0d9488');
         $currentSecondary = brand_color('secondary', '#6366f1');
         $currentCurrency = app_currency();

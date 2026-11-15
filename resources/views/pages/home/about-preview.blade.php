@@ -16,14 +16,14 @@
                     {{ SiteSetting::getLocalized('about_title', 'Where Passion Meets Academic Mastery') }}
                 </h2>
                 <p class="text-slate-300 text-sm font-medium leading-relaxed line-clamp-2">
-                    {{ SiteSetting::getLocalized('about_content', 'Elite Academy bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.') }}
+                    {{ brand_interpolate(SiteSetting::getLocalized('about_content', brand_name() . ' bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.')) }}
                 </p>
             </div>
 
             <div class="flex flex-row items-center gap-4">
                 <div class="w-[40%] shrink-0">
                     <div class="relative rounded-2xl overflow-hidden aspect-[4/5] border border-slate-800 shadow-md">
-                        <img src="{{ media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp') }}" alt="Elite Academy Campus" width="300" height="375" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                        <img src="{{ media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp') }}" alt="{{ brand_name() }} Campus" width="300" height="375" class="w-full h-full object-cover" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
                         <span class="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-white bg-slate-900/90 px-2 py-0.5 rounded-md backdrop-blur-xs">{{ __('Campus') }}</span>
                     </div>
@@ -50,7 +50,7 @@
             </div>
 
             <div>
-                <a href="{{ route('about') }}" class="btn-lift w-full inline-flex items-center justify-center gap-2 text-sm font-extrabold text-slate-950 bg-teal-400 hover:bg-teal-300 min-h-[52px] rounded-2xl shadow-lg touch-press" aria-label="Learn more about Elite Academy mission and programs">
+                <a href="{{ route('about') }}" class="btn-lift w-full inline-flex items-center justify-center gap-2 text-sm font-extrabold text-slate-950 bg-teal-400 hover:bg-teal-300 min-h-[52px] rounded-2xl shadow-lg touch-press" aria-label="Learn more about {{ brand_name() }} mission and programs">
                     <span>{{ __('About Academy & Programs') }}</span>
                     <span>&rarr;</span>
                 </a>
@@ -68,7 +68,7 @@
                         {{ SiteSetting::getLocalized('about_title', 'Where Passion Meets Academic Mastery') }}
                     </h2>
                     <p class="anim-about delay-3 sr-img text-slate-300 text-sm sm:text-base font-medium leading-relaxed">
-                        {{ SiteSetting::getLocalized('about_content', 'Elite Academy bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.') }}
+                        {{ brand_interpolate(SiteSetting::getLocalized('about_content', brand_name() . ' bridges secondary education and real-world innovation through interactive live streams, structured MCQs, and expert teacher mentorship.')) }}
                     </p>
                 </div>
 
@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="anim-about delay-5 pt-1">
-                    <a href="{{ route('about') }}" class="btn-lift group inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-extrabold text-slate-950 bg-teal-400 hover:bg-teal-300 active:bg-teal-500 px-8 py-4 rounded-2xl shadow-lg shadow-teal-500/25 touch-press" aria-label="Discover Elite Academy curriculum and campus">
+                    <a href="{{ route('about') }}" class="btn-lift group inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-extrabold text-slate-950 bg-teal-400 hover:bg-teal-300 active:bg-teal-500 px-8 py-4 rounded-2xl shadow-lg shadow-teal-500/25 touch-press" aria-label="Discover {{ brand_name() }} curriculum and campus">
                         <span>{{ __('Discover Our Academy') }}</span>
                         <span class="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                     </a>
@@ -102,7 +102,7 @@
                 <div class="relative max-w-lg lg:max-w-none mx-auto">
                     <div class="relative rounded-[36px] p-3 bg-slate-900 border border-slate-800 shadow-2xl shadow-slate-950/50 group overflow-hidden card-lift">
                         <div class="relative rounded-[26px] overflow-hidden">
-                            <img src="{{ media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp') }}" alt="Elite Academy Campus Photography" width="600" height="440" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+                            <img src="{{ media_url(\App\Models\SiteSetting::get('about_image'), 'images/academy_campus.webp') }}" alt="{{ brand_name() }} Campus Photography" width="600" height="440" class="w-full h-80 sm:h-[400px] lg:h-[440px] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" loading="lazy" decoding="async">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none"></div>
                             <span class="absolute top-4 left-4 text-[10px] font-mono font-extrabold uppercase tracking-wider text-white bg-slate-950/80 px-3 py-1 rounded-full backdrop-blur-xs border border-white/20">
                                 <i class="fa-solid fa-school"></i> Campus Life

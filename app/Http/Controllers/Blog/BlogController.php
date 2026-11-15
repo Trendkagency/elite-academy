@@ -28,7 +28,7 @@ class BlogController extends Controller
         $categories = array_values(array_unique(array_merge($dbCategories, $articleCategories, $defaultCategories)));
 
         return view('pages.blog', [
-            'pageTitle' => 'Blog — Elite Academy',
+            'pageTitle' => __('Blog') . ' — ' . brand_name(),
             'activeNav' => 'blog',
             'articles' => $articles,
             'categories' => $categories,
@@ -50,7 +50,7 @@ class BlogController extends Controller
             ->get();
 
         return view('pages.blog-details', [
-            'pageTitle' => $article ? $article->title : 'Blog Details — Elite Academy',
+            'pageTitle' => ($article ? $article->title : __('Blog Details')) . ' — ' . brand_name(),
             'activeNav' => 'blog',
             'article' => $article,
             'relatedArticles' => $relatedArticles,

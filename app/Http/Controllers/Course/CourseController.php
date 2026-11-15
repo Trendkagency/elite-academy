@@ -39,7 +39,7 @@ class CourseController extends Controller
             : [];
 
         return view('pages.courses', [
-            'pageTitle' => 'Courses — Elite Academy',
+            'pageTitle' => __('Courses') . ' — ' . brand_name(),
             'activeNav' => 'courses',
             'courses' => $courses,
             'selectedCategory' => $selectedCategory,
@@ -59,7 +59,7 @@ class CourseController extends Controller
             : false;
 
         return view('pages.course-details', [
-            'pageTitle' => $course ? $course->title : 'Course Details — Elite Academy',
+            'pageTitle' => ($course ? $course->title : __('Course Details')) . ' — ' . brand_name(),
             'activeNav' => 'courses',
             'course' => $course,
             'isEnrolled' => $isEnrolled,

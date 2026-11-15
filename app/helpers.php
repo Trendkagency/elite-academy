@@ -189,6 +189,7 @@ if (! function_exists('brand')) {
     function brand(string $key, mixed $fallback = null, ?string $locale = null): mixed
     {
         $loc = $locale ?: app()->getLocale();
+        $defaultFallback = $key === 'app_name' ? config('app.name', 'Elite Academy') : $fallback;
 
         if (class_exists(SiteSetting::class)) {
             if ($loc === 'ar') {
@@ -222,7 +223,55 @@ if (! function_exists('brand')) {
             }
         }
 
-        return $fallback;
+        return $defaultFallback;
+    }
+}
+
+if (! function_exists('brand_name')) {
+    /**
+     * Helper to get the localized active platform name.
+     */
+    function brand_name(?string $locale = null): string
+    {
+        return (string) brand('app_name', config('app.name', 'Elite Academy'), $locale);
+    }
+}
+
+if (! function_exists('brand_interpolate')) {
+    /**
+     * Dynamically replace legacy hardcoded platform names in text with active brand name.
+     */
+    function brand_interpolate(?string $text, ?string $locale = null): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+
+        $appNameAr = brand_name('ar');
+        $appNameEn = brand_name('en');
+
+        $patterns = [
+            // Specific compound Arabic phrases -> $appNameAr
+            '/أكاديمية\s+إيليت\s+التعليمية/u' => $appNameAr . ' التعليمية',
+            '/أكاديمية\s+إيليت/u' => $appNameAr,
+            '/إيليت\s+أكاديمي/u' => $appNameAr,
+            '/أكاديمية\s+النخبة\s+التعليمية/u' => $appNameAr . ' التعليمية',
+            '/أكاديمية\s+النخبة/u' => $appNameAr,
+            '/منصة\s+إيليت/u' => "منصة {$appNameAr}",
+
+            // English phrases -> $appNameEn
+            '/Elite\s+Academy\s+LMS/i' => $appNameEn . ' LMS',
+            '/Elite\s+Academy/i' => $appNameEn,
+            '/THE\s+ELITE\s+ADVANTAGE/i' => 'THE ' . strtoupper($appNameEn) . ' ADVANTAGE',
+            '/Elite\s+Mentors/i' => $appNameEn . ' Mentors',
+            '/Elite\s+Community/i' => $appNameEn . ' Community',
+            '/Elite\s+Faculty/i' => $appNameEn . ' Faculty',
+
+            // Standalone Arabic brand token
+            '/إيليت/u' => $appNameAr,
+        ];
+
+        return (string) preg_replace(array_keys($patterns), array_values($patterns), $text);
     }
 }
 

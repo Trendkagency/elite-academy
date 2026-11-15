@@ -7,6 +7,7 @@ use App\Enums\Role;
 use App\Permissions\PermissionsRegistry;
 use App\Services\Notification\FcmNotificationService;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,10 +17,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
@@ -27,6 +29,9 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'phone',
+        'avatar_url',
+        'bio',
+        'job_title',
         'password',
         'status',
         'email_verified_at',
@@ -59,6 +64,15 @@ class User extends Authenticatable implements FilamentUser
                 }
             }
         });
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        if ($this->avatar_url) {
+            return Storage::disk('public')->url($this->avatar_url);
+        }
+
+        return null;
     }
 
     /**

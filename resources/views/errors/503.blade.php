@@ -36,7 +36,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400">
-            {{ __('Elite Academy Platform — Scheduled System Maintenance') }}
+            {{ brand_name() . ' — ' . __('Scheduled System Maintenance') }}
         </p>
     </div>
 

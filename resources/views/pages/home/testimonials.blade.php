@@ -82,7 +82,7 @@
                     {{ \App\Models\SiteSetting::getLocalized('testimonials_title', __('What Our Students & Parents Say')) }}
                 </h2>
                 <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-                    {{ $isAr ? 'قصص نجاح حقيقية وتجارب ملهمة من طلابنا وأولياء الأمور عبر منصة إيليت التعليمية.' : 'Real success stories and experiences from our students and parents thriving across Elite Academy.' }}
+                    {{ $isAr ? ('قصص نجاح حقيقية وتجارب ملهمة من طلابنا وأولياء الأمور عبر منصة ' . brand_name('ar') . '.') : ('Real success stories and experiences from our students and parents thriving across ' . brand_name('en') . '.') }}
                 </p>
             </div>
 

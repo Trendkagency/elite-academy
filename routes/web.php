@@ -16,6 +16,53 @@ use Illuminate\Support\Facades\Artisan;
 Route::get('/test', function () {
     return 'Laravel HTTP works';
 });
+
+// Dynamic PWA Web App Manifest
+Route::get('/manifest.json', function () {
+    $appNameEn = brand_name('en');
+    $appNameAr = brand_name('ar');
+    $primaryColor = brand_color('primary', '#0D9488');
+    $appIcon = brand_logo('app_icon', 'images/icon-192.png');
+
+    return response()->json([
+        'name' => "{$appNameEn} — {$appNameAr}",
+        'short_name' => brand_name(),
+        'description' => "{$appNameAr} - {$appNameEn} LMS Platform",
+        'start_url' => './',
+        'scope' => './',
+        'display' => 'standalone',
+        'orientation' => 'portrait',
+        'background_color' => '#0F172A',
+        'theme_color' => $primaryColor,
+        'lang' => app()->getLocale(),
+        'icons' => [
+            [
+                'src' => $appIcon,
+                'sizes' => '192x192',
+                'type' => 'image/png',
+                'purpose' => 'any',
+            ],
+            [
+                'src' => 'images/icon-maskable-192.png',
+                'sizes' => '192x192',
+                'type' => 'image/png',
+                'purpose' => 'maskable',
+            ],
+            [
+                'src' => $appIcon,
+                'sizes' => '512x512',
+                'type' => 'image/png',
+                'purpose' => 'any',
+            ],
+            [
+                'src' => 'images/icon-maskable-512.png',
+                'sizes' => '512x512',
+                'type' => 'image/png',
+                'purpose' => 'maskable',
+            ],
+        ],
+    ], 200, ['Content-Type' => 'application/manifest+json; charset=utf-8']);
+})->name('pwa.manifest');
 // Language Switcher
 Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'ar'], true)) {

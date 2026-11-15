@@ -72,7 +72,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400">
-            {{ __('Elite Academy Platform — Secure Token Expiration Safeguard') }}
+            {{ brand_name() . ' — ' . __('Secure Token Expiration Safeguard') }}
         </p>
     </div>
 

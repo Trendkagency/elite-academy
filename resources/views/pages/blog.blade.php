@@ -8,7 +8,7 @@
         @include('components.section-header', [
             'badge' => 'ACADEMIC INSIGHTS & BLOG',
             'title' => 'Latest Articles & <span class="text-teal-600 underline decoration-orange-500 underline-offset-8">Educational News</span>',
-            'subtitle' => 'Expert advice, study tips, and academic insights from Elite Academy faculty.',
+            'subtitle' => 'Expert advice, study tips, and academic insights from ' . brand_name() . ' faculty.',
             'centered' => true,
         ])
 

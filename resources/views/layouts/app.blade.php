@@ -33,15 +33,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     @endif
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Elite Academy">
-    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
-    <title>{{ $pageTitle ?? (brand('app_name', 'Elite Academy') . ' | ' . brand('tagline', 'LMS Platform')) }}</title>
+    <meta name="apple-mobile-web-app-title" content="{{ brand_name() }}">
+    <link rel="apple-touch-icon" href="{{ brand_logo('app_icon', 'images/icon-192.png') }}">
+    <title>{{ isset($pageTitle) ? brand_interpolate($pageTitle) : (brand_name() . ' | ' . brand('tagline', 'LMS Platform')) }}</title>
     <meta name="description"
-        content="{{ $pageDescription ?? 'Elite Academy empowers Egyptian students with accredited academic tracks in Programming, Artificial Intelligence, Science, and Business led by top educators.' }}">
+        content="{{ isset($pageDescription) ? brand_interpolate($pageDescription) : (brand_name() . ' — ' . brand('tagline', 'Accredited interactive learning and excellence platform.')) }}">
     <meta name="keywords"
-        content="Elite Academy, أكاديمية إيليت, منصة تعليمية, الثانوية العامة, برمجة, ذكاء اصطناعي, مصر, كورس, دروس مباشرة">
+        content="{{ brand_name() }}, {{ brand_name('ar') }}, {{ brand_name('en') }}, منصة تعليمية, الثانوية العامة, برمجة, ذكاء اصطناعي, مصر, كورس, دروس مباشرة">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="author" content="Elite Academy Team">
+    <meta name="author" content="{{ brand_name() }}">
     <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- Multilingual Hreflang Alternates --}}
@@ -88,21 +88,21 @@
     </script>
 
     {{-- Open Graph / Facebook Meta Tags --}}
-    <meta property="og:site_name" content="Elite Academy | أكاديمية إيليت">
+    <meta property="og:site_name" content="{{ brand_name() }}">
     <meta property="og:type" content="website">
     <meta property="og:title"
-        content="{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت - Leading Educational Platform' }}">
+        content="{{ isset($pageTitle) ? brand_interpolate($pageTitle) : (brand_name() . ' — ' . brand('tagline', 'Leading Educational Platform')) }}">
     <meta property="og:description"
-        content="{{ $pageDescription ?? 'Join Egypt’s premier academic platform for live classes, accredited tracks, and expert mentors.' }}">
+        content="{{ isset($pageDescription) ? brand_interpolate($pageDescription) : (brand_name() . ' — ' . brand('tagline', 'Accredited interactive learning and excellence platform.')) }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ media_url($ogImage ?? 'images/academy_campus.webp') }}">
     <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_EG' : 'en_US' }}">
 
     {{-- Twitter Card Meta Tags --}}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $pageTitle ?? 'Elite Academy | أكاديمية إيليت' }}">
+    <meta name="twitter:title" content="{{ isset($pageTitle) ? brand_interpolate($pageTitle) : brand_name() }}">
     <meta name="twitter:description"
-        content="{{ $pageDescription ?? 'Egypt’s premier academic platform for live classes and accredited tracks.' }}">
+        content="{{ isset($pageDescription) ? brand_interpolate($pageDescription) : (brand_name() . ' — ' . brand('tagline', 'Accredited interactive learning and excellence platform.')) }}">
     <meta name="twitter:image" content="{{ media_url($ogImage ?? 'images/academy_campus.webp') }}">
 
     {{-- Master JSON-LD Schema.org Structured Data Graph --}}
@@ -114,8 +114,8 @@
                     "@type" => "WebSite",
                     "@id" => url('/') . "/#website",
                     "url" => url('/'),
-                    "name" => "Elite Academy LMS",
-                    "description" => "Egypt premier accredited K-12 interactive tutoring and learning platform.",
+                    "name" => brand_name(),
+                    "description" => brand('tagline', 'Egypt premier accredited K-12 interactive tutoring and learning platform.'),
                     "publisher" => [
                         "@id" => url('/') . "/#organization"
                     ],
@@ -129,14 +129,14 @@
                 [
                     "@type" => "EducationalOrganization",
                     "@id" => url('/') . "/#organization",
-                    "name" => "Elite Academy LMS",
-                    "alternateName" => "أكاديمية إيليت التعليمية",
+                    "name" => brand_name(),
+                    "alternateName" => brand_name('ar'),
                     "url" => url('/'),
-                    "logo" => asset('images/logo_500.webp'),
+                    "logo" => brand_logo('light'),
                     "image" => asset('images/academy_campus.webp'),
-                    "description" => "Ministry-accredited interactive educational platform providing live classes, auto-graded assignments, and verified tutoring in Egypt.",
-                    "telephone" => "+201000000000",
-                    "email" => "support@elite-academy.com",
+                    "description" => brand('tagline', 'Interactive educational platform providing live classes, auto-graded assignments, and verified tutoring.'),
+                    "telephone" => brand('support_phone', config('demo.branding.support_phone', '+20 100 000 0000')),
+                    "email" => brand('support_email', config('demo.branding.support_email', 'support@trendk.com')),
                     "address" => [
                         "@type" => "PostalAddress",
                         "streetAddress" => "Academic Center Tower, New Cairo",
@@ -150,11 +150,11 @@
                         "bestRating" => "5",
                         "worstRating" => "1"
                     ],
-                    "sameAs" => [
-                        "https://facebook.com/eliteacademy",
-                        "https://twitter.com/eliteacademy",
-                        "https://instagram.com/eliteacademy"
-                    ]
+                    "sameAs" => array_values(array_filter([
+                        brand('social_facebook', config('demo.branding.social_facebook')),
+                        brand('social_twitter', config('demo.branding.social_twitter')),
+                        brand('social_instagram', config('demo.branding.social_instagram')),
+                    ]))
                 ]
             ]
         ];

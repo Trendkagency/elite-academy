@@ -23,7 +23,7 @@
                     'description' => $cDesc,
                     'provider' => [
                         '@type' => 'EducationalOrganization',
-                        'name' => 'Elite Academy LMS',
+                        'name' => brand_name() . ' LMS',
                         'sameAs' => url('/'),
                     ],
                     'instructor' => [
@@ -32,7 +32,7 @@
                         'jobTitle' => 'Senior Accredited Educator',
                         'worksFor' => [
                             '@type' => 'EducationalOrganization',
-                            'name' => 'Elite Academy LMS',
+                            'name' => brand_name() . ' LMS',
                         ],
                     ],
                     'educationalLevel' => 'Secondary K-12 & Thanawya Amma Accredited',
@@ -107,8 +107,8 @@
                                 '@type' => 'Answer',
                                 'text' =>
                                     app()->getLocale() === 'ar'
-                                        ? 'نعم، يحصل الطالب على شهادة معتمدة من أكاديمية إيليت بعد اجتياز الاختبارات والواجبات بنجاح.'
-                                        : 'Yes, students earn a verified certificate of completion from Elite Academy upon successfully submitting all assignments and passing final assessments.',
+                                        ? ('نعم، يحصل الطالب على شهادة معتمدة من ' . brand_name('ar') . ' بعد اجتياز الاختبارات والواجبات بنجاح.')
+                                        : ('Yes, students earn a verified certificate of completion from ' . brand_name('en') . ' upon successfully submitting all assignments and passing final assessments.'),
                             ],
                         ],
                     ],

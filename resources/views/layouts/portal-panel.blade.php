@@ -32,9 +32,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     @endif
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Elite Academy">
-    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
-    <title>{{ $pageTitle ?? (brand('app_name', 'Elite Academy') . ' ' . __('Portal')) }}</title>
+    <meta name="apple-mobile-web-app-title" content="{{ brand_name() }}">
+    <link rel="apple-touch-icon" href="{{ brand_logo('app_icon', 'images/icon-192.png') }}">
+    <title>{{ isset($pageTitle) ? brand_interpolate($pageTitle) : (brand_name() . ' ' . __('Portal')) }}</title>
 
     {{-- Enforce Pure Light Mode & Universal Modal Controller --}}
     <script>
@@ -963,7 +963,7 @@
         {{-- Minimal Portal Footer --}}
         <footer class="py-5 px-6 border-t text-center text-xs font-mono pb-safe"
                 style="border-color:var(--surface-border,#E2E8F0);color:var(--text-muted,#94A3B8);background:var(--surface-card,#fff);">
-            <p>&copy; {{ date('Y') }} Elite Academy. {{ __('All rights reserved.') }} &bull; {{ __('Leading Accredited Academy') }}</p>
+            <p>&copy; {{ date('Y') }} {{ brand_name() }}. {{ __('All rights reserved.') }} &bull; {{ brand('tagline', __('Leading Accredited Academy')) }}</p>
         </footer>
     </div>
 

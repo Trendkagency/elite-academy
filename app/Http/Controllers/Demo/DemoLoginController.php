@@ -81,7 +81,7 @@ class DemoLoginController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => __('Welcome to Elite Academy Demo'),
+                'message' => __('Welcome to :app Demo', ['app' => brand_name()]),
                 'redirect' => $redirectUrl,
             ]);
         }
@@ -119,11 +119,11 @@ class DemoLoginController extends Controller
             'teacher' => TeacherProfile::firstOrCreate(['user_id' => $user->id], [
                 'slug' => 'demo-teacher-'.$user->id,
                 'specialization' => 'Mathematics & Science',
-                'bio' => 'Senior Instructor at Elite Academy Demo.',
+                'bio' => 'Senior Instructor at ' . brand_name() . ' Demo.',
             ]),
             'student' => StudentProfile::firstOrCreate(['user_id' => $user->id], [
                 'student_code' => 'STU-DEMO-001',
-                'school_name' => 'Elite Academy STEM High',
+                'school_name' => brand_name() . ' STEM High',
             ]),
             'parent' => ParentProfile::firstOrCreate(['user_id' => $user->id], [
                 'relationship' => 'guardian',

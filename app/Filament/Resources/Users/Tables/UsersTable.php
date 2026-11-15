@@ -27,8 +27,8 @@ class UsersTable
                 ImageColumn::make('avatar')
                     ->label(__('Avatar'))
                     ->circular()
-                    ->getStateUsing(fn ($record) => $record->avatar_url)
-                    ->defaultImageUrl(fn ($record) => $record?->avatar_url ?? 'https://ui-avatars.com/api/?name=User&background=6366F1&color=fff'),
+                    ->getStateUsing(fn($record) => $record->getFilamentAvatarUrl() ?? $record->avatar_url)
+                    ->defaultImageUrl(fn($record) => $record->getFilamentAvatarUrl() ?? 'https://ui-avatars.com/api/?name=' . urlencode($record->name ?? 'User') . '&background=0D9488&color=fff'),
                 TextColumn::make('name')
                     ->label(__('Full Name'))
                     ->searchable()
@@ -42,20 +42,20 @@ class UsersTable
                     ->searchable(),
                 TextColumn::make('role')
                     ->label(__('Account Role'))
-                    ->state(fn ($record) => match ($record->getRoleName()) {
+                    ->state(fn($record) => match ($record->getRoleName()) {
                         \App\Enums\Role::ADMIN->value => __('Admin'),
                         \App\Enums\Role::TEACHER->value => __('Teacher'),
                         \App\Enums\Role::PARENT->value => __('Parent'),
                         default => __('Student'),
                     })
                     ->badge()
-                    ->icon(fn ($record) => match ($record->getRoleName()) {
+                    ->icon(fn($record) => match ($record->getRoleName()) {
                         \App\Enums\Role::ADMIN->value => 'heroicon-o-shield-check',
                         \App\Enums\Role::TEACHER->value => 'heroicon-o-academic-cap',
                         \App\Enums\Role::PARENT->value => 'heroicon-o-user-group',
                         default => 'heroicon-o-user',
                     })
-                    ->color(fn ($record) => match ($record->getRoleName()) {
+                    ->color(fn($record) => match ($record->getRoleName()) {
                         \App\Enums\Role::ADMIN->value => 'danger',
                         \App\Enums\Role::TEACHER->value => 'info',
                         \App\Enums\Role::PARENT->value => 'primary',
@@ -79,8 +79,8 @@ class UsersTable
                     ->options([
                         'student' => __('Student'),
                         'teacher' => __('Teacher'),
-                        'parent'  => __('Parent'),
-                        'admin'   => __('Admin'),
+                        'parent' => __('Parent'),
+                        'admin' => __('Admin'),
                     ])
                     ->query(function ($query, array $data) {
                         if (empty($data['value'])) {
@@ -89,17 +89,17 @@ class UsersTable
                         return match ($data['value']) {
                             'student' => $query->roleStudent(),
                             'teacher' => $query->roleTeacher(),
-                            'parent'  => $query->roleParent(),
-                            'admin'   => $query->roleAdmin(),
-                            default   => $query,
+                            'parent' => $query->roleParent(),
+                            'admin' => $query->roleAdmin(),
+                            default => $query,
                         };
                     }),
                 SelectFilter::make('status')
                     ->label(__('Account Approval Status'))
                     ->options([
-                        'pending'   => __('Pending Approval'),
-                        'approved'  => __('Approved'),
-                        'rejected'  => __('Rejected'),
+                        'pending' => __('Pending Approval'),
+                        'approved' => __('Approved'),
+                        'rejected' => __('Rejected'),
                         'suspended' => __('Suspended'),
                     ]),
                 TrashedFilter::make(),
@@ -117,7 +117,7 @@ class UsersTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn ($record) => $record->status !== \App\Enums\AccountStatus::APPROVED && $record->status !== 'approved'),
+                    ->visible(fn($record) => $record->status !== \App\Enums\AccountStatus::APPROVED && $record->status !== 'approved'),
                 Action::make('rejectAccount')
                     ->label(__('Reject Account'))
                     ->icon('heroicon-o-x-circle')
@@ -131,7 +131,7 @@ class UsersTable
                             ->warning()
                             ->send();
                     })
-                    ->visible(fn ($record) => $record->status === \App\Enums\AccountStatus::PENDING || $record->status === 'pending'),
+                    ->visible(fn($record) => $record->status === \App\Enums\AccountStatus::PENDING || $record->status === 'pending'),
                 ViewAction::make(),
                 EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),

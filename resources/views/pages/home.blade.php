@@ -9,8 +9,8 @@
                 "@type" => "WebSite",
                 "@id" => url('/') . "/#website",
                 "url" => url('/'),
-                "name" => "Elite Academy LMS",
-                "description" => "Leading K-12 Interactive Learning Management System & Online Tutoring Platform in Egypt",
+                "name" => brand_name(),
+                "description" => brand('tagline', 'Leading K-12 Interactive Learning Management System & Online Tutoring Platform'),
                 "publisher" => [
                     "@id" => url('/') . "/#organization"
                 ],
@@ -24,14 +24,14 @@
             [
                 "@type" => "EducationalOrganization",
                 "@id" => url('/') . "/#organization",
-                "name" => "Elite Academy LMS",
-                "alternateName" => "أكاديمية إيليت التعليمية",
+                "name" => brand_name(),
+                "alternateName" => brand_name('ar'),
                 "url" => url('/'),
-                "logo" => asset('images/logo.webp'),
+                "logo" => brand_logo('light'),
                 "image" => asset('images/academy_campus.webp'),
-                "description" => "Ministry-accredited interactive K-12 educational platform providing live classes, auto-graded assignments, and verified tutoring in Egypt.",
-                "telephone" => "+201000000000",
-                "email" => "support@elite-academy.com",
+                "description" => brand('tagline', 'Accredited interactive K-12 educational platform providing live classes, auto-graded assignments, and verified tutoring.'),
+                "telephone" => brand('support_phone', config('demo.branding.support_phone', '+20 100 000 0000')),
+                "email" => brand('support_email', config('demo.branding.support_email', 'support@trendk.com')),
                 "address" => [
                     "@type" => "PostalAddress",
                     "streetAddress" => "Academic Center Tower, New Cairo",
@@ -45,11 +45,11 @@
                     "bestRating" => "5",
                     "worstRating" => "1"
                 ],
-                "sameAs" => [
-                    "https://facebook.com/eliteacademy",
-                    "https://twitter.com/eliteacademy",
-                    "https://instagram.com/eliteacademy"
-                ]
+                "sameAs" => array_values(array_filter([
+                    brand('social_facebook', config('demo.branding.social_facebook')),
+                    brand('social_twitter', config('demo.branding.social_twitter')),
+                    brand('social_instagram', config('demo.branding.social_instagram')),
+                ]))
             ],
             [
                 "@type" => "BreadcrumbList",
@@ -69,12 +69,12 @@
                 "mainEntity" => [
                     [
                         "@type" => "Question",
-                        "name" => app()->getLocale() === 'ar' ? 'ما هي أكاديمية إيليت التعليمية؟' : 'What is Elite Academy LMS?',
+                        "name" => app()->getLocale() === 'ar' ? ('ما هي منصة ' . brand_name('ar') . '؟') : ('What is ' . brand_name('en') . '?'),
                         "acceptedAnswer" => [
                             "@type" => "Answer",
                             "text" => app()->getLocale() === 'ar' 
-                                ? 'أكاديمية إيليت هي المنصة التعليمية الرقمية الرائدة في مصر لحصص البث المباشر المعتمدة، متابعة أولياء الأمور، والحل التفاعلي للواجبات بصفة لحظية.' 
-                                : 'Elite Academy LMS is Egypt premier accredited K-12 interactive tutoring platform featuring live streaming, instant assignment solver, and real-time parent progress tracking.'
+                                ? ('منصة ' . brand_name('ar') . ' هي المنصة التعليمية الرقمية الرائدة لحصص البث المباشر المعتمدة، متابعة أولياء الأمور، والحل التفاعلي للواجبات بصفة لحظية.') 
+                                : (brand_name('en') . ' is an accredited interactive tutoring platform featuring live streaming, instant assignment solver, and real-time parent progress tracking.')
                         ]
                     ],
                     [

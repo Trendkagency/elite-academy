@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Elite Academy Notification' }}</title>
+    <title>{{ $title ?? (brand_name() . ' ' . __('Notification')) }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -69,7 +69,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy" class="logo">
+            <img src="{{ brand_logo('light') }}" alt="{{ brand_name() }}" class="logo">
             <h1 class="title">{{ $title }}</h1>
         </div>
 
@@ -84,8 +84,8 @@
         @endif
 
         <div class="footer">
-            <p>{{ app()->getLocale() === 'ar' ? 'أكاديمية إيليت — المنصة التعليمية الرائدة في مصر' : 'Elite Academy — Leading Educational Platform in Egypt' }}</p>
-            <p>&copy; {{ date('Y') }} Elite Academy. {{ app()->getLocale() === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</p>
+            <p>{{ app()->getLocale() === 'ar' ? (brand_name('ar') . ' — ' . brand('tagline', 'المنصة التعليمية الرائدة')) : (brand_name('en') . ' — ' . brand('tagline', 'Leading Educational Platform')) }}</p>
+            <p>&copy; {{ date('Y') }} {{ brand_name() }}. {{ app()->getLocale() === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</p>
         </div>
     </div>
 </body>

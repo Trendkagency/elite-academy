@@ -73,6 +73,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        // Synchronize Laravel config('app.name') with dynamic database/demo brand name
+        if (function_exists('brand')) {
+            $brandName = brand('app_name');
+            if (! empty($brandName)) {
+                config(['app.name' => $brandName]);
+            }
+        }
+
         // Safe originalRequest resolution for Filament & Livewire (fixes MethodNotAllowedHttpException on wire:navigate/GET requests with X-Livewire header)
         $this->app->scoped(
             'originalRequest',

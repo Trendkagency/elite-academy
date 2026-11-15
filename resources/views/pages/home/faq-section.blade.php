@@ -4,10 +4,10 @@
 
     $homeFaqs = [
         [
-            'q' => $isAr ? 'ما هي أكاديمية إيليت التعليمية وكيف تختلف عن المنصات الأخرى؟' : 'What is Elite Academy LMS and how does it differ from other platforms?',
+            'q' => $isAr ? ('ما هي منصة ' . brand_name('ar') . ' وكيف تختلف عن المنصات الأخرى؟') : ('What is ' . brand_name('en') . ' and how does it differ from other platforms?'),
             'a' => $isAr 
-                ? 'أكاديمية إيليت هي المنصة التعليمية الرقمية المعتمدة الأولى في مصر المخصصة لمراحل الثانوية العامة واللغات. تجمع المنصة بين البث المباشر التفاعلي المشفر، الواجبات التفاعلية المصححة تلقائياً، وبوابة ولي الأمر اللحظية لمتابعة الحضور والنتائج.' 
-                : 'Elite Academy LMS is Egypt premier accredited interactive K-12 learning platform for secondary tracks. It combines encrypted live streaming sessions, auto-graded interactive assignment solvers, and real-time parent progress portals.'
+                ? ('منصة ' . brand_name('ar') . ' هي المنصة التعليمية الرقمية المعتمدة الأولى المخصصة لمراحل الثانوية العامة واللغات. تجمع المنصة بين البث المباشر التفاعلي المشفر، الواجبات التفاعلية المصححة تلقائياً، وبوابة ولي الأمر اللحظية لمتابعة الحضور والنتائج.') 
+                : (brand_name('en') . ' is an accredited interactive K-12 learning platform for secondary tracks. It combines encrypted live streaming sessions, auto-graded interactive assignment solvers, and real-time parent progress portals.')
         ],
         [
             'q' => $isAr ? 'كيف تعمل حصص البث المباشر التفاعلية والأمان ضد التسريب؟' : 'How do live interactive streaming sessions work and what anti-piracy protection is included?',
@@ -50,7 +50,7 @@
                 <span><i class="fa-solid fa-comments"></i></span> {{ $isAr ? 'مركز الأسئلة الشائعة والمعلومات' : 'Frequently Asked Questions' }}
             </span>
             <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
-                {{ $isAr ? 'كل ما تحتاج معرفته عن منصة إيليت التعليمية' : 'Everything You Need to Know About Elite Academy' }}
+                {{ $isAr ? ('كل ما تحتاج معرفته عن منصة ' . brand_name('ar')) : ('Everything You Need to Know About ' . brand_name('en')) }}
             </h2>
             <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
                 {{ $isAr 

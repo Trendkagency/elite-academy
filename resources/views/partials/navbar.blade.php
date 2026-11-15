@@ -142,11 +142,11 @@
         {{-- Logo (Significantly Increased Size) --}}
         <a href="{{ route('home') }}"
             class="flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-xl transition-all duration-300 shrink-0 py-1"
-            aria-label="{{ brand('app_name', 'EDU') }} Homepage">
+            aria-label="{{ brand_name() }} Homepage">
             @if (demo_enabled())
                 <x-demo.brand-logo size="md" :showPill="true" />
             @else
-                <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="249" height="56"
+                <img src="{{ brand_logo('light', 'images/logo_500.webp') }}" alt="{{ brand_name() }} Logo" width="249" height="56"
                     class="h-20 sm:h-24 lg:h-26 w-auto max-h-22 object-contain transition-transform duration-300 group-hover:scale-105"
                     fetchpriority="high">
             @endif
@@ -316,9 +316,9 @@
                 <a href="{{ route('home') }}"
                     class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-lg">
                     @if (demo_enabled())
-                <x-demo.brand-logo size="md" :showPill="true" />
-            @else
-                        <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy Logo" width="160"
+                        <x-demo.brand-logo size="md" :showPill="true" />
+                    @else
+                        <img src="{{ brand_logo('light', 'images/logo_500.webp') }}" alt="{{ brand_name() }} Logo" width="160"
                             height="36" class="h-12 sm:h-14 w-auto object-contain" loading="lazy">
                     @endif
                 </a>

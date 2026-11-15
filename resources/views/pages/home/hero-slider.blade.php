@@ -146,12 +146,12 @@
             id="hero-slide-0"
             data-slide-index="0"
             class="hero-slide is-active absolute inset-0 w-full h-full flex flex-col opacity-100 z-10"
-            aria-label="{{ __('Welcome to Elite Academy') }}"
+            aria-label="{{ __('Welcome to :app', ['app' => brand_name()]) }}"
         >
             <div class="hero-img-wrap absolute inset-0 overflow-hidden">
                 <img
                     src="{{ asset('images/hero_student.webp') }}"
-                    alt="{{ __('Elite Academy') }}"
+                    alt="{{ brand_name() }}"
                     width="1920" height="1080"
                     fetchpriority="high" loading="eager"
                     class="hero-bg-img kb-active w-full h-full object-cover origin-center scale-105"

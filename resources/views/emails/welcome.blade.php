@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app()->getLocale() === 'ar' ? 'مرحباً بك في أكاديمية إيليت' : 'Welcome to Elite Academy' }}</title>
+    <title>{{ app()->getLocale() === 'ar' ? ('مرحباً بك في ' . brand_name('ar')) : ('Welcome to ' . brand_name('en')) }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -69,12 +69,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('images/logo_500.webp') }}" alt="Elite Academy" class="logo">
-            <h1 class="title">{{ app()->getLocale() === 'ar' ? "مرحباً بك يا {$user->name} في أكاديمية إيليت! <i class="fa-solid fa-graduation-cap"></i>" : "Welcome, {$user->name}, to Elite Academy! <i class="fa-solid fa-graduation-cap"></i>" }}</h1>
+            <img src="{{ brand_logo('light') }}" alt="{{ brand_name() }}" class="logo">
+            <h1 class="title">{{ app()->getLocale() === 'ar' ? ("مرحباً بك يا {$user->name} في " . brand_name('ar') . '! <i class="fa-solid fa-graduation-cap"></i>') : ("Welcome, {$user->name}, to " . brand_name('en') . '! <i class="fa-solid fa-graduation-cap"></i>') }}</h1>
         </div>
 
         <div class="body-text">
-            <p>{{ app()->getLocale() === 'ar' ? 'يسعدنا انضمامك إلى منصة إيليت التعليمية. يمكنك الآن متابعة حصصك المباشرة، وحل الواجبات، ومتابعة درجاتك وتقييمك الأكاديمي.' : 'We are thrilled to welcome you to Elite Academy. You can now access your interactive live classrooms, submit homework, and monitor your academic progress.' }}</p>
+            <p>{{ app()->getLocale() === 'ar' ? ('يسعدنا انضمامك إلى منصة ' . brand_name('ar') . ' التعليمية. يمكنك الآن متابعة حصصك المباشرة، وحل الواجبات، ومتابعة درجاتك وتقييمك الأكاديمي.') : ('We are thrilled to welcome you to ' . brand_name('en') . '. You can now access your interactive live classrooms, submit homework, and monitor your academic progress.') }}</p>
         </div>
 
         <div class="btn-container">
@@ -82,8 +82,8 @@
         </div>
 
         <div class="footer">
-            <p>{{ app()->getLocale() === 'ar' ? 'أكاديمية إيليت — المنصة التعليمية الرائدة في مصر' : 'Elite Academy — Leading Educational Platform in Egypt' }}</p>
-            <p>&copy; {{ date('Y') }} Elite Academy. {{ app()->getLocale() === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</p>
+            <p>{{ app()->getLocale() === 'ar' ? (brand_name('ar') . ' — ' . brand('tagline', 'المنصة التعليمية الرائدة')) : (brand_name('en') . ' — ' . brand('tagline', 'Leading Educational Platform')) }}</p>
+            <p>&copy; {{ date('Y') }} {{ brand_name() }}. {{ app()->getLocale() === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</p>
         </div>
     </div>
 </body>

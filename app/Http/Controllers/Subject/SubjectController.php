@@ -20,7 +20,7 @@ class SubjectController extends Controller
         $categories = Category::with('subjects')->get();
 
         return view('pages.subjects', [
-            'pageTitle' => 'Academic Subjects — Elite Academy',
+            'pageTitle' => __('Academic Subjects') . ' — ' . brand_name(),
             'activeNav' => 'subjects',
             'subjects' => $subjects,
             'categories' => $categories,
@@ -55,7 +55,7 @@ class SubjectController extends Controller
         $ratingAvg = $subject ? $subject->getRatingAvg() : 4.9;
 
         return view('pages.subject-details', [
-            'pageTitle' => $subject ? "{$subject->getLocalizedName()} — Elite Academy" : 'Subject Details — Elite Academy',
+            'pageTitle' => ($subject ? "{$subject->getLocalizedName()}" : __('Subject Details')) . ' — ' . brand_name(),
             'activeNav' => 'subjects',
             'subject' => $subject,
             'videoLessonsCount' => $videoLessonsCount,

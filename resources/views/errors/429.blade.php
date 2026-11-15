@@ -65,7 +65,7 @@
         </div>
 
         <p class="text-xs font-mono text-slate-400">
-            {{ __('Elite Academy DDoS Protection — RateLimiter Infrastructure Active') }}
+            {{ brand_name() . ' — ' . __('RateLimiter Protection Infrastructure Active') }}
         </p>
 
     </div>

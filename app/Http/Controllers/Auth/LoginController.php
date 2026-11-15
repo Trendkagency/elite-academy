@@ -33,7 +33,7 @@ class LoginController extends Controller
         }
 
         return view('pages.login', [
-            'pageTitle' => 'Log In — Elite Academy',
+            'pageTitle' => __('Log In') . ' — ' . brand_name(),
             'activeNav' => 'login',
         ]);
     }

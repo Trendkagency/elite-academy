@@ -46,7 +46,7 @@ class RegisterController extends Controller
         $parents     = User::whereHas('parentProfile')->select('id', 'name', 'email')->get();
 
         return view('pages.register', [
-            'pageTitle'   => 'Register — Elite Academy',
+            'pageTitle'   => __('Register') . ' — ' . brand_name(),
             'activeNav'   => 'register',
             'gradeLevels' => $gradeLevels,
             'subjects'    => $subjects,
